@@ -8,10 +8,10 @@ _The repository does not contain the latest Azure Resource Manager state, remedi
 
 Remediation:
 
-You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/master/docs/Deploy/discover-environment.md#initialize-existing-environment) your repository to pull latest changes from Azure by invoking GitHub Action. You can monitor the status of the GitHub Action in `Actions` Tab. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
+You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) your repository to pull latest changes from Azure by invoking GitHub Action. You can monitor the status of the GitHub Action in `Actions` Tab. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
 
-- 1. Please merge Pull Request from `system`  branch in to your `master` branch.
-- 2. Update you feature branch from  master `git pull origin/master`
+- 1. Please merge Pull Request from `system`  branch in to your `main` branch.
+- 2. Update you feature branch from  main `git pull origin/main`
 - 3. Push your branch to `origin` by running following command `git push`
 
 Upon successful push, GitHub Action workflow should automatically run.

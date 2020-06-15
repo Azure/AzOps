@@ -4,7 +4,7 @@ Get-ChildItem "$PSScriptRoot/../src/private" -Force | ForEach-Object -Process { 
 #Set required variables
 $env:AzOpsState = $TestDrive
 $env:InvalidateCache = 1
-$env:AzOpsMasterTemplate = ("$PSScriptRoot/../src/template.json")
+$env:AzOpsMainTemplate = ("$PSScriptRoot/../src/template.json")
 $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 Initialize-AzOpsGlobalVariables
 InModuleScope 'AzOps' {
