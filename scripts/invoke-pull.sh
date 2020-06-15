@@ -4,7 +4,7 @@ usage()
 {
     BASENAME=$(basename $0)
     echo "Tool to simplify sending of repository dispatch event"
-    echo "- Will use git contect in cwd to determine repository details"
+    echo "- Will use git context in cwd to determine repository details"
     echo "- Will use ~/.git-credentials if it exists"
     echo
     echo "Usage: $BASENAME [-u githubusername ] [ -p githubpersonalaccesstoken ]"
