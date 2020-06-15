@@ -1,0 +1,93 @@
+pr:
+  paths:
+    include:
+      - .azure-pipelines/*
+      - examples/*
+      - src/*
+      - tests/*
+    exclude:
+      - .github/*
+      - .vscode/*
+
+pool:
+  vmImage: "ubuntu-latest"
+
+steps:
+  - task: PowerShell@2
+    displayName: "[pwsh] Get version"
+    inputs:
+      targetType: inline
+      script: "$PSVersionTable"
+      pwsh: true
+
+  - task: PowerShell@2
+    displayName: "[pwsh] Install modules"
+    inputs:
+      targetType: inline
+      script: |
+        Install-Module -Name "Az.Accounts" -RequiredVersion "1.8.0" -Force
+        Install-Module -Name "Az.Resources" -RequiredVersion "2.0.1" -Force
+        Install-Module -Name "Pester" -RequiredVersion "4.10.1" -Force
+      pwsh: true
+
+  - task: PowerShell@2
+    displayName: "[pwsh] List modules"
+    inputs:
+      targetType: inline
+      script: |
+        Get-Module -ListAvailable
+      pwsh: true
+
+  - task: PowerShell@2
+    displayName: "[azure] Connect context"
+    inputs:
+      targetType: inline
+      script: |
+        $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
+        $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
+        $tenantId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).tenantId
+        $subscriptionId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).subscriptionId
+        $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $clientId, $secureStringPwd
+        Connect-AzAccount -TenantId $tenantId  -ServicePrincipal -Credential $cred  -subscriptionId $subscriptionId
+      pwsh: true
+    env:
+      AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
+
+  - task: PowerShell@2
+    displayName: "[pester] Tests (Manifest)"
+    inputs:
+      targetType: inline
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      script: |
+        Invoke-Pester -Script "./tests/AzOps.Module.Tests.ps1" -OutputFile "./tests/AzOps.Module.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+  - task: PowerShell@2
+    displayName: "[pester] Tests (Cmdlets)"
+    inputs:
+      targetType: inline
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      script: |
+        Invoke-Pester -Script "./tests/AzOps.Cmdlets.Tests.ps1" -OutputFile "./tests/AzOps.Cmdlets.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+  - task: PowerShell@2
+    displayName: "[pester] Tests (Scope)"
+    inputs:
+      targetType: inline
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      script: |
+        Invoke-Pester -Script "./tests/AzOps.Scope.Tests.ps1" -OutputFile "./tests/AzOps.Scope.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+  - task: PowerShell@2
+    displayName: "[pester] Tests (In-A-Box)"
+    inputs:
+      targetType: inline
+      workingDirectory: $(System.DefaultWorkingDirectory)
+      script: |
+        Invoke-Pester -Script "./tests/AzOps.IAB.Tests.ps1" -OutputFile "./tests/AzOps.IAB.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+  - task: PublishTestResults@2
+    displayName: "[results] Publish files"
+    inputs:
+      testResultsFormat: "NUnit"
+      testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+      publishRunAttachments: true

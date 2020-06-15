@@ -1,0 +1,150 @@
+{
+    "resourceTypes": {
+        "policyDefinition": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "PolicyType": "Remove"
+                    }
+                },
+                "generalize": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "PolicyType": "Remove"
+                    },
+                    "Sku": "Remove",
+                    "ResourceId": "Remove",
+                    "ResourceName": "Remove",
+                    "ExtensionResourceName": "Remove",
+                    "PolicyDefinitionId": "Remove"
+                }
+            }
+        },
+        "policySetDefinition": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "PolicyType": "Remove"
+                    }
+                },
+                "generalize": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "PolicyType": "Remove"
+                    },
+                    "Sku": "Remove",
+                    "ResourceId": "Remove",
+                    "ResourceName": "Remove",
+                    "ExtensionResourceName": "Remove",
+                    "PolicySetDefinitionId": "Remove"
+                }
+            }
+        },
+        "policyAssignment": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "EnforcementMode": "Remove"
+                    }
+                },
+                "generalize": {
+                    "Properties": {
+                        "Metadata": "Remove",
+                        "EnforcementMode": "Remove",
+                        "PolicyDefinitionId": "<replace-me>",
+                        "Scope": "<replace-me>"
+                    },
+                    "Sku": "Remove",
+                    "Identity": {
+                        "principalId": "Remove",
+                        "tenantId": "Remove"
+                    },
+                    "ResourceId": "Remove",
+                    "ResourceName": "Remove",
+                    "ExtensionResourceName": "Remove",
+                    "PolicyAssignmentId": "Remove"
+                }
+            }
+        },
+        "subscription": {
+            "orderObject": true,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        },
+        "managementGroup": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        },
+        "tenant": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        },
+        "resourceGroup": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                    "TagsTable": "Remove"
+                },
+                "generalize": {
+                }
+            }
+        },
+        "resource": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                    "TagsTable": "Remove"
+                },
+                "generalize": {
+                }
+            }
+        },
+        "roleDefinition": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        },
+        "roleAssignment": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        },
+        "PSCustomObject": {
+            "orderObject": false,
+            "excludedProperties": {
+                "default": {
+                },
+                "generalize": {
+                }
+            }
+        }
+    }
+}

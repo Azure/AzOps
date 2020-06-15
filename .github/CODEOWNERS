@@ -1,0 +1,13 @@
+# See for instructions on this file https://help.github.com/articles/about-codeowners/
+
+* @cet-northstar-vteam
+
+.github/CODEOWNERS @uday31in
+.github/** @uday31in @ljtill
+*.yml @ljtill  @uday31in
+Dockerfile @ljtill
+*.ps1 @ljtill @daltondhcp
+*.psd1 @ljtill @daltondhcp
+*.psm1 @ljtill @daltondhcp
+/src @ljtill @daltondhcp
+template/** @uday31in
