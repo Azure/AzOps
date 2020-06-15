@@ -55,14 +55,14 @@ if [ "$ORIGINDOMAIN" != "github.com" ]; then
 fi
 
 REPONAME=$(git remote -v | grep origin | head -n1 | cut -d/ -f5 | cut -d' ' -f1 | sed s/\.git//)
-if [ -z $REPONAME ]; then
+if [ -z "$REPONAME" ]; then
     echo "Fatal: Could not determine the repo name"
     exit 1
 fi
 echo "Repo name: $REPONAME"
 
 REPOUSER=$(git remote -v | grep origin | head -n1 | cut -d/ -f4)
-if [ -z $REPOUSER ]; then
+if [ -z "$REPOUSER" ]; then
     echo "Fatal: Could not determine the repo user/org"
     exit 1
 fi
