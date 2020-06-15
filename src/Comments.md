@@ -8,25 +8,43 @@ _The repository does not contain the latest Azure Resource Manager state, remedi
 
 Remediation:
 
-- Switch branch
+You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/master/docs/Deploy/discover-environment.md#initialize-existing-environment) your repository to pull latest changes from Azure by invoking GitHub Action. You can monitor the status of the GitHub Action in `Actions` Tab. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
 
-    ```git checkout master```
-    ```git checkout -b state```
+- 1. Please merge Pull Request from `system`  branch in to your `master` branch.
+- 2. Update you feature branch from  master `git pull origin/master`
+- 3. Push your branch to `origin` by running following command `git push`
 
-- Import & execute AzOps cmdlets
+Upon successful push, GitHub Action workflow should automatically run.
 
-    ```Import-Module ./src/AzOps.psd1 -Force```
-    ```Initialize-AzOpsRepository -SkipResourceGroup```
+To get started, type the following commands either in `bash` or `powershell` shell. Please replace the placeholders (<...>) with your values:
 
-- Commit and push updated state
+**Bash:**
 
-    ```git add azops/```
-    ```git status```
-    ```git commit -m 'Update azops/'```
-    ```git push origin state```
+```bash
+curl https://api.github.com/repos/<Your GitHub ID>/<Your Repo Name>/dispatches \
+--user "<GH UserName>:<PAT Token>" \
+--header "Accept: application/vnd.github.everest-preview+json" \
+--header "Content-Type: application/json" \
+--data '{"event_type": "activity-logs"}'
+```
 
-- Create new pull request
+**PowerShell:**
 
-- (Admin) Merge pull request
-
-- Re-run status checks
+```powershell
+$GitHubUserName = "<GH UserName or Github Enterprise Organisation Name>"
+$GitHubPAT = "<PAT TOKEN>"
+$GitHubRepoName = "<Repo Name>"
+$uri = "https://api.github.com/repos/$GitHubUserName/$GitHubRepoName/dispatches"
+$params = @{
+    Uri = $uri
+    Headers = @{
+        "Accept" = "application/vnd.github.everest-preview+json"
+        "Content-Type" = "application/json"
+        "Authorization" = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $GitHubUserName,$GitHubPAT))))"
+        }
+    Body = @{
+        "event_type" = "activity-logs"
+        } | ConvertTo-json
+    }
+Invoke-RestMethod -Method "POST" @params
+```
