@@ -114,7 +114,7 @@ function New-AzOpsStateDeployment {
             if ($filename -match '/*.parameters.json$') {
                 Write-Verbose -Message " - Template deployment"
 
-                $MasterTemplateSupportedTypes = @(
+                $MainTemplateSupportedTypes = @(
                     "Microsoft.Resources/resourceGroups",
                     "Microsoft.Authorization/policyAssignments",
                     "Microsoft.Authorization/policyDefinitions",
@@ -155,8 +155,8 @@ function New-AzOpsStateDeployment {
                     else {
                         $effectiveResourceType = ''
                     }
-                    if ($effectiveResourceType -and ($MasterTemplateSupportedTypes -Contains $effectiveResourceType)) {
-                        $templatePath = $env:AzOpsMasterTemplate
+                    if ($effectiveResourceType -and ($MainTemplateSupportedTypes -Contains $effectiveResourceType)) {
+                        $templatePath = $env:AzOpsMainTemplate
                     }
                 }
 

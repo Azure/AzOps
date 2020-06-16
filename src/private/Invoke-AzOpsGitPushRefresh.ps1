@@ -19,17 +19,17 @@ function Invoke-AzOpsGitPushRefresh {
                 Start-AzOpsNativeExecution {
                     git fetch origin
                 } | Out-Host
-                
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out origin branch (master)"
+
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out origin branch (main)"
                 Start-AzOpsNativeExecution {
-                    git checkout origin/master
+                    git checkout origin/main
                 } | Out-Host
-        
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch (master) changes"
+
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch (main) changes"
                 Start-AzOpsNativeExecution {
-                    git pull origin master
+                    git pull origin main
                 } | Out-Host
-        
+
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
                 Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup
 
@@ -37,13 +37,13 @@ function Invoke-AzOpsGitPushRefresh {
                 Start-AzOpsNativeExecution {
                     git add --intent-to-add azops/
                 } | Out-Host
-                
+
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
                 $diff = Start-AzOpsNativeExecution { 
                     git diff --ignore-space-at-eol --name-only
                 }
                 
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local master branch"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local main branch"
                 Start-AzOpsNativeExecution {
                     git reset --hard
                 } | Out-Host

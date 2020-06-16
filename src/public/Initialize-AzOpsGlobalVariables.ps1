@@ -33,7 +33,7 @@ function Initialize-AzOpsGlobalVariables {
         #Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
             AzOpsState                          = (Join-Path $pwd -ChildPath "azops") #Folder to store AzOpsState artefact
-            AzOpsMasterTemplate                 = "$PSScriptRoot\..\..\template\template.json" #Master template json
+            AzOpsMainTemplate                   = "$PSScriptRoot\..\..\template\template.json" #Main template json
             AzOpsStateConfig                    = "$PSScriptRoot\..\AzOpsStateConfig.json" #Configuration file for resource serialization
             AzOpsEnrollmentAccountPrincipalName = $null
             offerType                           = 'MS-AZR-0017P'

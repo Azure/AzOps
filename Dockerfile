@@ -18,7 +18,7 @@ RUN [ "/usr/bin/pwsh", "-Command", "Install-Module -Name Az.Resources -RequiredV
 
 COPY . /action
 
-ENV AzOpsMasterTemplate='/action/template/template.json'
+ENV AzOpsMainTemplate='/action/template/template.json'
 ENV AzOpsStateConfig='/action/src/AzOpsStateConfig.json'
 
 ENTRYPOINT ["pwsh", "/action/entrypoint.ps1"]

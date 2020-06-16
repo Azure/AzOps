@@ -10,7 +10,7 @@ InModuleScope 'AzOps' {
             # Task: Initialize environment variables
             $env:AzOpsState = $TestDrive
             $env:InvalidateCache = 1
-            $env:AzOpsMasterTemplate = ("$PSScriptRoot/../template/template.json")
+            $env:AzOpsMainTemplate = ("$PSScriptRoot/../template/template.json")
             $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 
             # Task: Check if 'Tailspin' Management Group exists
@@ -101,7 +101,7 @@ InModuleScope 'AzOps' {
                     if ($deploymentName.Length -gt 64) {
                         $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
                     }
-                    New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion -TemplateFile $env:AzOpsMasterTemplate -TemplateParameterFile $policyDefinition.FullName -ManagementGroupId $scope.managementGroup -Name $deploymentName -AsJob
+                    New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion -TemplateFile $env:AzOpsMainTemplate -TemplateParameterFile $policyDefinition.FullName -ManagementGroupId $scope.managementGroup -Name $deploymentName -AsJob
                 }
 
                 Get-Job | Wait-Job
@@ -147,7 +147,7 @@ InModuleScope 'AzOps' {
                         $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
                     }
                     New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion `
-                        -TemplateFile $env:AzOpsMasterTemplate `
+                        -TemplateFile $env:AzOpsMainTemplate `
                         -TemplateParameterFile $policySetDefinition.FullName `
                         -ManagementGroupId $scope.managementGroup `
                         -Name $deploymentName -AsJob

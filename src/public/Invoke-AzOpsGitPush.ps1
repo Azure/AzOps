@@ -53,7 +53,7 @@ function Invoke-AzOpsGitPush {
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
         $changeSet = @()
         $changeSet = Start-AzOpsNativeExecution {
-            git diff origin/master --ignore-space-at-eol --name-status
+            git diff origin/main --ignore-space-at-eol --name-status
         }
 
         if (!$changeSet) {
