@@ -37,28 +37,22 @@ steps:
       script: |
         Get-Module -ListAvailable
       pwsh: true
-      
-  - task: PowerShell@2
-    displayName: "[pwsh] List variables"
-    inputs:
-      targetType: inline
-      script: |
-        Get-ChildItem env:
-      pwsh: true
 
   - task: PowerShell@2
     displayName: "[azure] Connect context"
     inputs:
       targetType: inline
       script: |
-        $clientId = ($(AZURE_CREDENTIALS) | ConvertFrom-Json).clientId
-        $secureStringPwd =  ($(AZURE_CREDENTIALS) | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
-        $tenantId = ($(AZURE_CREDENTIALS) | ConvertFrom-Json).tenantId
-        $subscriptionId = ($(AZURE_CREDENTIALS) | ConvertFrom-Json).subscriptionId
+        $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
+        $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
+        $tenantId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).tenantId
+        $subscriptionId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).subscriptionId
         $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $clientId, $secureStringPwd
         Connect-AzAccount -TenantId $tenantId  -ServicePrincipal -Credential $cred  -subscriptionId $subscriptionId
       pwsh: true
-      
+    env:
+      AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
+
   - task: PowerShell@2
     displayName: "[pester] Tests (Manifest)"
     inputs:
