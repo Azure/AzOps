@@ -372,9 +372,9 @@
                     1. Name
                     2. ExtensionResourceType set to "Microsoft.Authorization/policyDefinitions",
                     3. Properties
-                
+
                 Scope: Subscription
-                
+
                 Condition: Non Empty policyDefinitions[] in Properties bag of Management Group.
 
                 Details: Trigger Nested Deployment to create policy Definition.
@@ -394,7 +394,7 @@
             },
             "name": "[if(not(empty(variables('policyDefinitions'))), concat('PolicyDefinition-sub-', variables('policyDefinitions')[copyIndex()].Name), 'na-sub-policydefinition')]",
             "dependsOn": [
-                "[parameters('input').Name]"                
+                "[parameters('input').Name]"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
@@ -412,7 +412,7 @@
                 }
             }
         },
-        {   
+        {
             /*
 
                 Intent: Upsert 'policySetDefinitions' for the Management Group.
