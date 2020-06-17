@@ -70,7 +70,8 @@ jobs:
   - job: pesterTests2a
     displayName: Pester Tests (Scope)
     timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
-      
+    dependsOn: pesterTests1
+
     pool:
       vmImage: "ubuntu-latest"
 
@@ -113,7 +114,8 @@ jobs:
   - job: pesterTests2b
     displayName: Pester Tests (In-A-Box)
     timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
-      
+    dependsOn: pesterTests1
+
     pool:
       vmImage: "ubuntu-latest"
 
