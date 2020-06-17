@@ -81,6 +81,9 @@ InModuleScope 'AzOps' {
             It "Passes ProvisioningState 30-create-policydefinition-at-managementgroup" {
                 (Get-AzTenantDeployment -Name "30-create-policydefinition-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
             }
+            It "Passes ProvisioningState 40-create-policyassignment-at-managementgroup" {
+                (Get-AzTenantDeployment -Name "40-create-policyassignment-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
+            }
             It "Passes Discovery of Tailspin Management Group" {
                 (Get-ChildItem -Directory -Recurse -Path $env:AzOpsState).Name | Should -Contain 'Tailspin'
             }
