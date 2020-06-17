@@ -18,7 +18,7 @@ variables:
 jobs:
   - job: pesterTests1
     displayName: Pester Tests (Manifest|Cmdlets)
-    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
       
     pool:
       vmImage: "ubuntu-latest"
@@ -69,7 +69,7 @@ jobs:
 
   - job: pesterTests2a
     displayName: Pester Tests (Scope)
-    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
     dependsOn: pesterTests1
 
     pool:
@@ -113,7 +113,7 @@ jobs:
 
   - job: pesterTests2b
     displayName: Pester Tests (In-A-Box)
-    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
     dependsOn: pesterTests1
 
     pool:
