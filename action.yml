@@ -39,7 +39,10 @@ inputs:
   debug:
     description: "PowerShell Debug"
     required: false
-    default: "false"
+  scmplatform:
+    description: "Source control management platform"
+    required: true
+    default: "GitHub"
 runs:
   using: "docker"
   image: "Dockerfile"
