@@ -29,7 +29,7 @@ jobs:
         inputs:
           targetType: filePath
           workingDirectory: $(System.DefaultWorkingDirectory)
-          filePath: ./.azure-pipelines/Initialize-AzOpsTestEnvironment.ps1
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
           pwsh: true
         env:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
@@ -71,7 +71,7 @@ jobs:
         inputs:
           targetType: filePath
           workingDirectory: $(System.DefaultWorkingDirectory)
-          filePath: ./.azure-pipelines/Initialize-AzOpsTestEnvironment.ps1
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
           pwsh: true
         env:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
@@ -105,7 +105,7 @@ jobs:
         inputs:
           targetType: filePath
           workingDirectory: $(System.DefaultWorkingDirectory)
-          filePath: ./.azure-pipelines/Initialize-AzOpsTestEnvironment.ps1
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
           pwsh: true
         env:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
