@@ -27,7 +27,7 @@ InModuleScope 'AzOps' {
             $tenantName = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.ParentDisplayName -eq $null }).DisplayName
 
             # Task: Deployment of 10-create-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/10-create-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
@@ -38,7 +38,7 @@ InModuleScope 'AzOps' {
             }
 
             # Task: Deployment of 20-create-child-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/20-create-child-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/20-create-child-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
@@ -49,7 +49,7 @@ InModuleScope 'AzOps' {
             }
 
             # Task: Deployment of 30-create-policydefinition-at-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
@@ -60,7 +60,7 @@ InModuleScope 'AzOps' {
             }
 
             # State: Disabling this due to bug where Policy assignment fails for first time.
-            # Get-ChildItem -Path "$PSScriptRoot/parameters/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+            # Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
             #     Copy-Item -Path $_.FullName  -Destination $TestDrive
             #     $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
             #     $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
