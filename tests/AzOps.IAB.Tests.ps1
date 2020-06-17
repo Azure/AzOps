@@ -5,8 +5,6 @@ InModuleScope 'AzOps' {
     Describe "E2E Integration Test for Tenant Deployment" {
 
         BeforeAll {
-            Write-Output " "
-
             # Task: Initialize environment variables
             $env:AzOpsState = $TestDrive
             $env:InvalidateCache = 1
@@ -18,6 +16,14 @@ InModuleScope 'AzOps' {
                 Write-Output "   - Running Remove-AzOpsManagementGroup"
                 Remove-AzOpsManagementGroup -GroupName  'Tailspin'
             }
+
+            <#
+                Use AzOpsReference published in https://github.com/Azure/Enterprise-Scale
+            #>
+            Start-AzOpsNativeExecution {
+                git clone 'https://github.com/Azure/Enterprise-Scale'
+            }
+            $AzOpsReferenceFolder = Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference'
 
             # Task: Initialize azops/
             Write-Output "   - Running Initialize-AzOpsRepository"
@@ -90,8 +96,8 @@ InModuleScope 'AzOps' {
 
             It "Passes Policy Definition Test" {
                 $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object  { $_.Name -eq 'Tailspin' }).FullName
-                $AzOpsReferencePolicyCount = (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
-                foreach ($policyDefinition in (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
+                $AzOpsReferencePolicyCount = (Get-ChildItem "$GitRootEnterpriseScale/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
+                foreach ($policyDefinition in (Get-ChildItem "$GitRootEnterpriseScale/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
                     Copy-Item $policyDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policyDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policyDefinitions*.json")) {
@@ -130,8 +136,8 @@ InModuleScope 'AzOps' {
 
             It "Passes PolicySet Definition Test" {
                 $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object  { $_.Name -eq 'Tailspin' }).FullName
-                $AzOpsReferencePolicySetCount = (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
-                foreach ($policySetDefinition in (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
+                $AzOpsReferencePolicySetCount = (Get-ChildItem "$GitRootEnterpriseScale/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
+                foreach ($policySetDefinition in (Get-ChildItem "$GitRootEnterpriseScale/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
                     Copy-Item $policySetDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
