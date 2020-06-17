@@ -9,24 +9,30 @@ pr:
       - .github/*
       - .vscode/*
 
+variables:
+  DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
+  AZ_ACCOUNTS_REQUIREDVERSION: "1.8.0"
+  AZ_RESOURCES_REQUIREDVERSION: "2.0.1"
+  PESTER_REQUIREDVERSION: "4.10.1"
+
 jobs:
   - job: pesterTests1
     displayName: Pester Tests (Manifest|Cmdlets)
-    timeoutInMinutes: 30
+    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
       
     pool:
       vmImage: "ubuntu-latest"
 
     steps:
       - task: PowerShell@2
-        displayName: "[prerequisites] Environment Configuration"
+        displayName: "[setup] Environment Configuration"
         inputs:
           targetType: inline
           script: |
             "$PSVersionTable"
-            Install-Module -Name "Az.Accounts" -RequiredVersion "1.8.0" -Force
-            Install-Module -Name "Az.Resources" -RequiredVersion "2.0.1" -Force
-            Install-Module -Name "Pester" -RequiredVersion "4.10.1" -Force
+            Install-Module -Name "Az.Accounts" -RequiredVersion $(AZ_ACCOUNTS_REQUIREDVERSION) -Force
+            Install-Module -Name "Az.Resources" -RequiredVersion $(AZ_RESOURCES_REQUIREDVERSION) -Force
+            Install-Module -Name "Pester" -RequiredVersion $(PESTER_REQUIREDVERSION) -Force
             Get-Module -ListAvailable
             $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
             $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
@@ -63,21 +69,21 @@ jobs:
 
   - job: pesterTests2a
     displayName: Pester Tests (Scope)
-    timeoutInMinutes: 30
+    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
       
     pool:
       vmImage: "ubuntu-latest"
 
     steps:
       - task: PowerShell@2
-        displayName: "[prerequisites] Environment Configuration"
+        displayName: "[setup] Environment Configuration"
         inputs:
           targetType: inline
           script: |
-            "$PSVersionTable"
-            Install-Module -Name "Az.Accounts" -RequiredVersion "1.8.0" -Force
-            Install-Module -Name "Az.Resources" -RequiredVersion "2.0.1" -Force
-            Install-Module -Name "Pester" -RequiredVersion "4.10.1" -Force
+            $PSVersionTable
+            Install-Module -Name "Az.Accounts" -RequiredVersion $(AZ_ACCOUNTS_REQUIREDVERSION) -Force
+            Install-Module -Name "Az.Resources" -RequiredVersion $(AZ_RESOURCES_REQUIREDVERSION) -Force
+            Install-Module -Name "Pester" -RequiredVersion $(PESTER_REQUIREDVERSION) -Force
             Get-Module -ListAvailable
             $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
             $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
@@ -106,21 +112,21 @@ jobs:
 
   - job: pesterTests2b
     displayName: Pester Tests (In-A-Box)
-    timeoutInMinutes: 30
+    timeoutInMinutes: $(DEFAULT_JOB_TIMEOUT_IN_MINUTES)
       
     pool:
       vmImage: "ubuntu-latest"
 
     steps:
       - task: PowerShell@2
-        displayName: "[prerequisites] Environment Configuration"
+        displayName: "[setup] Environment Configuration"
         inputs:
           targetType: inline
           script: |
             "$PSVersionTable"
-            Install-Module -Name "Az.Accounts" -RequiredVersion "1.8.0" -Force
-            Install-Module -Name "Az.Resources" -RequiredVersion "2.0.1" -Force
-            Install-Module -Name "Pester" -RequiredVersion "4.10.1" -Force
+            Install-Module -Name "Az.Accounts" -RequiredVersion $(AZ_ACCOUNTS_REQUIREDVERSION) -Force
+            Install-Module -Name "Az.Resources" -RequiredVersion $(AZ_RESOURCES_REQUIREDVERSION) -Force
+            Install-Module -Name "Pester" -RequiredVersion $(PESTER_REQUIREDVERSION) -Force
             Get-Module -ListAvailable
             $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
             $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
