@@ -154,12 +154,12 @@
             "Properties": "[variables('input').Properties]"
         },
         {
+            /*
+                We are not declaring dependency on policy assignment here because reference function will have implicit dependency.
+            */
             "condition": "[and(variables('roleAssignmentEnabledForPolicy'),equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "name" : "[guid(variables('input').name)]",
-            "dependsOn": [
-                "[parameters('input').Name]"
-            ],
             "apiVersion": "2019-04-01-preview",
             "location": "[deployment().location]",
             "Properties": {
