@@ -16,18 +16,19 @@ InModuleScope 'AzOps' {
             #Use AzOpsReference published in https://github.com/Azure/Enterprise-Scale
             Start-AzOpsNativeExecution {
                 git clone 'https://github.com/Azure/Enterprise-Scale'
-            }
+            } | Out-Host
             $AzOpsReferenceFolder = (Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference')
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
 
             # Task: Check if 'Tailspin' Management Group exists
             if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
                 Write-Output "   - Running Remove-AzOpsManagementGroup"
-                Remove-AzOpsManagementGroup -GroupName  'Tailspin'
+                Remove-AzOpsManagementGroup -GroupName  'Tailspin' -Verbose
             }
             #endregion
 
             # Task: Initialize azops/
-            Write-Output "   - Running Initialize-AzOpsRepository"
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Initialize-AzOpsRepository"
             Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
 
             # Comment: Find Tenant Root Group id
@@ -40,7 +41,7 @@ InModuleScope 'AzOps' {
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
@@ -51,7 +52,7 @@ InModuleScope 'AzOps' {
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
@@ -62,7 +63,7 @@ InModuleScope 'AzOps' {
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
