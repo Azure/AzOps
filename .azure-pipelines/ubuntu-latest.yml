@@ -29,7 +29,7 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            "$PSVersionTable"
+            $PSVersionTable
             Install-Module -Name "Az.Accounts" -RequiredVersion $(AZ_ACCOUNTS_REQUIREDVERSION) -Force
             Install-Module -Name "Az.Resources" -RequiredVersion $(AZ_RESOURCES_REQUIREDVERSION) -Force
             Install-Module -Name "Pester" -RequiredVersion $(PESTER_REQUIREDVERSION) -Force
@@ -125,7 +125,7 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            "$PSVersionTable"
+            $PSVersionTable
             Install-Module -Name "Az.Accounts" -RequiredVersion $(AZ_ACCOUNTS_REQUIREDVERSION) -Force
             Install-Module -Name "Az.Resources" -RequiredVersion $(AZ_RESOURCES_REQUIREDVERSION) -Force
             Install-Module -Name "Pester" -RequiredVersion $(PESTER_REQUIREDVERSION) -Force
