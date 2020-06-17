@@ -59,16 +59,13 @@ InModuleScope 'AzOps' {
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
-            # State: Disabling this due to bug where Policy assignment fails for first time.
-            # Get-ChildItem -Path "$PSScriptRoot/parameters/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
-            #     Copy-Item -Path $_.FullName  -Destination $TestDrive
-            #     $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
-            #     $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            #     $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
-            #     New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
-            # }
-            #
-
+            Get-ChildItem -Path "$PSScriptRoot/parameters/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+                Copy-Item -Path $_.FullName  -Destination $TestDrive
+                $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+                $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
+                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+                New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            }
             # Task: Re-initialize azops/
             Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
         }
