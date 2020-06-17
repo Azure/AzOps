@@ -1,0 +1,40 @@
+trigger: none
+
+
+variables:
+  ContainerRegistry: AzOpsRegistry
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+
+- task: DockerInstaller@0
+  displayName: Install Docker
+  inputs:
+    dockerVersion: '19.03.11'
+    releaseType: stable
+
+- task: Docker@2
+  displayName: Docker login
+  inputs:
+    command: login
+    containerRegistry: $(ContainerRegistry)
+
+- task: Docker@2
+  displayName: Build and push image
+  inputs:
+    command: buildAndPush
+    containerRegistry: $(ContainerRegistry)
+    Dockerfile: ./Dockerfile
+    repository: mattffffff/AzOpsADO
+    tags: |
+      $(Build.BuildId)
+      v0.0.1
+
+- task: Docker@2
+  displayName: Docker logout
+  inputs:
+    command: logout
+    containerRegistry: $(ContainerRegistry)
