@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    This cmdlets discovers all custom Role Assignment at the provided scope (management groups, subscriptions or resource groups)
+    This cmdlets discovers all custom Role Assignment at the provided scope (Management Groups, subscriptions or resource groups)
 .DESCRIPTION
-    This cmdlets discovers all custom Role Assignment at the provided scope (management groups, subscriptions or resource groups)
+    This cmdlets discovers all custom Role Assignment at the provided scope (Management Groups, subscriptions or resource groups)
 .EXAMPLE
-    #Discover all custom policy definitions deployed at management group scope
+    # Discover all custom policy definitions deployed at Management Group scope
     Get-AzOpsRoleAssignmentAtScope -scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
 .INPUTS
     AzOpsScope
@@ -20,26 +20,26 @@ function Get-AzOpsRoleAssignmentAtScope {
     )
 
     begin {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        Write-Verbose -Message " - Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
     }
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-Verbose -Message " - Retrieving Role Assignment at Scope $scope"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Role Assignment at Scope $scope"
 
         $currentRoleAssignmentsInAzure = Get-AzRoleAssignment -Scope $scope.scope | Where-Object -FilterScript { $_.Scope -eq $scope.scope }
-        Write-Verbose -Message " - Retrieved Role Assignment at Scope - Total Count $($currentRoleAssignmentsInAzure.count)"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieved Role Assignment at Scope - Total Count $($currentRoleAssignmentsInAzure.count)"
 
         foreach ($roleassignment in $currentRoleAssignmentsInAzure) {
-            Write-Verbose -Message " - Iterating through Role definitition at scope $scope for $($roleassignment.RoleAssignmentId)"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through Role definitition at scope $scope for $($roleassignment.RoleAssignmentId)"
             ConvertTo-AzOpsState -assignment  $roleassignment
         }
     }
 
     end {
-        Write-Verbose -Message " - Finished Processing $scope"
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

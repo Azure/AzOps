@@ -7,9 +7,9 @@
             "defaultValue": "e210",
             "maxLength": 5,
             "metadata": {
-                "description": "This will be used as prefix for the top level management group and subsequent child management groups to ensure naming uniqueness for management groups inside your Azure tenant. 
+                "description": "This will be used as prefix for the top level Management Group and subsequent child Management Groups to ensure naming uniqueness for Management Groups inside your Azure tenant. 
                                 Please keep prefix to 3-5 characters.
-                                This should create following hierarchy of management group where ES (stands of Enterprise Scale) denotes the prefix specified for the value of parameter.
+                                This should create following hierarchy of Management Group where ES (stands of Enterprise Scale) denotes the prefix specified for the value of parameter.
                                 <prefix>
                                 |--<prefix>-LandingZones
                                     |--<prefix>-online
@@ -45,7 +45,7 @@
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                "description": "Replace value for tenant ID. Leave this to your tenant ID or empty string value (recommended) to ensure top level management group is placed under the root management group. Alternative you can specify any valid management group resource ID."
+                "description": "Replace value for tenant ID. Leave this to your tenant ID or empty string value (recommended) to ensure top level Management Group is placed under the root Management Group. Alternative you can specify any valid Management Group resource ID."
             }
         },
         "setup": {

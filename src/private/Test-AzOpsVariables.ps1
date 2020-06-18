@@ -32,10 +32,10 @@ function Test-AzOpsVariables {
     foreach ($Variable in $VariablesToCheck) {
         if (-not(Get-Variable -Scope Global -Name $Variable -ErrorAction Ignore)) {
             $NullVariables += $Variable
-            Write-Verbose "Required variable `"$Variable`" is not set"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`" is not set"
         }
         else {
-            Write-Verbose "Required variable `"$Variable`": $((Get-Variable -Scope Global -Name $Variable).value)"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`": $((Get-Variable -Scope Global -Name $Variable).value)"
         }
     }
     if ($NullVariables) {

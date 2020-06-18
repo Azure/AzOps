@@ -33,7 +33,7 @@ function Initialization {
             } | Out-Host
         }
         catch {
-            Write-Error -Message $PSItem.Exception.Message
+            Write-AzOpsLog -Level Error -Topic "pwsh" -Message $PSItem.Exception.Message
             exit 1
         }
     }
@@ -53,7 +53,7 @@ function Initialization {
             }
         }
         catch {
-            Write-Error -Message $PSItem.Exception.Message
+            Write-AzOpsLog -Level Error -Topic "git" -Message $PSItem.Exception.Message
             exit 1
         }
     }

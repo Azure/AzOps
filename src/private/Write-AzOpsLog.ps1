@@ -18,8 +18,8 @@ function Write-AzOpsLog {
 
     begin {
         if ($Timestamp) {
-            $timestamp = Get-Date -Format "[MM/dd/yyyy - HH:mm]"
-            $log = ($timestamp + " " + "($topic)" + " " + $message)
+            $timestamp = Get-Date -Format FileDateTimeUniversal
+            $log = ("[$timestamp]" + " " + "($topic)" + " " + $message)
         }
         else {
             $timestamp = ""
