@@ -29,8 +29,8 @@
     State file representing each discovered resource in the .AzState folder
     Example: .AzState\Microsoft.Network_privateDnsZones-privatelink.database.windows.net.parameters.json
 #>
+
 function Get-AzOpsResourceDefinitionAtScope {
-    
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -52,8 +52,9 @@ function Get-AzOpsResourceDefinitionAtScope {
         Test-AzOpsVariables
     }
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
+        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsResourceDefinitionAtScope: $scope"
         # Get AzOpsScope for inputscope
         $scope = (New-AzOpsScope -scope $scope)
 
@@ -61,10 +62,11 @@ function Get-AzOpsResourceDefinitionAtScope {
         if ($scope.subscription) {
             # Define variable with AzContext for later use in -DefaultProfile parameter
             $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scope.subscription }
-            # Define  variable with Odatafilter to use in Get-AzResourceGroup and Get-AzResource
+            # Define variable with Odatafilter to use in Get-AzResourceGroup and Get-AzResource
             $OdataFilter = '$filter=subscriptionId eq ' + "'$($scope.subscription)'"
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Odatafilter is $odatafilter"
         }
+
         # Process supported scopes
         switch ($scope.Type) {
             # Process resources

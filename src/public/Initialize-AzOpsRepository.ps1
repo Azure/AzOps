@@ -118,14 +118,19 @@ function Initialize-AzOpsRepository {
             Get-ChildItem $global:AzOpsState -Directory -Recurse -Force -Include '.AzState' | Remove-Item -Force -Recurse
         }
 
-        # Set AzOpsScope rootscope based on tenant root id
-        $RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id       
+        # Set AzOpsScope root scope based on tenant root id
+        if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId })) {
 
-        # Create AzOpsState Structure recursively
-        Save-AzOpsManagementGroupChildren -scope (New-AzOpsScope -Scope $RootScopeId)
+            $RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id
+            # Create AzOpsState Structure recursively
+            Save-AzOpsManagementGroupChildren -scope $RootScopeId
 
-        # Discover Resource at scope recursively
-        Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+            # Discover Resource at scope recursively
+            Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+        }
+        else {
+            Write-Error "Root Management Group Not Found"
+        }
     }
 
     end {

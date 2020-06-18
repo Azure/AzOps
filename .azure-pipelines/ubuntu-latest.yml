@@ -19,7 +19,7 @@ jobs:
   - job: pesterTests1
     displayName: Pester Tests (Manifest|Cmdlets)
     timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
-      
+
     pool:
       vmImage: "ubuntu-latest"
 
