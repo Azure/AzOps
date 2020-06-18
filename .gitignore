@@ -17,3 +17,6 @@
 
 #Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/*
+
+#ignore local debug file
+debug.ps1

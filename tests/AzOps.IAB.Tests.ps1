@@ -5,62 +5,72 @@ InModuleScope 'AzOps' {
     Describe "E2E Integration Test for Tenant Deployment" {
 
         BeforeAll {
-            Write-Output " "
 
+            #region setup
             # Task: Initialize environment variables
             $env:AzOpsState = $TestDrive
             $env:InvalidateCache = 1
             $env:AzOpsMainTemplate = ("$PSScriptRoot/../template/template.json")
             $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 
+            #Use AzOpsReference published in https://github.com/Azure/Enterprise-Scale
+            Start-AzOpsNativeExecution {
+                git clone 'https://github.com/Azure/Enterprise-Scale'
+            } | Out-Host
+            $AzOpsReferenceFolder = (Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference')
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
+
             # Task: Check if 'Tailspin' Management Group exists
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Removing Tailspin Management Group"
             if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
                 Write-Output "   - Running Remove-AzOpsManagementGroup"
                 Remove-AzOpsManagementGroup -GroupName  'Tailspin'
             }
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Tailspin Management Group hierarchy removed."
+            #endregion
 
             # Task: Initialize azops/
-            Write-Output "   - Running Initialize-AzOpsRepository"
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Initialize-AzOpsRepository"
             Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
 
             # Comment: Find Tenant Root Group id
             $tenantName = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.ParentDisplayName -eq $null }).DisplayName
 
             # Task: Deployment of 10-create-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/10-create-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
             # Task: Deployment of 20-create-child-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/20-create-child-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/20-create-child-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
             # Task: Deployment of 30-create-policydefinition-at-managementgroup.parameters.json
-            Get-ChildItem -Path "$PSScriptRoot/parameters/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
+            Get-ChildItem -Path "$PSScriptRoot/../template/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
                 $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
                 $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-                Write-Output "   - Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
             # State: Disabling this due to bug where Policy assignment fails for first time.
-            # Get-ChildItem -Path "$PSScriptRoot/parameters/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+            # Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
             #     Copy-Item -Path $_.FullName  -Destination $TestDrive
             #     $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
             #     $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
@@ -90,8 +100,8 @@ InModuleScope 'AzOps' {
 
             It "Passes Policy Definition Test" {
                 $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object  { $_.Name -eq 'Tailspin' }).FullName
-                $AzOpsReferencePolicyCount = (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
-                foreach ($policyDefinition in (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
+                $AzOpsReferencePolicyCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
+                foreach ($policyDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
                     Copy-Item $policyDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policyDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policyDefinitions*.json")) {
@@ -130,8 +140,8 @@ InModuleScope 'AzOps' {
 
             It "Passes PolicySet Definition Test" {
                 $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object  { $_.Name -eq 'Tailspin' }).FullName
-                $AzOpsReferencePolicySetCount = (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
-                foreach ($policySetDefinition in (Get-ChildItem "$PSScriptRoot/reference/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
+                $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
+                foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
                     Copy-Item $policySetDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {

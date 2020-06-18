@@ -30,7 +30,7 @@
     Example: .AzState\Microsoft.Network_privateDnsZones-privatelink.database.windows.net.parameters.json
 #>
 function Get-AzOpsResourceDefinitionAtScope {
-    
+
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -52,9 +52,10 @@ function Get-AzOpsResourceDefinitionAtScope {
         Test-AzOpsVariables
     }
     process {
+        Write-Output "AzOpsResourceDefinitionAtScope: $scope"
         Write-Verbose -Message " - Processing $scope"
         Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        #Get AzOpsScope for inputscope
+        #Get AzOpsScope for input scope
         $scope = (New-AzOpsScope -scope $scope)
 
         #Scope contains subscription (subscription > resource group > resource)
