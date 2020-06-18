@@ -53,7 +53,6 @@ function Get-AzOpsResourceDefinitionAtScope {
     }
     process {
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsResourceDefinitionAtScope: $scope"
-        Write-Output "AzOpsResourceDefinitionAtScope: $scope"
         Write-Verbose -Message " - Processing $scope"
         Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         #Get AzOpsScope for input scope
