@@ -21,10 +21,12 @@ InModuleScope 'AzOps' {
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
 
             # Task: Check if 'Tailspin' Management Group exists
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Removing Tailspin Management Group"
             if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
                 Write-Output "   - Running Remove-AzOpsManagementGroup"
-                Remove-AzOpsManagementGroup -GroupName  'Tailspin' -Verbose
+                Remove-AzOpsManagementGroup -GroupName  'Tailspin'
             }
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Tailspin Management Group hierarchy removed."
             #endregion
 
             # Task: Initialize azops/
