@@ -18,17 +18,15 @@ Upon successful push, GitHub Action workflow should automatically run.
 
 To get started, type the following commands either in `bash` or `powershell` shell. Please replace the placeholders (<...>) with your values:
 
-**Bash:**
+In a terminal, type the following commands by replacing the placeholders (<...>) with your actual values:
+
+### Github Cli (Does not Require PAT token)
 
 ```bash
-curl https://api.github.com/repos/<Your GitHub ID>/<Your Repo Name>/dispatches \
---user "<GH UserName>:<PAT Token>" \
---header "Accept: application/vnd.github.everest-preview+json" \
---header "Content-Type: application/json" \
---data '{"event_type": "activity-logs"}'
-```
+gh api -X POST repos/<Your GitHub ID>/<Your Repo Name>/dispatches --field event_type=activity-logs
+````
 
-**PowerShell:**
+### PowerShell
 
 ```powershell
 $GitHubUserName = "<GH UserName or Github Enterprise Organisation Name>"
@@ -47,4 +45,10 @@ $params = @{
         } | ConvertTo-json
     }
 Invoke-RestMethod -Method "POST" @params
+```
+
+### Bash
+
+```bash
+curl -u "<GH UserName>:<PAT Token>" -H "Accept: application/vnd.github.everest-preview+json"  -H "Content-Type: application/json" https://api.github.com/repos/<Your GitHub ID>/<Your Repo Name>/dispatches --data '{"event_type": "activity-logs"}'
 ```
