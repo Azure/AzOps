@@ -1,5 +1,6 @@
-#Private
+#Debug
 **.private**
+debug.ps1
 
 #DSStore
 .DS_Store
@@ -18,5 +19,5 @@
 #Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/*
 
-#ignore local debug file
-debug.ps1
+#AzOps
+azops/*
