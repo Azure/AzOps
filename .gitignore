@@ -20,3 +20,4 @@
 
 #ignore local debug file
 debug.ps1
+azops/*
