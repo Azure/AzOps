@@ -3,7 +3,7 @@ Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
 Describe "Unit Test for AzOpsScope" {
 
     BeforeAll {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "TestDrive: $TestDrive"
+        # Write-Verbose -Message "TestDrive: $TestDrive"
 
         # Task: Initialize environment variables
         $env:AzOpsState = $TestDrive
