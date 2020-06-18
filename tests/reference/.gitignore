@@ -1,9 +1,0 @@
-#Ignore Everything
-*
-
-#Inlcude everything back
-!*/
-!**/contoso/**/Microsoft.Authorization*.parameters.json
-**/contoso/**/*SecurityCenter.parameters.json
-
-!.gitignore
