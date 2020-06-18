@@ -5,7 +5,7 @@ function Start-AzOpsNativeExecution {
         [switch]$IgnoreExitcode,
         [switch]$VerboseOutputOnError
     )
-    
+
     $backupEAP = $script:ErrorActionPreference
     $script:ErrorActionPreference = "Continue"
     try {

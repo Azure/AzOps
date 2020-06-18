@@ -12,13 +12,12 @@
     management group hierarchy in file system
 #>
 function Save-AzOpsManagementGroupChildren {
-    
+
     [CmdletBinding(SupportsShouldProcess = $true)]
     [OutputType()]
     param (
         #Scope to discover - assumes [AzOpsScope] object
         [Parameter(Mandatory = $true)]
-        [AzOpsScope]
         $scope
     )
 
@@ -26,11 +25,12 @@ function Save-AzOpsManagementGroupChildren {
         Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         #Ensure that required global variables are set.
         Test-AzOpsVariables
-        Write-Verbose -Message " - Iterating over $($scope.name)"
     }
 
     process {
         Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        #Get AzOpsScope for inputscope
+        $scope = (New-AzOpsScope -scope $scope)
 
         Write-Verbose "Processing Scope: $($scope.scope)"
         #Construct all file paths for scope
@@ -69,7 +69,7 @@ function Save-AzOpsManagementGroupChildren {
             if ($ChildOfManagementGroups) {
                 $ChildOfManagementGroups | Foreach-Object {
                     $child = $_
-                    Save-AzOpsManagementGroupChildren -scope (New-AzOpsScope -scope $child.id)
+                    Save-AzOpsManagementGroupChildren -scope $child.id
                 }
             }
         }
