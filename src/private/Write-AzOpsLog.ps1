@@ -1,3 +1,7 @@
+# Set default global preference variables
+[bool]$Global:AzOpsLogTimestampPreference = $true
+
+# Define Write-AzOpsLog Function
 function Write-AzOpsLog {
 
     [CmdletBinding()]
@@ -19,8 +23,9 @@ function Write-AzOpsLog {
     begin {
         # Generate log message prefix with Timestamp (optional) and Topic (optional)
         # Will apply the same values to all messages sent via pipeline
+        # Uses AzOpsLogTimestampPreference variable to set defaults
         $messagePrefix = ""
-        if ($Timestamp) {
+        if ($Timestamp -or $Global:AzOpsLogTimestampPreference) {
             $logTimeUtc = Get-Date -Format FileDateTimeUniversal
             $messagePrefix = ($messagePrefix + "[$logTimeUtc] ")
         }
