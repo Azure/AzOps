@@ -26,7 +26,7 @@ function Write-AzOpsLog {
         # Uses AzOpsLogTimestampPreference variable to set defaults
         $messagePrefix = ""
         if ($Timestamp -or $Global:AzOpsLogTimestampPreference) {
-            $logTimeUtc = Get-Date -Format FileDateTimeUniversal
+            $logTimeUtc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss.ffff")
             $messagePrefix = ($messagePrefix + "[$logTimeUtc] ")
         }
         if ($Topic) {
