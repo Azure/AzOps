@@ -9,25 +9,30 @@ function Write-AzOpsLog {
         [Parameter(Mandatory = $false)]
         [string]$Topic,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]$Message,
 
         [Parameter(Mandatory = $false)]
-        [string]$Timestamp
+        [switch]$Timestamp
     )
 
     begin {
+        # Generate log message prefix with Timestamp (optional) and Topic (optional)
+        # Will apply the same values to all messages sent via pipeline
+        $messagePrefix = ""
         if ($Timestamp) {
-            $timestamp = Get-Date -Format FileDateTimeUniversal
-            $log = ("[$timestamp]" + " " + "($topic)" + " " + $message)
+            $logTimeUtc = Get-Date -Format FileDateTimeUniversal
+            $messagePrefix = ($messagePrefix + "[$logTimeUtc] ")
         }
-        else {
-            $timestamp = ""
-            $log = ("($topic)" + " " + $message)
-        }   
+        if ($Topic) {
+            $messagePrefix = ($messagePrefix + "($Topic) ")            
+        }
     }
 
     process {
+        # Generate log message from messagePrefix
+        $log = ($messagePrefix + $message)
+
         switch ($level) {
             "Information" {
                 Write-Information -MessageData $log -InformationAction Continue
