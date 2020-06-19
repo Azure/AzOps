@@ -2,6 +2,7 @@
 
 Import-Module $PSScriptRoot/src/AzOps.psd1 -Force
 . $PSScriptRoot/src/private/Start-AzOpsNativeExecution.ps1
+. $PSScriptRoot/src/private/Write-AzOpsLog.ps1
 
 function Logging {
 
@@ -33,7 +34,7 @@ function Initialization {
             } | Out-Host
         }
         catch {
-            Write-Error -Message $PSItem.Exception.Message
+            Write-AzOpsLog -Level Error -Topic "pwsh" -Message $PSItem.Exception.Message
             exit 1
         }
     }
@@ -53,7 +54,7 @@ function Initialization {
             }
         }
         catch {
-            Write-Error -Message $PSItem.Exception.Message
+            Write-AzOpsLog -Level Error -Topic "git" -Message $PSItem.Exception.Message
             exit 1
         }
     }

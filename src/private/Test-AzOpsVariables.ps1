@@ -17,7 +17,7 @@
     None
 #>
 function Test-AzOpsVariables {
-   
+
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -26,16 +26,16 @@ function Test-AzOpsVariables {
         [String[]]$VariablesToCheck = @('AzOpsState', 'AzOpsAzManagementGroup', 'AzOpsSubscriptions')
     )
 
-    # Create array to catch null variables 
+    # Create array to catch null variables
     $NullVariables = @()
     # Iterate through each variable and throw error if not set
     foreach ($Variable in $VariablesToCheck) {
         if (-not(Get-Variable -Scope Global -Name $Variable -ErrorAction Ignore)) {
             $NullVariables += $Variable
-            Write-Verbose "Required variable `"$Variable`" is not set"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`" is not set"
         }
         else {
-            Write-Verbose "Required variable `"$Variable`": $((Get-Variable -Scope Global -Name $Variable).value)"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`": $((Get-Variable -Scope Global -Name $Variable).value)"
         }
     }
     if ($NullVariables) {

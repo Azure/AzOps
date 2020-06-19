@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    This cmdlets removes management group and all its children recursively and moves any subscription found in hierarchy to root management group.
+    This cmdlets removes Management Group and all its children recursively and moves any Subscription found in hierarchy to root Management Group.
 .DESCRIPTION
-    This cmdlets removes management group and all its children recursively and moves any subscription found in hierarchy to root management group.
+    This cmdlets removes Management Group and all its children recursively and moves any Subscription found in hierarchy to root Management Group.
 .EXAMPLE
-    #Discover all custom policy definitions deployed at management group scope
+    # Discover all custom policy definitions deployed at Management Group scope
     Remove-AzOpsManagementGroup -groupName ES -Verbose
 .INPUTS
     GroupName
@@ -36,13 +36,13 @@ function Remove-AzOpsManagementGroup {
                     New-AzManagementGroupSubscription -GroupName $RootManagementGroupName -SubscriptionId $Child.Name
                 }
                 else {
-                    Write-Verbose "Removing Management Group - $($Child.Name)"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($Child.Name)"
                     Remove-AzOpsManagementGroup -GroupName $Child.Name -RootManagementGroupName $RootManagementGroupName -ErrorAction SilentlyContinue
                 }
 
             }
         }
-        Write-Verbose "Removing Management Group - $($groupName)"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($groupName)"
         Remove-AzManagementGroup -GroupName $groupName
     }
 

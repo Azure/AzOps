@@ -9,85 +9,118 @@ pr:
       - .github/*
       - .vscode/*
 
-pool:
-  vmImage: "ubuntu-latest"
+variables:
+  DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
+  AZ_ACCOUNTS_REQUIREDVERSION: "1.8.0"
+  AZ_RESOURCES_REQUIREDVERSION: "2.0.1"
+  PESTER_REQUIREDVERSION: "4.10.1"
 
-steps:
-  - task: PowerShell@2
-    displayName: "[pwsh] Get version"
-    inputs:
-      targetType: inline
-      script: "$PSVersionTable"
-      pwsh: true
+jobs:
+  - job: pesterTests1
+    displayName: Pester Tests (Manifest|Cmdlets)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
 
-  - task: PowerShell@2
-    displayName: "[pwsh] Install modules"
-    inputs:
-      targetType: inline
-      script: |
-        Install-Module -Name "Az.Accounts" -RequiredVersion "1.8.0" -Force
-        Install-Module -Name "Az.Resources" -RequiredVersion "2.0.1" -Force
-        Install-Module -Name "Pester" -RequiredVersion "4.10.1" -Force
-      pwsh: true
+    pool:
+      vmImage: "ubuntu-latest"
 
-  - task: PowerShell@2
-    displayName: "[pwsh] List modules"
-    inputs:
-      targetType: inline
-      script: |
-        Get-Module -ListAvailable
-      pwsh: true
+    steps:
+      - task: PowerShell@2
+        displayName: "[setup] Environment Configuration"
+        inputs:
+          targetType: filePath
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
+          pwsh: true
+        env:
+          AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
 
-  - task: PowerShell@2
-    displayName: "[azure] Connect context"
-    inputs:
-      targetType: inline
-      script: |
-        $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
-        $secureStringPwd =  ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
-        $tenantId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).tenantId
-        $subscriptionId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).subscriptionId
-        $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $clientId, $secureStringPwd
-        Connect-AzAccount -TenantId $tenantId  -ServicePrincipal -Credential $cred  -subscriptionId $subscriptionId
-      pwsh: true
-    env:
-      AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
+      - task: PowerShell@2
+        displayName: "[pester] Run Tests (Manifest)"
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          script: |
+            Invoke-Pester -Script "./tests/AzOps.Module.Tests.ps1" -OutputFile "./tests/AzOps.Module.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
 
-  - task: PowerShell@2
-    displayName: "[pester] Tests (Manifest)"
-    inputs:
-      targetType: inline
-      workingDirectory: $(System.DefaultWorkingDirectory)
-      script: |
-        Invoke-Pester -Script "./tests/AzOps.Module.Tests.ps1" -OutputFile "./tests/AzOps.Module.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+      - task: PowerShell@2
+        displayName: "[pester] Run Tests (Cmdlets)"
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          script: |
+            Invoke-Pester -Script "./tests/AzOps.Cmdlets.Tests.ps1" -OutputFile "./tests/AzOps.Cmdlets.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
 
-  - task: PowerShell@2
-    displayName: "[pester] Tests (Cmdlets)"
-    inputs:
-      targetType: inline
-      workingDirectory: $(System.DefaultWorkingDirectory)
-      script: |
-        Invoke-Pester -Script "./tests/AzOps.Cmdlets.Tests.ps1" -OutputFile "./tests/AzOps.Cmdlets.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+      - task: PublishTestResults@2
+        displayName: "[results] Publish Test Results"
+        inputs:
+          testResultsFormat: "NUnit"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          publishRunAttachments: true
 
-  - task: PowerShell@2
-    displayName: "[pester] Tests (Scope)"
-    inputs:
-      targetType: inline
-      workingDirectory: $(System.DefaultWorkingDirectory)
-      script: |
-        Invoke-Pester -Script "./tests/AzOps.Scope.Tests.ps1" -OutputFile "./tests/AzOps.Scope.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+  - job: pesterTests2a
+    displayName: Pester Tests (Scope)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
+    dependsOn: pesterTests1
 
-  - task: PowerShell@2
-    displayName: "[pester] Tests (In-A-Box)"
-    inputs:
-      targetType: inline
-      workingDirectory: $(System.DefaultWorkingDirectory)
-      script: |
-        Invoke-Pester -Script "./tests/AzOps.IAB.Tests.ps1" -OutputFile "./tests/AzOps.IAB.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+    pool:
+      vmImage: "ubuntu-latest"
 
-  - task: PublishTestResults@2
-    displayName: "[results] Publish files"
-    inputs:
-      testResultsFormat: "NUnit"
-      testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
-      publishRunAttachments: true
+    steps:
+      - task: PowerShell@2
+        displayName: "[setup] Environment Configuration"
+        inputs:
+          targetType: filePath
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
+          pwsh: true
+        env:
+          AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
+
+      - task: PowerShell@2
+        displayName: "[pester] Run Tests (Scope)"
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          script: |
+            Invoke-Pester -Script "./tests/AzOps.Scope.Tests.ps1" -OutputFile "./tests/AzOps.Scope.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+      - task: PublishTestResults@2
+        displayName: "[results] Publish Test Results"
+        inputs:
+          testResultsFormat: "NUnit"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          publishRunAttachments: true
+
+  - job: pesterTests2b
+    displayName: Pester Tests (In-A-Box)
+    timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
+    dependsOn: pesterTests1
+
+    pool:
+      vmImage: "ubuntu-latest"
+
+    steps:
+      - task: PowerShell@2
+        displayName: "[setup] Environment Configuration"
+        inputs:
+          targetType: filePath
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          filePath: ./tests/scripts/Initialize-AzOpsTestEnvironment.ps1
+          pwsh: true
+        env:
+          AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
+            
+      - task: PowerShell@2
+        displayName: "[pester] Run Tests (In-A-Box)"
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          script: |
+            Invoke-Pester -Script "./tests/AzOps.IAB.Tests.ps1" -OutputFile "./tests/AzOps.IAB.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+
+      - task: PublishTestResults@2
+        displayName: "[results] Publish Test Results"
+        inputs:
+          testResultsFormat: "NUnit"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          publishRunAttachments: true

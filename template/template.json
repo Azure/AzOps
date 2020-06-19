@@ -76,7 +76,7 @@
         "location": "[if(
                         and(
                             contains(variables('input'),'Location'),
-                            not(empty(variables('input').Location))
+                            not(empty(variables('input').location))
                         ),
                         variables('input').location,
                         'eastus'
