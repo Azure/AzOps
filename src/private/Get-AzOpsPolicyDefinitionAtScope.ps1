@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    This cmdlets discovers all custom policy definitions at the provided scope (management groups, subscriptions or resource groups)
+    This cmdlets discovers all custom policy definitions at the provided scope (Management Groups, subscriptions or resource groups)
 .DESCRIPTION
-    This cmdlets discovers all custom policy definitions at the provided scope (management groups, subscriptions or resource groups), excluding inherited definitions.
+    This cmdlets discovers all custom policy definitions at the provided scope (Management Groups, subscriptions or resource groups), excluding inherited definitions.
 .EXAMPLE
-    #Discover all custom policy definitions deployed at management group scope
+    # Discover all custom policy definitions deployed at Management Group scope
     Get-AzOpsPolicyDefinitionAtScope -scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
 .INPUTS
     AzOpsScope
@@ -16,42 +16,42 @@ function Get-AzOpsPolicyDefinitionAtScope {
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition])]
     param (
-        #Scope to discover - assumes [AzOpsScope] object
+        # Scope to discover - assumes [AzOpsScope] object
         [Parameter(Mandatory = $true)]
         $scope
     )
 
     begin {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        #Ensure that required global variables are set.
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        # Ensure that required global variables are set.
         Test-AzOpsVariables
         $CurrentPolicyDefinitionsInAzure = @()
     }
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-Verbose " - Processing $scope"
-        #Discover policies at resourcegroup, subscription or management group level
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
+        # Discover policies at Resource Group, Subscription or Management Group level
         if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups') {
-            #Discover policy definitions at management group level
+            # Discover policy definitions at Management Group level
             if ($scope.type -eq 'managementGroups') {
-                Write-Verbose -Message " - Retrieving Policy Definition at ManagementGroup Scope $scope"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Policy Definition at ManagementGroup Scope $scope"
                 $currentPolicyDefinitionsInAzure = Get-AzPolicyDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }
             }
-            #Discover policy definitions at subscription level
+            # Discover policy definitions at Subscription level
             elseif ($scope.type -eq 'subscriptions') {
-                Write-Verbose -Message " - Retrieving Policy Definition at Subscription Scope $scope"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Policy Definition at Subscription Scope $scope"
                 $SubscriptionID = $scope.scope.split('/')[2]
                 $CurrentPolicyDefinitionsInAzure = Get-AzPolicyDefinition -Custom -SubscriptionId $SubscriptionID | Where-Object -FilterScript { $_.SubscriptionId -eq $scope.name }
             }
-            #Return object with discovered policy definitions at scope
+            # Return object with discovered policy definitions at scope
             return $CurrentPolicyDefinitionsInAzure
         }
-        Write-Verbose -Message " - Finished Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
     }
 
     end {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

@@ -6,12 +6,12 @@
     It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
     $Global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
 .EXAMPLE
-    #Export custom policy definition to the AzOps StatePath
+    # Export custom policy definition to the AzOps StatePath
     Initialize-AzOpsGlobalVariables -Verbose
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy
 .EXAMPLE
-    #Serialize custom policy definition to the AzOps format, return object instead of export file
+    # Serialize custom policy definition to the AzOps format, return object instead of export file
     Initialize-AzOpsGlobalVariables -Verbose
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy -ReturnObject
@@ -30,26 +30,26 @@ function ConvertTo-AzOpsState {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
-        #Object with resource as input
+        # Object with resource as input
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [Alias('MG', 'Role', 'Assignment', 'CustomObject', 'ResourceGroup')]
         $Resource,
-        #ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
+        # ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
         [Parameter(Mandatory = $false)]
         $ExportPath = '',
-        #Used if to return object in pipeline instead of exporting file
+        # Used if to return object in pipeline instead of exporting file
         [Parameter(Mandatory = $false)]
         [switch]$ReturnObject,
-        #Used in cases you want to return the template without the custom parameters json schema
+        # Used in cases you want to return the template without the custom parameters json schema
         [Parameter(Mandatory = $false)]
         [switch]$ExportRawTemplate
     )
 
     begin {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        #Ensure that required global variables are set.
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        # Ensure that required global variables are set.
         Test-AzOpsVariables
-        #Construct base json
+        # Construct base json
         $parametersJson = [ordered]@{
             '$schema'        = 'http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#'
             'contentVersion' = "1.0.0.0"
@@ -60,7 +60,7 @@ function ConvertTo-AzOpsState {
             }
         }
         $ExcludedProperties = @{}
-        #Fetch config json
+        # Fetch config json
         try {
             $ResourceConfig = (Get-Content -Path $Global:AzopsStateConfig) | ConvertFrom-Json -AsHashtable -ErrorAction Stop
         }
@@ -69,90 +69,90 @@ function ConvertTo-AzOpsState {
         }
 
         $Object = $Resource
-        #Determine objecttype and set target AzOpsScope statepath properties to omit for the export.
+        # Determine objecttype and set target AzOpsScope statepath properties to omit for the export.
         switch ($Resource) {
-            #Tenant
+            # Tenant
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureTenant] } {
-                Write-Verbose -Message " - Object is Tenant"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Tenant"
                 $ResourceConfig = $ResourceConfig.Values.tenant
                 break
             }
-            #Management Groups
+            # Management Groups
             { $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup] } {
-                Write-Verbose -Message " - Object is Management Group"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Management Group"
                 $objectFilePath = (New-AzOpsScope -scope $object.id).statepath
                 $ResourceConfig = $ResourceConfig.Values.managementGroup
                 break
             }
-            #Role Definitions
+            # Role Definitions
             { $_ -is [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition] } {
-                Write-Verbose -Message " - Object is Role Definition"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Role Definition"
                 $objectFilePath = (New-AzOpsScope -scope "$($object.AssignableScopes[0])/providers/Microsoft.Authorization/roleDefinitions/$($role.Id)").statepath
                 $ResourceConfig = $ResourceConfig.Values.roleDefinition
                 break
             }
-            #Role Assignments
+            # Role Assignments
             { $_ -is [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleAssignment] } {
-                Write-Verbose -Message " - Object is Role Assignment"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Role Assignment"
                 $objectFilePath = (New-AzOpsScope -scope $object.RoleAssignmentId).statepath
                 $ResourceConfig = $ResourceConfig.Values.roleAssignment
                 break
             }
-            #Resources
+            # Resources
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource] } {
-                Write-Verbose -Message " - Object is Resource"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Resource"
                 $objectFilePath = (New-AzOpsScope -scope $object.ResourceId).statepath
                 $ResourceConfig = $ResourceConfig.Values.resource
                 break
             }
-            #Resource Groups
+            # Resource Groups
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
-                Write-Verbose -Message " - Object is ResourceGroup"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: ResourceGroup"
                 $objectFilePath = (New-AzOpsScope -scope $object.ResourceId).statepath
                 $ResourceConfig = $ResourceConfig.Values.resourceGroup
                 break
             }
-            #Subscriptions
+            # Subscriptions
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] } {
-                Write-Verbose -Message " - Object is Subscription"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Subscription"
                 $objectFilePath = (New-AzOpsScope -scope "/subscriptions/$($object.id)").statepath
                 $ResourceConfig = $ResourceConfig.Values.subscription
                 break
             }
-            #Subscription from ManagementGroup Children
+            # Subscription from ManagementGroup Children
             { ($_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo] -and $_.Type -eq '/subscriptions') } {
-                Write-Verbose -Message " - Object is Subscription"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: Subscription"
                 $objectFilePath = (New-AzOpsScope -scope $object.id).statepath
                 $ResourceConfig = $ResourceConfig.Values.subscription
                 break
             }
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition] } {
-                Write-Verbose -Message " - Object is PsPolicyDefinition"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: PsPolicyDefinition"
                 $objectFilePath = (New-AzOpsScope -scope $object.ResourceId).statepath
                 $object = ConvertTo-AzOpsObject -InputObject $object
                 $ResourceConfig = $ResourceConfig.Values.policyDefinition
                 break
             }
-            #PsPolicySetDefinition
+            # PsPolicySetDefinition
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition] } {
-                Write-Verbose -Message " - Object is PsPolicySetDefinition"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: PsPolicySetDefinition"
                 $objectFilePath = (New-AzOpsScope -scope $object.ResourceId).statepath
                 $object = ConvertTo-AzOpsObject -InputObject $object
                 $ResourceConfig = $ResourceConfig.Values.policySetDefinition
                 break
             }
-            #PsPolicyAssignment
+            # PsPolicyAssignment
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment] } {
-                Write-Verbose -Message " - Object is PsPolicyAssignment"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Found object type: PsPolicyAssignment"
                 $objectFilePath = (New-AzOpsScope -scope $object.ResourceId).statepath
                 $object = ConvertTo-AzOpsObject -InputObject $object
                 $ResourceConfig = $ResourceConfig.Values.policyAssignment
                 break
             }
-            #If object wasn't determined and $ExportPath isn not defined, throw error
+            # If object wasn't determined and $ExportPath isn not defined, throw error
             'Default' {
-                Write-Verbose -Message " - Generic object detected, ExportPath expected"
-                #Setting the value here so that exclusion logic can be applied. In future we can remove this.
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Generic object detected, ExportPath expected"
+                # Setting the value here so that exclusion logic can be applied. In future we can remove this.
                 $ResourceConfig = $ResourceConfig.Values.PSCustomObject
                 if (-not($ExportPath)) {
                     throw "No export path found"
@@ -160,72 +160,72 @@ function ConvertTo-AzOpsState {
                 break
             }
         }
-        #Set objectfilepath to ExportPath if specified
+        # Set objectfilepath to ExportPath if specified
         if ($ExportPath) {
             $objectFilePath = $ExportPath
-            Write-Verbose -Message " - ExportPath is $ExportPath"
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "ExportPath is $ExportPath"
         }
-        # #Load default properties to exclude if defined
+        # Load default properties to exclude if defined
         if ("excludedProperties" -in $ResourceConfig.Keys) {
             $ExcludedProperties = $ResourceConfig.excludedProperties.default
         }
 
-        Write-Verbose -Message " - Statepath is $objectFilePath"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Statepath is $objectFilePath"
     }
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         if ($null -ne $object) {
-            #Create target file object if it doesn't exist
+            # Create target file object if it doesn't exist
             if ($objectFilePath -and -not(Test-Path $objectFilePath)) {
-                Write-Verbose -Message " - AzOpsState File $objectFilePath do not exist. Creating New file."
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "AzOpsState file not found. Creating new: $objectFilePath"
                 New-Item -Path $objectFilePath -ItemType "file" -Force | Out-Null
             }
-            #Convert resource object to json and export to the object filepath
-            #Check if object has to be ordered
+            # Convert resource object to json and export to the object filepath
+            # Check if object has to be ordered
             if ("orderObject" -in $ResourceConfig -and ($true -eq $ResourceConfig.orderObject)) {
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Creating ordered object"
                 $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
-                Write-Verbose -Message " - Ordered object"
             }
 
-            #Check if Resource has to be generalized
+            # Check if Resource has to be generalized
             if ($env:GeneralizeTemplates -eq 1) {
-                #Preserve Original Template before manipulating anything
-                #Only export original resource if generalize excluded properties exist
+                # Preserve Original Template before manipulating anything
+                # Only export original resource if generalize excluded properties exist
                 if ("excludedProperties" -in $ResourceConfig.Keys) {
-                    #Set excludedproperties variable to generalize instead of default
+                    # Set excludedproperties variable to generalize instead of default
                     $ExcludedProperties = ''
                     $ExcludedProperties = $ResourceConfig.excludedProperties.generalize
-                    #Export preserved file
+                    # Export preserved file
                     if ($objectFilePath) {
                         $parametersJson.parameters.input.value = $object
-                        #ExportPath for the original state file
+                        # ExportPath for the original state file
                         $originalFilePath = $objectfilepath -replace ".parameters.json", ".parameters.json.origin"
-                        Write-Verbose -Message " - Exporting original resource to $originalFilePath"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Exporting resource to: $originalFilePath"
                         ConvertTo-Json -InputObject $parametersJson -Depth 100 | Out-File -FilePath ([WildcardPattern]::Escape($originalFilePath)) -Encoding utf8 -Force
                     }
                 }
             }
 
-            #Iterate through all properties to exclude from object
+            # Iterate through all properties to exclude from object
             foreach ($ExProperty in $ExcludedProperties.Keys) {
-                #Test if Object contains parent property first
+                # Test if Object contains parent property first
                 if (Get-Member -InputObject $object -Name $ExProperty) {
-                    #Find child properties in exclusion hashtable
+                    # Find child properties in exclusion hashtable
                     $ChildProperties = $ExcludedProperties.$ExProperty
-                    #If subproperties exist, loop through and adjust properties accordingly
+                    # If subproperties exist, loop through and adjust properties accordingly
                     if ($ChildProperties -is [System.Collections.Hashtable]) {
                         $ChildProperties.Keys | ForEach-Object -Process {
                             $Value = $ChildProperties.$_
-                            #Remove property if value is set to "Remove"
+                            # Remove property if value is set to "Remove"
                             if ($value -eq "Remove") {
                                 $TmpProperties = $object.$ExProperty | Select-Object -ExcludeProperty $_
                                 $object.PsObject.Properties.Remove("$ExProperty")
                                 Add-Member -InputObject $object -MemberType NoteProperty -Name $ExProperty -Value $TmpProperties -Force
                             }
                             else {
-                                #If property exists on resource, update with new value
+                                # If property exists on resource, update with new value
                                 if ($object.$ExProperty.$_) {
                                     $object.$ExProperty.$_ = $value
                                 }
@@ -233,7 +233,7 @@ function ConvertTo-AzOpsState {
                         }
                     }
                     else {
-                        #Remove property if value is set to "Remove"
+                        # Remove property if value is set to "Remove"
                         if ($ChildProperties -eq "Remove") {
 
                             if ($object.psobject.Properties.Item($ExProperty).IsSettable) {
@@ -245,7 +245,7 @@ function ConvertTo-AzOpsState {
 
                         }
                         else {
-                            #If property exists on resource, update with new value
+                            # If property exists on resource, update with new value
                             if ($object.$ExProperty) {
                                 $object.$ExProperty = $ChildProperties
                             }
@@ -254,18 +254,18 @@ function ConvertTo-AzOpsState {
                 }
             }
 
-            #Export resource
-            Write-Verbose -Message " - Exporting resource to $objectFilePath"
+            # Export resource
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Exporting resource to $objectFilePath"
             if ('orderObject' -in $ResourceConfig) {
                 $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
             }
             if ($env:ExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
                 if ($ReturnObject) {
-                    #Return resource as object
+                    # Return resource as object
                     Write-Output -InputObject $object
                 }
                 else {
-                    #Export resource as raw json template
+                    # Export resource as raw json template
                     ConvertTo-Json -InputObject $object -Depth 100 | Out-File -FilePath ([WildcardPattern]::Escape($objectFilePath)) -Encoding utf8 -Force
                 }
             }
@@ -273,22 +273,22 @@ function ConvertTo-AzOpsState {
 
                 $parametersJson.parameters.input.value = $object
                 if ($ReturnObject) {
-                    #Return resource as object
+                    # Return resource as object
                     Write-Output -InputObject $parametersJson
                 }
                 else {
-                    #Export resource as AzOpsState parameter json
+                    # Export resource as AzOpsState parameter json
                     ConvertTo-Json -InputObject $parametersJson -Depth 100 | Out-File -FilePath ([WildcardPattern]::Escape($objectFilePath)) -Encoding utf8 -Force
                 }
             }
         }
         else {
-            Write-Warning -Message "No valid object"
+            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Unable to find valid object to convert."
         }
     }
 
     end {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

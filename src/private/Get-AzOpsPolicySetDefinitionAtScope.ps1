@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    This cmdlets discovers all custom policySetDefinitions at the provided scope (management groups, subscriptions or resource groups)
+    This cmdlets discovers all custom policySetDefinitions at the provided scope (Management Groups, subscriptions or resource groups)
 .DESCRIPTION
-    This cmdlets discovers all custom policySetDefinitions at the provided scope (management groups, subscriptions or resource groups), excluding inherited definitions.
+    This cmdlets discovers all custom policySetDefinitions at the provided scope (Management Groups, subscriptions or resource groups), excluding inherited definitions.
 .EXAMPLE
-    #Discover all custom policySetDefinitions deployed at management group scope
+    # Discover all custom policySetDefinitions deployed at Management Group scope
     Get-AzOpsPolicySetDefinitionAtScope -scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
 .INPUTS
     AzOpsScope
@@ -21,36 +21,36 @@ function Get-AzOpsPolicySetDefinitionAtScope {
     )
 
     begin {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        #Ensure that required global variables are set.
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        # Ensure that required global variables are set.
         Test-AzOpsVariables
         $currentPolicySetDefinitionsInAzure = @()
     }
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-Verbose " - Processing $scope"
-        #Discover policysetsdefinitions at resourcegroup, subscription or management group level
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
+        # Discover policysetsdefinitions at Resource Group, Subscription or Management Group level
         if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups') {
-            #Discover policysetdefinitions at management group level
+            # Discover policysetdefinitions at Management Group level
             if ($scope.type -eq 'managementGroups') {
-                Write-Verbose -Message " - Retrieving PolicySet Definition at ManagementGroup Scope $scope"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving PolicySet Definition at ManagementGroup Scope $scope"
                 $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }                
             }
-            #Discover policysetdefinitions at subscription level
+            # Discover policysetdefinitions at Subscription level
             elseif ($scope.type -eq 'subscriptions') {
-                Write-Verbose -Message " - Retrieving PolicySet Definition at Subscription Scope $scope"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving PolicySet Definition at Subscription Scope $scope"
                 $SubscriptionID = $scope.scope.split('/')[2]
                 $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -SubscriptionId $SubscriptionID | Where-Object -FilterScript { $_.SubscriptionId -eq $scope.name }
             }
-            #Return object with discovered policysetdefinitions at scope
+            # Return object with discovered policysetdefinitions at scope
             return $currentPolicySetDefinitionsInAzure
         }
-        Write-Verbose -Message " - Finished Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
     }
 
     end {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

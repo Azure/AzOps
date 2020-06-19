@@ -23,7 +23,7 @@ InModuleScope 'AzOps' {
             # Task: Check if 'Tailspin' Management Group exists
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Removing Tailspin Management Group"
             if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
-                Write-Output "   - Running Remove-AzOpsManagementGroup"
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Remove-AzOpsManagementGroup"
                 Remove-AzOpsManagementGroup -GroupName  'Tailspin'
             }
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Tailspin Management Group hierarchy removed."
@@ -69,15 +69,17 @@ InModuleScope 'AzOps' {
                 New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
             }
 
-            # State: Disabling this due to bug where Policy assignment fails for first time.
-            # Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
-            #     Copy-Item -Path $_.FullName  -Destination $TestDrive
-            #     $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
-            #     $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            #     $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
-            #     New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
-            # }
-            #
+            <# State: Disabling this due to bug where Policy assignment fails for first time.
+
+            Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+                Copy-Item -Path $_.FullName  -Destination $TestDrive
+                $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+                $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
+                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+                New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            }
+
+            #>
 
             # Task: Re-initialize azops/
             Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
@@ -105,7 +107,7 @@ InModuleScope 'AzOps' {
                     Copy-Item $policyDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policyDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policyDefinitions*.json")) {
-                    #Write-Output "   - Deploying Policy Definition: $policyDefinition"
+                    # Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Deploying Policy Definition: $policyDefinition"
                     $scope = New-AzOpsScope -path $policyDefinition.FullName
                     $deploymentName = (Get-Item $policyDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
                     if ($deploymentName.Length -gt 64) {
@@ -145,9 +147,9 @@ InModuleScope 'AzOps' {
                     Copy-Item $policySetDefinition $TailspinAzOpsState -Force
                 }
                 foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
-                    #Write-Verbose "Deploying Policy Definition: $policySetDefinition"
+                    # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Deploying Policy Definition: $policySetDefinition"
 
-                    #Changing the Scope to match Tailspin
+                    # Changing the Scope to match Tailspin
                     (Get-Content -path $policySetDefinition -Raw) -replace '/providers/Microsoft.Management/managementGroups/contoso/', '/providers/Microsoft.Management/managementGroups/Tailspin/' | Set-Content -Path $policySetDefinition
 
                     $scope = New-AzOpsScope -path $policySetDefinition.FullName
@@ -165,13 +167,13 @@ InModuleScope 'AzOps' {
 
                 Get-Job | Wait-Job
 
-                #There is an unexplained delay between successful deployment -> and GET.
+                # There is an unexplained delay between successful deployment -> and GET.
                 $timeout = New-TimeSpan -Minutes 5
                 $sw = [diagnostics.stopwatch]::StartNew()
                 $tailspinJsonSetCount = 0
                 while ($sw.elapsed -lt $timeout) {
 
-                    #Refresh Policy at Tailspin scope
+                    # Refresh Policy at Tailspin scope
                     Get-AzOpsResourceDefinitionAtScope -scope (New-AzOpsScope -path $TailspinAzOpsState)
                     $tailspinJson = Get-Content -path (New-AzOpsScope -path $TailspinAzOpsState).statepath | ConvertFrom-Json
                     $tailspinJsonSetCount = $tailspinJson.parameters.input.value.properties.policySetDefinitions.Count
@@ -191,7 +193,7 @@ InModuleScope 'AzOps' {
             # Disabling until pull for IAB pull is wired up
             # if(Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue)
             # {
-            #     Write-Verbose "Cleaning up Tailspin Management Group"
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cleaning up Tailspin Management Group"
             #     Remove-AzOpsManagementGroup -groupName  'Tailspin'
             # }
         }

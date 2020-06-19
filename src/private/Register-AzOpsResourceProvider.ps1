@@ -11,7 +11,7 @@
             }
         ]
 .EXAMPLE
-    #Invoke resource providers registration
+    # Invoke resource providers registration
     Register-AzOpsResourceProvider -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\platform\connectivity\resourceproviders.json'
 .INPUTS
     Filename
@@ -32,10 +32,10 @@ function Register-AzOpsResourceProvider {
     begin {}
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         if ( ($scope.subscription) -and (Get-AzContext).Subscription.Id -ne $scope.subscription) {
-            Write-Verbose "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
+            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
             Set-AzContext -SubscriptionId $scope.subscription
         }
 
@@ -43,7 +43,7 @@ function Register-AzOpsResourceProvider {
         foreach ($resourceprovider  in $resourceproviders | Where-Object -FilterScript { $_.RegistrationState -eq 'Registered' }  ) {
             if ($resourceprovider.ProviderNamespace) {
 
-                Write-Verbose "Registering Provider $($prvoviderfeature.ProviderNamespace)"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Registering Provider $($prvoviderfeature.ProviderNamespace)"
 
                 Register-AzResourceProvider -Confirm:$false -pre -ProviderNamespace $resourceprovider.ProviderNamespace
             }
