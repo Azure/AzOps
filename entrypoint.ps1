@@ -2,6 +2,7 @@
 
 Import-Module $PSScriptRoot/src/AzOps.psd1 -Force
 . $PSScriptRoot/src/private/Start-AzOpsNativeExecution.ps1
+. $PSScriptRoot/src/private/Write-AzOpsLog.ps1
 
 function Logging {
 
