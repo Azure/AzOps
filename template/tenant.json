@@ -66,7 +66,7 @@
 
         "input": "[union(parameters('hobo'),parameters('input'))]",
         /*
-            If Id property is present, use one and replace providers prefix, otherwise assume management group.
+            If Id property is present, use one and replace providers prefix, otherwise assume Management Group.
         */
         "scope": "[if(contains(parameters('input'), 'Id'),replace(parameters('input').Id,'/providers/',''), concat('Microsoft.Management/managementGroups/',parameters('input').name))]",
         "Children": "[if(and(contains(parameters('input'), 'Children'),not(empty(parameters('input').Children))),parameters('input').Children,json('[]'))]",
@@ -86,13 +86,13 @@
                 Required Parameters:
                     1. Name: Management Group Name
                     2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
                 
                 Scope: Tenant root
                 
-                Condition: We have Parent ID available to ensure inadvertently place management group directly the root.
+                Condition: We have Parent ID available to ensure inadvertently place Management Group directly the root.
 
-                Details: If ParentID do not exist, then it is a child and creation of Management group would have happened when parent's children were iterated upon.
+                Details: If ParentID do not exist, then it is a child and creation of Management Group would have happened when parent's children were iterated upon.
 
                 Change Log:
                     1. Initial Definition
@@ -118,7 +118,7 @@
                 Required Parameters:
                     1. Management Group Name
                     2. Management Group Display Name
-                    3. ParentID: Where to place Management group
+                    3. ParentID: Where to place Management Group
                 
                 Scope: Tenant
                 
@@ -131,7 +131,7 @@
                         b. Trigger Nested Deployment of this same template 
 
                     2. IF Child contains 'Id' with a value that does NOT contain Microsoft.Management/managementGroups
-                        a. Move Subscription under Management Group. Currently this functionality is disabled in Template due to Platform Bug. Workaround is move subscription manually under the right management group.
+                        a. Move Subscription under Management Group. Currently this functionality is disabled in Template due to Platform Bug. Workaround is move Subscription manually under the right Management Group.
                         b. Trigger Nested Deployment for the Child
 
                 Change Log: 
@@ -183,7 +183,7 @@
                         },
 
                         /*
-                            Start nested deployment for each child management group
+                            Start nested deployment for each child Management Group
                         */
                         {
                             "condition": "[contains(variables('Children')[copyIndex()].Id ,'Microsoft.Management/managementGroups')]",
@@ -243,7 +243,7 @@
                             }
                         },
                         /*
-                            Ensure Subscription is under parent management group
+                            Ensure Subscription is under parent Management Group
                             This is commented out until platform supports capability.
                         /*
                         /*
@@ -257,7 +257,7 @@
                         },
                         */
                         /*
-                            For each Subscription (i.e. Not management group), Start nested deployment
+                            For each Subscription (i.e. Not Management Group), Start nested deployment
                         */
                         {
                             "condition": "[not(contains(variables('Children')[copyIndex()].Id ,'Microsoft.Management/managementGroups'))]",
@@ -823,7 +823,7 @@
             /*
                 Subscription - Role Definition
              
-                Subscription deployment cannot be invoked with scope property unlike management group.
+                Subscription deployment cannot be invoked with scope property unlike Management Group.
                 This resoruce is uses subscriptionId property instead.
             */
             "condition": "[and(
