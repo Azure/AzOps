@@ -99,7 +99,7 @@
             */
             "condition": "[and(contains(variables('scope'),'Microsoft.Management/managementGroups'), contains(parameters('input'),'ParentId'))]",
             "type": "Microsoft.Management/managementGroups",
-            "apiVersion": "2020-02-01",
+            "apiVersion": "2020-05-01",
             "name": "[parameters('input').Name]",
             "properties": {
                 "displayName": "[parameters('input').DisplayName]",                                
@@ -137,7 +137,6 @@
                 Change Log: 
                     1. Initial Definition
             */
-
             "condition": "[not(empty(variables('Children')))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-07-01",
@@ -170,7 +169,7 @@
                         {
                             "condition": "[contains(variables('Children')[copyIndex()].Id ,'Microsoft.Management/managementGroups')]",
                             "type": "Microsoft.Management/managementGroups",
-                            "apiVersion": "2020-02-01",
+                            "apiVersion": "2020-05-01",
                             "name": "[variables('Children')[copyIndex()].Name]",
                             "properties": {
                                 "displayName": "[variables('Children')[copyIndex()].DisplayName]",
@@ -181,7 +180,6 @@
                                 }
                             }
                         },
-
                         /*
                             Start nested deployment for each child Management Group
                         */
@@ -246,16 +244,14 @@
                             Ensure Subscription is under parent Management Group
                             This is commented out until platform supports capability.
                         /*
-                        /*
                         {
                             "condition": "[not(contains(if(contains(variables('Children')[copyIndex()], 'Id'),variables('Children')[copyIndex()].Id, concat('Microsoft.Management/managementGroups/',variables('Children')[copyIndex()].Name)),'Microsoft.Management/managementGroups'))]",
                             "type": "Microsoft.Management/managementGroups/subscriptions",
-                            "apiVersion": "2019-11-01",
+                            "apiVersion": "2020-05-01",
                             "name": "[concat(parameters('input').Name,'/',variables('Children')[copyIndex()].Name)]",
                             "properties": {
                             }
                         },
-                        */
                         /*
                             For each Subscription (i.e. Not Management Group), Start nested deployment
                         */
