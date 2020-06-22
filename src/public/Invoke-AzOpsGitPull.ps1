@@ -85,7 +85,6 @@ function Invoke-AzOpsGitPull {
                 $response = Invoke-RestMethod -Method "Post" @params
             }
 
-
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
             $params = @{
                 Uri     = ($env:GITHUB_API_URL + "/repos/" + $env:GITHUB_REPOSITORY + ("/pulls?state=open&head=") + $env:GITHUB_REPOSITORY + ":system")
