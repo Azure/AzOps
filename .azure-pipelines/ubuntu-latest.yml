@@ -1,14 +1,11 @@
 pr:
   paths:
     include:
-      - .azure-pipelines/*
-      - examples/*
-      - src/*
-      - template/*
-      - tests/*
+      - '*'
     exclude:
       - .github/*
       - .vscode/*
+      - docs/*
 
 variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
