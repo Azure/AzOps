@@ -97,7 +97,7 @@ function Invoke-AzOpsGitPull {
             if (!$response) {
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
                 Start-AzOpsNativeExecution {
-                    gh pr create --title $env:INPUT_GITHUB_PULL_REQUEST --body "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure" --label "system"
+                    gh pr create --title $env:INPUT_GITHUB_PULL_REQUEST --body "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure" --label "system" --repo $env:GITHUB_REPOSITORY
                 } | Out-Host
             }
             else {
