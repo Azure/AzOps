@@ -60,7 +60,7 @@ function Invoke-AzOpsGitPull {
             } | Out-Null
 
             switch ($env:INPUT_SCMPLATFORM) {
-            #region SCMPlatform GitHub
+                #region SCMPlatform GitHub
                 "GitHub" {
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if label (system) exists"
                     $params = @{
@@ -109,8 +109,8 @@ function Invoke-AzOpsGitPull {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request creation"
                     }
                 }
-            #endregion
-            #region SCMPlatform GitHub
+                #endregion
+                #region SCMPlatform GitHub
                 "AzureDevOps" {
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
 
@@ -137,11 +137,11 @@ function Invoke-AzOpsGitPull {
                                 "Content-Type"  = "application/json"
                             }
                             Body    = (@{
-                                "sourceRefName" = "refs/heads/system"
-                                "targetRefName" = "refs/heads/main"
-                                "title" = "$env:INPUT_GITHUB_PULL_REQUEST"
-                                "description" = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
-                            }  | ConvertTo-Json -Depth 5)
+                                    "sourceRefName" = "refs/heads/system"
+                                    "targetRefName" = "refs/heads/main"
+                                    "title"         = "$env:INPUT_GITHUB_PULL_REQUEST"
+                                    "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
+                                }  | ConvertTo-Json -Depth 5)
                         }
                         $response = Invoke-RestMethod @params -Verbose:$VerbosePreference
 
@@ -155,13 +155,13 @@ function Invoke-AzOpsGitPull {
                                 "Content-Type"  = "application/json"
                             }
                             Body    = (@{
-                                "name" = "system"
-                            }  | ConvertTo-Json -Depth 5)
+                                    "name" = "system"
+                                }  | ConvertTo-Json -Depth 5)
                         }
                         Invoke-RestMethod @params -Verbose:$VerbosePreference
                     }
                 }
-            #endregion
+                #endregion
                 Default {
                     Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from INPUT_SCMPLATFORM. Current value is $env:INPUT_SCMPLATFORM"
                 }
