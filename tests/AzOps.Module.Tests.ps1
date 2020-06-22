@@ -17,7 +17,7 @@ Describe "Module Manifest" {
         }
 
         It 'Passes Test-ModuleManifest ModuleVersion' {
-            $ModuleManifest.Version | Should -Be '0.0.1'
+            $ModuleManifest.Version | Should -Be '0.1'
         }
 
         It 'Passes Test-ModuleManifest Copyright' {
