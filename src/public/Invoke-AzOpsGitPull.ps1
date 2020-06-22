@@ -36,7 +36,7 @@ function Invoke-AzOpsGitPull {
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
         Start-AzOpsNativeExecution {
-            git add 'azops/'
+            git add $env:INPUT_AZOPS_STATE
         } | Out-Host
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
