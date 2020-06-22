@@ -190,7 +190,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                 if ($ChildOfManagementGroups) {
 
                     <#
-                        Due to Credential error below, we are restricting  Thrtottle Limit to 1 instead of $env:AzOpsThrottleLimit
+                        Due to Credential error below, we are restricting  Throttle Limit to 1 instead of $env:AzOpsThrottleLimit
                         https://github.com/Azure/azure-powershell/issues/9448
                         $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
                     #>
