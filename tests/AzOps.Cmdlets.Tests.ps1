@@ -9,7 +9,7 @@ $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 Initialize-AzOpsGlobalVariables
 InModuleScope 'AzOps' {
 
-    #region Public
+    # region Public
     <#
     Describe "Initialize-AzOpsGlobalVariables" {
 
@@ -50,9 +50,9 @@ InModuleScope 'AzOps' {
         AfterAll { }
 
     }
-    #endregion
+    # endregion
 
-    #region Private
+    # region Private
     Describe "Compare-AzOpsState" {
 
         BeforeAll { }
@@ -104,7 +104,7 @@ InModuleScope 'AzOps' {
     Describe "ConvertTo-AzOpsState" {
 
         BeforeAll {
-            #Get Resources
+            # Get Resources
             $policyDefinition = Get-AzPolicyDefinition -Custom | Get-Random
             $policyAssignment = Get-AzPolicyAssignment | Get-Random
             $policySetDefinition = Get-AzPolicySetDefinition -Custom | Get-Random
@@ -112,7 +112,7 @@ InModuleScope 'AzOps' {
         }
 
         Context "Validate outputs" {
-            #Validate default exclusion of properties - metadata should always be excluded for policy objects
+            # Validate default exclusion of properties - metadata should always be excluded for policy objects
             It "Passes policyDefinition default exclusion of properties" {
                 (Get-Member -InputObject (ConvertTo-AzOpsState -Resource $policyDefinition -ReturnObject).parameters.input.value.properties).Name | Should -Not -Contain Metadata
             }
@@ -134,26 +134,26 @@ InModuleScope 'AzOps' {
     Describe "Test-AzOpsDuplicateSubMgmtGroup" {
 
         BeforeAll {
-            #Mock subscription object
+            # Mock Subscription object
             $Subscriptions = 1..3 | ForEach-Object -Process { [pscustomobject]@{ Name = "Subscription 1" ; Id = New-Guid } }
-            #Mock managementgroup object
+            # Mock managementgroup object
             $ManagementGroups = 1..3  | ForEach-Object -Process { [pscustomobject]@{ DisplayName = "Management Group 1" ; Id = New-Guid } }
 
-            #Test cmdlet against mock data to return output
+            # Test cmdlet against mock data to return output
             $DuplicateTest = Test-AzOpsDuplicateSubMgmtGroup -Subscriptions $Subscriptions -ManagementGroups $ManagementGroups
-            #Test cmdlet against inputdata with 1 subscription/management group
+            # Test cmdlet against inputdata with 1 Subscription/Management Group
             $SingleTest = Test-AzOpsDuplicateSubMgmtGroup -Subscription ($Subscriptions | Select-Object -First 1) -ManagementGroups ($ManagementGroups | Select-Object -First 1)
         }
 
         Context "Validate outputs" {
 
-            It "Passes returns 3 management groups with duplicate names" {
+            It "Passes returns 3 Management Groups with duplicate names" {
                 ($DuplicateTest | Where-Object { $_.Type -eq "ManagementGroup" }).Count | Should -BeExactly 3
             }
             It "Passes returns 3 subscriptions with duplicate names" {
                 ($DuplicateTest | Where-Object { $_.Type -eq "Subscription" }).Count | Should -BeExactly 3
             }
-            It "Passes returns null when no duplicate subscriptions or management groups found" {
+            It "Passes returns null when no duplicate subscriptions or Management Groups found" {
                 $SingleTest | Should -BeNullOrEmpty
             }
 
@@ -383,6 +383,6 @@ InModuleScope 'AzOps' {
 
     }
     #>
-    #endregion
+    # endregion
 
 }
