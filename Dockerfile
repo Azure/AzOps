@@ -2,8 +2,8 @@ FROM mcr.microsoft.com/powershell:latest
 
 LABEL "com.github.actions.name"="AzOps"
 LABEL "com.github.actions.description"="-"
-LABEL version="0.0.1"
-LABEL repository="https://github.com/Azure/CET-NorthStar"
+LABEL version="0.1"
+LABEL repository="https://github.com/Azure/AzOps"
 LABEL maintainer="Microsoft"
 
 ARG github=0.10.0
