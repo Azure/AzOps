@@ -8,7 +8,7 @@ inputs:
   azops_state:
     description: "AzOps State"
     required: false
-    default: azops
+    default: "azops"
   azops_enrollment_account_principal_name:
     description: "Enrollment account name"
     required: false
