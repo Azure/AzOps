@@ -4,6 +4,7 @@ pr:
       - .azure-pipelines/*
       - examples/*
       - src/*
+      - template/*
       - tests/*
     exclude:
       - .github/*
