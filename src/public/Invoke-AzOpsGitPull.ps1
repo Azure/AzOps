@@ -83,7 +83,11 @@ function Invoke-AzOpsGitPull {
                         } | ConvertTo-Json)
                 }
                 $response = Invoke-RestMethod -Method "Post" @params
+
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Starting sleep"
+                Start-Sleep -Seconds 5
             }
+
 
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
             $params = @{
