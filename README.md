@@ -6,7 +6,7 @@
 
 ## Welcome
 
-This repository is home to Git Action AzOps.
+This repository is home to the GitHub Action: AzOps.
 
 ## Design Objectives
 
