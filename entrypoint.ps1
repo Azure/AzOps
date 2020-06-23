@@ -38,9 +38,9 @@ function Initialization {
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting AzOpsState to $($env:AZOPS_STATE)"
                 $env:AzOpsState = $env:AZOPS_STATE
             }
-            if ($env:AZOPS_ENROLLMENT_ACCOUNT_PRINCIPAL_NAME) {
-                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting AzOpsEnrollmentAccountPrincipalName to $($env:AZOPS_ENROLLMENT_ACCOUNT_PRINCIPAL_NAME)"
-                $env:AzOpsEnrollmentAccountPrincipalName = $env:AZOPS_ENROLLMENT_ACCOUNT_PRINCIPAL_NAME
+            if ($env:AZOPS_ENROLLMENT_ACCOUNT) {
+                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting AzOpsEnrollmentAccountPrincipalName to $($env:AZOPS_ENROLLMENT_ACCOUNT)"
+                $env:AzOpsEnrollmentAccountPrincipalName = $env:AZOPS_ENROLLMENT_ACCOUNT
             }
             if ($env:AZOPS_OFFER_TYPE) {
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting offerType to $($env:AZOPS_OFFER_TYPE)"
