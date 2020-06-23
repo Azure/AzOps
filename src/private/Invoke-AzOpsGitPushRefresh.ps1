@@ -31,7 +31,7 @@ function Invoke-AzOpsGitPushRefresh {
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
                 Start-AzOpsNativeExecution {
-                    git add --intent-to-add $env:INPUT_AZOPS_STATE
+                    git add --intent-to-add $env:AZOPS_STATE
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
@@ -44,21 +44,21 @@ function Invoke-AzOpsGitPushRefresh {
                     git reset --hard
                 } | Out-Host
                 
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($env:INPUT_GITHUB_HEAD_REF) exists"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($env:GITHUB_HEAD_REF) exists"
                 $branch = Start-AzOpsNativeExecution {
-                    git branch --list $env:INPUT_GITHUB_HEAD_REF
+                    git branch --list $env:GITHUB_HEAD_REF
                 }
         
                 if ($branch) {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($env:INPUT_GITHUB_HEAD_REF)"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($env:GITHUB_HEAD_REF)"
                     Start-AzOpsNativeExecution {
-                        git checkout $env:INPUT_GITHUB_HEAD_REF
+                        git checkout $env:GITHUB_HEAD_REF
                     } | Out-Host
                 }
                 else {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($env:INPUT_GITHUB_HEAD_REF)"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($env:GITHUB_HEAD_REF)"
                     Start-AzOpsNativeExecution {
-                        git checkout -b $env:INPUT_GITHUB_HEAD_REF origin/$env:INPUT_GITHUB_HEAD_REF
+                        git checkout -b $env:GITHUB_HEAD_REF origin/$env:GITHUB_HEAD_REF
                     } | Out-Host
                 }
         
@@ -75,19 +75,19 @@ function Invoke-AzOpsGitPushRefresh {
                     git fetch origin
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($env:INPUT_GITHUB_HEAD_REF)"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($env:GITHUB_HEAD_REF)"
                 Start-AzOpsNativeExecution {
-                    git checkout $env:INPUT_GITHUB_HEAD_REF
+                    git checkout $env:GITHUB_HEAD_REF
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($env:INPUT_GITHUB_HEAD_REF) changes"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($env:GITHUB_HEAD_REF) changes"
                 Start-AzOpsNativeExecution {
-                    git pull origin $env:INPUT_GITHUB_HEAD_REF
+                    git pull origin $env:GITHUB_HEAD_REF
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Merging origin branch ($env:INPUT_GITHUB_BASE_REF) changes"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Merging origin branch ($env:GITHUB_BASE_REF) changes"
                 Start-AzOpsNativeExecution {
-                    git merge origin/$env:INPUT_GITHUB_BASE_REF --no-commit
+                    git merge origin/$env:GITHUB_BASE_REF --no-commit
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
@@ -95,7 +95,7 @@ function Invoke-AzOpsGitPushRefresh {
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
                 Start-AzOpsNativeExecution {
-                    git add $env:INPUT_AZOPS_STATE
+                    git add $env:AZOPS_STATE
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
@@ -109,9 +109,9 @@ function Invoke-AzOpsGitPushRefresh {
                         git commit -m 'System commit'
                     } | Out-Host
 
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($env:INPUT_GITHUB_HEAD_REF)"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($env:GITHUB_HEAD_REF)"
                     Start-AzOpsNativeExecution {
-                        git push origin $env:INPUT_GITHUB_HEAD_REF
+                        git push origin $env:GITHUB_HEAD_REF
                     } | Out-Host
                 }
             }
