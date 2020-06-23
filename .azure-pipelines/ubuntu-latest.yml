@@ -6,6 +6,7 @@ pr:
       - .github/*
       - .vscode/*
       - docs/*
+      - '*.md'
 
 variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
