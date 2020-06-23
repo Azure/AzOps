@@ -33,6 +33,9 @@ inputs:
     description: "Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery"
     required: false
     default: "10"
+  azops_discovery_scope:
+    description: "Limit discovery to the specified management group resource ID. Must also be used with azops_ignore_context_check=1"
+    required: false
   github_email:
     description: "Git Email"
     required: false

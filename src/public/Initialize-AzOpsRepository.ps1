@@ -120,17 +120,25 @@ function Initialize-AzOpsRepository {
 
         # Set AzOpsScope root scope based on tenant root id
         if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId })) {
-
             $RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id
-            # Create AzOpsState Structure recursively
-            Save-AzOpsManagementGroupChildren -scope $RootScopeId
+        }
 
-            # Discover Resource at scope recursively
-            Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+        # Override root scope if scoped discovery is enabled
+        if ($env:INPUT_AZOPS_DISCOVERY_SCOPE) {
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Discovery scope is set, performing partial discovery at: $env:INPUT_AZOPS_DISCOVERY_SCOPE"
+            $RootScopeId = $env:INPUT_AZOPS_DISCOVERY_SCOPE
         }
-        else {
-            Write-Error "Root Management Group Not Found"
+
+        if (!$RootScopeId) {
+            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Root management group not found and discovery scope not set"
         }
+
+        # Create AzOpsState Structure recursively
+        Save-AzOpsManagementGroupChildren -scope $RootScopeId
+
+        # Discover Resource at scope recursively
+        Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+
     }
 
     end {
