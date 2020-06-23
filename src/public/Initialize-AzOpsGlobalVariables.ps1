@@ -102,7 +102,7 @@ function Initialize-AzOpsGlobalVariables {
             try {
                 $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
                 if ($managementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group:  $($managementGroups.Count)"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
                     foreach ($mgmtGroup in $managementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Expanding Management Group : $($mgmtGroup.Name)"
                         $global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
