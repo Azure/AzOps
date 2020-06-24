@@ -44,7 +44,7 @@ function Initialization {
             }
             if ($env:AZOPS_OFFER_TYPE) {
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting offerType to $($env:AZOPS_OFFER_TYPE)"
-                $env:offerType = $env:AZOPS_OFFER_TYPE
+                $env:AzOpsOfferType = $env:AZOPS_OFFER_TYPE
             }
             if ($env:AZOPS_DEFAULT_DEPLOYMENT_REGION) {
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Setting AzOpsDefaultDeploymentRegion to $($env:AZOPS_DEFAULT_DEPLOYMENT_REGION)"

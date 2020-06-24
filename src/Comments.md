@@ -23,13 +23,13 @@ Please note, the `bash` and `powershell` commands will require a GitHub Personal
 #### GitHub CLI 
 
 ```bash
-gh api -X POST repos/<Organisation>/<Repository>/dispatches --field event_type=github-cli
+gh api -X POST repos/<Organisation>/<Repository>/dispatches --field event_type='GitHub CLI'
 ```
 
 #### Bash
 
 ```bash
-curl -u "<Username>:<Token>" -H "Content-Type: application/json" --url "https://api.github.com/repos/<Organisation>/<Repository>/dispatches" --data '{"event_type": "bash"}'
+curl -u "<Username>:<Token>" -H "Content-Type: application/json" --url "https://api.github.com/repos/<Organisation>/<Repository>/dispatches" --data '{"event_type": "Bash"}'
 ```
 
 #### PowerShell
@@ -43,7 +43,7 @@ $params = @{
         "Authorization" = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "<Username>", "<Token>"))))"
     }
     Body    = @{
-        "event_type" = "powershell"
+        "event_type" = "PowerShell"
     } | ConvertTo-json
 }
 Invoke-RestMethod @params

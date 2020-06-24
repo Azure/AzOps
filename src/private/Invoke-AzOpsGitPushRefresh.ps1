@@ -6,7 +6,10 @@ function Invoke-AzOpsGitPushRefresh {
         [string]$Operation
     )
 
-    begin {}
+    begin {
+        $skipResourceGroup = $env:AZOPS_SKIP_RESOURCE_GROUP
+        $skipPolicy = $env:AZOPS_SKIP_POLICY
+    }
 
     process {
         switch ($operation) {
@@ -27,7 +30,7 @@ function Invoke-AzOpsGitPushRefresh {
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
-                Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup
+                Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
                 Start-AzOpsNativeExecution {
@@ -91,7 +94,7 @@ function Invoke-AzOpsGitPushRefresh {
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
-                Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup
+                Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
                 Start-AzOpsNativeExecution {
