@@ -111,7 +111,6 @@
             }
         },
         {
-
             /*
                 Intent: Upsert 'Child' for the Management Group. Subscriptions do not have children and hence this resource will be filtered.
 
@@ -411,6 +410,36 @@
             }
         },
         {
+            
+            "condition": "[and(not(empty(variables('policySetDefinitions'))),contains(variables('scope'),'Microsoft.Management/managementGroups'))]",
+            "scope": "[variables('scope')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "location": "[deployment().location]",
+            "copy": {
+                "name": "policySetDefinitionDelay",
+                "count": 20,
+                "batchSize": 1,
+                "mode": "Serial"
+            },
+            "name": "[concat('delayForPolicySet', copyIndex(), guid(variables('scope')))]",
+            "dependsOn": [
+                "[parameters('input').Name]",
+                "policydefinitionloop",
+                "policydefinitionloop-subscription"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [],
+                    "outputs": {}
+                }
+            }
+        },
+        {
             /*
 
                 Intent: Upsert 'policySetDefinitions' for the Management Group.
@@ -444,7 +473,8 @@
             "dependsOn": [
                 "[parameters('input').Name]",
                 "policydefinitionloop",
-                "policydefinitionloop-subscription"
+                "policydefinitionloop-subscription",
+                "policySetDefinitionDelay"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
