@@ -1,54 +1,50 @@
-**AzOps**
-
-Status: _Out of Sync_
-
-Description:
+## AzOps
 
 _The repository does not contain the latest Azure Resource Manager state, remediation is required before merging of the Pull Request can complete._
 
-Remediation:
+### Remediation:
 
-You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) your repository to pull latest changes from Azure by invoking GitHub Action. You can monitor the status of the GitHub Action in `Actions` Tab. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
+[Re-initialization](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) of the repository is required to pull the latest changes from Azure by manually invoking the GitHub Action.
 
-- 1. Please merge Pull Request from `system`  branch in to your `main` branch.
-- 2. Update you feature branch from  main `git pull origin/main`
-- 3. Push your branch to `origin` by running following command `git push`
+Upon successful completion, the action will create a new `system` branch and a new `Azure Change Notification` pull request containing the latest configuration.
 
-Upon successful push, GitHub Action workflow should automatically run.
+- Merge the new pull request from `system` branch into `main` branch
 
-To get started, type the following commands either in `bash` or `powershell` shell. Please replace the placeholders (<...>) with your values:
+- Update the feature branch from `main` branch - `git pull origin/main`
 
-In a terminal, type the following commands by replacing the placeholders (<...>) with your actual values:
+- Push the feature branch to origin - `git push`
 
-### Github Cli (Does not Require PAT token)
+### Steps (Initialize):
+
+To get started, select one of the following options, either `github-cli`, `bash` or `powershell` and enter the following commands in and replace the placeholders (<...>) with your values.
+
+Please note, the `bash` and `powershell` commands will require a GitHub Personal Access Token.
+
+#### GitHub CLI 
 
 ```bash
-gh api -X POST repos/<Your GitHub ID>/<Your Repo Name>/dispatches --field event_type=activity-logs
-````
-
-### PowerShell
-
-```powershell
-$GitHubUserName = "<GH UserName or Github Enterprise Organisation Name>"
-$GitHubPAT = "<PAT TOKEN>"
-$GitHubRepoName = "<Repo Name>"
-$uri = "https://api.github.com/repos/$GitHubUserName/$GitHubRepoName/dispatches"
-$params = @{
-    Uri = $uri
-    Headers = @{
-        "Accept" = "application/vnd.github.everest-preview+json"
-        "Content-Type" = "application/json"
-        "Authorization" = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $GitHubUserName,$GitHubPAT))))"
-        }
-    Body = @{
-        "event_type" = "activity-logs"
-        } | ConvertTo-json
-    }
-Invoke-RestMethod -Method "POST" @params
+gh api -X POST repos/<Organisation>/<Repository>/dispatches --field event_type='GitHub CLI'
 ```
 
-### Bash
+#### Bash
 
 ```bash
-curl -u "<GH UserName>:<PAT Token>" -H "Accept: application/vnd.github.everest-preview+json"  -H "Content-Type: application/json" https://api.github.com/repos/<Your GitHub ID>/<Your Repo Name>/dispatches --data '{"event_type": "activity-logs"}'
+curl -u "<Username>:<Token>" -H "Content-Type: application/json" --url "https://api.github.com/repos/<Organisation>/<Repository>/dispatches" --data '{"event_type": "Bash"}'
+```
+
+#### PowerShell
+
+```powershell
+$params = @{
+    Method  = "Post"
+    Uri     = ("https://api.github.com/repos/" + "<Organisation>/<Repository>" + "/dispatches")
+    Headers = @{
+        "Content-Type"  = "application/json"
+        "Authorization" = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "<Username>", "<Token>"))))"
+    }
+    Body    = @{
+        "event_type" = "PowerShell"
+    } | ConvertTo-json
+}
+Invoke-RestMethod @params
 ```

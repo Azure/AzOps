@@ -83,7 +83,7 @@ function New-AzOpsStateDeployment {
 
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "EnrollmentAccountObjectId: $EnrollmentAccountObjectId"
 
-                        $subscription = New-AzSubscription -Name $scope.Name -OfferType $global:offerType -EnrollmentAccountObjectId $EnrollmentAccountObjectId
+                        $subscription = New-AzSubscription -Name $scope.Name -OfferType $global:AzOpsOfferType -EnrollmentAccountObjectId $EnrollmentAccountObjectId
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Creating new Subscription Success!"
 
                         $ManagementGroupName = $scope.managementgroup
