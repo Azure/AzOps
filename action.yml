@@ -2,72 +2,9 @@ name: "AzOps"
 description: "-"
 author: "Microsoft"
 inputs:
-  azure_credentials:
-    description: "Azure Credentials"
-    required: true
-  azops_state:
-    description: "AzOps State"
-    required: false
-    default: "azops"
-  azops_enrollment_account_principal_name:
-    description: "Enrollment account name"
-    required: false
-    default: ""
-  azops_offer_type:
-    description: "Azure Offer Type for new subscription to be provisioned"
-    required: false
-    default: "MS-AZR-0017P"
-  azops_default_deployment_region:
-    description: "Default deployment region for state deployments (ARM region, not region where a resource is deployed)"
-    required: false
-    default: "northeurope"
-  azops_invalidate_cache:
-    description: "Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered"
-    required: false
-    default: "1"
-  azops_ignore_context_check:
-    description: "If set to 1, skip AAD tenant validation == 1"
-    required: false
-    default: "0"
-  azops_throttle_limit:
-    description: "Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery"
-    required: false
-    default: "10"
-  github_email:
-    description: "Git Email"
-    required: false
-    default: "noreply@azure.com"
-  github_username:
-    description: "GitHub Username"
-    required: false
-    default: "AzOps"
-  github_comments:
-    description: "GitHub Comments"
-    required: false
-  github_issue:
-    description: "GitHub Issue"
-    required: false
-  github_pull_request:
-    description: "GitHub Pull Request"
-    required: false
-    default: "Azure Change Notification"
-  github_base_ref:
-    description: "GitHub BASE Ref"
-    required: true
-  github_head_ref:
-    description: "GitHub HEAD Ref"
-    required: true
   mode:
     description: "AzOps Mode"
     required: true
-  verbose:
-    description: "PowerShell Verbose"
-    required: false
-    default: "false"
-  debug:
-    description: "PowerShell Debug"
-    required: false
-    default: "false"
 runs:
   using: "docker"
   image: "Dockerfile"

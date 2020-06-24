@@ -22,7 +22,7 @@ function Invoke-AzOpsGitPush {
             }
 
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
-            Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_GITHUB_COMMENTS"
+            Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:GITHUB_COMMENTS"
             $params = @{
                 Headers = @{
                     "Authorization" = ("Bearer " + $env:GITHUB_TOKEN )
@@ -31,7 +31,7 @@ function Invoke-AzOpsGitPush {
                         "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
                     } | ConvertTo-Json)
             }
-            $response = Invoke-RestMethod -Method "POST" -Uri $env:INPUT_GITHUB_COMMENTS @params
+            $response = Invoke-RestMethod -Method "POST" -Uri $env:GITHUB_COMMENTS @params
             exit 1
         }
         else {
