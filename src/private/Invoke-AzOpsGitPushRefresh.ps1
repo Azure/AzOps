@@ -7,8 +7,12 @@ function Invoke-AzOpsGitPushRefresh {
     )
 
     begin {
-        $skipResourceGroup = $env:AZOPS_SKIP_RESOURCE_GROUP
-        $skipPolicy = $env:AZOPS_SKIP_POLICY
+        if ($env:AZOPS_SKIP_RESOURCE_GROUP -eq 1) {
+            $skipResourceGroup = $true
+        }
+        if ($env:AZOPS_SKIP_POLICY -eq 1) {
+            $skipPolicy = $true
+        }
     }
 
     process {
