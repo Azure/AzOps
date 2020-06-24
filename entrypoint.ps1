@@ -7,10 +7,10 @@ Import-Module $PSScriptRoot/src/AzOps.psd1 -Force
 function Logging {
 
     process {
-        if ($env:VERBOSE -eq "true") {
+        if ($env:VERBOSE -eq "1") {
             $PSDefaultParameterValues['*-AzOps*:Verbose'] = $true
         }
-        if ($env:DEBUG -eq "true") {
+        if ($env:DEBUG -eq "1") {
             $PSDefaultParameterValues['*-AzOps*:Debug'] = $true
         }
     }
