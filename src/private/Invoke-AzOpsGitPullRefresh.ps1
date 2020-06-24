@@ -4,13 +4,13 @@ function Invoke-AzOpsGitPullRefresh {
     param ()
 
     begin {
-        if ($env:AZOPS_SKIP_RESOURCE_GROUP -eq 1) {
+        if ($env:AZOPS_SKIP_RESOURCE_GROUP -eq "1") {
             $skipResourceGroup = $true
         }
         else {
             $skipResourceGroup = $false
         }
-        if ($env:AZOPS_SKIP_POLICY -eq 1) {
+        if ($env:AZOPS_SKIP_POLICY -eq "1") {
             $skipPolicy = $true
         }
         else {
