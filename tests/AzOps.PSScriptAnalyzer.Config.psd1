@@ -3,7 +3,7 @@
     PowerShell data file containing configuration settings for PSScriptAnalyzer.
 .DESCRIPTION
     PowerShell data file containing configuration settings for PSScriptAnalyzer.
-    This file contains all PSScriptAnalyzer settings used by ./AzOps/tests/AzOps.PSScriptAnalyzer.Tests.ps1
+    This file contains PSScriptAnalyzer settings used by PSScriptAnalyzer in ./AzOps/tests/AzOps.PSScriptAnalyzer.Tests.ps1
 .EXAMPLE
     None
 .INPUTS
@@ -15,7 +15,7 @@
 @{
 
     IncludeRules    = @(
-        # The following array items control which tests will be included when running ./AzOps/tests/AzOps.PSScriptAnalyzer.Tests.ps1
+        # The following array items control which tests will be included when running PSScriptAnalyzer
         # Toggle comment against each item to to add/remove rules.
 
         # Line up assignment statements such that the assignment operator are aligned.
@@ -208,12 +208,12 @@
         "PSDSCUseVerboseMessageInDSCResource"
     )
 
-    SeverityActions = @{
-        # The following array items control which severtity levels will be included when running ./AzOps/tests/AzOps.PSScriptAnalyzer.Tests.ps1
-        # Toggle comment against each item to to add/remove rules.
+    SeverityLevels = @(
+        # The following array items control which severtity levels will be included when running PSScriptAnalyzer
+        # Toggle comment against each item to to add/remove severity levels.
 
-        Information = "continue"
-        Warning     = "continue"
-        Error       = "continue"
-    }
+        "Information",
+        "Warning",
+        "Error"
+    )
 }

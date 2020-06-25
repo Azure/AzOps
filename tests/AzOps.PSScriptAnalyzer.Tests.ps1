@@ -12,69 +12,79 @@
     None
 #>
 
-[CmdletBinding()]
-param (
-    [Parameter()]
-    [ValidateScript( { $_ | Test-Path })]
-    [String]$PSScriptAnalyzerConfigPath = "$($PWD.Path)/tests/AzOps.PSScriptAnalyzer.Config.psd1",
-    [Parameter()]
-    [ValidateScript( { $_ | Test-Path })]
-    [String]$PSScriptAnalyzerTestPath = "$($PWD.Path)"
-)
-
 # Run PSScriptAnalyzer tests against repository
 Describe 'PSScriptAnalyzer Tests' {
 
-    # Load PSScriptAnalyzer configuration from data file
-    try {
-        $PSScriptAnalyzerConfig = Import-PowerShellDataFile -Path $PSScriptAnalyzerConfigPath -ErrorAction Stop
-        $PSScriptAnalyzerRules = $PSScriptAnalyzerConfig.IncludeRules
-        $PSScriptAnalyzerConfigError = $null
-    }
-    catch {
-        $PSScriptAnalyzerConfigError = $($_.Exception.Message)
-    }
+    BeforeAll {
 
-    try {
+        $PSScriptAnalyzerConfigPath = "$($PWD.Path)/tests/AzOps.PSScriptAnalyzer.Config.psd1"
+        $PSScriptAnalyzerTestPath = "$($PWD.Path)/"
+    
+        # Load PSScriptAnalyzer configuration from data file
+        $PSScriptAnalyzerConfigError = $null
+        $PSScriptAnalyzerConfig = Import-PowerShellDataFile -Path $PSScriptAnalyzerConfigPath -ErrorVariable PSScriptAnalyzerConfigError -ErrorAction SilentlyContinue
+        $PSScriptAnalyzerRules = $PSScriptAnalyzerConfig.IncludeRules
+        $PSScriptAnalyzerSeverity = $PSScriptAnalyzerConfig.SeverityLevels
+    
+        # Run PSScriptAnalyzer against specified path
+        $PSScriptAnalyzerResultsError = $null
         $PSScriptAnalyzerResults = Invoke-ScriptAnalyzer `
             -Path $PSScriptAnalyzerTestPath `
             -IncludeRule $PSScriptAnalyzerRules `
+            -Severity $PSScriptAnalyzerSeverity `
             -Recurse `
-            -ErrorAction Stop
-        $PSScriptAnalyzerResultsError = $null
+            -ErrorVariable PSScriptAnalyzerResultsError `
+            -ErrorAction SilentlyContinue
+    
     }
-    catch {
-        $PSScriptAnalyzerResultsError = $($_.Exception.Message)
-    }
+    
+    Context "PSScriptAnalyzer Execution" {
 
-    Context "Execute PSScriptAnalyzer" {
+        It "PSScriptAnalyzerConfigPath file path should be valid and exist" {
+            $PSScriptAnalyzerConfigPath | Test-Path -PathType Leaf | Should -BeTrue
+        }
 
-        It "PSScriptAnalyzer PSScriptAnalyzerConfigPath file path should be valid and exist" {
-            $PSScriptAnalyzerConfigPath | Test-Path | Should Be $True Because "$PSScriptAnalyzerConfigPath is invalid or does not exist"
+        It "PSScriptAnalyzerTestPath directory path should be valid and exist" {
+            $PSScriptAnalyzerTestPath | Test-Path -PathType Container | Should -BeTrue
         }
 
         It "PSScriptAnalyzer should load config file from PSScriptAnalyzerConfigPath without errors" {
-            $PSScriptAnalyzerConfigError | Should BeNullOrEmpty Because $PSScriptAnalyzerConfigError
+            $PSScriptAnalyzerConfigError | Should -BeNullOrEmpty
         }
 
-        It "PSScriptAnalyzer PSScriptAnalyzerTestPath file path should be valid and exist" {
-            $PSScriptAnalyzerTestPath | Test-Path | Should Be $True Because "$PSScriptAnalyzerTestPath is invalid or does not exist"
+        It "PSScriptAnalyzerRules should contain at least 1 rule" {
+            $PSScriptAnalyzerRules.Count | Should -BeGreaterThan 0
+        }
+
+        It "PSScriptAnalyzerSeverity should contain 1 to 3 valid severity levels" {
+            $PSScriptAnalyzerSeverity.Count | Should -BeGreaterOrEqual 1
+            $PSScriptAnalyzerSeverity.Count | Should -BeLessOrEqual 3
+            $PSScriptAnalyzerSeverity.foreach(
+                {
+                    $_ | Should -Match ([regex]::new("(Information|Warning|Error)")) -ErrorAction Continue
+                }
+            )
         }
 
         It "PSScriptAnalyzer should run tests without errors" {
-            $PSScriptAnalyzerResultsError | Should BeNullOrEmpty Because $PSScriptAnalyzerResultsError
+            if ($PSScriptAnalyzerResultsError -like "An item with the same key has already been added. Key: ResourceError") {
+                Set-ItResult -Inconclusive -Because "None fatal known error in task: $PSScriptAnalyzerResultsError"
+            }
+            else {
+                $PSScriptAnalyzerResultsError | Should -BeNullOrEmpty
+            }
         }
 
     }
 
-    Context "Evaluate PSScriptAnalyzer Results" {
+    Context "PSScriptAnalyzer Test Results" {
 
-        foreach ($Rule in $PSScriptAnalyzerRules) {
-            It "All PowerShell files should pass PSScriptAnalyzer rule: $($Rule)" {
+        It "All PSScriptAnalyzer tests should pass" {
+            foreach ($Rule in $PSScriptAnalyzerRules) {
                 if ($PSScriptAnalyzerResults.RuleName -contains $Rule) {
                     $PSScriptAnalyzerResults | Where-Object RuleName -EQ $Rule -OutVariable FailedTests
                     $FailedTestsCount = $FailedTests.Count
-                    $FailedTestsCount | Should Be 0
+                    $FailedTestsCount | Should -Be 0 -Because $("$Rule should pass all tests") -ErrorAction Continue
                 }
             }
         }
