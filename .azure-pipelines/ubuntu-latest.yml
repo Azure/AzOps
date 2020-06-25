@@ -16,7 +16,7 @@ variables:
 
 jobs:
   - job: pesterTests1
-    displayName: Pester Tests (Manifest|Cmdlets)
+    displayName: Pester Tests (PSScriptAnalyzer|Manifest|Cmdlets)
     timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
 
     pool:
@@ -33,6 +33,14 @@ jobs:
         env:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
 
+      - task: PowerShell@2
+        displayName: "[pester] Run Tests (PSScriptAnalyzer)"
+        inputs:
+          targetType: inline
+          workingDirectory: $(System.DefaultWorkingDirectory)
+          script: |
+            Invoke-Pester -Script "./tests/AzOps.PSScriptAnalyzer.Tests.ps1" -OutputFile "./tests/AzOps.PSScriptAnalyzer.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+  
       - task: PowerShell@2
         displayName: "[pester] Run Tests (Manifest)"
         inputs:

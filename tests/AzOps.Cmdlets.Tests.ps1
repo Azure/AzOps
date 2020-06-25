@@ -1,7 +1,7 @@
-#Import required modules
+# Import required modules
 Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
 Get-ChildItem "$PSScriptRoot/../src/private" -Force | ForEach-Object -Process { . $_.FullName }
-#Set required variables
+# Set required variables
 $env:AzOpsState = $TestDrive
 $env:InvalidateCache = 1
 $env:AzOpsMainTemplate = ("$PSScriptRoot/../src/template.json")
