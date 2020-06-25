@@ -1,12 +1,12 @@
 # AzOps
 
-[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
+[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
 [![Feature Requests](https://img.shields.io/github/issues/Azure/azops/feature.svg)](https://github.com/Azure/azops/issues?q=is%3Aopen+is%3Aissue+label%3Afeature+sort%3Areactions-%2B1-desc)
 [![Bugs](https://img.shields.io/github/issues/Azure/azops/bug.svg)](https://github.com/Azure/azops/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
 
 ## Welcome
 
-This repository is home to Git Action AzOps.
+This repository is home to the GitHub Action: AzOps.
 
 ## Design Objectives
 
@@ -68,7 +68,7 @@ File -> New -> Landing Zones (i.e. Subscription) process is ARM orchestrating fo
 - Subscription move under the target management structure
 - Configuring Subscription to desired state by policy enfrorcement - autonomously.
 
-For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](./Implementation-Guide.md), and will have the following sequence:
+For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
 
 - Create (1) Management Group hierarchy and (2) Subscription organization structure in (Platform + N) fashion where N represents number of landing zones.
 - Create Policies (deployIfNotExists) assigned to (2) Management Groups and (3) Subscription scope to govern and deploy necessary resources, enabling platform autonomy as new landing zones (Subscriptions) are being created by application teams

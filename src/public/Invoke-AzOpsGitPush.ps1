@@ -6,7 +6,7 @@ function Invoke-AzOpsGitPush {
 
     begin {
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking pre refresh process"
-        $diff = Invoke-AzOpsGitPushRefresh -Operation "Before" -BaseBranch $env:INPUT_GITHUB_BASE_REF -HeadBranch $env:INPUT_GITHUB_HEAD_REF
+        $diff = Invoke-AzOpsGitPushRefresh -Operation "Before"
         
         # Messages
 
@@ -22,7 +22,7 @@ function Invoke-AzOpsGitPush {
             }
 
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
-            Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_GITHUB_COMMENTS"
+            Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:GITHUB_COMMENTS"
             $params = @{
                 Headers = @{
                     "Authorization" = ("Bearer " + $env:GITHUB_TOKEN )
@@ -31,7 +31,7 @@ function Invoke-AzOpsGitPush {
                         "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
                     } | ConvertTo-Json)
             }
-            $response = Invoke-RestMethod -Method "POST" -Uri $env:INPUT_GITHUB_COMMENTS @params
+            $response = Invoke-RestMethod -Method "POST" -Uri $env:GITHUB_COMMENTS @params
             exit 1
         }
         else {
@@ -123,28 +123,7 @@ function Invoke-AzOpsGitPush {
 
     end {
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking post refresh process"
-        Invoke-AzOpsGitPushRefresh -Operation "After" -BaseBranch $env:INPUT_GITHUB_BASE_REF -HeadBranch $env:INPUT_GITHUB_HEAD_REF
-
-        # Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if issue comment exists"
-        # $params = @{
-        #     Uri     = ($env:INPUT_GITHUB_ISSUE + "/comments")
-        #     Headers = @{
-        #         "Authorization" = ("Bearer " + $env:GITHUB_TOKEN)
-        #     }
-        # }
-        # $response = Invoke-RestMethod -Method "Get" @params | Where-Object -FilterScript { $_.user.login -eq "github-actions[bot]" }
-
-        # Write-AzOpsLog -Level Information -Topic "rest" -Message "Removing system comment"
-        # if ($response) {
-        #     $params = @{
-        #         Uri     = ($env:INPUT_GITHUB_ISSUE + "/comments/" + $response.id)
-        #         Headers = @{
-        #             "Authorization" = ("Bearer " + $env:GITHUB_TOKEN)
-        #         }
-        #     }
-        #     $response = Invoke-RestMethod -Method "Delete" @params
-        # }
-        
+        Invoke-AzOpsGitPushRefresh -Operation "After"
     }
 
 }

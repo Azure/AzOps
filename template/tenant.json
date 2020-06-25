@@ -62,7 +62,7 @@
             "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]", 
             "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         }, 
-        
+
 
         "input": "[union(parameters('hobo'),parameters('input'))]",
         /*
@@ -80,9 +80,9 @@
     "resources": [
         {
             /*
-                
+
                 Intent: Upsert Management Group
-                
+
                 Required Parameters:
                     1. Name: Management Group Name
                     2. DisplayName: Management Group Display Name
@@ -102,26 +102,25 @@
             "apiVersion": "2020-05-01",
             "name": "[parameters('input').Name]",
             "properties": {
-                "displayName": "[parameters('input').DisplayName]",                                
+                "displayName": "[parameters('input').DisplayName]",
                 "details": "[if(
                                     not(empty(parameters('input').ParentId)),
                                     json(concat('{\"parent\": {\"id\": \"', replace(parameters('input').ParentId,'/','\/') ,'\"}}')),
                                     json('{}')
                             )]"
             }
-        },     
+        },
         {
-
-            /*                
+            /*
                 Intent: Upsert 'Child' for the Management Group. Subscriptions do not have children and hence this resource will be filtered.
-                
+
                 Required Parameters:
                     1. Management Group Name
                     2. Management Group Display Name
                     3. ParentID: Where to place Management Group
-                
+
                 Scope: Tenant
-                
+
                 Condition: If Management Group have Children object that is not null or empty.
 
                 Details: Trigger Composite Deployment at the Tenant scope for every child for following:
@@ -294,7 +293,7 @@
                                     },
                                     "_artifactsLocationSasToken": {
                                         "value": "[parameters('_artifactsLocationSasToken')]"
-                                    },                 
+                                    },
                                     "roleAssignmentEnabledForPolicy": {
                                         "value": "[variables('roleAssignmentEnabledForPolicy')]"
                                     },
@@ -315,15 +314,15 @@
             /*
 
                 Intent: Upsert 'PolicyDefinition' for the Management Group.
-                
+
                 Required Parameters (of PolicyDefinitions[] Object):
 
                     1. Name
                     2. ExtensionResourceType set to "Microsoft.Authorization/policyDefinitions",
                     3. Properties
-                
+
                 Scope: Tenant root
-                
+
                 Condition: Non Empty policyDefinitions[] in Properties bag of Management Group.
 
                 Details: Trigger Nested Deployment to create policy Definition.
@@ -343,7 +342,7 @@
             },
             "name": "[if(not(empty(variables('policyDefinitions'))), concat('PolicyDefinition-', variables('policyDefinitions')[copyIndex()].Name), 'na-mgmt-policydefinition')]",
             "dependsOn": [
-                "[parameters('input').Name]"                
+                "[parameters('input').Name]"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
@@ -364,15 +363,15 @@
         {
             /*
                 Intent: Upsert 'PolicyDefinition' for the Subscription. Subscription deployment is using "subscriptionId" property and not "scope".
-                
+
                 Required Parameters (of PolicyDefinitions[] Object):
 
                     1. Name
                     2. ExtensionResourceType set to "Microsoft.Authorization/policyDefinitions",
                     3. Properties
-                
+
                 Scope: Subscription
-                
+
                 Condition: Non Empty policyDefinitions[] in Properties bag of Management Group.
 
                 Details: Trigger Nested Deployment to create policy Definition.
@@ -392,7 +391,7 @@
             },
             "name": "[if(not(empty(variables('policyDefinitions'))), concat('PolicyDefinition-sub-', variables('policyDefinitions')[copyIndex()].Name), 'na-sub-policydefinition')]",
             "dependsOn": [
-                "[parameters('input').Name]"                
+                "[parameters('input').Name]"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
@@ -410,7 +409,37 @@
                 }
             }
         },
-        {   
+        {
+            
+            "condition": "[and(not(empty(variables('policySetDefinitions'))),contains(variables('scope'),'Microsoft.Management/managementGroups'))]",
+            "scope": "[variables('scope')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "location": "[deployment().location]",
+            "copy": {
+                "name": "policySetDefinitionDelay",
+                "count": 20,
+                "batchSize": 1,
+                "mode": "Serial"
+            },
+            "name": "[concat('delayForPolicySet', copyIndex(), guid(variables('scope')))]",
+            "dependsOn": [
+                "[parameters('input').Name]",
+                "policydefinitionloop",
+                "policydefinitionloop-subscription"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [],
+                    "outputs": {}
+                }
+            }
+        },
+        {
             /*
 
                 Intent: Upsert 'policySetDefinitions' for the Management Group.
@@ -444,7 +473,8 @@
             "dependsOn": [
                 "[parameters('input').Name]",
                 "policydefinitionloop",
-                "policydefinitionloop-subscription"
+                "policydefinitionloop-subscription",
+                "policySetDefinitionDelay"
             ],
             "properties": {
                 "expressionEvaluationOptions": {
@@ -614,7 +644,7 @@
                     "input": {
                         "value": {
                             "name": "[variables('policyAssignments')[copyIndex()].Name]",
-                            "ExtensionResourceType": "Microsoft.Authorization/policyAssignments",                                                            
+                            "ExtensionResourceType": "Microsoft.Authorization/policyAssignments",
                             "Location": "[if(contains(variables('policyAssignments')[copyIndex()],'Location'),
                                             variables('policyAssignments')[copyIndex()].Location,
                                             deployment().location
@@ -659,7 +689,7 @@
                                         contains(variables('policyAssignments')[copyIndex()].Properties, 'notScopes'),
                                         empty(variables('policyAssignments')[copyIndex()].Properties.notScopes)
                                     )
-                                )                       
+                                )
                             )]",
             "subscriptionId": "[parameters('input').Name]",
             "type": "Microsoft.Resources/deployments",
@@ -697,7 +727,7 @@
                                                             not(contains(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'policySetDefinitions')),
                                                             equals(toLower(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect),toLower('deployIfNotExists')),
                                                             contains(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.details, 'deploymentScope'),
-                                                            equals(toLower(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.details.deploymentScope),toLower('Subscription'))                                                            
+                                                            equals(toLower(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.details.deploymentScope),toLower('Subscription'))
                                                         ),
                                                         'Microsoft.PolicyInsights/remediations',
                                                         json('null')
@@ -720,7 +750,7 @@
             */
 
             "condition": "[and(
-                                variables('deploymentEnabledForPolicy'),                                
+                                variables('deploymentEnabledForPolicy'),
                                 greaterOrEquals(length(variables('policyAssignments')),1),
                                 contains(variables('scope'),'subscriptions'),
                                 or(
@@ -729,7 +759,7 @@
                                         contains(variables('policyAssignments')[copyIndex()].Properties, 'notScopes'),
                                         empty(variables('policyAssignments')[copyIndex()].Properties.notScopes)
                                     )
-                                )                                                        
+                                )
                             )]",
             "subscriptionId": "[parameters('input').Name]",
             "type": "Microsoft.Resources/deployments",
@@ -773,7 +803,7 @@
                                         contains(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.details, 'deploymentScope'),
                                         equals(toLower(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.details.deploymentScope),toLower('Subscription')),
                                         equals(length(reference(variables('policyAssignments') [copyIndex()].Properties.policyDefinitionId,'2018-05-01').parameters), length(variables('policyAssignments')[copyIndex()].Properties.parameters))
-                                    ),                                    
+                                    ),
                                     variables('policyAssignments')[copyIndex()].Properties.parameters,
                                     json('null')
                                 )]"
@@ -818,7 +848,7 @@
         {
             /*
                 Subscription - Role Definition
-             
+
                 Subscription deployment cannot be invoked with scope property unlike Management Group.
                 This resoruce is uses subscriptionId property instead.
             */
