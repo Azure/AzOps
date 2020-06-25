@@ -44,7 +44,6 @@ jobs:
   
       - task: PowerShell@2
         displayName: "[pester] Run Tests (Manifest)"
-        condition: always()
         inputs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
@@ -61,6 +60,7 @@ jobs:
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
           testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
@@ -95,6 +95,7 @@ jobs:
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
           testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
@@ -129,6 +130,7 @@ jobs:
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
           testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
