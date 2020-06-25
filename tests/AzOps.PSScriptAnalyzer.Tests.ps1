@@ -16,10 +16,10 @@
 param (
     [Parameter()]
     [ValidateScript( { $_ | Test-Path })]
-    [String]$PSScriptAnalyzerConfigPath = "./tests/AzOps.PSScriptAnalyzer.Config.psd1",
+    [String]$PSScriptAnalyzerConfigPath = "$($PWD.Path)/tests/AzOps.PSScriptAnalyzer.Config.psd1",
     [Parameter()]
     [ValidateScript( { $_ | Test-Path })]
-    [String]$PSScriptAnalyzerTestPath = "./"
+    [String]$PSScriptAnalyzerTestPath = "$($PWD.Path)"
 )
 
 # Run PSScriptAnalyzer tests against repository
@@ -50,7 +50,7 @@ Describe 'PSScriptAnalyzer Tests' {
     Context "Execute PSScriptAnalyzer" {
 
         It "PSScriptAnalyzer PSScriptAnalyzerConfigPath file path should be valid and exist" {
-            Test-Path -Path $PSScriptAnalyzerConfigPath | Should Be $True Because "$PSScriptAnalyzerConfigPath is invalid or does not exist"
+            $PSScriptAnalyzerConfigPath | Test-Path | Should Be $True Because "$PSScriptAnalyzerConfigPath is invalid or does not exist"
         }
 
         It "PSScriptAnalyzer should load config file from PSScriptAnalyzerConfigPath without errors" {
@@ -58,7 +58,7 @@ Describe 'PSScriptAnalyzer Tests' {
         }
 
         It "PSScriptAnalyzer PSScriptAnalyzerTestPath file path should be valid and exist" {
-            Test-Path -Path $PSScriptAnalyzerTestPath | Should Be $True Because "$PSScriptAnalyzerTestPath is invalid or does not exist"
+            $PSScriptAnalyzerTestPath | Test-Path | Should Be $True Because "$PSScriptAnalyzerTestPath is invalid or does not exist"
         }
 
         It "PSScriptAnalyzer should run tests without errors" {
