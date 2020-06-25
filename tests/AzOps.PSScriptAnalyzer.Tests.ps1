@@ -26,6 +26,9 @@ Describe 'PSScriptAnalyzer' {
         $PSScriptAnalyzerRules = $PSScriptAnalyzerConfig.IncludeRules
         $PSScriptAnalyzerSeverity = $PSScriptAnalyzerConfig.SeverityLevels
 
+        # Define PSScriptAnalyzer Rules which are currently being resolved
+        # and should be skipped in Pester tests.
+        # These rules will still be evaluated by PSScriptAnalyzer.
         $SkipAnalyzerRulesInPester = @(
             "PSAvoidGlobalVars",
             "PSAvoidTrailingWhitespace",
@@ -48,9 +51,15 @@ Describe 'PSScriptAnalyzer' {
             -ErrorVariable PSScriptAnalyzerResultsError `
             -ErrorAction SilentlyContinue
 
-        # Custom function for evaluating PSScriptAnalyzer Results (DRY)
         function Test-PSSAResult ($Rule) {
-            if ($PSScriptAnalyzerResults.RuleName -contains $Rule) {
+            # Custom function for evaluating PSScriptAnalyzer Results (DRY)
+            # Checks if rule is in the list of rules being tested and skips test if not.
+            # Also skips test if found in the SkipAnalyzerRulesInPester list.
+            # MISSING FEATURE: Doesn't take into account rules not run due to Severity Level filtering.
+            if ($Rule -notin $PSScriptAnalyzerRules) {
+                Set-ItResult -Skipped -Because "rule not being tested by PSScriptAnalyzer : $Rule"                
+            }
+            elseif ($PSScriptAnalyzerResults.RuleName -contains $Rule) {
                 if ($Rule -notin $SkipAnalyzerRulesInPester) {
                     $PSScriptAnalyzerResults | Where-Object RuleName -EQ $Rule -OutVariable FailedTests
                     $FailedTests.Count | Should -Be 0 -Because $Rule should pass all tests -ErrorAction Continue
