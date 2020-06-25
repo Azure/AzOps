@@ -43,6 +43,7 @@ jobs:
   
       - task: PowerShell@2
         displayName: "[pester] Run Tests (Manifest)"
+        condition: always()
         inputs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
