@@ -22,21 +22,24 @@ function Remove-AzOpsDeployments {
 
     process {
         Get-AzTenantDeployment   | Foreach-Object -Parallel {
-            Write-Verbose "$(Get-Date) Removing Deployment $($_.Id)"
-            Remove-AzTenantDeployment -DeploymentName $_.DeploymentName
+            Write-Verbose "$(Get-Date) Removing Tenant Deployment $($_.Id)"
+            Stop-AzTenantDeployment -Id $_.Id -Confirm:$false -ErrorAction:SilentlyContinue
+            Remove-AzTenantDeployment -Id $_.Id
         }
 
         Get-AzManagementGroup   | Foreach-Object -Parallel {
             Get-AzManagementGroupDeployment -ManagementGroupId $_.Name |  Foreach-Object -Parallel {
-                Write-Verbose "$(Get-Date) Removing Deployment $($_.Id)"
-                Remove-AzManagementGroupDeployment -DeploymentName $_.DeploymentName -ManagementGroupId $_.ManagementGroupId
+                Write-Verbose "$(Get-Date) Removing Management Group Deployment $($_.Id)"
+                Stop-AzManagementGroupDeployment -Id $_.Id -Confirm:$false -ErrorAction:SilentlyContinue
+                Remove-AzManagementGroupDeployment -Id $_.Id
             }
         }
 
         Get-AzSubscription | ForEach-Object {
             Set-AzContext -SubscriptionId $_.SubscriptionId | out-null
             Get-AzSubscriptionDeployment |  Foreach-Object -Parallel {
-                Write-Verbose "$(Get-Date) Removing Deployment $($_.Id)"
+                Write-Verbose "$(Get-Date) Removing Subscription Deployment $($_.Id)"
+                Stop-AzSubscriptionDeployment -Id $_.Id -Confirm:$false -ErrorAction:SilentlyContinue
                 Remove-AzSubscriptionDeployment -Id $_.Id
             }
         }
