@@ -1,14 +1,35 @@
 <#
-.SYNOPSIS
-    Pester tests to validate AzOpsScope.
-.DESCRIPTION
-    Pester tests to validate AzOpsScope.
-    These tests validate the AzOpsScope class correctly functions.
-.EXAMPLE
+    .SYNOPSIS
+    Pester tests to validate the AzOpsScope class.
+
+    .DESCRIPTION
+    Pester tests to validate the AzOpsScope class.
+
+    These tests validate functions within the AzOpsScope class:
+
+     - AzOpsScope unit tests (-Tag "scope")
+
+    Tests have been updated to use Pester version 5.0.x
+
+    .EXAMPLE
+    To run "Scope" tests only:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope"
+
+    .EXAMPLE
+    To run "Scope" tests only, and create test results for CI:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI
+
+    .EXAMPLE
+    To run "Scope", create test results for CI, and output detailed logs to host:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI -Output Detailed
+
+    .INPUTS
     None
-.INPUTS
-    None
-.OUTPUTS
+
+    .OUTPUTS
     None
 #>
 

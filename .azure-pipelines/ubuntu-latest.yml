@@ -17,7 +17,7 @@ variables:
 
 jobs:
   - job: pesterTests1
-    displayName: Pester Tests (PSScriptAnalyzer|Manifest|Cmdlets)
+    displayName: Pester Tests (Module)
     timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
 
     pool:

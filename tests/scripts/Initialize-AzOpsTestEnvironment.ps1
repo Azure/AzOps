@@ -67,7 +67,7 @@ $requiredModules | ForEach-Object {
 # Output a list of available PowerShell Modules installed on the build agent
 Get-Module -ListAvailable
 
-# Create credential variables 
+# Create credential variables
 $azureCredentials = $env:AZURE_CREDENTIALS | ConvertFrom-Json
 $credential = New-Object System.Management.Automation.PSCredential `
     -ArgumentList `

@@ -1,14 +1,35 @@
 <#
-.SYNOPSIS
-    Pester tests to validate AzOps for "In a Box" deployments.
-.DESCRIPTION
-    Pester tests to validate AzOps for "In a Box" deployments.
-    These tests validate the AzOps Module successfully complete the "In a Box" deployment.
-.EXAMPLE
+    .SYNOPSIS
+    Pester tests to validate the AzOps Module for "In a Box" deployments.
+
+    .DESCRIPTION
+    Pester tests to validate the AzOps Module for "In a Box" deployments.
+
+    These tests validate using the AzOps Module to perform the following deployment scenarios:
+
+     - "In a Box" end-to-end deployment (-Tag "iab")
+
+    Tests have been updated to use Pester version 5.0.x
+
+    .EXAMPLE
+    To run "In a Box" tests only:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "iab"
+
+    .EXAMPLE
+    To run "In a Box" tests only, and create test results for CI:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "iab" -CI
+
+    .EXAMPLE
+    To run "In a Box", create test results for CI, and output detailed logs to host:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "iab" -CI -Output Detailed
+
+    .INPUTS
     None
-.INPUTS
-    None
-.OUTPUTS
+
+    .OUTPUTS
     None
 #>
 
@@ -16,8 +37,10 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
     BeforeAll {
 
-        # Import required modules
+        # Import AzOps Module
         Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
+        # Make private functions from AzOps Module available for BeforeAll block
+        (Get-ChildItem "./src/private/*.ps1").FullName | Import-Module -Force
 
         #region setup
         # Task: Initialize environment variables
