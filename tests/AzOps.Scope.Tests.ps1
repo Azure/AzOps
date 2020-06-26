@@ -1,8 +1,24 @@
-Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
+<#
+.SYNOPSIS
+    Pester tests to validate AzOpsScope.
+.DESCRIPTION
+    Pester tests to validate AzOpsScope.
+    These tests validate the AzOpsScope class correctly functions.
+.EXAMPLE
+    None
+.INPUTS
+    None
+.OUTPUTS
+    None
+#>
 
-Describe "Unit Test for AzOpsScope" {
+Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
 
     BeforeAll {
+
+        # Import required modules
+        Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
+
         # Write-Verbose -Message "TestDrive: $TestDrive"
 
         # Task: Initialize environment variables
