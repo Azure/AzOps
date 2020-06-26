@@ -40,7 +40,7 @@ jobs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Path "./tests/" -TagFilter "module", -CI -Output Detailed
+            Invoke-Pester -Path "./tests/" -TagFilter "module" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
@@ -75,7 +75,7 @@ jobs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Path "./tests/" -TagFilter "scope", -CI -Output Detailed
+            Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
@@ -110,7 +110,7 @@ jobs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Path "./tests/" -TagFilter "iab", -CI -Output Detailed
+            Invoke-Pester -Path "./tests/" -TagFilter "iab" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
