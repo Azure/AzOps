@@ -59,7 +59,7 @@ function Invoke-AzOpsGitPull {
                 git push --force origin system
             } | Out-Null
 
-            switch ($env:INPUT_SCMPLATFORM) {
+            switch ($env:SCMPLATFORM) {
                 #region SCMPlatform GitHub
                 "GitHub" {
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if label (system) exists"
@@ -163,7 +163,7 @@ function Invoke-AzOpsGitPull {
                 }
                 #endregion
                 Default {
-                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from INPUT_SCMPLATFORM. Current value is $env:INPUT_SCMPLATFORM"
+                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
                 }
             }
         }

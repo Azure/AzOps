@@ -23,7 +23,7 @@ function Invoke-AzOpsGitPush {
 
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
 
-            switch ($env:INPUT_SCMPLATFORM) {
+            switch ($env:SCMPLATFORM) {
                 "GitHub" {
                     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:GITHUB_COMMENTS"
                     $params = @{
@@ -60,7 +60,7 @@ function Invoke-AzOpsGitPush {
                     exit 1
                 }
                 Default {
-                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from INPUT_SCMPLATFORM. Current value is $env:INPUT_SCMPLATFORM"
+                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
                 }
             }
         }
