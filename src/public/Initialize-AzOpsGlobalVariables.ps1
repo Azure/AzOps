@@ -36,7 +36,7 @@ function Initialize-AzOpsGlobalVariables {
             AzOpsMainTemplate                   = "$PSScriptRoot\..\..\template\template.json" # Main template json
             AzOpsStateConfig                    = "$PSScriptRoot\..\AzOpsStateConfig.json" # Configuration file for resource serialization
             AzOpsEnrollmentAccountPrincipalName = $null
-            offerType                           = 'MS-AZR-0017P'
+            AzOpsOfferType                      = 'MS-AZR-0017P'
             AzOpsDefaultDeploymentRegion        = 'northeurope' # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
             InvalidateCache                     = 1 # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             IgnoreContextCheck                  = 0 # If set to 1, skip AAD tenant validation == 1
@@ -102,7 +102,7 @@ function Initialize-AzOpsGlobalVariables {
             try {
                 $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
                 if ($managementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group:  $($managementGroups.Count)"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
                     foreach ($mgmtGroup in $managementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Expanding Management Group : $($mgmtGroup.Name)"
                         $global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
