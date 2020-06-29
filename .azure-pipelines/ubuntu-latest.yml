@@ -12,11 +12,12 @@ variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
   AZ_ACCOUNTS_REQUIREDVERSION: "1.8.0"
   AZ_RESOURCES_REQUIREDVERSION: "2.0.1"
-  PESTER_REQUIREDVERSION: "4.10.1"
+  PESTER_REQUIREDVERSION: "5.0.2"
+  PSSCRIPTANALYZER_REQUIREDVERSION_REQUIREDVERSION: "1.19.0"
 
 jobs:
   - job: pesterTests1
-    displayName: Pester Tests (Manifest|Cmdlets)
+    displayName: Pester Tests (Module)
     timeoutInMinutes: ${{ variables.DEFAULT_JOB_TIMEOUT_IN_MINUTES }}
 
     pool:
@@ -34,26 +35,19 @@ jobs:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
 
       - task: PowerShell@2
-        displayName: "[pester] Run Tests (Manifest)"
+        displayName: "[pester] Run Tests (Module)"
         inputs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Script "./tests/AzOps.Module.Tests.ps1" -OutputFile "./tests/AzOps.Module.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
-
-      - task: PowerShell@2
-        displayName: "[pester] Run Tests (Cmdlets)"
-        inputs:
-          targetType: inline
-          workingDirectory: $(System.DefaultWorkingDirectory)
-          script: |
-            Invoke-Pester -Script "./tests/AzOps.Cmdlets.Tests.ps1" -OutputFile "./tests/AzOps.Cmdlets.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+            Invoke-Pester -Path "./tests/" -TagFilter "module" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
-          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/testResults.xml"
           publishRunAttachments: true
 
   - job: pesterTests2a
@@ -81,13 +75,14 @@ jobs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Script "./tests/AzOps.Scope.Tests.ps1" -OutputFile "./tests/AzOps.Scope.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+            Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
-          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/testResults.xml"
           publishRunAttachments: true
 
   - job: pesterTests2b
@@ -115,11 +110,12 @@ jobs:
           targetType: inline
           workingDirectory: $(System.DefaultWorkingDirectory)
           script: |
-            Invoke-Pester -Script "./tests/AzOps.IAB.Tests.ps1" -OutputFile "./tests/AzOps.IAB.Tests.xml" -OutputFormat "NUnitXml" -EnableExit
+            Invoke-Pester -Path "./tests/" -TagFilter "iab" -CI -Output Detailed
 
       - task: PublishTestResults@2
         displayName: "[results] Publish Test Results"
+        condition: always()
         inputs:
           testResultsFormat: "NUnit"
-          testResultsFiles: "$(System.DefaultWorkingDirectory)/tests/AzOps.*.Tests.xml"
+          testResultsFiles: "$(System.DefaultWorkingDirectory)/testResults.xml"
           publishRunAttachments: true
