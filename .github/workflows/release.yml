@@ -2,7 +2,7 @@ name: "Build Container Image"
 on:
   push:
 jobs:
-  build_push1:
+  build_push:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
