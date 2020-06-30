@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - master
-env:
-  GITHUB_REPOSITORY: ${{ GITHUB_REPOSITORY }}
 jobs:
   build_push:
     runs-on: ubuntu-latest
