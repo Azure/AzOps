@@ -1,6 +1,10 @@
 name: "Build Container Image"
 on:
   push:
+    branches:
+      - master
+env:
+  GITHUB_REPOSITORY: ${{ GITHUB_REPOSITORY }}
 jobs:
   build_push:
     runs-on: ubuntu-latest
@@ -15,4 +19,3 @@ jobs:
         tag_with_ref: true
         tag_with_sha: true
         add_git_labels: true
-        tags: $GITHUB_REPOSITORY
