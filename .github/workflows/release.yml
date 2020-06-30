@@ -10,5 +10,5 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: azopsacr.azurecr.io
-        repository: azopsacr.azurecr.io/azopsacr
+        repository: azopsacr
         tags: latest
