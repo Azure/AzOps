@@ -2,12 +2,12 @@ name: "Build Container Image"
 on:
   push:
 jobs:
-  stale:
+  build_push:
     runs-on: ubuntu-latest
     steps:
     - uses: docker/build-push-action@v1
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: azopsacr.azurecr.io/azopsacr
+        repository: azopsacr.azurecr.io
         tags: latest
