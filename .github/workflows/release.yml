@@ -1,6 +1,6 @@
 name: "Build Container Image"
 on:
-  push:
+  release:
 jobs:
   build_push:
     runs-on: ubuntu-latest
