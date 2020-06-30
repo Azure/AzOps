@@ -12,7 +12,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: azopsacr.azurecr.io
-        repository: ${GITHUB_REF}
+        repository: ${{ github.ref }}
         tag_with_ref: true
         tag_with_sha: true
         add_git_labels: true
