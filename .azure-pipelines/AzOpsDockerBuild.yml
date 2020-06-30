@@ -9,7 +9,6 @@ trigger:
 
 variables:
   ContainerRegistry: AzOpsRegistry
-  ContainerTag: <replaceme>
   ContainerRepository: <replaceme>/<replaceme>
   DockerVersion: '19.03.11'
 
@@ -40,7 +39,7 @@ steps:
     repository: $(ContainerRepository)
     tags: |
       $(Build.BuildId)
-      $(ContainerTag)
+      $(Build.SourceBranchName)
 
 - task: Docker@2
   displayName: Docker logout
