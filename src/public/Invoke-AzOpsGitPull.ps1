@@ -139,7 +139,7 @@ function Invoke-AzOpsGitPull {
                             Body    = (@{
                                     "sourceRefName" = "refs/heads/system"
                                     "targetRefName" = "refs/heads/main"
-                                    "title"         = "$env:INPUT_GITHUB_PULL_REQUEST"
+                                    "title"         = "$env:GITHUB_PULL_REQUEST"
                                     "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
                                 }  | ConvertTo-Json -Depth 5)
                         }
