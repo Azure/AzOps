@@ -3,7 +3,6 @@ pr:
     include:
       - '*'
     exclude:
-      - .github/*
       - .vscode/*
       - docs/*
       - '*.md'
