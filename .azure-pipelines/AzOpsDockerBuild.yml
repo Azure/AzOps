@@ -3,9 +3,9 @@ trigger:
     include:
       - main
   paths:
-    exclude:
-      - "**/*.md"
-      - "**/*.yml"
+    include:
+      - src
+      - '**/*.ps1'
 
 variables:
   ContainerRegistry: AzOpsRegistry
