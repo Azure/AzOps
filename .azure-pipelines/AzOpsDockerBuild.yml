@@ -9,7 +9,7 @@ trigger:
 
 variables:
   ContainerRegistry: AzOpsRegistry
-  ContainerRepository: <replaceme>/<replaceme>
+  ContainerRepository: mattffffff/azopsado
   DockerVersion: '19.03.11'
 
 pool:
