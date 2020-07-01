@@ -8,7 +8,7 @@ _The repository does not contain the latest Azure Resource Manager state, remedi
 
 Remediation:
 
-You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/setup-azuredevops.md#discover-environment) your repository to pull latest changes from Azure by invoking GitHub Action. You can monitor the status of the GitHub Action in `Pipelines` section. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
+You can [re-initialize](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/setup-azuredevops.md#discover-environment) your repository to pull latest changes from Azure by invoking the Azure Pipeline. You can monitor the status of the Pipeline in `Pipelines` section. Upon successful completion, this will create a new `system` branch and Pull Request containing changes with latest configuration. Name of the Pull Request will be `Azure Change Notification`.
 
 - 1. Please merge Pull Request from `system`  branch in to your `main` branch.
 - 2. Update you feature branch from  main `git pull origin/main`
