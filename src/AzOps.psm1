@@ -76,7 +76,7 @@ class AzOpsScope {
         $this.InitializeMemberVariables($scope)
     }
 
-    #Overloaded constructors -  repeat member assignments in each constructor definition
+    # Overloaded constructors -  repeat member assignments in each constructor definition
     AzOpsScope([System.IO.DirectoryInfo] $path) {
         $this.InitializeMemberVariablesFromPath($path)
     }
@@ -105,20 +105,20 @@ class AzOpsScope {
                         }
                     #>
                     if ($resourcepath.parameters.input.value.Keys -contains "ResourceId") {
-                        #Resource
+                        # Resource
                         $this.InitializeMemberVariables($resourcepath.parameters.input.value.ResourceId)
                     }
                     elseif ($resourcepath.parameters.input.value.Keys -contains "Id") {
-                        #ManagementGroup and Subscription
+                        # ManagementGroup and Subscription
                         $this.InitializeMemberVariables($resourcepath.parameters.input.value.Id)
                     }
                     else {
-                        #Try to determine based on directory
+                        # Try to determine based on directory
                         $this.InitializeMemberVariablesFromPath($path.Directory)
                     }
                 }
                 else {
-                    #Try to determine based on directory
+                    # Try to determine based on directory
                     $this.InitializeMemberVariablesFromPath($path.Directory)
                 }
             }
@@ -131,12 +131,12 @@ class AzOpsScope {
     hidden [void] InitializeMemberVariablesFromPath([System.IO.DirectoryInfo] $path) {
 
         if ($path.FullName -eq (get-item $Global:AzOpsState).FullName) {
-            #root tenant path
+            # Root tenant path
             $this.InitializeMemberVariables("/")
         }
         else {
 
-            #Always look into .AzState folder regardless of path specified
+            # Always look into .AzState folder regardless of path specified
             if (-not ($path.FullName.EndsWith('.azstate', "CurrentCultureIgnoreCase"))) {
                 $path = Join-Path $path -ChildPath '.AzState'
             }
@@ -150,7 +150,7 @@ class AzOpsScope {
                     $this.InitializeMemberVariables($mg.parameters.input.value.Id)
                 }
                 else {
-                    Write-Error "$managementGroupFileName does not contain .parameters.input.value.Id"
+                    Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$managementGroupFileName does not contain .parameters.input.value.Id"
                 }
             }
             elseif (Get-ChildItem -Force  -path $path -File | Where-Object { $_.Name -like $subscriptionFileName }) {
@@ -159,7 +159,7 @@ class AzOpsScope {
                     $this.InitializeMemberVariables($sub.parameters.input.value.Id)
                 }
                 else {
-                    Write-Error "Microsoft.Subscription-subscriptions* does not contain .parameters.input.value.Id"
+                    Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Microsoft.Subscription-subscriptions* does not contain .parameters.input.value.Id"
                 }
             }
             elseif (Get-ChildItem -Force  -path $path -File | Where-Object { $_.Name -like $resourceGroupFileName }) {
@@ -168,11 +168,11 @@ class AzOpsScope {
                     $this.InitializeMemberVariables($rg.parameters.input.value.ResourceId)
                 }
                 else {
-                    Write-Error "$resourceGroupFileName does not contain .parameters.input.value.ResourceId"
+                    Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$resourceGroupFileName does not contain .parameters.input.value.ResourceId"
                 }
             }
             else {
-                Write-Error "Unable to determine AzOpsScope from $path"
+                Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Unable to determine AzOpsScope from file: $path"
             }
         }
     }
@@ -205,7 +205,7 @@ class AzOpsScope {
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             $this.resourcegroup = $this.GetResourceGroup()
-            #$this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
+            # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
             if ($Env:ExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources-resourceGroups_$($this.resourcegroup).json")
             }
@@ -220,7 +220,7 @@ class AzOpsScope {
             $this.subscriptionDisplayName = $this.GetSubscriptionDisplayName()
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
-            #$this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
+            # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
             if ($Env:ExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
             }
@@ -234,7 +234,7 @@ class AzOpsScope {
             $this.name = $this.GetManagementGroup()
             $this.managementgroup = ($this.GetManagementGroup()).Trim()
             $this.managementgroupDisplayName = ($this.GetManagementGroupName()).Trim()
-            #$this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
+            # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
             if ($Env:ExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management-managementGroups_$($this.managementgroup).json")
             }
@@ -267,14 +267,14 @@ class AzOpsScope {
     }
 
     [string] IsSubscription() {
-        #if ( ($this.scope.Split('/').count -eq 3) -and ($this.scope -imatch $this.regex_subscription)) {
+        # if ( ($this.scope.Split('/').count -eq 3) -and ($this.scope -imatch $this.regex_subscription)) {
         if ( ($this.scope -imatch $this.regex_subscription)) {
             return ( $this.scope.Split('/')[2])
         }
         return $null
     }
     [string] IsResourceGroup () {
-        #if (($this.scope.Split('/').count -eq 5) -and ($this.scope -imatch $this.regex_resourceGroup)) {
+        # if (($this.scope.Split('/').count -eq 5) -and ($this.scope -imatch $this.regex_resourceGroup)) {
         if (($this.scope -imatch $this.regex_resourceGroup)) {
             return ($this.scope.Split('/')[4])
         }
@@ -344,7 +344,7 @@ class AzOpsScope {
             }
         }
         else {
-            Write-Error "ManagementGroup not found"
+            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Management Group not found: $managementgroupName"
             return $null
         }
     }
@@ -354,17 +354,18 @@ class AzOpsScope {
     #>
     [string] GetManagementGroupName() {
         if ($this.scope -imatch $this.regex_managementgroupExtract) {
-            $managementgroupID = ((($this.scope -split $this.regex_managementgroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
+            $mgId = ((($this.scope -split $this.regex_managementgroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
 
-            if ($managementgroupID) {
-
-                Write-Verbose -Message " - Querying Global variable for AzOpsAzManagementGroup"
-                if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupID }).DisplayName) {
-                    return ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupID }).DisplayName
+            if ($mgId) {
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Querying Global variable for AzOpsAzManagementGroup"
+                $mgDisplayName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
+                if ($mgDisplayName) {
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Management Group found in Azure: $($mgDisplayName)"
+                    return $mgDisplayName
                 }
                 else {
-                    Write-Warning "Management group do not exist in Azure. Using Directory name as management group"
-                    return  $managementgroupID
+                    Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
+                    return  $mgId
                 }
             }
         }
@@ -393,10 +394,11 @@ class AzOpsScope {
             $subId = ((($this.scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
             $sub = $global:AzOpsSubscriptions | Where-Object { $_.Id -eq $subId }
             if ($sub) {
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Subscription found in Azure: $($sub.Id)"
                 return $sub.Id
             }
             else {
-                Write-Warning "Subscription do not exist in Azure. Defaulting to directory name for subscription"
+                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Subscription not found in Azure. Using directory name instead: $($subId)"
                 return $subId
             }
         }
@@ -408,10 +410,11 @@ class AzOpsScope {
             $subId = ((($this.scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
             $sub = $global:AzOpsSubscriptions | Where-Object { $_.Id -eq $subId }
             if ($sub) {
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Subscription found in Azure: $($sub.Name)"
                 return $sub.Name
             }
             else {
-                Write-Warning "Subscription do not exist in Azure. Defaulting to directory name for subscription"
+                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Subscription not found in Azure. Using directory name instead: $($subId)"
                 return $subId
             }
         }
@@ -441,18 +444,18 @@ class AzOpsScope {
 
     [string] GetAzOpsResourcePath() {
 
-        Write-Verbose -Message " - GetAzOpsResourcePath: $($this.scope)"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Getting Resource path for: $($this.scope)"
         if ($this.scope -imatch $this.regex_resourceGroupResource) {
             $rgpath = $this.GetAzOpsResourceGroupPath()
 
-            #Checking if generated filename is valid otherwise switchign to MD5 hash as filename.
+            # Checking if generated filename is valid otherwise switchign to MD5 hash as filename.
             if ( ($this.name.IndexOfAny([System.IO.Path]::GetInvalidFileNameChars() + '[' + ']') -eq -1 ) -and
                 (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name)).Length -lt 250
             ) {
                 return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
             }
             else {
-                #Windows has 256 character limit hence shorting the name by hashing the resource and name.
+                # Windows has 256 character limit hence shorting the name by hashing the resource and name.
                 $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
                 return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath (Get-FileHash -InputStream $stream -Algorithm MD5).Hash)
             }
@@ -465,7 +468,7 @@ class AzOpsScope {
             $mgmtPath = $this.GetAzOpsManagementGroupPath($this.managementgroup)
             return (Join-Path (Join-path $mgmtPath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
         }
-        Write-Error "Unable to determine Resource Scope"
+        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Unable to determine Resource Scope for: $($this.scope)"
         return $null
     }
 }
@@ -473,7 +476,7 @@ class AzOpsScope {
 .SYNOPSIS
     Returns an AzOpsScope for a path or for a scope
 .EXAMPLE
-    #Return AzOpsScope for a root management group scope scope in Azure
+    # Return AzOpsScope for a root Management Group scope scope in Azure
     New-AzOpsScope -Scope "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560"
     scope                      : /providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560
     type                       : managementGroups
@@ -488,7 +491,7 @@ class AzOpsScope {
     resourceprovider           :
     resource                   :
 .EXAMPLE
-    #Return AzOpsScope for a filepath
+    # Return AzOpsScope for a filepath
     New-AzOpsScope -path  "C:\Users\jodahlbo\git\CET-NorthStar\azops\Tenant Root Group\Non-Production Subscriptions\Dalle MSDN MVP\365lab-dcs"
 .INPUTS
     Scope
@@ -500,32 +503,27 @@ class AzOpsScope {
 function New-AzOpsScope {
     [CmdletBinding()]
     param (
-        #Scope
         [OutputType([AzOpsScope])]
         [Parameter(Position = 0, ParameterSetName = "scope", ValueFromPipeline = $true)]
         [string]$scope,
-        #FilePath
         [Parameter(Position = 0, ParameterSetName = "pathfile", ValueFromPipeline = $true)]
         [string]$path
     )
 
     begin {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        #Verify that required global variables are set
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        # Verify that required global variables are set
         Test-AzOpsVariables
-        # $script = "Using module AzOps"
-        # $script = [ScriptBlock]::Create($scriptBody)
-        # . $script
         [regex]$regex_findAzStateFileExtension = '(?i)(.AzState)(|\\|\/)$'
     }
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        #Return scope if scope was provided
+        # Return scope if scope was provided
         if ($PSCmdlet.ParameterSetName -eq "scope") {
             return [AzOpsScope]::new($scope)
         }
-        #Get scope from filepath
+        # Get scope from filepath
         elseif ($PSCmdlet.ParameterSetName -eq "pathfile") {
             # Remove .AzState file extension if present
             $path = $path -replace $regex_findAzStateFileExtension, ''
@@ -534,11 +532,11 @@ function New-AzOpsScope {
             }
         }
         else {
-            Write-Warning "$path not found"
+            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Path not found: $path"
         }
     }
     end {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 }
 

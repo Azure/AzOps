@@ -1,10 +1,46 @@
-Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
+<#
+    .SYNOPSIS
+    Pester tests to validate the AzOpsScope class.
 
-Describe "Unit Test for AzOpsScope" {
+    .DESCRIPTION
+    Pester tests to validate the AzOpsScope class.
+
+    These tests validate functions within the AzOpsScope class:
+
+     - AzOpsScope unit tests (-Tag "scope")
+
+    Tests have been updated to use Pester version 5.0.x
+
+    .EXAMPLE
+    To run "Scope" tests only:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope"
+
+    .EXAMPLE
+    To run "Scope" tests only, and create test results for CI:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI
+
+    .EXAMPLE
+    To run "Scope", create test results for CI, and output detailed logs to host:
+
+    PS C:\AzOps> Invoke-Pester -Path "./tests/" -TagFilter "scope" -CI -Output Detailed
+
+    .INPUTS
+    None
+
+    .OUTPUTS
+    None
+#>
+
+Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
 
     BeforeAll {
-        Write-Output " "
-        Write-Output "TestDrive: $TestDrive"
+
+        # Import required modules
+        Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
+
+        # Write-Verbose -Message "TestDrive: $TestDrive"
 
         # Task: Initialize environment variables
         $env:AzOpsState = $TestDrive
@@ -13,23 +49,23 @@ Describe "Unit Test for AzOpsScope" {
 
         $TenantID = (Get-AzContext).Tenant.Id
 
-        #Initialize-AzOpsRepository
+        # Initialize-AzOpsRepository
         Initialize-AzOpsRepository
 
-        #Get random management group
+        # Get random Management Group
         $mg = (Get-AzManagementGroup | Get-Random)
-        #Get all ManagementGroup
+        # Get all ManagementGroup
         $pathToManagementGroup = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Management-managementGroups_*" })).Directory.Parent
 
-        #Get all subscription
+        # Get all Subscriptions
         $subs = Get-AzSubscription -TenantId $TenantId -WarningAction SilentlyContinue
-        #Get all subscriptions in the folder structure
+        # Get all subscriptions in the folder structure
         $pathToSubscriptions = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Subscription-subscriptions*" })).Directory.Parent
 
-        #Get all resource groups from all subscriptions with resource graph
-        #$rgs = Get-AzSubscription | ForEach-Object -Process { Select-AzSubscription -SubscriptionId $_.Id | Out-Null ; Get-AzResourceGroup | Where-Object { -not($_.ManagedBy) } }
-        #Get all resource groups in the folder structure
-        #$pathToRgs = (((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse).Directory))
+        # Get all resource groups from all subscriptions with resource graph
+        # $rgs = Get-AzSubscription | ForEach-Object -Process { Select-AzSubscription -SubscriptionId $_.Id | Out-Null ; Get-AzResourceGroup | Where-Object { -not($_.ManagedBy) } }
+        # Get all resource groups in the folder structure
+        # $pathToRgs = (((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse).Directory))
 
         $AzOpsScopeTest = @{ }
         $AzOpsScopeTest.Add("mg" , (New-AzOpsScope -scope $mg.Id))
@@ -49,20 +85,20 @@ Describe "Unit Test for AzOpsScope" {
         $AzOpsScopeTest.Add("rgs", $rgs)
         $AzOpsScopeTest.Add("rg", (New-AzOpsScope -scope ($rgs.resourceid | Get-Random)))
 
-        #$AzOpsScopeTest.Add("rg", (New-AzOpsScope -scope '/subscriptions/66def07b-94b1-4262-8534-cfbcbe63631a/resourceGroups/Test'))
+        # $AzOpsScopeTest.Add("rg", (New-AzOpsScope -scope '/subscriptions/66def07b-94b1-4262-8534-cfbcbe63631a/resourceGroups/Test'))
 
-        #$AzOpsScopeTest.Add("pathToResourceGroup" , (New-AzOpsScope -path (((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse) | Get-Random).Directory.Fullname)))
-        #$AzOpsScopeTest.Add("pathToResourceGroupAzState" , (New-AzOpsScope -path (join-path ((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse) | get-random ).Directory.Fullname -ChildPath '.AzState' )  ))
+        # $AzOpsScopeTest.Add("pathToResourceGroup" , (New-AzOpsScope -path (((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse) | Get-Random).Directory.Fullname)))
+        # $AzOpsScopeTest.Add("pathToResourceGroupAzState" , (New-AzOpsScope -path (join-path ((Get-ChildItem $TestDrive -Include resourcegroup.json -Recurse) | get-random ).Directory.Fullname -ChildPath '.AzState' )  ))
 
-        #$AzOpsScopeTest.Add("resource", (New-AzOpsScope -scope (Get-AzResource | Get-Random).Id))
-        #$AzOpsScopeTest.Add("invalidFileNameResource", (New-AzOpsScope -scope('')))
-        #$AzOpsScopeTest.Add("pathToResource", (New-AzOpsScope -path ($AzOpsScopeTest.resource.statepath)))
+        # $AzOpsScopeTest.Add("resource", (New-AzOpsScope -scope (Get-AzResource | Get-Random).Id))
+        # $AzOpsScopeTest.Add("invalidFileNameResource", (New-AzOpsScope -scope('')))
+        # $AzOpsScopeTest.Add("pathToResource", (New-AzOpsScope -path ($AzOpsScopeTest.resource.statepath)))
 
-        #$policyAssignmentId = (Get-AzPolicyAssignment -WarningAction SilentlyContinue | Get-Random).Id
-        #$AzOpsScopeTest.Add("policyAssignment", (New-AzOpsScope -scope $policyAssignmentId))
+        # $policyAssignmentId = (Get-AzPolicyAssignment -WarningAction SilentlyContinue | Get-Random).Id
+        # $AzOpsScopeTest.Add("policyAssignment", (New-AzOpsScope -scope $policyAssignmentId))
 
         $policyDefinitionId = (Get-AzPolicyDefinition -WarningAction SilentlyContinue -Custom -ManagementGroupName Contoso | Get-Random).ResourceId
-        #$policyDefinitionId = '/providers/Microsoft.Management/managementGroups/Tailspin/providers/Microsoft.Authorization/policyDefinitions/DINE-KeyVault'
+        # $policyDefinitionId = '/providers/Microsoft.Management/managementGroups/Tailspin/providers/Microsoft.Authorization/policyDefinitions/DINE-KeyVault'
         $AzOpsScopeTest.Add("policyDefinition", (New-AzOpsScope -scope $policyDefinitionId))
 
         $policySetDefinitionId = (Get-AzPolicySetDefinition -Custom -WarningAction SilentlyContinue -ManagementGroupName Contoso | Get-Random).ResourceId
@@ -109,16 +145,16 @@ Describe "Unit Test for AzOpsScope" {
         It "Subscription should not be null or empty" {
             $AzOpsScopeTest.sub | Should -Not -BeNullOrEmpty
         }
-        It "Subscription of subscription should not be null or empty" {
+        It "Subscription of Subscription should not be null or empty" {
             $AzOpsScopeTest.sub | Should -Not -BeNullOrEmpty
         }
         It "Subscription of SubscriptionType should be  subscriptions" {
             $AzOpsScopeTest.sub.managementgroup | Should -Not -BeNullOrEmpty
         }
-        It "Subscription of subscription Name should match" {
+        It "Subscription of Subscription Name should match" {
             $AzOpsScopeTest.sub.name | Should -MatchExactly $($sub.Id)
         }
-        It "Subscription of subscription property  should match" {
+        It "Subscription of Subscription property  should match" {
             $AzOpsScopeTest.sub.subscription | Should -MatchExactly $($sub.Id)
         }
         It "Subscription of StatePath should Match with Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.sub.subscription).parameters.json" {
@@ -137,14 +173,14 @@ Describe "Unit Test for AzOpsScope" {
         It "Path to Subscription of SubscriptionType should be subscriptions" {
             $AzOpsScopeTest.pathToSubscription.managementgroup | Should -Not -BeNullOrEmpty
         }
-        It "Path to Subscription of subscription Name should match" {
+        It "Path to Subscription of Subscription Name should match" {
             $AzOpsScopeTest.pathToSubscription.name | Should -MatchExactly $($AzOpsScopeTest.pathToSubscription.scope.split('/') | Select-Object -last 1)
         }
-        It "Path to Subscription of subscription should match" {
+        It "Path to Subscription of Subscription should match" {
             $AzOpsScopeTest.pathToSubscription.subscription | Should -MatchExactly $pathToSubscription.Subscription
         }
         It "Path to Subscription of subscriptionDisplayName should match" {
-            #Since everything is under .AzState we are checking parent directory name for displayname
+            # Since everything is under .AzState we are checking parent directory name for displayname
             $AzOpsScopeTest.pathToSubscription.subscriptionDisplayName | Should -MatchExactly $pathToSubscription.Name
         }
         It "Path to Subscription of StatePath should Match Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json" {
@@ -174,7 +210,7 @@ Describe "Unit Test for AzOpsScope" {
         It "Resourcegroup of StatePath should end with resourcegroup.json" {
             $AzOpsScopeTest.rg.statepath | Should -Match "resourcegroup.json"
         }
-        It "Resourcegroup of subscription should match" {
+        It "Resourcegroup of Subscription should match" {
             $AzOpsScopeTest.rg.subscription | Should -MatchExactly $((get-Azsubscription -WarningAction Ignore -SubscriptionId $($AzOpsScopeTest.rg.scope.split('/')[2])).Name)
         }
         #>
@@ -244,10 +280,10 @@ Describe "Unit Test for AzOpsScope" {
         # It "Resource of Resource should match" {
         #     $AzOpsScopeTest.resource.resource | Should -MatchExactly $( $AzOpsScopeTest.resource.scope.split('/')[7])
         # }
-        # It "Resource of StatePath should contain management group" {
+        # It "Resource of StatePath should contain Management Group" {
         #     $AzOpsScopeTest.resource.statepath | Should -Match  $AzOpsScopeTest.resource.managementgroup
         # }
-        # It "Resource of StatePath should contain subscription group" {
+        # It "Resource of StatePath should contain Subscription group" {
         #     $AzOpsScopeTest.resource.statepath | Should -Match  $AzOpsScopeTest.resource.subscription
         # }
         # It "Resource of StatePath should contain resource provider" {
@@ -278,10 +314,10 @@ Describe "Unit Test for AzOpsScope" {
         # It "Long Resource Name's Resource should match" {
         #     $AzOpsScopeTest.invalidFileNameResource.resource | Should -MatchExactly $( $AzOpsScopeTest.invalidFileNameResource.scope.split('/')[7])
         # }
-        # It "Long Resource Name's StatePath should contain management group" {
+        # It "Long Resource Name's StatePath should contain Management Group" {
         #     $AzOpsScopeTest.invalidFileNameResource.statepath | Should -Match  $AzOpsScopeTest.invalidFileNameResource.managementgroup
         # }
-        # It "Long Resource Name's StatePath should contain subscription" {
+        # It "Long Resource Name's StatePath should contain Subscription" {
         #     $AzOpsScopeTest.invalidFileNameResource.statepath | Should -Match  $AzOpsScopeTest.invalidFileNameResource.subscription
         # }
         # It "Long Resource Name's StatePath should contain resource group" {
@@ -321,7 +357,7 @@ Describe "Unit Test for AzOpsScope" {
         # It "Management Group Policy Assignment of Resource should match" {
         #     $AzOpsScopeTest.policyAssignment.resource | Should -MatchExactly $($AzOpsScopeTest.policyAssignment.scope.split('/')[7])
         # }
-        # It "Management Group Policy Assignment of StatePath should contain management group" {
+        # It "Management Group Policy Assignment of StatePath should contain Management Group" {
         #     $AzOpsScopeTest.policyAssignment.statepath | Should -Match $AzOpsScopeTest.policyAssignment.managementgroup
         # }
         # It "Management Group Policy Assignment of StatePath should contain resource provider" {
@@ -358,7 +394,7 @@ Describe "Unit Test for AzOpsScope" {
         It "Management Group Policy Definition Resource should match" {
             $AzOpsScopeTest.policyDefinition.resource | Should -MatchExactly $( $AzOpsScopeTest.policyDefinition.scope.split('/')[7])
         }
-        It "Management Group Policy Definition StatePath should contain management group" {
+        It "Management Group Policy Definition StatePath should contain Management Group" {
             $AzOpsScopeTest.policyDefinition.statepath | Should -Match  $AzOpsScopeTest.policyDefinition.managementgroup
         }
         It "Management Group Policy Definition StatePath should contain resource provider" {
@@ -395,7 +431,7 @@ Describe "Unit Test for AzOpsScope" {
         # It "Subscripion PolicySet Definition of Resource should match" {
         #     $AzOpsScopeTest.policySetDefinition.resource | Should -MatchExactly $( $AzOpsScopeTest.policySetDefinition.scope.split('/')[5])
         # }
-        # It "Subscripion PolicySet Definition of StatePath should contain management group" {
+        # It "Subscripion PolicySet Definition of StatePath should contain Management Group" {
         #     $AzOpsScopeTest.policySetDefinition.statepath | Should -Match  $AzOpsScopeTest.policySetDefinition.managementgroup
         # }
         # It "Subscripion PolicySet Definition of StatePath should contain resource provider" {

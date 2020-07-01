@@ -6,7 +6,7 @@ function Invoke-AzOpsGitPush {
 
     begin {
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking pre refresh process"
-        $diff = Invoke-AzOpsGitPushRefresh -Operation "Before" -BaseBranch $env:INPUT_GITHUB_BASE_REF -HeadBranch $env:INPUT_GITHUB_HEAD_REF
+        $diff = Invoke-AzOpsGitPushRefresh -Operation "Before"
         
         # Messages
 
@@ -22,17 +22,47 @@ function Invoke-AzOpsGitPush {
             }
 
             Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
-            Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_GITHUB_COMMENTS"
-            $params = @{
-                Headers = @{
-                    "Authorization" = ("Bearer " + $env:GITHUB_TOKEN )
+
+            switch ($env:SCMPLATFORM) {
+                "GitHub" {
+                    Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:GITHUB_COMMENTS"
+                    $params = @{
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $env:GITHUB_TOKEN )
+                        }
+                        Body    = (@{
+                                "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
+                            } | ConvertTo-Json)
+                    }
+                    Invoke-RestMethod -Method "POST" -Uri $env:GITHUB_COMMENTS @params
+                    exit 1
                 }
-                Body    = (@{
-                        "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
-                    } | ConvertTo-Json)
+                "AzureDevOps" {
+                    Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_ADO_COMMENTS"
+                    $params = @{
+                        Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($env:SYSTEM_PULLREQUEST_PULLREQUESTID)/threads?api-version=5.1"
+                        Method  = "Post"
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
+                            "Content-Type"  = "application/json"
+                        }
+                        Body    = (@{
+                                comments = @(
+                                    (@{
+                                            "parentCommentId" = 0
+                                            "content"         = "$(Get-Content -Path "$PSScriptRoot/../Comments-ado.md" -Raw)"
+                                            "commentType"     = 1
+                                        })
+                                )
+                            }  | ConvertTo-Json -Depth 5)
+                    }
+                    Invoke-RestMethod @params -Verbose:$VerbosePreference
+                    exit 1
+                }
+                Default {
+                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
+                }
             }
-            $response = Invoke-RestMethod -Method "POST" -Uri $env:INPUT_GITHUB_COMMENTS @params
-            exit 1
         }
         else {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
@@ -123,28 +153,7 @@ function Invoke-AzOpsGitPush {
 
     end {
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking post refresh process"
-        Invoke-AzOpsGitPushRefresh -Operation "After" -BaseBranch $env:INPUT_GITHUB_BASE_REF -HeadBranch $env:INPUT_GITHUB_HEAD_REF
-
-        # Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if issue comment exists"
-        # $params = @{
-        #     Uri     = ($env:INPUT_GITHUB_ISSUE + "/comments")
-        #     Headers = @{
-        #         "Authorization" = ("Bearer " + $env:GITHUB_TOKEN)
-        #     }
-        # }
-        # $response = Invoke-RestMethod -Method "Get" @params | Where-Object -FilterScript { $_.user.login -eq "github-actions[bot]" }
-
-        # Write-AzOpsLog -Level Information -Topic "rest" -Message "Removing system comment"
-        # if ($response) {
-        #     $params = @{
-        #         Uri     = ($env:INPUT_GITHUB_ISSUE + "/comments/" + $response.id)
-        #         Headers = @{
-        #             "Authorization" = ("Bearer " + $env:GITHUB_TOKEN)
-        #         }
-        #     }
-        #     $response = Invoke-RestMethod -Method "Delete" @params
-        # }
-        
+        Invoke-AzOpsGitPushRefresh -Operation "After"
     }
 
 }

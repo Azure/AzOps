@@ -2,13 +2,13 @@
 .SYNOPSIS
     This cmdlet processes AzOpsState changes and takes appropriate action by invoking ARM deployment and limited set of imperative operations required by platform that is currently not supported in ARM.
 .DESCRIPTION
-    This cmdlet invokes ARM deployment by calling New-AzDeployment* command at appropriate scope mapped to tenant, management group, subscription or resource group in AzOpsState folder.
+    This cmdlet invokes ARM deployment by calling New-AzDeployment* command at appropriate scope mapped to tenant, Management Group, Subscription or resource group in AzOpsState folder.
         1) Filename must end with <template-name>.parameters.json
         2) This cmdlet will look for <template-name>.json in same directory and use that template if found.
         3) If no template file is found, it will use default template\template.json for supported resource types.
 
     This cmdlet invokes following imperative operations that are not supported in ARM.
-        1) Subscription Creation with Enterprise Enrollment - subscription will be created if not found in Azure where service principle have access. Subscription will also be moved to the management group.
+        1) Subscription Creation with Enterprise Enrollment - Subscription will be created if not found in Azure where service principle have access. Subscription will also be moved to the Management Group.
 
         2) Resource providers registration until ARM support is available.  Following format is used for *.providerfeatures.json 
             [
@@ -26,16 +26,16 @@
                 }
             ]
 .EXAMPLE
-    #Invoke ARM Template Deployment
+    # Invoke ARM Template Deployment
     New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\.AzState\Microsoft.Management-managementGroups_contoso.parameters.json'
 .EXAMPLE
-    #Invoke Subscription Creation
+    # Invoke Subscription Creation
     New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\platform\connectivity\subscription.json'
 .EXAMPLE
-    #Invoke provider features registration
+    # Invoke provider features registration
     New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\platform\connectivity\providerfeatures.json'
 .EXAMPLE
-    #Invoke resource providers registration
+    # Invoke resource providers registration
     New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\platform\connectivity\resourceproviders.json'
 .INPUTS
     Filename
@@ -54,9 +54,9 @@ function New-AzOpsStateDeployment {
     begin {}
 
     process {
-        Write-Verbose -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        Write-Verbose "New-AzOpsStateDeployment for $filename"
+        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "New-AzOpsStateDeployment for $filename"
         $Item = Get-Item -Path $filename
         $scope = New-AzOpsScope -path $Item
 
@@ -65,41 +65,41 @@ function New-AzOpsStateDeployment {
 
             if ($scope.type -eq 'subscriptions' -and $filename -match '/*.subscription.json$') {
 
-                Write-Verbose "Upsert subscriptions for $filename"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Upsert subscriptions for $filename"
                 $subscription = Get-AzSubscription -SubscriptionName $scope.subscriptionDisplayName -ErrorAction SilentlyContinue
 
                 if ($null -eq $subscription) {
-                    Write-Verbose "Creating new subscription"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Creating new Subscription"
 
                     if ((Get-AzEnrollmentAccount)) {
                         if ($global:AzOpsEnrollmentAccountPrincipalName) {
-                            Write-Verbose "Querying EnrollmentAccountObjectId for $($global:AzOpsEnrollmentAccountPrincipalName)"
+                            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Querying EnrollmentAccountObjectId for $($global:AzOpsEnrollmentAccountPrincipalName)"
                             $EnrollmentAccountObjectId = (Get-AzEnrollmentAccount | Where-Object -FilterScript { $_.PrincipalName -eq $Global:AzOpsEnrollmentAccountPrincipalName }).ObjectId
                         }
                         else {
-                            Write-Verbose "Using first enrollement account"
+                            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Using first enrollement account"
                             $EnrollmentAccountObjectId = (Get-AzEnrollmentAccount)[0].ObjectId
                         }
 
-                        Write-Verbose "EnrollmentAccountObjectId: $EnrollmentAccountObjectId"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "EnrollmentAccountObjectId: $EnrollmentAccountObjectId"
 
-                        $subscription = New-AzSubscription -Name $scope.Name -OfferType $global:offerType -EnrollmentAccountObjectId $EnrollmentAccountObjectId
-                        Write-Verbose "Creating new subscription Success!"
+                        $subscription = New-AzSubscription -Name $scope.Name -OfferType $global:AzOpsOfferType -EnrollmentAccountObjectId $EnrollmentAccountObjectId
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Creating new Subscription Success!"
 
                         $ManagementGroupName = $scope.managementgroup
-                        Write-Verbose "Assigning subscription to managementgroup $ManagementGroupName"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Assigning Subscription to Management Group $ManagementGroupName"
                         New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
                     }
                     else {
-                        Write-Error "No Azure Enrollment account found for current Azure context"
-                        Write-Error "Create new Azure role assignment for service principle used for pipeline: New-AzRoleAssignment -ObjectId <application-Id> -RoleDefinitionName Owner -Scope /providers/Microsoft.Billing/enrollmentAccounts/<object-Id>"
+                        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "No Azure Enrollment account found for current Azure context"
+                        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Create new Azure role assignment for service principle used for pipeline: New-AzRoleAssignment -ObjectId <application-Id> -RoleDefinitionName Owner -Scope /providers/Microsoft.Billing/enrollmentAccounts/<object-Id>"
                     }
                 }
                 else {
-                    Write-Verbose "Existing subscription found with ID: $($subscription.Id) Name: $($subscription.Name)"
-                    Write-Verbose "Checking if it is in desired management group"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Existing Subscription found with ID: $($subscription.Id) Name: $($subscription.Name)"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Checking if it is in desired Management Group"
                     $ManagementGroupName = $scope.managementgroup
-                    Write-Verbose "Assigning subscription to managementgroup $ManagementGroupName"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Assigning Subscription to Management Group $ManagementGroupName"
                     New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
 
                 }
@@ -112,7 +112,7 @@ function New-AzOpsStateDeployment {
                 Register-AzOpsResourceProvider -filename $filename -scope $scope
             }
             if ($filename -match '/*.parameters.json$') {
-                Write-Verbose -Message " - Template deployment"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Template deployment"
 
                 $MainTemplateSupportedTypes = @(
                     "Microsoft.Resources/resourceGroups",
@@ -133,7 +133,7 @@ function New-AzOpsStateDeployment {
                 )
 
                 if (($scope.subscription) -and (Get-AzContext).Subscription.Id -ne $scope.subscription) {
-                    Write-Verbose "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
                     Set-AzContext -SubscriptionId $scope.subscription
                 }
 
@@ -145,7 +145,7 @@ function New-AzOpsStateDeployment {
                 else {
 
                     $effectiveResourceType = ''
-                    #Check if generic template is supporting the resource type for the deployment.
+                    # Check if generic template is supporting the resource type for the deployment.
                     if ((Get-Member -InputObject $templateParametersJson.parameters.input.value -Name ResourceType)) {
                         $effectiveResourceType = $templateParametersJson.parameters.input.value.ResourceType
                     }
@@ -166,34 +166,34 @@ function New-AzOpsStateDeployment {
                     if ($deploymentName.Length -gt 64) {
                         $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
                     }
-                    Write-Verbose -Message " - Template is $templatename / $templatepath and Deployment Name is $deploymentName"
+                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Template is $templatename / $templatepath and Deployment Name is $deploymentName"
                     if ($scope.resourcegroup) {
-                        Write-Verbose "Validating at template at resource group scope"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Validating at template at resource group scope"
                         Test-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -OutVariable templateErrors
                         if (-not $templateErrors) {
                             New-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                         }
                     }
                     elseif ($scope.subscription) {
-                        Write-Verbose "Attempting at template at subscription scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Subscription scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
                         New-AzSubscriptionDeployment -Location $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                     }
                     elseif ($scope.managementgroup) {
-                        Write-Verbose "Attempting at template at Management Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Management Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
                         New-AzManagementGroupDeployment -ManagementGroupId $scope.managementgroup -Name $deploymentName  -Location  $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                     elseif ($scope.type -eq 'root') {
-                        Write-Verbose "Attempting at template at Tenant Deployment Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Tenant Deployment Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
                         New-AzTenantDeployment -Name $deploymentName  -Location  $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                 }
             }
             else {
-                Write-Verbose "Template Path for $templatePath for $filename not found"
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Template Path for $templatePath for $filename not found"
             }
         }
         else {
-            Write-Warning "Unable to determine scope type for $filename"
+            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Unable to determine scope type for $filename"
         }
 
     }

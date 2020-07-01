@@ -41,7 +41,7 @@
         "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
         "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
         "nestedTemplatesLocation": {
-            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]", 
+            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]",
             "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         },
         "input": "[parameters('input')]",
@@ -59,12 +59,12 @@
                     and(contains(parameters('input'), 'type'),not(empty(parameters('input').type))),
                     parameters('input').type,
                     json('null')
-                )]",        
+                )]",
         "effectiveResourceType": "[coalesce(
                                         variables('ExtensionResourceType'),
                                         variables('ResourceType'),
                                         variables('type')
-                                )]",        
+                                )]",
         "identity":"[if(
                         and(
                             contains(variables('input'),'identity'),
@@ -76,7 +76,7 @@
         "location": "[if(
                         and(
                             contains(variables('input'),'Location'),
-                            not(empty(variables('input').Location))
+                            not(empty(variables('input').location))
                         ),
                         variables('input').location,
                         'eastus'
@@ -103,8 +103,8 @@
             "Microsoft.Network/virtualHubs": "2019-09-01",
             "Microsoft.Network/virtualNetworks": "2017-10-01",
             "Microsoft.Network/azureFirewalls": "2019-04-01",
-            "/providers/Microsoft.Management/managementGroups": "2020-02-01",
-            "/subscriptions" : "2019-10-01",
+            "/providers/Microsoft.Management/managementGroups": "2020-05-01",
+            "/subscriptions" : "2020-05-01",
             "na": "0000-00-00",
             "": "0000-00-00"
         },
@@ -154,7 +154,14 @@
             "Properties": "[variables('input').Properties]"
         },
         {
-            "condition": "[and(variables('roleAssignmentEnabledForPolicy'),equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')))]",
+            "condition": "[and( variables('roleAssignmentEnabledForPolicy'),
+                                equals(
+                                        toLower(variables('effectiveResourceType')),
+                                        toLower('Microsoft.Authorization/policyAssignments')
+                                    ),
+                                contains(variables('input'),'Identity'),
+                                not(empty(variables('input').Identity))
+                            )]",
             "type": "Microsoft.Authorization/roleAssignments",
             "name" : "[guid(variables('input').name)]",
             "apiVersion": "2019-04-01-preview",
@@ -163,8 +170,13 @@
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[ if(
-                                        and(variables('roleAssignmentEnabledForPolicy'),equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments'))),
-                                        toLower(reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full').identity.principalId),
+                                        and(
+                                            variables('roleAssignmentEnabledForPolicy'),
+                                            equals(toLower(variables('effectiveResourceType')),
+                                            toLower('Microsoft.Authorization/policyAssignments')),
+                                            contains(reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full'),'identity')
+                                        ),
+                                        reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full').identity.principalId,
                                         'na'
                                     )]"
             }
@@ -222,7 +234,7 @@
                 Intent: Fan out Management Group Deployment for Policy/PolicySet/Role Definition and Assignment.
                 Required Parameters (of PolicyDefinitions[] Object):
 
-                    1. Name                     
+                    1. Name
                     2. "ResourceType": "Microsoft.Management/managementGroups",
                     3. Properties Object with following optional Properties
                         3.1  "policySetDefinitions": []
@@ -230,9 +242,9 @@
                         3.3  "policyAssignments": []
                         3.4  "roleDefinitions": []
                         3.5  "roleAssignments": []
-                
+
                 Scope: Management Group
-                
+
                 Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
 
                 Details: Trigger Nested Deployment at MG scope
@@ -260,13 +272,13 @@
                 "parameters": {
                     "input": {
                         "value": "[variables('input')]"
-                    },                    
+                    },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
                     },
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
-                    },                 
+                    },
                     "roleAssignmentEnabledForPolicy": {
                         "value": "[variables('roleAssignmentEnabledForPolicy')]"
                     },
@@ -275,7 +287,7 @@
                     },
                     "remediationEnabledForPolicy": {
                         "value": "[variables('remediationEnabledForPolicy')]"
-                    }                    
+                    }
                 }
             }
         }
@@ -283,10 +295,10 @@
         {
             /*
                 Intent: Fan out Subscription Deployment for Policy/PolicySet/Role Definition and Assignment.
-                
+
                 Required Parameters (of PolicyDefinitions[] Object):
 
-                    1. Name                     
+                    1. Name
                     2. "ResourceType": "Microsoft.Management/managementGroups",
                     3. Properties Object with following optional Properties
                         3.1  "policySetDefinitions": []
@@ -294,16 +306,15 @@
                         3.3  "policyAssignments": []
                         3.4  "roleDefinitions": []
                         3.5  "roleAssignments": []
-                
+
                 Scope: Management Group
-                
+
                 Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
 
                 Details: Trigger Nested Deployment at MG scope
 
                 Change Log: 
                     1. Initial Definition
-            
 
             "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('/subscriptions'))]",
             "type": "Microsoft.Resources/deployments",
@@ -324,13 +335,13 @@
                 "parameters": {
                     "input": {
                         "value": "[variables('input')]"
-                    },                    
+                    },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
                     },
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
-                    }, 
+                    },
                     "roleAssignmentEnabledForPolicy": {
                         "value": "[variables('roleAssignmentEnabledForPolicy')]"
                     },
@@ -339,12 +350,11 @@
                     },
                     "remediationEnabledForPolicy": {
                         "value": "[variables('remediationEnabledForPolicy')]"
-                    }  
+                    }
                 }
             }
         },
         */
-     
     ],
     "outputs": {
         "hobo": {
@@ -362,8 +372,8 @@
             "type": "string",
             "value": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
         },
-        "tenantTemplate": {   
-            "condition": "[variables('debug')]",         
+        "tenantTemplate": {
+            "condition": "[variables('debug')]",
             "type": "string",
             "value": "[variables('nestedTemplatesLocation').tenantTemplate]"
         },
@@ -371,6 +381,6 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[variables('nestedTemplatesLocation').resourceTemplate]"
-        }   
+        }
     }
 }

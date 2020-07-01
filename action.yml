@@ -2,44 +2,9 @@ name: "AzOps"
 description: "-"
 author: "Microsoft"
 inputs:
-  azure_credentials:
-    description: "Azure Credentials"
-    required: true
-  github_email:
-    description: "Git Email"
-    required: false
-    default: "noreply@azure.com"
-  github_username:
-    description: "GitHub Username"
-    required: false
-    default: "AzOps"
-  github_comments:
-    description: "GitHub Comments"
-    required: false
-  github_issue:
-    description: "GitHub Issue"
-    required: false
-  github_pull_request:
-    description: "GitHub Pull Request"
-    required: false
-    default: "Azure Change Notification"
-  github_base_ref:
-    description: "GitHub BASE Ref"
-    required: true
-  github_head_ref:
-    description: "GitHub HEAD Ref"
-    required: true
   mode:
     description: "AzOps Mode"
     required: true
-  verbose:
-    description: "PowerShell Verbose"
-    required: false
-    default: "false"
-  debug:
-    description: "PowerShell Debug"
-    required: false
-    default: "false"
 runs:
   using: "docker"
   image: "Dockerfile"

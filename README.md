@@ -1,12 +1,12 @@
 # AzOps
 
-[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
+[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
 [![Feature Requests](https://img.shields.io/github/issues/Azure/azops/feature.svg)](https://github.com/Azure/azops/issues?q=is%3Aopen+is%3Aissue+label%3Afeature+sort%3Areactions-%2B1-desc)
 [![Bugs](https://img.shields.io/github/issues/Azure/azops/bug.svg)](https://github.com/Azure/azops/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
 
 ## Welcome
 
-This repository is home to Git Action AzOps.
+This repository is home to the GitHub Action: AzOps.
 
 ## Design Objectives
 
@@ -66,17 +66,17 @@ File -> New -> Landing Zones (i.e. Subscription) process is ARM orchestrating fo
 
 - Subscription creation
 - Subscription move under the target management structure
-- Configuring subscription to desired state by policy enfrorcement - autonomously.
+- Configuring Subscription to desired state by policy enfrorcement - autonomously.
 
-For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](./Implementation-Guide.md), and will have the following sequence:
+For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
 
-- Create (1) management group hierarchy and (2) subscription organization structure in (Platform + N) fashion where N represents number of landing zones.
-- Create Policies (deployIfNotExists) assigned to (2) Management Groups and (3) subscription scope to govern and deploy necessary resources, enabling platform autonomy as new landing zones (subscriptions) are being created by application teams
+- Create (1) Management Group hierarchy and (2) Subscription organization structure in (Platform + N) fashion where N represents number of landing zones.
+- Create Policies (deployIfNotExists) assigned to (2) Management Groups and (3) Subscription scope to govern and deploy necessary resources, enabling platform autonomy as new landing zones (Subscriptions) are being created by application teams
 - Create (3) Policy and Role Assignment to govern and delegate access to resources.
 
-It is important to note that one of the design principle of the Enterprise-Scale is "Policy Driven Governance" and all the necessary resources leading to the creation of Landing Zone are deployed using policy. For example, Deploying Key Vault to store platform level secret in management subscription. Instead of scripting the template deployment to deploy Key Vault, Enterprise-Scale based reference implementation will have a policy definition that deploy the Key Vault in prescribed manner and policy assignment at management subscription scope. Benefit of the policy driven approach are manyfold but the most significant are:
+It is important to note that one of the design principle of the Enterprise-Scale is "Policy Driven Governance" and all the necessary resources leading to the creation of Landing Zone are deployed using policy. For example, Deploying Key Vault to store platform level secret in management Subscription. Instead of scripting the template deployment to deploy Key Vault, Enterprise-Scale based reference implementation will have a policy definition that deploy the Key Vault in prescribed manner and policy assignment at management Subscription scope. Benefit of the policy driven approach are manyfold but the most significant are:
 
-- Platform can provide orchestration capability to bring target resources (in this case subscription) to desired goal state.
+- Platform can provide orchestration capability to bring target resources (in this case Subscription) to desired goal state.
 - Continuous conformance to ensure all platform level resources are compliant. As platform is aware of the goal state, platform can assist by monitoring and remediating the resources throughout the life cycle of the resource.
 - Platform enables autonomy regardless of the customer's scale point.
 
@@ -93,7 +93,7 @@ In production environment, changes are bound to happen. Ideally these changes ar
 
 However, manual changes (made for example using the Azure portal) may be unavoidable due to urgent operational demands. This leads to 'Configuration Drift', where the environment as described in source control no longer reflects the actual state of the Azure resources. To deal with this situation, Enterprise-Scale envisions not only a control mechanism to push changes in the IaC source to the Azure environment, but also to pull changes made outside IaC back into source control. By having that feedback loop in place, we can ensure that:
 
-- The environment described in source control always reflects the actual state of the Azure subscriptions.
+- The environment described in source control always reflects the actual state of the Azure Subscriptions.
 - Changes made manually are not inadvertently rolled back by the next automated deployment of a resource
 
 #### Definition of Done (DoD)
