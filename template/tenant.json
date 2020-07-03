@@ -77,7 +77,7 @@
 
         "blankTemplateEscaped": "{\"$schema\":\"https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#\",\"contentVersion\":\"1.0.0.0\",\"parameters\":{},\"variables\":{},\"resources\":[],\"outputs\":{}}",
         "deploymentLocation": "[concat('-', deployment().location)]"
-    },  
+    },
     "resources": [
         {
             /*
@@ -88,9 +88,9 @@
                     1. Name: Management Group Name
                     2. DisplayName: Management Group Display Name
                     3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
-                
+
                 Scope: Tenant root
-                
+
                 Condition: We have Parent ID available to ensure inadvertently place Management Group directly the root.
 
                 Details: If ParentID do not exist, then it is a child and creation of Management Group would have happened when parent's children were iterated upon.
@@ -129,13 +129,13 @@
 
                     1. IF Child contains 'Id' with a value that contains Microsoft.Management/managementGroups
                         a. Create Child Management Group. ParentID property is not required since we can establish parent automatically.
-                        b. Trigger Nested Deployment of this same template 
+                        b. Trigger Nested Deployment of this same template
 
                     2. IF Child contains 'Id' with a value that does NOT contain Microsoft.Management/managementGroups
                         a. Move Subscription under Management Group. Currently this functionality is disabled in Template due to Platform Bug. Workaround is move Subscription manually under the right Management Group.
                         b. Trigger Nested Deployment for the Child
 
-                Change Log: 
+                Change Log:
                     1. Initial Definition
             */
             "condition": "[not(empty(variables('Children')))]",
@@ -242,9 +242,8 @@
                             }
                         },
                         /*
-                            Ensure Subscription is under parent Management Group
-                            This is commented out until platform supports capability.
-                        /*
+                         Ensure Subscription is under parent Management Group
+                        */
                         {
                             "condition": "[not(contains(if(contains(variables('Children')[copyIndex()], 'Id'),variables('Children')[copyIndex()].Id, concat('Microsoft.Management/managementGroups/',variables('Children')[copyIndex()].Name)),'Microsoft.Management/managementGroups'))]",
                             "type": "Microsoft.Management/managementGroups/subscriptions",
@@ -412,7 +411,6 @@
             }
         },
         {
-            
             "condition": "[and(not(empty(variables('policySetDefinitions'))),contains(variables('scope'),'Microsoft.Management/managementGroups'))]",
             "scope": "[variables('scope')]",
             "type": "Microsoft.Resources/deployments",
