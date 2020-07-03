@@ -526,9 +526,9 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         BeforeAll {
 
             # Get Resources
-            $policyDefinition = Get-AzPolicyDefinition -Custom | Get-Random
-            $policyAssignment = Get-AzPolicyAssignment | Get-Random
-            $policySetDefinition = Get-AzPolicySetDefinition -Custom | Get-Random
+            $policyDefinition = Get-AzPolicyDefinition -ManagementGroupName Contoso | Get-Random
+            $policyAssignment = Get-AzPolicyAssignment -Scope /providers/Microsoft.Management/managementGroups/contoso | Get-Random
+            $policySetDefinition = Get-AzPolicySetDefinition -Custom -ManagementGroupName Contoso | Get-Random
             $resourceGroup = Get-AzResourceGroup | Get-Random
 
         }
