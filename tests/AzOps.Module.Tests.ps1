@@ -427,7 +427,7 @@ Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
         }
 
         It 'Passes Test-ModuleManifest ModuleVersion' {
-            $ModuleManifest.Version | Should -Be '0.1'
+            $ModuleManifest.Version | Should -Be '0.2'
         }
 
         It 'Passes Test-ModuleManifest Copyright' {
