@@ -5,7 +5,7 @@
             "fileMatch": [
                 "**/.AzState/*.parameters.json"
             ],
-            "url": "./template/schema.json"
+            "url": "./schema/schema.json"
         }
     ]
 }
