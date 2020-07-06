@@ -17,7 +17,7 @@
     Test                         2 ManagementGroup {/providers/Microsoft.Management/managementGroups/test, /providers/Microsoft.Management/managementGroups/testv2}
 #>
 function Test-AzOpsDuplicateSubMgmtGroup {
-    
+
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     param (
@@ -34,7 +34,7 @@ function Test-AzOpsDuplicateSubMgmtGroup {
         # Ensure that required global variables are set.
         Test-AzOpsVariables
     }
-    
+
     process {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 

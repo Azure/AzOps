@@ -190,7 +190,7 @@ class AzOpsScope {
             $this.resourcegroup = $this.GetResourceGroup()
             $this.resourceprovider = $this.IsResourceProvider()
             $this.resource = $this.GetResource()
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($Global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = $this.GetAzOpsResourcePath() + ".json"
             }
             else {
@@ -206,7 +206,7 @@ class AzOpsScope {
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             $this.resourcegroup = $this.GetResourceGroup()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($Global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources-resourceGroups_$($this.resourcegroup).json")
             }
             else {
@@ -221,7 +221,7 @@ class AzOpsScope {
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($Global:AzOpsExportRawTemplatee -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
             }
             else {
@@ -235,7 +235,7 @@ class AzOpsScope {
             $this.managementgroup = ($this.GetManagementGroup()).Trim()
             $this.managementgroupDisplayName = ($this.GetManagementGroupName()).Trim()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($Global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management-managementGroups_$($this.managementgroup).json")
             }
             else {

@@ -156,7 +156,7 @@ function New-AzOpsStateDeployment {
                         $effectiveResourceType = ''
                     }
                     if ($effectiveResourceType -and ($MainTemplateSupportedTypes -Contains $effectiveResourceType)) {
-                        $templatePath = $env:AzOpsMainTemplate
+                        $templatePath = $Global:AzOpsMainTemplate
                     }
                 }
 

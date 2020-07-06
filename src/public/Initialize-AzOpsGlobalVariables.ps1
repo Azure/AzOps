@@ -71,8 +71,8 @@ function Initialize-AzOpsGlobalVariables {
         }
 
         # Create AzOpsState folder if not exists
-        if (-not (Test-Path -Path $env:AzOpsState)) {
-            New-Item -path $env:AzOpsState -Force -Type directory | Out-Null
+        if (-not (Test-Path -Path $Global:AzOpsState)) {
+            New-Item -path $Global:AzOpsState -Force -Type directory | Out-Null
         }
 
         # Validate number of AAD Tenants that the principal has access to.

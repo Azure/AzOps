@@ -49,10 +49,9 @@ function Save-AzOpsManagementGroupChildren {
             # If StatePathFilename do not exists inside AzOpsState, create one
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "New StatePath File will be created at $statepathFileName"
         }
-        elseif (    ($null -ne ((Get-ChildItem -Path $AzOpsState -File -Recurse -Force) | Where-Object -FilterScript { $_.Name -eq $statepathFileName })) -and 
-                    ($statepathScopeDirectoryParent -ne ((Get-ChildItem -Path $AzOpsState -File -Recurse -Force) | Where-Object -FilterScript { $_.Name -eq $statepathFileName }).Directory.Parent.Parent.FullName)
-               )
-        {
+        elseif (    ($null -ne ((Get-ChildItem -Path $AzOpsState -File -Recurse -Force) | Where-Object -FilterScript { $_.Name -eq $statepathFileName })) -and
+            ($statepathScopeDirectoryParent -ne ((Get-ChildItem -Path $AzOpsState -File -Recurse -Force) | Where-Object -FilterScript { $_.Name -eq $statepathFileName }).Directory.Parent.Parent.FullName)
+        ) {
             # File Exists but parent is not the same, looking for Parent (.AzState) of a Parent to determine
             $exisitingScopePath = ((Get-ChildItem -Path $AzOpsState -File -Recurse -Force) | Where-Object -FilterScript { $_.Name -eq $statepathFileName }).Directory.Parent.FullName
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "StatePath File Exist at $exisitingScopePath"
@@ -74,7 +73,7 @@ function Save-AzOpsManagementGroupChildren {
         }
         elseif ($scope.type -eq 'subscriptions') {
             # Export subscriptions to AzOpsState
-            ConvertTo-AzOpsState -Resource (($global:AzOpsAzManagementGroup).children | Where-Object {$_ -ne $null -and $_.Name -eq $scope.name }) -ExportPath $scope.statepath
+            ConvertTo-AzOpsState -Resource (($global:AzOpsAzManagementGroup).children | Where-Object { $_ -ne $null -and $_.Name -eq $scope.name }) -ExportPath $scope.statepath
         }
     }
 

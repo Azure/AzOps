@@ -44,10 +44,10 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
         #region setup
         # Task: Initialize environment variables
-        $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
-        $env:AzOpsMainTemplate = ("$PSScriptRoot/../template/template.json")
-        $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
+        $env:AZOPS_STATE = $TestDrive
+        $env:AZOPS_INVALIDATE_CACHE = 1
+        $env:AZOPS_MAIN_TEMPLATE = ("$PSScriptRoot/../template/template.json")
+        $env:AZOPS_STATE_CONFIG = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 
         #Use AzOpsReference published in https://github.com/Azure/Enterprise-Scale
         Start-AzOpsNativeExecution {
