@@ -479,7 +479,7 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         Get-ChildItem "$PSScriptRoot/../src/private" -Force | ForEach-Object -Process { . $_.FullName }
         # Set required variables
         $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
+        $env:AzOpsInvalidateCache = 1
         $env:AzOpsMainTemplate = ("$PSScriptRoot/../src/template.json")
         $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
         Initialize-AzOpsGlobalVariables

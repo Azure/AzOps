@@ -43,9 +43,9 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         # Write-Verbose -Message "TestDrive: $TestDrive"
 
         # Task: Initialize environment variables
-        $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
-        $env:IgnoreContextCheck = 1
+        $env:AZOPS_STATE = $TestDrive
+        $env:AZOPS_INVALIDATE_CACHE = 1
+        $env:AZOPS_IGNORE_CONTEXT_CHECK = 1
 
         $TenantID = (Get-AzContext).Tenant.Id
 

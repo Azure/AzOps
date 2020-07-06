@@ -32,17 +32,17 @@ function Initialize-AzOpsGlobalVariables {
 
         # Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
-            AzOpsState                          = (Join-Path $pwd -ChildPath "azops") # Folder to store AzOpsState artefact
-            AzOpsMainTemplate                   = "$PSScriptRoot\..\..\template\template.json" # Main template json
-            AzOpsStateConfig                    = "$PSScriptRoot\..\AzOpsStateConfig.json" # Configuration file for resource serialization
-            AzOpsEnrollmentAccountPrincipalName = $null
-            AzOpsOfferType                      = 'MS-AZR-0017P'
-            AzOpsDefaultDeploymentRegion        = 'northeurope' # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
-            InvalidateCache                     = 1 # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
-            IgnoreContextCheck                  = 0 # If set to 1, skip AAD tenant validation == 1
-            AzOpsThrottleLimit                  = 10 # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
-            AzOpsRootManagementGroup            = '' #Root management group if tenant root
-            
+            AZOPS_STATE                     = @{ AzOpsState = (Join-Path $pwd -ChildPath "azops") } # Folder to store AzOpsState artefact
+            AZOPS_MAIN_TEMPLATE             = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
+            AZOPS_STATE_CONFIG              = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
+            AZOPS_ENROLLMENT_PRINCIPAL_NAME = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_OFFER_TYPE                = @{ AzOpsOfferType = 'MS-AZR-0017P' }
+            AZOPS_DEFAULT_DEPLOYMENT_REGION = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
+            AZOPS_INVALIDATE_CACHE          = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
+            AZOPS_GENERALIZE_TEMPLATES      = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
+            AZOPS_IGNORE_CONTEXT_CHECK      = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
+            AZOPS_THROTTLE_LIMIT            = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AZOPS_ROOT_MANAGEMENT_GROUP     = @{ AzOpsRootManagementGroup = $null } #Root management group if discovering from other root than tenant root
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -54,7 +54,7 @@ function Initialize-AzOpsGlobalVariables {
             }
             catch [System.Management.Automation.ItemNotFoundException] {
                 # If variable wasn't found, set default value from hash table
-                $AzOpsEnvValue = $AzOpsEnvVariables["$AzOpsEnv"]
+                $AzOpsEnvValue = $AzOpsEnvVariables["$AzOpsEnv"].Values
                 if ($AzOpsEnvValue) {
                     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cannot find $EnvVar, setting value to $AzOpsEnvValue"
                     Set-Item -Path $EnvVar -Value $AzOpsEnvValue -Force
@@ -64,8 +64,9 @@ function Initialize-AzOpsGlobalVariables {
             }
             finally {
                 # Set global variables for script
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Setting global variable $AzOpsEnv to $EnvVarValue"
-                Set-Variable -Name $AzOpsEnv -Scope Global -Value $EnvvarValue
+                $GlobalVar = $AzOpsEnvVariables["$AzOpsEnv"].Keys
+                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Setting global variable $GlobalVar to $EnvVarValue"
+                Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
         }
 
@@ -75,7 +76,7 @@ function Initialize-AzOpsGlobalVariables {
         }
 
         # Validate number of AAD Tenants that the principal has access to.
-        if (0 -eq $IgnoreContextCheck) {
+        if (0 -eq $AzOpsIgnoreContextCheck) {
             $AzContextTenants = @($AllAzContext.Tenant.Id | Sort-Object -Unique)
             if ($AzContextTenants.Count -gt 1) {
                 Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Unsupported number of tenants in context: $($AzContextTenants.Count) TenantID(s)
@@ -91,7 +92,7 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($Global:invalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($Global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
 
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsSubscriptions not initialized. Initializing it now $(get-Date)"

@@ -76,11 +76,11 @@ function Initialize-AzOpsRepository {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         # Set environment variable InvalidateCache to 1 if switch InvalidateCache switch has been used
         if ($PSBoundParameters['InvalidateCache']) {
-            $env:InvalidateCache = 1
+            $env:AZOPS_INVALIDATE_CACHE = 1
         }
         # Set environment variable GeneralizeTemplates to 1 if switch GeneralizeTemplates switch has been used
         if ($PSBoundParameters['GeneralizeTemplates']) {
-            $env:GeneralizeTemplates = 1
+            $env:AZOPS_GENERALIZE_TEMPLATES = 1
         }
         # Set environment variable ExportRawTemplate to 1 if switch ExportRawTemplate switch has been used
         if ($PSBoundParameters['ExportRawTemplate']) {
