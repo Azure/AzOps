@@ -14,7 +14,7 @@
     - $Global:AzOpsAzManagementGroup as well as $Global:AzOpsSubscriptions with all subscriptions and Management Groups that was discovered
 #>
 function Initialize-AzOpsGlobalVariables {
-    
+
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -41,6 +41,8 @@ function Initialize-AzOpsGlobalVariables {
             InvalidateCache                     = 1 # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             IgnoreContextCheck                  = 0 # If set to 1, skip AAD tenant validation == 1
             AzOpsThrottleLimit                  = 10 # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AzOpsRootManagementGroup            = '' #Root management group if tenant root
+            
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -123,18 +125,19 @@ function Initialize-AzOpsGlobalVariables {
         }
 
         # Test if Management Groups or subscriptions with duplicate names exist and throw error if not
-        $DuplicateMgOrSubName = Test-AzOpsDuplicateSubMgmtGroup
-        if ($DuplicateMgOrSubName) {
-            $DuplicateMgOrSubName | ForEach-Object -Process {
-                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "$($_.Count) $($_.Type)s exists with displayname '$($_.DuplicateName)'`r`n - $($_.Ids -join ',')"
-            }
-            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Ensure all subscriptions and Management Groups have unique displaynames and try again"
-            break
-        }
+        #    $DuplicateMgOrSubName = Test-AzOpsDuplicateSubMgmtGroup
+        #    if ($DuplicateMgOrSubName) {
+        #        $DuplicateMgOrSubName | ForEach-Object -Process {
+        #            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "$($_.Count) $($_.Type)s exists with displayname '$($_.DuplicateName)'`r`n - $($_.Ids -join ',')"
+        #        }
+        #        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Ensure all subscriptions and Management Groups have unique displaynames and try again"
+        #        break
+        #    }
+
     }
 
     end {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
-
 }
+

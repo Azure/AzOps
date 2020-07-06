@@ -336,8 +336,9 @@ class AzOpsScope {
         if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
 
             if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId) {
-                $parentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
-                return (join-path $parentPath -ChildPath ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
+                $ParentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
+                $Childpath = '{0} ({1})' -f (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName), ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
+                return (join-path $parentPath -ChildPath $ChildPath)
             }
             else {
                 return  (join-path $global:AzOpsState -ChildPath ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
@@ -381,8 +382,8 @@ class AzOpsScope {
         return $null
     }
     [string] GetAzOpsSubscriptionPath() {
-
-        return join-path $this.GetAzOpsManagementGroupPath($this.managementgroup)  -ChildPath $this.subscriptionDisplayName
+        $childpath = "{0} ({1})" -f $this.subscriptionDisplayName, $this.subscription
+        return join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath $childpath
     }
     [string] GetAzOpsResourceGroupPath() {
 
