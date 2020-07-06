@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://azops.blob.core.windows.net/main/schema.json",
+  "$id": "https://raw.githubusercontent.com/Azure/AzOps/main/schema/azstate.json",
   "type": "object",
   "title": "The root schema",
   "required": [
