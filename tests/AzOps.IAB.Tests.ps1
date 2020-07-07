@@ -137,7 +137,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         }
 
         It "Passes Policy Definition Test" {
-            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object { $_.Name -eq 'Tailspin' }).FullName
+            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE) | Where-Object { $_.Name -eq 'Tailspin' }).FullName
             $AzOpsReferencePolicyCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
             foreach ($policyDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
                 Copy-Item $policyDefinition $TailspinAzOpsState -Force
@@ -177,60 +177,60 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         }
 
         It "Passes PolicySet Definition Test" {
-            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object { $_.Name -eq 'Tailspin' }).FullName
-            $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
-            foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
-                Copy-Item $policySetDefinition $TailspinAzOpsState -Force
-            }
-            foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
-                # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Deploying Policy Definition: $policySetDefinition"
-
-                # Changing the Scope to match Tailspin
-                (Get-Content -path $policySetDefinition -Raw) -replace '/providers/Microsoft.Management/managementGroups/contoso/', '/providers/Microsoft.Management/managementGroups/Tailspin/' | Set-Content -Path $policySetDefinition
-
-                $scope = New-AzOpsScope -path $policySetDefinition.FullName
-
-                $deploymentName = (Get-Item $policySetDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
-                if ($deploymentName.Length -gt 64) {
-                    $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
+            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE | Where-Object { $_.Name -eq 'Tailspin' }).FullName
+                $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
+                foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
+                    Copy-Item $policySetDefinition $TailspinAzOpsState -Force
                 }
-                New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion `
-                    -TemplateFile $env:AzOpsMainTemplate `
-                    -TemplateParameterFile $policySetDefinition.FullName `
-                    -ManagementGroupId $scope.managementGroup `
-                    -Name $deploymentName -AsJob
-            }
+                foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
+                    # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Deploying Policy Definition: $policySetDefinition"
 
-            Get-Job | Wait-Job
+                    # Changing the Scope to match Tailspin
+                    (Get-Content -path $policySetDefinition -Raw) -replace '/providers/Microsoft.Management/managementGroups/contoso/', '/providers/Microsoft.Management/managementGroups/Tailspin/' | Set-Content -Path $policySetDefinition
 
-            # There is an unexplained delay between successful deployment -> and GET.
-            $timeout = New-TimeSpan -Minutes 5
-            $sw = [diagnostics.stopwatch]::StartNew()
-            $tailspinJsonSetCount = 0
-            while ($sw.elapsed -lt $timeout) {
+                    $scope = New-AzOpsScope -path $policySetDefinition.FullName
 
-                # Refresh Policy at Tailspin scope
-                Get-AzOpsResourceDefinitionAtScope -scope (New-AzOpsScope -path $TailspinAzOpsState)
-                $tailspinJson = Get-Content -path (New-AzOpsScope -path $TailspinAzOpsState).statepath | ConvertFrom-Json
-                $tailspinJsonSetCount = $tailspinJson.parameters.input.value.properties.policySetDefinitions.Count
-                if ($tailspinJsonSetCount -lt $AzOpsReferencePolicySetCount) {
-                    start-sleep -seconds 30
+                    $deploymentName = (Get-Item $policySetDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
+                    if ($deploymentName.Length -gt 64) {
+                        $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
+                    }
+                    New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion `
+                        -TemplateFile $env:AzOpsMainTemplate `
+                        -TemplateParameterFile $policySetDefinition.FullName `
+                        -ManagementGroupId $scope.managementGroup `
+                        -Name $deploymentName -AsJob
                 }
-                else {
-                    break
+
+                Get-Job | Wait-Job
+
+                # There is an unexplained delay between successful deployment -> and GET.
+                $timeout = New-TimeSpan -Minutes 5
+                $sw = [diagnostics.stopwatch]::StartNew()
+                $tailspinJsonSetCount = 0
+                while ($sw.elapsed -lt $timeout) {
+
+                    # Refresh Policy at Tailspin scope
+                    Get-AzOpsResourceDefinitionAtScope -scope (New-AzOpsScope -path $TailspinAzOpsState)
+                    $tailspinJson = Get-Content -path (New-AzOpsScope -path $TailspinAzOpsState).statepath | ConvertFrom-Json
+                    $tailspinJsonSetCount = $tailspinJson.parameters.input.value.properties.policySetDefinitions.Count
+                    if ($tailspinJsonSetCount -lt $AzOpsReferencePolicySetCount) {
+                        start-sleep -seconds 30
+                    }
+                    else {
+                        break
+                    }
                 }
+                $tailspinJsonSetCount | Should -Be $AzOpsReferencePolicySetCount
             }
-            $tailspinJsonSetCount | Should -Be $AzOpsReferencePolicySetCount
+        }
+
+        AfterAll {
+            # Cleaning up Tailspin Management Group
+            # Disabling until pull for IAB pull is wired up
+            # if(Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue)
+            # {
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cleaning up Tailspin Management Group"
+            #     Remove-AzOpsManagementGroup -groupName  'Tailspin'
+            # }
         }
     }
-
-    AfterAll {
-        # Cleaning up Tailspin Management Group
-        # Disabling until pull for IAB pull is wired up
-        # if(Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue)
-        # {
-        #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cleaning up Tailspin Management Group"
-        #     Remove-AzOpsManagementGroup -groupName  'Tailspin'
-        # }
-    }
-}
