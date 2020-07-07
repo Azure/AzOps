@@ -102,7 +102,7 @@ function Initialize-AzOpsRepository {
 
         #
         if (1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
-            $RootScope = $AzOpsAzManagementGroup.Id
+            $RootScope = $AzOpsPartialRoot.id
         }
         else {
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId

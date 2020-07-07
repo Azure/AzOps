@@ -100,7 +100,8 @@ function Initialize-AzOpsGlobalVariables {
             $global:AzOpsSubscriptions = Get-AzSubscription -TenantId (Get-AzContext).Tenant.Id
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
-
+            # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
+            $global:AzOpsPartialRoot = @()
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
             # Get all managementgroups that principal has access to
             try {
@@ -109,8 +110,10 @@ function Initialize-AzOpsGlobalVariables {
                     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
                     foreach ($mgmtGroup in $managementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Expanding Management Group : $($mgmtGroup.Name)"
-                        $global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
+                        #$global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
+                        $global:AzOpsAzManagementGroup += Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name
                     }
+                    $global:AzOpsAzManagementGroup = $AzOpsAzManagementGroup | Sort-Object -Property Id -Unique
                     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized  $(Get-Date)"
                 }
             }

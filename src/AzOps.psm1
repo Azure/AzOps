@@ -221,7 +221,7 @@ class AzOpsScope {
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
-            if ($Global:AzOpsExportRawTemplatee -eq 1) {
+            if ($Global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
             }
             else {
@@ -335,8 +335,7 @@ class AzOpsScope {
     [string] GetAzOpsManagementGroupPath([string]$managementgroupName) {
         if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
             $ParentMgName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split "/" | Select-Object -Last 1
-            #TODO - Make more efficient
-            if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and (Get-AzManagementGroup -GroupName $ParentMgName -ErrorAction Ignore) ) {
+            if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $ParentMgName } )) {
                 $ParentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
                 $Childpath = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
                 return (join-path $parentPath -ChildPath $ChildPath)
@@ -359,14 +358,14 @@ class AzOpsScope {
             $mgId = ((($this.scope -split $this.regex_managementgroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
 
             if ($mgId) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Querying Global variable for AzOpsAzManagementGroup"
+                Write-AzOpsLog -Level Debug -Topic "pwsh" -Message "Querying Global variable for AzOpsAzManagementGroup"
                 $mgDisplayName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
                 if ($mgDisplayName) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Management Group found in Azure: $($mgDisplayName)"
+                    Write-AzOpsLog -Level Debug -Topic "pwsh" -Message "Management Group found in Azure: $($mgDisplayName)"
                     return $mgDisplayName
                 }
                 else {
-                    Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
+                    Write-AzOpsLog -Level Debug -Topic "pwsh" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
                     return  $mgId
                 }
             }
