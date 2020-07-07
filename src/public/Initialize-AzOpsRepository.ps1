@@ -45,7 +45,7 @@
                └───.AzState
 #>
 function Initialize-AzOpsRepository {
-    
+
     [CmdletBinding()]
     [OutputType()]
     param(
@@ -100,8 +100,14 @@ function Initialize-AzOpsRepository {
     process {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        # Set/find the root scope based on TenantID
-        $TenantRootId = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
+        #
+        if (1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
+            $RootScope = $AzOpsAzManagementGroup.Id
+        }
+        else {
+            $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
+        }
+
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Tenant root Management Group is: $TenantID"
 
         if ($PSBoundParameters['Force']) {
@@ -119,17 +125,19 @@ function Initialize-AzOpsRepository {
         }
 
         # Set AzOpsScope root scope based on tenant root id
-        if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId })) {
+        foreach ($Root in $RootScope) {
+            if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $Root })) {
 
-            $RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id
-            # Create AzOpsState Structure recursively
-            Save-AzOpsManagementGroupChildren -scope $RootScopeId
+                #$RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id
+                # Create AzOpsState Structure recursively
+                Save-AzOpsManagementGroupChildren -scope $Root
 
-            # Discover Resource at scope recursively
-            Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
-        }
-        else {
-            Write-Error "Root Management Group Not Found"
+                # Discover Resource at scope recursively
+                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+            }
+            else {
+                Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
+            }
         }
     }
 

@@ -88,7 +88,7 @@ class AzOpsScope {
 
                 if (
                     ($resourcepath.Keys -contains "`$schema") -and
-                    ($resourcepath.Keys -contains "parameters") -and 
+                    ($resourcepath.Keys -contains "parameters") -and
                     ($resourcepath.parameters.Keys -contains "input")
                 ) {
                     <#
@@ -334,8 +334,9 @@ class AzOpsScope {
 
     [string] GetAzOpsManagementGroupPath([string]$managementgroupName) {
         if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
-
-            if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId) {
+            $ParentMgName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split "/" | Select-Object -Last 1
+            #TODO - Make more efficient
+            if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and (Get-AzManagementGroup -GroupName $ParentMgName -ErrorAction Ignore) ) {
                 $ParentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
                 $Childpath = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
                 return (join-path $parentPath -ChildPath $ChildPath)

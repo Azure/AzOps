@@ -32,17 +32,18 @@ function Initialize-AzOpsGlobalVariables {
 
         # Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
-            AZOPS_STATE                     = @{ AzOpsState = (Join-Path $pwd -ChildPath "azops") } # Folder to store AzOpsState artefact
-            AZOPS_MAIN_TEMPLATE             = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
-            AZOPS_STATE_CONFIG              = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
-            AZOPS_ENROLLMENT_PRINCIPAL_NAME = @{ AzOpsEnrollmentAccountPrincipalName = $null }
-            AZOPS_OFFER_TYPE                = @{ AzOpsOfferType = 'MS-AZR-0017P' }
-            AZOPS_DEFAULT_DEPLOYMENT_REGION = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
-            AZOPS_INVALIDATE_CACHE          = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
-            AZOPS_GENERALIZE_TEMPLATES      = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
-            AZOPS_IGNORE_CONTEXT_CHECK      = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
-            AZOPS_THROTTLE_LIMIT            = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
-            AZOPS_ROOT_MANAGEMENT_GROUP     = @{ AzOpsRootManagementGroup = $null } #Root management group if discovering from other root than tenant root
+            AZOPS_STATE                        = @{ AzOpsState = (Join-Path $pwd -ChildPath "azops") } # Folder to store AzOpsState artefact
+            AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
+            AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
+            AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
+            AZOPS_DEFAULT_DEPLOYMENT_REGION    = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
+            AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
+            AZOPS_GENERALIZE_TEMPLATES         = @{ AzOpsGeneralizeTemplates = 0 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
+            AZOPS_EXPORT_RAW_TEMPLATES         = @{ AzOpsExportRawTemplate = 0 }
+            AZOPS_IGNORE_CONTEXT_CHECK         = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
+            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } #If discovery is done from
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
