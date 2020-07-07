@@ -337,11 +337,12 @@ class AzOpsScope {
             $ParentMgName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split "/" | Select-Object -Last 1
             if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $ParentMgName } )) {
                 $ParentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
-                $Childpath = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
+                $Childpath = "{0} ({1})" -f ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
                 return (join-path $parentPath -ChildPath $ChildPath)
             }
             else {
-                return  (join-path $global:AzOpsState -ChildPath ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name)
+                $ChildPath = "{0} ({1})" -f ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
+                return (join-path $global:AzOpsState -ChildPath $Childpath)
             }
         }
         else {

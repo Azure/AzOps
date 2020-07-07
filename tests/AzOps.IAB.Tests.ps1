@@ -133,7 +133,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             (Get-AzTenantDeployment -Name "30-create-policydefinition-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
         }
         It "Passes Discovery of Tailspin Management Group" {
-            (Get-ChildItem -Directory -Recurse -Path $env:AzOpsState).Name | Should -Contain 'Tailspin'
+            (Get-ChildItem -Directory -Recurse -Path $env:AZOPS_STATE).Name | Should -Contain 'Tailspin'
         }
 
         It "Passes Policy Definition Test" {
@@ -177,7 +177,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         }
 
         It "Passes PolicySet Definition Test" {
-            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE | Where-Object { $_.Name -eq 'Tailspin' })).FullName
+            $TailspinAzOpsState = (Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE | Where-Object { $_.Name -eq 'Tailspin' }).FullName
             $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
             foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
                 Copy-Item $policySetDefinition $TailspinAzOpsState -Force
