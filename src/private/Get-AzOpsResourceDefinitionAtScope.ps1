@@ -132,16 +132,16 @@ function Get-AzOpsResourceDefinitionAtScope {
                         try {
                             $retryCount++
                             $ResourceGroups = Get-AzResourceGroup -DefaultProfile $context `
-                                -ErrorAction Stop
+                                -ErrorAction Stop `
                             | Where-Object -Filterscript { -not($_.Managedby) }
                         }
                         catch {
-                            if ($retryCount -lt $maxRetryCount) {
+                            if ($retryCount -lt $using:maxRetryCount) {
                                 $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
                                 Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Caught error finding Resource Groups (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
                                 Start-Sleep -Seconds $sleepTimeInSeconds
                             }
-                            elseif ($retryCount -ge $maxRetryCount) {
+                            elseif ($retryCount -ge $using:maxRetryCount) {
                                 Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Timeout exporting Resource Groups from Subscription $($context.Subscription.Id)."
                                 Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$($_.Exception.Message | Out-String)"
                                 break
@@ -185,12 +185,12 @@ function Get-AzOpsResourceDefinitionAtScope {
                                     -ErrorAction Stop
                             }
                             catch {
-                                if ($retryCount -lt $maxRetryCount) {
+                                if ($retryCount -lt $using:maxRetryCount) {
                                     $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
                                     Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Caught error finding Resources (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
                                     Start-Sleep -Seconds $sleepTimeInSeconds
                                 }
-                                elseif ($retryCount -ge $maxRetryCount) {
+                                elseif ($retryCount -ge $using:maxRetryCount) {
                                     Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Timeout exporting Resources from Resource Group [$($rg.ResourceGroupName)]."
                                     Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$($_.Exception.Message | Out-String)"
                                     break
