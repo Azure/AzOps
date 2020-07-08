@@ -28,6 +28,7 @@ jobs:
       env:
         # Only lint code which has been added or modified on push
         VALIDATE_ALL_CODEBASE: false
+        DEFAULT_BRANCH: main
         # Temporarily allowing linter to complete with exit code 0 even
         # if errors were detected while working on code clean-up
         DISABLE_ERRORS: true

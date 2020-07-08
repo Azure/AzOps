@@ -28,6 +28,7 @@ jobs:
       env:
         # Lint all code on pull_request
         VALIDATE_ALL_CODEBASE: true
+        DEFAULT_BRANCH: main
         # Temporarily allowing linter to complete with exit code 0 even
         # if errors were detected while working on code clean-up
         DISABLE_ERRORS: true
