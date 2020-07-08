@@ -37,7 +37,7 @@
 function ConvertTo-AzOpsObject {
 
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType("System.Object[]")]
     param (
         # Inputobject to serialize
         [Parameter(ValueFromPipeline)]

@@ -12,7 +12,7 @@
     Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment
 #>
 function Get-AzOpsPolicyAssignmentAtScope {
-    
+
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment])]
     param (
@@ -34,7 +34,7 @@ function Get-AzOpsPolicyAssignmentAtScope {
         # Discover policies at Resource Group, Subscription or Management Group level
         if ($scope.type -eq "resourcegroups" -or $scope.type -eq "subscriptions" -or $scope.type -eq "managementGroups" ) {
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Policy Assignment at Scope $scope"
-            $currentPolicyAssignmentInAzure = Get-AzPolicyAssignment -Scope $scope.scope -WarningAction SilentlyContinue | Where-Object -FilterScript { $_.PolicyAssignmentId -match $scope.scope }            
+            $currentPolicyAssignmentInAzure = Get-AzPolicyAssignment -Scope $scope.scope -WarningAction SilentlyContinue | Where-Object -FilterScript { $_.PolicyAssignmentId -match $scope.scope }
             # Return object with discovered policy assignments
             return  $currentPolicyAssignmentInAzure
         }

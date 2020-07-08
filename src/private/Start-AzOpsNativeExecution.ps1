@@ -1,5 +1,6 @@
 function Start-AzOpsNativeExecution {
 
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [scriptblock]$sb,
         [switch]$IgnoreExitcode,
@@ -7,7 +8,9 @@ function Start-AzOpsNativeExecution {
     )
 
     $backupEAP = $script:ErrorActionPreference
-    $script:ErrorActionPreference = "Continue"
+    if ($PSCmdlet.ShouldProcess("Update ErrorActionPreference to Continue?")) {
+        $script:ErrorActionPreference = "Continue"
+    }
     try {
         if ($VerboseOutputOnError.IsPresent) {
             $output = & $sb 2>&1

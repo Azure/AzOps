@@ -31,6 +31,14 @@
 #>
 
 function Get-AzOpsResourceDefinitionAtScope {
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsStateConfig')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -50,6 +58,9 @@ function Get-AzOpsResourceDefinitionAtScope {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         # Ensure that required global variables are set.
         Test-AzOpsVariables
+        # Define variables used by script
+        [Int]$backoffMultiplier = 2
+        [Int]$maxRetryCount = 3
     }
     process {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
@@ -112,29 +123,34 @@ function Get-AzOpsResourceDefinitionAtScope {
                 else {
                     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating ResourceGroups at scope $scope"
 
-                    # Get all resource groups in Subscription
-                    # $resourceGroup = Get-AzResourceGroup -DefaultProfile $context | Where-Object -Filterscript { -not($_.Managedby) }
-                    # Do/until loop to retry when getting the error "Your Azure Credentials have not been set up or expired"
-                    # $Resources = Get-AzResource  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $OdataFilter -DefaultProfile $context -ExpandProperties -ErrorAction Stop
+                    # Get all Resource Groups in Subscription
+                    # Retry loop with exponential backoff implemented to catch errors
+                    # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
-                    $Retry = 0
+                    $retryCount = 0
                     do {
                         try {
-                            $Retry++
-                            $ResourceError = $null
-                            $resourceGroup = Get-AzResourceGroup -DefaultProfile $context | Where-Object -Filterscript { -not($_.Managedby) }
+                            $retryCount++
+                            $ResourceGroups = Get-AzResourceGroup -DefaultProfile $context `
+                                -ErrorAction Stop
+                            | Where-Object -Filterscript { -not($_.Managedby) }
                         }
                         catch {
-                            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Retry Count: $Retry Caught Exception for Credential Error for Get-AzResourceGroup"
-                            $ResourceError = $_
+                            if ($retryCount -lt $maxRetryCount) {
+                                $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
+                                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Caught error finding Resource Groups (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
+                                Start-Sleep -Seconds $sleepTimeInSeconds
+                            }
+                            elseif ($retryCount -ge $maxRetryCount) {
+                                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Timeout exporting Resource Groups from Subscription $($context.Subscription.Id)."
+                                Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$($_.Exception.Message | Out-String)"
+                                break
+                            }
                         }
-                    } until ($null -eq $ResourceError -or $Retry -eq 10)
-                    if ($ResourceError) {
-                        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Error exporting $($rg.ResourceGroupName), please check your AzContext."
-                    }
+                    } until ($ResourceGroups)
 
                     # Discover all resource groups in parallel
-                    $resourcegroup | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
+                    $ResourceGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
                         # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
@@ -150,29 +166,37 @@ function Get-AzOpsResourceDefinitionAtScope {
 
                         # Convert resource group to AzOps-state.
                         $rg = $_
-                        ConvertTo-AzOpsState -resourceGroup $rg
+                        ConvertTo-AzOpsState -ResourceGroup $rg
                         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Enumerating Resource Group at $(get-date): $($rg.ResourceId)"
 
                         $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scope.subscription }
 
-                        # Do/until loop to retry when getting the error "Your Azure Credentials have not been set up or expired"
-                        # $Resources = Get-AzResource  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $OdataFilter -DefaultProfile $context -ExpandProperties -ErrorAction Stop
+                        # Retry loop with exponential backoff implemented to catch errors
+                        # Introduced due to error "Your Azure Credentials have not been set up or expired"
                         # https://github.com/Azure/azure-powershell/issues/9448
-                        $Retry = 0
+                        $retryCount = 0
                         do {
                             try {
-                                $Retry++
-                                $ResourceError = $null
-                                $Resources = Get-AzResource -DefaultProfile $context  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $using:OdataFilter -ExpandProperties -ErrorAction Stop
+                                $retryCount++
+                                $Resources = Get-AzResource -DefaultProfile $context `
+                                    -ResourceGroupName $rg.ResourceGroupName `
+                                    -ODataQuery $using:OdataFilter `
+                                    -ExpandProperties `
+                                    -ErrorAction Stop
                             }
                             catch {
-                                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Retry Count: $Retry Caught Exception for Credential Error for Get-AzResource for $($rg.ResourceId)"
-                                $ResourceError = $_
+                                if ($retryCount -lt $maxRetryCount) {
+                                    $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
+                                    Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Caught error finding Resources (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
+                                    Start-Sleep -Seconds $sleepTimeInSeconds
+                                }
+                                elseif ($retryCount -ge $maxRetryCount) {
+                                    Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Timeout exporting Resources from Resource Group [$($rg.ResourceGroupName)]."
+                                    Write-AzOpsLog -Level Error -Topic "pwsh" -Message "$($_.Exception.Message | Out-String)"
+                                    break
+                                }
                             }
-                        } until ($null -eq $ResourceError -or $Retry -eq 10)
-                        if ($ResourceError) {
-                            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Error exporting $($rg.ResourceGroupName), please check your AzContext."
-                        }
+                        } until ($Resources)
 
                         # Loop through resources and convert them to AzOpsState
                         foreach ($Resource in $Resources) {
@@ -186,7 +210,7 @@ function Get-AzOpsResourceDefinitionAtScope {
             }
             # Process Management Groups
             'managementGroups' {
-                $ChildOfManagementGroups = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
+                $ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
                 if ($ChildOfManagementGroups) {
 
                     <#
@@ -216,7 +240,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                         Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
                     }
                 }
-                ConvertTo-AzOpsState -Resource ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
+                ConvertTo-AzOpsState -Resource ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
             }
         }
         # Process policies and policy assignments for resourcegroups, subscriptions and Management Groups

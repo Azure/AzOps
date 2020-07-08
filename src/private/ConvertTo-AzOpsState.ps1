@@ -4,7 +4,7 @@
 .DESCRIPTION
     The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
     It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-    $Global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
+    $global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
 .EXAMPLE
     # Export custom policy definition to the AzOps StatePath
     Initialize-AzOpsGlobalVariables -Verbose
@@ -26,7 +26,11 @@
     Resource in AzOpsState json format or object returned as [PSCustomObject] depending on parameters used
 #>
 function ConvertTo-AzOpsState {
-    
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzopsStateConfig')]
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
@@ -62,10 +66,10 @@ function ConvertTo-AzOpsState {
         $ExcludedProperties = @{}
         # Fetch config json
         try {
-            $ResourceConfig = (Get-Content -Path $Global:AzopsStateConfig) | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+            $ResourceConfig = (Get-Content -Path $global:AzopsStateConfig) | ConvertFrom-Json -AsHashtable -ErrorAction Stop
         }
         catch {
-            throw "Cannot load $Global:AzOpsStateConfig, is the json schema valid or is the variable initialization not run yet?`r`n$_"
+            throw "Cannot load $global:AzOpsStateConfig, is the json schema valid or is the variable initialization not run yet?`r`n$_"
         }
 
         $Object = $Resource

@@ -11,10 +11,17 @@
     None
 .OUTPUTS
     - Global variables and environment variables as defined in @{ $AzOpsEnvVariables }
-    - $Global:AzOpsAzManagementGroup as well as $Global:AzOpsSubscriptions with all subscriptions and Management Groups that was discovered
+    - $global:AzOpsAzManagementGroup as well as $global:AzOpsSubscriptions with all subscriptions and Management Groups that was discovered
 #>
+
 function Initialize-AzOpsGlobalVariables {
-    
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:InvalidateCache')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsSubscriptions')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -89,7 +96,7 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($Global:invalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($global:InvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
 
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsSubscriptions not initialized. Initializing it now $(get-Date)"

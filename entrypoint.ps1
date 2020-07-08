@@ -19,6 +19,12 @@ function Logging {
 
 function Initialization {
 
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText')]
+    param ()
+
     begin {
         try {
             # Create credential

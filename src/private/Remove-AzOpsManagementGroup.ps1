@@ -13,7 +13,7 @@
 #>
 function Remove-AzOpsManagementGroup {
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter()]
         [string]$GroupName,

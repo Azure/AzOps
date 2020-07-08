@@ -35,7 +35,7 @@ function Get-AzOpsPolicySetDefinitionAtScope {
             # Discover policysetdefinitions at Management Group level
             if ($scope.type -eq 'managementGroups') {
                 Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving PolicySet Definition at ManagementGroup Scope $scope"
-                $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }                
+                $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }
             }
             # Discover policysetdefinitions at Subscription level
             elseif ($scope.type -eq 'subscriptions') {

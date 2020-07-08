@@ -13,7 +13,7 @@
 #>
 function Get-AzOpsRoleAssignmentAtScope {
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         $scope

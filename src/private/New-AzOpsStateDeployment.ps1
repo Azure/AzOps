@@ -10,7 +10,7 @@
     This cmdlet invokes following imperative operations that are not supported in ARM.
         1) Subscription Creation with Enterprise Enrollment - Subscription will be created if not found in Azure where service principle have access. Subscription will also be moved to the Management Group.
 
-        2) Resource providers registration until ARM support is available.  Following format is used for *.providerfeatures.json 
+        2) Resource providers registration until ARM support is available.  Following format is used for *.providerfeatures.json
             [
                 {
                     "ProviderNamespace":  "Microsoft.Security",
@@ -44,7 +44,13 @@
 #>
 function New-AzOpsStateDeployment {
 
-    [CmdletBinding()]
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsEnrollmentAccountPrincipalName')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsOfferType')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsDefaultDeploymentRegion')]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [ValidateScript( { Test-Path $_ })]
@@ -74,7 +80,7 @@ function New-AzOpsStateDeployment {
                     if ((Get-AzEnrollmentAccount)) {
                         if ($global:AzOpsEnrollmentAccountPrincipalName) {
                             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Querying EnrollmentAccountObjectId for $($global:AzOpsEnrollmentAccountPrincipalName)"
-                            $EnrollmentAccountObjectId = (Get-AzEnrollmentAccount | Where-Object -FilterScript { $_.PrincipalName -eq $Global:AzOpsEnrollmentAccountPrincipalName }).ObjectId
+                            $EnrollmentAccountObjectId = (Get-AzEnrollmentAccount | Where-Object -FilterScript { $_.PrincipalName -eq $global:AzOpsEnrollmentAccountPrincipalName }).ObjectId
                         }
                         else {
                             Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Using first enrollement account"
@@ -175,16 +181,16 @@ function New-AzOpsStateDeployment {
                         }
                     }
                     elseif ($scope.subscription) {
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Subscription scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
-                        New-AzSubscriptionDeployment -Location $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Subscription scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        New-AzSubscriptionDeployment -Location $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                     }
                     elseif ($scope.managementgroup) {
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Management Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
-                        New-AzManagementGroupDeployment -ManagementGroupId $scope.managementgroup -Name $deploymentName  -Location  $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Management Group scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        New-AzManagementGroupDeployment -ManagementGroupId $scope.managementgroup -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                     elseif ($scope.type -eq 'root') {
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Tenant Deployment Group scope with default region $($Global:AzOpsDefaultDeploymentRegion)"
-                        New-AzTenantDeployment -Name $deploymentName  -Location  $Global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
+                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Attempting at template at Tenant Deployment Group scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        New-AzTenantDeployment -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                 }
             }

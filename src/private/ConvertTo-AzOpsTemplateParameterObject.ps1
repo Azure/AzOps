@@ -1,6 +1,6 @@
 function ConvertTo-AzOpsTemplateParameterObject {
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         $FilePath

@@ -10,10 +10,10 @@ pr:
 
 variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
-  AZ_ACCOUNTS_REQUIREDVERSION: "1.8.0"
-  AZ_RESOURCES_REQUIREDVERSION: "2.0.1"
-  PESTER_REQUIREDVERSION: "5.0.2"
-  PSSCRIPTANALYZER_REQUIREDVERSION_REQUIREDVERSION: "1.19.0"
+  AZ_ACCOUNTS_REQUIRED_VERSION: "1.8.0"
+  AZ_RESOURCES_REQUIRED_VERSION: "2.0.1"
+  PESTER_REQUIRED_VERSION: "5.0.2"
+  PSSCRIPTANALYZER_REQUIRED_VERSION: "1.19.0"
 
 jobs:
   - job: pesterTests1
@@ -103,7 +103,7 @@ jobs:
           pwsh: true
         env:
           AZURE_CREDENTIALS: $(AZURE_CREDENTIALS)
-            
+
       - task: PowerShell@2
         displayName: "[pester] Run Tests (In-A-Box)"
         inputs:

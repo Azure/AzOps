@@ -1,3 +1,11 @@
+# The following SuppressMessageAttribute entries are used to surpress
+# PSScriptAnalyzer tests against known exceptions as per:
+# https://github.com/powershell/psscriptanalyzer#suppressing-rules
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsState')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsSubscriptions')]
+param ()
+
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3.0
 
@@ -88,7 +96,7 @@ class AzOpsScope {
 
                 if (
                     ($resourcepath.Keys -contains "`$schema") -and
-                    ($resourcepath.Keys -contains "parameters") -and 
+                    ($resourcepath.Keys -contains "parameters") -and
                     ($resourcepath.parameters.Keys -contains "input")
                 ) {
                     <#
@@ -130,7 +138,7 @@ class AzOpsScope {
 
     hidden [void] InitializeMemberVariablesFromPath([System.IO.DirectoryInfo] $path) {
 
-        if ($path.FullName -eq (get-item $Global:AzOpsState).FullName) {
+        if ($path.FullName -eq (get-item $global:AzOpsState).FullName) {
             # Root tenant path
             $this.InitializeMemberVariables("/")
         }
@@ -245,7 +253,7 @@ class AzOpsScope {
         elseif ($this.IsRoot()) {
             $this.type = "root"
             $this.name = "/"
-            $this.statepath = $Global:AzOpsState
+            $this.statepath = $global:AzOpsState
         }
     }
 
@@ -314,14 +322,14 @@ class AzOpsScope {
     [string] GetManagementGroup() {
 
         if ($this.GetManagementGroupName()) {
-            foreach ($mgmt in $Global:AzOpsAzManagementGroup) {
+            foreach ($mgmt in $global:AzOpsAzManagementGroup) {
                 if ($mgmt.DisplayName -eq $this.GetManagementGroupName()) {
                     return $mgmt.Name
                 }
             }
         }
         if ($this.subscription) {
-            foreach ($mgmt in $Global:AzOpsAzManagementGroup) {
+            foreach ($mgmt in $global:AzOpsAzManagementGroup) {
                 foreach ($child in $mgmt.Children) {
                     if ($child.DisplayName -eq $this.subscriptionDisplayName) {
                         return $mgmt.Name
@@ -333,14 +341,14 @@ class AzOpsScope {
     }
 
     [string] GetAzOpsManagementGroupPath([string]$managementgroupName) {
-        if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
+        if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
 
-            if (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId) {
-                $parentPath = $this.GetAzOpsManagementGroupPath( (($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
-                return (join-path $parentPath -ChildPath ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
+            if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId) {
+                $parentPath = $this.GetAzOpsManagementGroupPath( (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
+                return (join-path $parentPath -ChildPath ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
             }
             else {
-                return  (join-path $global:AzOpsState -ChildPath ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
+                return  (join-path $global:AzOpsState -ChildPath ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
             }
         }
         else {
@@ -358,7 +366,7 @@ class AzOpsScope {
 
             if ($mgId) {
                 Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Querying Global variable for AzOpsAzManagementGroup"
-                $mgDisplayName = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
+                $mgDisplayName = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
                 if ($mgDisplayName) {
                     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Management Group found in Azure: $($mgDisplayName)"
                     return $mgDisplayName
@@ -370,7 +378,7 @@ class AzOpsScope {
             }
         }
         if ($this.subscription) {
-            foreach ($mgmt in $Global:AzOpsAzManagementGroup) {
+            foreach ($mgmt in $global:AzOpsAzManagementGroup) {
                 foreach ($child in $mgmt.Children) {
                     if ($child.DisplayName -eq $this.subscriptionDisplayName) {
                         return $mgmt.DisplayName
@@ -501,7 +509,8 @@ class AzOpsScope {
     [AzOpsScope]
 #>
 function New-AzOpsScope {
-    [CmdletBinding()]
+
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [OutputType([AzOpsScope])]
         [Parameter(Position = 0, ParameterSetName = "scope", ValueFromPipeline = $true)]
@@ -520,14 +529,14 @@ function New-AzOpsScope {
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Return scope if scope was provided
-        if ($PSCmdlet.ParameterSetName -eq "scope") {
+        if (($PSCmdlet.ParameterSetName -eq "scope") -and $PSCmdlet.ShouldProcess("Create new scope object?")) {
             return [AzOpsScope]::new($scope)
         }
         # Get scope from filepath
         elseif ($PSCmdlet.ParameterSetName -eq "pathfile") {
             # Remove .AzState file extension if present
             $path = $path -replace $regex_findAzStateFileExtension, ''
-            if ((Test-Path $path) -and (Test-Path $path -IsValid)) {
+            if ((Test-Path $path) -and (Test-Path $path -IsValid) -and $PSCmdlet.ShouldProcess("Create new pathfile object?")) {
                 return [AzOpsScope]::new($(Get-Item $path))
             }
         }

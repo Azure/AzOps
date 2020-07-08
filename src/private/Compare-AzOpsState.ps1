@@ -1,6 +1,7 @@
 function Compare-AzOpsState {
 
     [CmdletBinding()]
+    [OutputType([bool])]
     param (
         [Parameter()]
         $ref,

@@ -1,5 +1,5 @@
 function Invoke-AzOpsGitPull {
-    
+
     [CmdletBinding()]
     [OutputType()]
     param ()

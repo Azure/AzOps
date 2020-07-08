@@ -3,7 +3,7 @@
     Resource providers registration until ARM support is available
 .DESCRIPTION
     This cmdlet invokes following imperative operations that are not supported in ARM.
-    1) Resource providers registration until ARM support is available.  Following format is used for *.providerfeatures.json 
+    1) Resource providers registration until ARM support is available.  Following format is used for *.providerfeatures.json
         [
             {
                 "ProviderNamespace":  "Microsoft.Security",

@@ -18,34 +18,40 @@
 .OUTPUTS
     .\azops-folder in repo with all azure resources reflected
      # Example of structure generated
-    ├───azops
-    └───43a8a113-b0e1-4b17-b6ab-68c8925bf817
-       ├───.AzState
-       └───Tailspin
-           ├───.AzState
-           ├───Tailspin-decomissioned
-           │   └───.AzState
-           ├───Tailspin-Landing Zones
-           │   ├───.AzState
-           │   ├───Tailspin-corp
-           │   │   └───.AzState
-           │   ├───Tailspin-online
-           │   │   └───.AzState
-           │   └───Tailspin-sap
-           │       └───.AzState
-           ├───Tailspin-platform
-           │   ├───.AzState
-           │   ├───Tailspin-connectivity
-           │   │   └───.AzState
-           │   ├───Tailspin-identity
-           │   │   └───.AzState
-           │   └───Tailspin-management
-           │       └───.AzState
-           └───Tailspin-sandboxes
-               └───.AzState
+    |-- azops
+    |-- 43a8a113-b0e1-4b17-b6ab-68c8925bf817
+       |-- .AzState
+       |-- Tailspin
+           |-- .AzState
+           |-- Tailspin-decomissioned
+           |   |-- .AzState
+           |-- Tailspin-Landing Zones
+           |   |-- .AzState
+           |   |-- Tailspin-corp
+           |   |   |-- .AzState
+           |   |-- Tailspin-online
+           |   |   |-- .AzState
+           |   |-- Tailspin-sap
+           |       |-- .AzState
+           |-- Tailspin-platform
+           |   |-- .AzState
+           |   |-- Tailspin-connectivity
+           |   |   |-- .AzState
+           |   |-- Tailspin-identity
+           |   |   |-- .AzState
+           |   |-- Tailspin-management
+           |       |-- .AzState
+           |-- Tailspin-sandboxes
+               |-- .AzState
 #>
+
 function Initialize-AzOpsRepository {
-    
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsState')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
     [CmdletBinding()]
     [OutputType()]
     param(

@@ -12,7 +12,7 @@
     Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition
 #>
 function Get-AzOpsPolicyDefinitionAtScope {
-    
+
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition])]
     param (
