@@ -1,12 +1,11 @@
 ---
-name: Code Review (push)
+name: Code Review (Changes Only)
 
-######################################################
-# Start the job on push for all branches except main #
-######################################################
+##########################################
+# Start the job on push for all branches #
+##########################################
 on:
-  push:
-    branches-ignore: [main]
+  push
 
 ###############
 # Set the Job #
@@ -22,12 +21,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
 
-    - name: Run Super-Linter
+    - name: Run Super-Linter (Changes Only)
       # Need to pull "latest" until a new release tag includes arm-ttk linter
       uses: docker://github/super-linter:latest
       env:
         # Only lint code which has been added or modified on push
         VALIDATE_ALL_CODEBASE: false
+        # Need to define main branch as default is master
         DEFAULT_BRANCH: main
         # Temporarily allowing linter to complete with exit code 0 even
         # if errors were detected while working on code clean-up

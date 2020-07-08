@@ -1,5 +1,5 @@
 ---
-name: Code Review (pull_request)
+name: Code Review (Full)
 
 ##########################################
 # Start the job on pull requests to main #
@@ -28,6 +28,7 @@ jobs:
       env:
         # Lint all code on pull_request
         VALIDATE_ALL_CODEBASE: true
+        # Need to define main branch as default is master
         DEFAULT_BRANCH: main
         # Temporarily allowing linter to complete with exit code 0 even
         # if errors were detected while working on code clean-up
