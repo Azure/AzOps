@@ -33,6 +33,12 @@
     None
 #>
 
+# The following SuppressMessageAttribute entries are used to surpress
+# PSScriptAnalyzer tests against known exceptions as per:
+# https://github.com/powershell/psscriptanalyzer#suppressing-rules
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','tenantName')]
+param()
+
 Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "iab" {
 
     BeforeAll {
