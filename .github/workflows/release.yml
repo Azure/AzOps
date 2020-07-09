@@ -10,7 +10,7 @@ env:
 
 jobs:
   build_push:
-    if: ${{ github.event_name == 'push'}} && {{env.DOCKER_REPOSITORY }} != null
+    if: ${{ github.event_name == 'push'}} && {{env.DOCKER_REPOSITORY }} != ''
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -25,7 +25,7 @@ jobs:
         tag_with_ref: true
         tags: ${{ github.sha }}, latest
   build_release:
-    if: ${{ github.event_name == 'release'}} && {{env.DOCKER_REPOSITORY }} != null
+    if: ${{ github.event_name == 'release'}} && {{env.DOCKER_REPOSITORY }} != ''
     runs-on: ubuntu-latest
     steps:
     - name: checkout
