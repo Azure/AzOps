@@ -10,18 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      push_to_docker_registry: ${{ steps.push_to_docker_registry.outputs.push_to_docker_registry }}
+      pushtodockerregistry: ${{ steps.pushtodockerregistry.outputs.pushtodockerregistry }}
     steps:
       - name: Check whether push docker image to repository
-        id: push_to_docker_registry
+        id: pushtodockerregistry
         env:
             PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
         run: |
             echo "Enable Push to Docker Registry: ${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
-            echo "::set-output name=push_to_docker_registry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+            echo "::set-output name=pushtodockerregistry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
 
   build_push:
-    if:  ${{needs.build.outputs.push_to_docker_registry == 'true'}}
+    if:  ${{needs.build.outputs.pushtodockerregistry == 'true'}}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -37,7 +37,7 @@ jobs:
         tags: ${{ github.sha }}, latest
 
   build_release:
-    if: github.event_name == 'release' && needs.build.outputs.push_to_docker_registry == 'true'
+    if: github.event_name == 'release' && needs.build.outputs.pushtodockerregistry == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: checkout
