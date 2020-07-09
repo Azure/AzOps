@@ -6,11 +6,11 @@ on:
     branches:
       - main
 env:
-  DOCKER_REPOSITORY: mscet/azops
+  DOCKER_REPOSITORY: ${{ secrets.DOCKER_USERNAME  }}
 
 jobs:
   build_push:
-    if: ${{ github.event_name == 'push' && env.DOCKER_REPOSITORY != null }}
+    if: ${{ github.event_name == 'push'}} && {{env.DOCKER_REPOSITORY }} != null
     runs-on: ubuntu-latest
     steps:
     - name: checkout
