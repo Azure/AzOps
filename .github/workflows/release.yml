@@ -15,8 +15,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
-    - name: Set repository env
-      run: echo ::set-env name=repository::${GITHUB_REPOSITORY,,}
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
@@ -32,8 +30,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
-    - name: Set repository env
-      run: echo ::set-env name=repository::${GITHUB_REPOSITORY,,}
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
