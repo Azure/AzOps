@@ -22,7 +22,7 @@ jobs:
 
   build_push:
     needs: [build]
-    if:  ${{needs.build.outputs.pushtodockerregistry == 'true'}}
+    if: ${{ github.event_name == 'push' }} && ${{ needs.build.outputs.pushtodockerregistry == 'true' }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -39,7 +39,7 @@ jobs:
 
   build_release:
     needs: [build]
-    if: github.event_name == 'release' && needs.build.outputs.pushtodockerregistry == 'true'
+    if: ${{ github.event_name == 'release' }} && ${{ needs.build.outputs.pushtodockerregistry == 'true' }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
