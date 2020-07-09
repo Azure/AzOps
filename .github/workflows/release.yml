@@ -9,6 +9,8 @@ on:
 jobs:
   build_prep:
     runs-on: ubuntu-latest
+    outputs:
+      push_to_docker_registry: ${{ steps.push_to_docker_registry.outputs.push_to_docker_registry }}
     steps:
       - name: Check whether push docker image to repository
         id: push_to_docker_registry
