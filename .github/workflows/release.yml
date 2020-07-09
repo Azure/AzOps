@@ -10,7 +10,7 @@ env:
 
 jobs:
   build_push:
-    if: ${{ github.event_name == 'push'}} && {{env.DOCKER_REPOSITORY }} != ''
+    if: ${{ github.event_name == 'push' && env.DOCKER_REPOSITORY != '' }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
