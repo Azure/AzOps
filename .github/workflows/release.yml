@@ -25,7 +25,7 @@ jobs:
         tag_with_ref: true
         tags: ${{ github.sha }}, latest
   build_release:
-    if: ${{ github.event_name == 'release'}} && {{env.DOCKER_REPOSITORY }} != ''
+    if: ${{ github.event_name == 'release'}} 
     runs-on: ubuntu-latest
     steps:
     - name: checkout
