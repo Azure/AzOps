@@ -5,12 +5,21 @@ on:
   push:
     branches:
       - main
-env:
-  DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
 
 jobs:
+  build_prep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check whether psuh docker image to repository
+        id: pushtodockerregistry
+        env:
+            PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
+        run: |
+            echo "Enable Push to Docekr Registry: ${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+            echo "::set-output name=pushtodockerregistry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+
   build_push:
-    if: ${{ github.event_name == 'push' && env.DOCKER_REPOSITORY != '' }}
+    if: ${{ github.event_name == 'push' &&  needs.build.outputs.pushtodockerregistry != '' }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -25,7 +34,7 @@ jobs:
         tag_with_ref: true
         tags: ${{ github.sha }}, latest
   build_release:
-    if: ${{ github.event_name == 'release'}} 
+    if: ${{ github.event_name == 'release'}}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
