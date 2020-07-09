@@ -1,0 +1,45 @@
+name: "Build Container Image"
+on:
+  release:
+    types: [created]
+  push:
+    branches:
+      - main
+env:
+  DOCKER_REPOSITORY: mscet/azops
+
+jobs:
+  build_push:
+    if: ${{ github.event_name == 'push' && secrets.DOCKER_USERNAME }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Set repository env
+      run: echo ::set-env name=repository::${GITHUB_REPOSITORY,,}
+    - name: build_push_release
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME  }}
+        password: ${{ secrets.DOCKER_PASSWORD  }}
+        repository: ${{env.DOCKER_REPOSITORY  }}
+        add_git_labels: true
+        tag_with_ref: true
+        tags: ${{ github.sha }}, latest
+  build_release:
+    if: ${{ github.event_name == 'release'}}
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Set repository env
+      run: echo ::set-env name=repository::${GITHUB_REPOSITORY,,}
+    - name: build_push_release
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME  }}
+        password: ${{ secrets.DOCKER_PASSWORD  }}
+        repository: ${{env.DOCKER_REPOSITORY  }}
+        add_git_labels: true
+        tag_with_ref: true
+        tags: ${{ github.sha }} , ${{ github.event.release.tag_name }}
