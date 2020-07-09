@@ -33,6 +33,7 @@ jobs:
         add_git_labels: true
         tag_with_ref: true
         tags: ${{ github.sha }}, latest
+
   build_release:
     if: ${{ github.event_name == 'release' &&  needs.build.outputs.push_to_docker_registry != '' }}
     runs-on: ubuntu-latest
