@@ -1,0 +1,55 @@
+name: "Build Container Image"
+on:
+  release:
+    types: [created]
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      pushtodockerregistry: ${{ steps.pushtodockerregistry.outputs.pushtodockerregistry }}
+    steps:
+      - name: Check whether push docker image to repository
+        id: pushtodockerregistry
+        env:
+            PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
+        run: |
+            echo "Enable Push to Docker Registry: ${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+            echo "::set-output name=pushtodockerregistry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+
+  build_push:
+    needs: [build]
+    if: github.event_name == 'push' && needs.build.outputs.pushtodockerregistry == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: build_push_release
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME  }}
+        password: ${{ secrets.DOCKER_PASSWORD  }}
+        repository: ${{ secrets.DOCKER_REPOSITORY  }}
+        add_git_labels: true
+        tag_with_ref: true
+        tags: ${{ github.sha }}, latest
+
+  build_release:
+    needs: [build]
+    if: github.event_name == 'release' && needs.build.outputs.pushtodockerregistry == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: build_push_release
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME  }}
+        password: ${{ secrets.DOCKER_PASSWORD  }}
+        repository: ${{ secrets.DOCKER_REPOSITORY }}
+        add_git_labels: true
+        tag_with_ref: true
+        tags: ${{ github.sha }} , ${{ github.event.release.tag_name }}
