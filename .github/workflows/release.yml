@@ -6,7 +6,7 @@ on:
     branches:
       - main
 env:
-  DOCKER_REPOSITORY: ${{ secrets.DOCKER_USERNAME  }}
+  DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY  }}
 
 jobs:
   build_push:
