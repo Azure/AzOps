@@ -21,7 +21,7 @@ jobs:
             echo "::set-output name=push_to_docker_registry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
 
   build_push:
-    if:  needs.build.outputs.push_to_docker_registry == 'true'
+    if:  ${{needs.build.outputs.push_to_docker_registry == 'true'}}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
