@@ -39,7 +39,7 @@ function Invoke-AzOpsGitPushRefresh {
                     git pull origin main
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
+                Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
                 Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
@@ -103,7 +103,7 @@ function Invoke-AzOpsGitPushRefresh {
                     git merge origin/$env:GITHUB_BASE_REF --no-commit
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
+                Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
                 Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"

@@ -31,7 +31,7 @@ function Invoke-AzOpsGitPull {
             } | Out-Host
         }
 
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking refresh process"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPull" -Message "Invoking refresh process"
         Invoke-AzOpsGitPullRefresh
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"

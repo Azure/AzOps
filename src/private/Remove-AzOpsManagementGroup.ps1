@@ -36,13 +36,13 @@ function Remove-AzOpsManagementGroup {
                     New-AzManagementGroupSubscription -GroupName $RootManagementGroupName -SubscriptionId $Child.Name
                 }
                 else {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($Child.Name)"
+                    Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($Child.Name)"
                     Remove-AzOpsManagementGroup -GroupName $Child.Name -RootManagementGroupName $RootManagementGroupName -ErrorAction SilentlyContinue
                 }
 
             }
         }
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($groupName)"
+        Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($groupName)"
         Remove-AzManagementGroup -GroupName $groupName
     }
 

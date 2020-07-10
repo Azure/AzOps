@@ -5,7 +5,7 @@ function Invoke-AzOpsGitPush {
     param ()
 
     begin {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking pre refresh process"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking pre refresh process"
         $diff = Invoke-AzOpsGitPushRefresh -Operation "Before"
 
         # Messages
@@ -38,7 +38,7 @@ function Invoke-AzOpsGitPush {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
         }
 
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Initializing global variables"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Initializing global variables"
         Initialize-AzOpsGlobalVariables
     }
 
@@ -91,7 +91,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.subscription.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -99,7 +99,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.providerfeatures.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -108,7 +108,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.resourceproviders.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -116,13 +116,13 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
         | Sort-Object -Property $_ `
         | Foreach-Object {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json"
             New-AzOpsStateDeployment -filename $_
         }
     }
 
     end {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking post refresh process"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking post refresh process"
         Invoke-AzOpsGitPushRefresh -Operation "After"
     }
 

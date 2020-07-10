@@ -33,12 +33,6 @@
     None
 #>
 
-# The following SuppressMessageAttribute entries are used to surpress
-# PSScriptAnalyzer tests against known exceptions as per:
-# https://github.com/powershell/psscriptanalyzer#suppressing-rules
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','tenantName')]
-param()
-
 Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "iab" {
 
     BeforeAll {
@@ -60,23 +54,20 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             git clone 'https://github.com/Azure/Enterprise-Scale'
         } | Out-Host
         $AzOpsReferenceFolder = (Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference')
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
 
         # Task: Check if 'Tailspin' Management Group exists
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Removing Tailspin Management Group"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Removing Tailspin Management Group"
         if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Remove-AzOpsManagementGroup"
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Remove-AzOpsManagementGroup"
             Remove-AzOpsManagementGroup -GroupName  'Tailspin'
         }
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Tailspin Management Group hierarchy removed."
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Tailspin Management Group hierarchy removed."
         #endregion
 
         # Task: Initialize azops/
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Initialize-AzOpsRepository"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Initialize-AzOpsRepository"
         Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
-
-        # Comment: Find Tenant Root Group id
-        $tenantName = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.ParentDisplayName -eq $null }).DisplayName
 
         # Task: Deployment of 10-create-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
@@ -85,7 +76,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
             $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
             New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
         }
 
@@ -96,7 +87,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
             $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
             New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
         }
 
@@ -107,7 +98,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
             $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
             New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
         }
 
@@ -149,7 +140,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
                 Copy-Item $policyDefinition $TailspinAzOpsState -Force
             }
             foreach ($policyDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policyDefinitions*.json")) {
-                # Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Deploying Policy Definition: $policyDefinition"
+                # Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Deploying Policy Definition: $policyDefinition"
                 $scope = New-AzOpsScope -path $policyDefinition.FullName
                 $deploymentName = (Get-Item $policyDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
                 if ($deploymentName.Length -gt 64) {
@@ -189,7 +180,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
                 Copy-Item $policySetDefinition $TailspinAzOpsState -Force
             }
             foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
-                # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Deploying Policy Definition: $policySetDefinition"
+                # Write-AzOpsLog -Level Verbose -Topic "AzOps.IAB.Tests" -Message "Deploying Policy Definition: $policySetDefinition"
 
                 # Changing the Scope to match Tailspin
                 (Get-Content -path $policySetDefinition -Raw) -replace '/providers/Microsoft.Management/managementGroups/contoso/', '/providers/Microsoft.Management/managementGroups/Tailspin/' | Set-Content -Path $policySetDefinition
@@ -235,7 +226,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         # Disabling until pull for IAB pull is wired up
         # if(Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue)
         # {
-        #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cleaning up Tailspin Management Group"
+        #     Write-AzOpsLog -Level Verbose -Topic "AzOps.IAB.Tests" -Message "Cleaning up Tailspin Management Group"
         #     Remove-AzOpsManagementGroup -groupName  'Tailspin'
         # }
     }

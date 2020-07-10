@@ -38,15 +38,12 @@ function Test-AzOpsDuplicateSubMgmtGroup {
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        # Ensure that required global variables are set.
-        Test-AzOpsVariables
+        Write-AzOpsLog -Level Debug -Topic "Test-AzOpsDuplicateSubMgmtGroup" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        $DuplicateNames = @()
     }
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-
-        $DuplicateNames = @()
+        Write-AzOpsLog -Level Debug -Topic "Test-AzOpsDuplicateSubMgmtGroup" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         # Iterate through all subscriptions and add the ones with duplicate names to [PSCustomObject]
         $DuplicateNames += $Subscriptions | Group-Object -Property Name | Where-Object { $_.Count -gt 1 } | ForEach-Object -Process {
             [PSCustomObject]@{
@@ -65,12 +62,14 @@ function Test-AzOpsDuplicateSubMgmtGroup {
                 Ids           = $_.Group.Id
             }
         }
-        # Return output if duplicate names exists
-        return $DuplicateNames
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Debug -Topic "Test-AzOpsDuplicateSubMgmtGroup" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        # Return output if duplicate names exists
+        if ($DuplicateNames) {
+            return $DuplicateNames
+        }
     }
 
 }
