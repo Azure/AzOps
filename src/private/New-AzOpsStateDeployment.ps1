@@ -92,7 +92,7 @@ function New-AzOpsStateDeployment {
                         if ($PSCmdlet.ShouldProcess("Create new Subscription?")) {
                             $subscription = New-AzSubscription -Name $scope.Name -OfferType $global:AzOpsOfferType -EnrollmentAccountObjectId $EnrollmentAccountObjectId
                         }
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Creating new Subscription Success!"                                
+                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Creating new Subscription Success!"
 
                         $ManagementGroupName = $scope.managementgroup
                         if ($PSCmdlet.ShouldProcess("Move Subscription to Management Group?")) {
@@ -111,7 +111,7 @@ function New-AzOpsStateDeployment {
                     $ManagementGroupName = $scope.managementgroup
                     Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Assigning Subscription to Management Group $ManagementGroupName"
                     if ($PSCmdlet.ShouldProcess("Move Subscription to Management Group?")) {
-                        New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId                        
+                        New-AzManagementGroupSubscription -GroupName $ManagementGroupName -SubscriptionId $subscription.SubscriptionId
                     }
 
                 }
