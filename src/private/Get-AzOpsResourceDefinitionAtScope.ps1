@@ -233,8 +233,8 @@ function Get-AzOpsResourceDefinitionAtScope {
                         https://github.com/Azure/azure-powershell/issues/9448
                         $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
                     #>
-                    $ChildOfManagementGroups | Foreach-Object <# -ThrottleLimit 1 -Parallel #> {
-<#                         # region Importing module
+                    $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 1 -Parallel {
+                        # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
                         # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
                         $RootPath = (Split-Path $using:PSScriptRoot -Parent)
@@ -248,7 +248,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                         $SkipPolicy = $using:SkipPolicy
                         $SkipResourceGroup = $using:SkipResourceGroup
                         # endregion
- #>
+
                         $child = $_
                         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Management Group Child Resource [$($child.Id)]"
                         Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
