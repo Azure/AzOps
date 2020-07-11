@@ -426,10 +426,6 @@ Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
             $ModuleManifest.RootModule | Should -Be 'AzOps.psm1'
         }
 
-        It 'Passes Test-ModuleManifest ModuleVersion' {
-            $ModuleManifest.Version | Should -Be '0.2'
-        }
-
         It 'Passes Test-ModuleManifest Copyright' {
             $ModuleManifest.Copyright | Should -Be '(c) Microsoft. All rights reserved.'
         }
