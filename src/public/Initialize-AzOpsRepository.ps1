@@ -92,9 +92,10 @@ function Initialize-AzOpsRepository {
         if ($PSBoundParameters['ExportRawTemplate']) {
             $env:ExportRawTemplate = 1
         }
-        # Initialize Global Variables if not set
+        # Initialize Global Variables and return error if not set
+        Initialize-AzOpsGlobalVariables
         if (-not (Test-AzOpsVariables)) {
-            Initialize-AzOpsGlobalVariables
+            Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsRepository" -Message "AzOps Global Variables not set."
         }
         # Get tenant id for current Az Context
         $TenantId = (Get-AzContext).Tenant.Id

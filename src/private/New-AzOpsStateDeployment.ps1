@@ -180,22 +180,25 @@ function New-AzOpsStateDeployment {
                     }
                     Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Template is $templatename / $templatepath and Deployment Name is $deploymentName"
                     if ($scope.resourcegroup) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Validating at template at resource group scope"
+                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Resource Group] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
                         Test-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -OutVariable templateErrors
                         if (-not $templateErrors -and $PSCmdlet.ShouldProcess("Start Resource Group Deployment?")) {
                             New-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                         }
+                        else {
+                            Write-AzOpsLog -Level Error -Topic "New-AzOpsStateDeployment" -Message "Resource Group [$($scope.resourcegroup)] not found. Unable to initiate deployment."
+                        }
                     }
                     elseif ($scope.subscription -and $PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Attempting at template at Subscription scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Subscription] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
                         New-AzSubscriptionDeployment -Location $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                     }
                     elseif ($scope.managementgroup -and $PSCmdlet.ShouldProcess("Start Management Group Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Attempting at template at Management Group scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Management Group] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
                         New-AzManagementGroupDeployment -ManagementGroupId $scope.managementgroup -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                     elseif ($scope.type -eq 'root' -and $PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Attempting at template at Tenant Deployment Group scope with default region $($global:AzOpsDefaultDeploymentRegion)"
+                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Tenant] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
                         New-AzTenantDeployment -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
                     }
                 }

@@ -71,45 +71,49 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
         # Task: Deployment of 10-create-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
             Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         # Task: Deployment of 20-create-child-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/20-create-child-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
             Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         # Task: Deployment of 30-create-policydefinition-at-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
             Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         <# State: Disabling this due to bug where Policy assignment fails for first time.
 
             Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+                $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
-                $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+                $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
-                New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
+                New-AzOpsStateDeployment -FileName $tempFileName
             }
 
             #>

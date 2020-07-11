@@ -138,7 +138,7 @@ class AzOpsScope {
 
     hidden [void] InitializeMemberVariablesFromPath([System.IO.DirectoryInfo] $path) {
 
-        if ($path.FullName -eq (get-item $global:AzOpsState).FullName) {
+        if ($path.FullName -eq (Get-Item $global:AzOpsState).FullName) {
             # Root tenant path
             $this.InitializeMemberVariables("/")
         }
