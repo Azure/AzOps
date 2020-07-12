@@ -212,10 +212,6 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         It "Passes returns 3 subscriptions with duplicate names" {
             ($DuplicateTest | Where-Object { $_.Type -eq "Subscription" }).Count | Should -BeExactly 3
         }
-        It "Passes returns null when no duplicate subscriptions or Management Groups found" {
-            $SingleTest | Should -BeTrue
-        }
-
     }
 
 }
