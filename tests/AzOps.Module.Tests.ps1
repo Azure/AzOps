@@ -190,7 +190,7 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         }
 
     }
-    
+
     Context "Test-AzOpsDuplicateSubMgmtGroup" {
 
         BeforeAll {

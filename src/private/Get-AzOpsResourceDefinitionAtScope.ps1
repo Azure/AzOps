@@ -153,7 +153,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     } until ($ResourceGroups)
 
                     # Discover all resource groups in parallel
-                    $ResourceGroups | Foreach-Object -ThrottleLimit $Global:AzOpsThrottleLimit -Parallel {
+                    $ResourceGroups | Foreach-Object -ThrottleLimit [int]$Global:AzOpsThrottleLimit -Parallel {
 
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
