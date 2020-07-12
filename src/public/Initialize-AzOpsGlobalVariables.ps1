@@ -11,28 +11,35 @@
     None
 .OUTPUTS
     - Global variables and environment variables as defined in @{ $AzOpsEnvVariables }
-    - $Global:AzOpsAzManagementGroup as well as $Global:AzOpsSubscriptions with all subscriptions and Management Groups that was discovered
+    - $global:AzOpsAzManagementGroup as well as $global:AzOpsSubscriptions with all subscriptions and Management Groups that was discovered
 #>
+
 function Initialize-AzOpsGlobalVariables {
-    
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:InvalidateCache')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsSubscriptions')]
     [CmdletBinding()]
     [OutputType()]
     param (
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
 
         # Validate that Azure Context is available
         $AllAzContext = Get-AzContext -ListAvailable
         if (-not($AllAzContext)) {
-            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "No context available in Az PowerShell. Please use Connect-AzAccount and connect before using the command"
-            break
+            Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "No context available in Az PowerShell. Please use Connect-AzAccount and connect before using the command"
+            throw
         }
 
         # Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
-            AzOpsState                          = (Join-Path $pwd -ChildPath "azops") # Folder to store AzOpsState artefact
+            AzOpsState                          = (Get-Location | Join-Path -ChildPath "azops") # Folder to store AzOpsState artefact
             AzOpsMainTemplate                   = "$PSScriptRoot\..\..\template\template.json" # Main template json
             AzOpsStateConfig                    = "$PSScriptRoot\..\AzOpsStateConfig.json" # Configuration file for resource serialization
             AzOpsEnrollmentAccountPrincipalName = $null
@@ -45,7 +52,7 @@ function Initialize-AzOpsGlobalVariables {
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
             $EnvVar = "env:\$AzOpsEnv"
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Checking environment variable $AzOpsEnv"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Checking environment variable $AzOpsEnv"
             try {
                 # Check if environment variables already exist with value
                 $EnvVarValue = Get-ChildItem -Path $EnvVar -ErrorAction Stop | Select-Object -ExpandProperty Value
@@ -54,7 +61,7 @@ function Initialize-AzOpsGlobalVariables {
                 # If variable wasn't found, set default value from hash table
                 $AzOpsEnvValue = $AzOpsEnvVariables["$AzOpsEnv"]
                 if ($AzOpsEnvValue) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cannot find $EnvVar, setting value to $AzOpsEnvValue"
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot find $EnvVar, setting value to $AzOpsEnvValue"
                     Set-Item -Path $EnvVar -Value $AzOpsEnvValue -Force
                 }
                 # Set variable for later use
@@ -62,8 +69,8 @@ function Initialize-AzOpsGlobalVariables {
             }
             finally {
                 # Set global variables for script
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Setting global variable $AzOpsEnv to $EnvVarValue"
-                Set-Variable -Name $AzOpsEnv -Scope Global -Value $EnvvarValue
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Setting global variable $AzOpsEnv to $EnvVarValue"
+                Set-Variable -Name $AzOpsEnv -Scope Global -Value $EnvVarValue
             }
         }
 
@@ -76,7 +83,7 @@ function Initialize-AzOpsGlobalVariables {
         if (0 -eq $IgnoreContextCheck) {
             $AzContextTenants = @($AllAzContext.Tenant.Id | Sort-Object -Unique)
             if ($AzContextTenants.Count -gt 1) {
-                Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Unsupported number of tenants in context: $($AzContextTenants.Count) TenantID(s)
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Unsupported number of tenants in context: $($AzContextTenants.Count) TenantID(s)
                 TenantID(s): $($AzContextTenants -join ',')
                 Please reconnect with Connect-AzAccount using an account/service principal that only have access to one tenant"
                 break
@@ -86,55 +93,58 @@ function Initialize-AzOpsGlobalVariables {
     }
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($Global:invalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($global:InvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.Count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
 
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsSubscriptions not initialized. Initializing it now $(get-Date)"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsSubscriptions"
             $global:AzOpsSubscriptions = Get-AzSubscription -TenantId (Get-AzContext).Tenant.Id
+
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsAzManagementGroup"
+            # Get all managementgroups that principal has access to
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
-
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
-            # Get all managementgroups that principal has access to
             try {
                 $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
                 if ($managementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
-                    foreach ($mgmtGroup in $managementGroups) {
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Expanding Management Group : $($mgmtGroup.Name)"
-                        $global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Group: $($managementGroups.Count)"
+                    foreach ($managementGroup in $managementGroups) {
+                        Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Expanding Management Group: $($managementGroup.Name)"
+                        $global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName "$($managementGroup.Name)" -Expand -Recurse -ErrorAction SilentlyContinue -ErrorVariable managementGroupError)
+                        if ($managementGroupError) {
+                            Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsGlobalVariables" -Message "Found Error: $($managementGroupError.Exception.Message)"
+                        }
                     }
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized  $(Get-Date)"
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initialized Global Variable AzOpsAzManagementGroup"
                 }
             }
             catch {
                 # Handle errors related to Get-AzManagementGroup
-                Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Cannot find any Management Groups. Does the Service Principal/User have the appropriate privileges on the root Management Group or is the Management Group hierarchy not yet created?"
-                Write-AzOpsLog -Level Error -Topic "pwsh" -Message $_
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot find any Management Groups. Does the Service Principal/User have the appropriate privileges on the root Management Group or is the Management Group hierarchy not yet created?"
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message $_
                 throw
             }
         }
         else {
             # If InvalidateCache was is not set to 1 and $global:AzOpsAzManagementGroup and $global:AzOpsSubscriptions set, use cached information
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Using Cached AzOpsAzManagementGroup and AzOpsSubscriptions"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions"
         }
 
         # Test if Management Groups or subscriptions with duplicate names exist and throw error if not
         $DuplicateMgOrSubName = Test-AzOpsDuplicateSubMgmtGroup
         if ($DuplicateMgOrSubName) {
             $DuplicateMgOrSubName | ForEach-Object -Process {
-                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "$($_.Count) $($_.Type)s exists with displayname '$($_.DuplicateName)'`r`n - $($_.Ids -join ',')"
+                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsGlobalVariables" -Message "$($_.Count) $($_.Type)s exists with displayname '$($_.DuplicateName)'`r`n - $($_.Ids -join ',')"
             }
-            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Ensure all subscriptions and Management Groups have unique displaynames and try again"
+            Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Ensure all subscriptions and Management Groups have unique displaynames and try again"
             break
         }
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }
