@@ -154,16 +154,6 @@ function Initialize-AzOpsGlobalVariables {
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions"
         }
 
-        # Test if Management Groups or subscriptions with duplicate names exist and throw error if not
-        #    $DuplicateMgOrSubName = Test-AzOpsDuplicateSubMgmtGroup
-        #    if ($DuplicateMgOrSubName) {
-        #        $DuplicateMgOrSubName | ForEach-Object -Process {
-        #            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "$($_.Count) $($_.Type)s exists with displayname '$($_.DuplicateName)'`r`n - $($_.Ids -join ',')"
-        #        }
-        #        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Ensure all subscriptions and Management Groups have unique displaynames and try again"
-        #        break
-        #    }
-
     }
 
     end {
