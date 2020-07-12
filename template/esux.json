@@ -48,25 +48,25 @@
                             "regex": "^[a-z0-9A-Z-]{36}$",
                             "validationMessage": "A valid subscription id must contain 36 characters. If you don't want to bring a subscription at this point, leave the parameter completely empty."
                         }
-                    }   
+                    }
                 ]
             },
             {
                 "name": "esSetup",
                 "label": "Select Enterprise-Scale setup",
                 "subLabel": {
-                    "preValidation": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivy to on-premises, select eith VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
+                    "preValidation": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivity to on-premises, select either VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
                     "postValidation": "Done"
                 },
                 "bladeTitle": "lzSetup",
-                "elements": [                                        
+                "elements": [
                     {
                         "name": "infoBox1",
                         "type": "Microsoft.Common.InfoBox",
                         "visible": true,
                         "options": {
                             "icon": "Info",
-                            "text": "Enterprise-Scale degin principles and implemantation can be adopted by all customer no matter what size and history of thier Azure estate. The customer reference implementations below is targeting the most common customer scenarios for a Enterprise-Scale adoption.",
+                            "text": "Enterprise-Scale design principles and implementation can be adopted by all customers no matter what size and history of the Azure estate. The customer reference implementations below is targeting the most common customer scenarios for a Enterprise-Scale adoption.",
                             "uri": "https://github.com/Azure/Enterprise-Scale/tree/main/docs/reference"
                         }
                     },
@@ -75,7 +75,7 @@
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Select the initial Enterprise-Scale setup",
                         "defaultValue": "Foundation",
-                        "toolTip": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivy to on-premises, select eith VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
+                        "toolTip": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivity to on-premises, select either VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
                         "constraints": {
                             "allowedValues": [
                                 {
@@ -104,7 +104,7 @@
                     "postValidation": "Done"
                 },
                 "bladeTitle": "lzGs",
-                "elements": [       
+                "elements": [
                     {
                         "name": "infoBox1",
                         "type": "Microsoft.Common.InfoBox",
@@ -114,7 +114,7 @@
                             "text": "If 'Yes' is selected when also adding a subscription for management, ARM will assign two policies that will 1) deploy a Log Analytics workspace and an Automation Account to your management subscription, and 2) enable diagnostics of Activity Logs to be sent to the Log Analytics workspace. If 'No', it will be ignored.",
                             "uri": "https://docs.microsoft.com/azure/role-based-access-control/elevate-access-global-admin"
                         }
-                    },                                 
+                    },
                     {
                         "name": "management",
                         "type": "Microsoft.Common.OptionsGroup",
@@ -136,7 +136,7 @@
                         "visible": true
                     }
                 ]
-            }            			
+            }
         ],
         "outputs": {
             "setup": "[steps('esSetup').setup]",

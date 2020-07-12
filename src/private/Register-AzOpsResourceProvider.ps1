@@ -32,10 +32,10 @@ function Register-AzOpsResourceProvider {
     begin {}
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Debug -Topic "Register-AzOpsResourceProvider" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         if ( ($scope.subscription) -and (Get-AzContext).Subscription.Id -ne $scope.subscription) {
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
+            Write-AzOpsLog -Level Verbose -Topic "Register-AzOpsResourceProvider" -Message "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
             Set-AzContext -SubscriptionId $scope.subscription
         }
 
@@ -43,7 +43,7 @@ function Register-AzOpsResourceProvider {
         foreach ($resourceprovider  in $resourceproviders | Where-Object -FilterScript { $_.RegistrationState -eq 'Registered' }  ) {
             if ($resourceprovider.ProviderNamespace) {
 
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Registering Provider $($prvoviderfeature.ProviderNamespace)"
+                Write-AzOpsLog -Level Verbose -Topic "Register-AzOpsResourceProvider" -Message "Registering Provider $($prvoviderfeature.ProviderNamespace)"
 
                 Register-AzResourceProvider -Confirm:$false -pre -ProviderNamespace $resourceprovider.ProviderNamespace
             }

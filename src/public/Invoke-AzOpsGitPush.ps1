@@ -5,17 +5,17 @@ function Invoke-AzOpsGitPush {
     param ()
 
     begin {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking pre refresh process"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking pre refresh process"
         $diff = Invoke-AzOpsGitPushRefresh -Operation "Before"
-        
+
         # Messages
 
         if ($null -ne $diff) {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
-            
+
             Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
             $output = @()
-            $diff.Split(",") | ForEach-Object { 
+            $diff.Split(",") | ForEach-Object {
                 $output += ( "``" + $_ + "``")
                 $output += "`n"
                 Write-AzOpsLog -Level Information -Topic "git" -Message $_
@@ -31,14 +31,14 @@ function Invoke-AzOpsGitPush {
                         "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
                     } | ConvertTo-Json)
             }
-            $response = Invoke-RestMethod -Method "POST" -Uri $env:GITHUB_COMMENTS @params
+            Invoke-RestMethod -Method "POST" -Uri $env:GITHUB_COMMENTS @params | Out-Null
             exit 1
         }
         else {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
         }
 
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Initializing global variables"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Initializing global variables"
         Initialize-AzOpsGlobalVariables
     }
 
@@ -86,43 +86,43 @@ function Invoke-AzOpsGitPush {
         }
 
         # Deployment
-        
+
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
         | Sort-Object -Property $_ `
-        | ForEach-Object { 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.subscription.json"
-            New-AzOpsStateDeployment -filename $_ 
+        | ForEach-Object {
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json"
+            New-AzOpsStateDeployment -filename $_
         }
-        
+
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
         | Sort-Object -Property $_ `
-        | ForEach-Object { 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.providerfeatures.json"
-            New-AzOpsStateDeployment -filename $_ 
+        | ForEach-Object {
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json"
+            New-AzOpsStateDeployment -filename $_
         }
-        
-        
+
+
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
         | Sort-Object -Property $_ `
-        | ForEach-Object { 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.resourceproviders.json"
-            New-AzOpsStateDeployment -filename $_ 
+        | ForEach-Object {
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json"
+            New-AzOpsStateDeployment -filename $_
         }
-        
+
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
         | Sort-Object -Property $_ `
-        | Foreach-Object { 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking new state deployment - *.parameters.json"
-            New-AzOpsStateDeployment -filename $_ 
+        | Foreach-Object {
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json"
+            New-AzOpsStateDeployment -filename $_
         }
     }
 
     end {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking post refresh process"
+        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking post refresh process"
         Invoke-AzOpsGitPushRefresh -Operation "After"
     }
 
