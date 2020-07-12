@@ -147,7 +147,6 @@ function Initialize-AzOpsRepository {
         foreach ($Root in $RootScope) {
             if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $Root })) {
 
-                #$RootScopeId = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }).Id
                 # Create AzOpsState Structure recursively
                 Save-AzOpsManagementGroupChildren -scope $Root
 

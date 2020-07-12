@@ -55,7 +55,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         } | Out-Host
         $AzOpsReferenceFolder = (Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference')
         Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
-        $ContosoAzState = '3fc1081d-6105-4e19-b60c-1ec1252cf560 (3fc1081d-6105-4e19-b60c-1ec1252cf560)/contoso (contoso)/.AzState'
+        $ContosoAzState = '3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState'
         Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "ContosoAzState Path is: $ContosoAzState"
 
         # Task: Check if 'Tailspin' Management Group exists

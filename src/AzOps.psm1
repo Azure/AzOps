@@ -458,17 +458,6 @@ class AzOpsScope {
         if ($this.scope -imatch $this.regex_resourceGroupResource) {
             $rgpath = $this.GetAzOpsResourceGroupPath()
             return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
-            #  # Checking if generated filename is valid otherwise switchign to MD5 hash as filename.
-            #  if ( ($this.name.IndexOfAny([System.IO.Path]::GetInvalidFileNameChars() + '[' + ']') -eq -1 ) -and
-            #      (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name)).Length -lt 250
-            #  ) {
-            #      return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
-            #  }
-            #  else {
-            #      # Windows has 256 character limit hence shorting the name by hashing the resource and name.
-            #      $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
-            #      return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath (Get-FileHash -InputStream $stream -Algorithm MD5).Hash)
-            #  }
         }
         elseif ($this.scope -imatch $this.regex_subscriptionResource) {
             $subpath = $this.GetAzOpsSubscriptionPath()
