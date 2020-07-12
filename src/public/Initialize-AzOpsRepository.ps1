@@ -52,6 +52,7 @@ function Initialize-AzOpsRepository {
     # https://github.com/powershell/psscriptanalyzer#suppressing-rules
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
     [CmdletBinding()]
     [OutputType()]
     param(
@@ -108,7 +109,7 @@ function Initialize-AzOpsRepository {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         #
-        if (1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
+        if (1 -eq $Global:AzOpsSupportPartialMgDiscovery -and $Global:AzOpsPartialRoot) {
             $RootScope = $AzOpsPartialRoot.id
         }
         else {
@@ -119,7 +120,7 @@ function Initialize-AzOpsRepository {
 
         if ($PSBoundParameters['Force']) {
             # Force will delete $global:AzOpsState directory
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artefacts will be lost"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artifacts will be lost"
             if (Test-Path -Path $global:AzOpsState) {
                 Remove-Item $global:AzOpsState -Recurse -Force -Confirm:$false -ErrorAction Stop
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory deleted: $global:AzOpsState"
@@ -128,7 +129,7 @@ function Initialize-AzOpsRepository {
                 Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
             }
         }
-        if ($Rebuild) {
+        if ($PSBoundParameters['Rebuild']) {
             # Rebuild will delete .AzState folder inside AzOpsState directory.
             # This will leave existing folder as it is so customer artefact are preserved upon recreating.
             # If Subscription move and deletion activity happened in-between, it will not reconcile to on safe-side to wrongly associate artefact at incorrect scope.

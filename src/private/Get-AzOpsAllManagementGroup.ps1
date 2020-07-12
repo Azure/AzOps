@@ -2,7 +2,7 @@
 .SYNOPSIS
     The cmdlet will recursively enumerates a management group and returns all children
 .DESCRIPTION
-    The cmdlet will recursively enumerates a management group and returns all children mgs. I
+    The cmdlet will recursively enumerates a management group and returns all children mgs.
     If the $Global:AzOpsSupportPartialMgDiscovery has been used, it will add all MG's where discovery should initiate to the AzOpsPartialRoot variable.
 .EXAMPLE
     Get-AzOpsAllManagementGroup -ManagementGroup Tailspin

@@ -19,9 +19,10 @@ function Initialize-AzOpsGlobalVariables {
     # The following SuppressMessageAttribute entries are used to surpress
     # PSScriptAnalyzer tests against known exceptions as per:
     # https://github.com/powershell/psscriptanalyzer#suppressing-rules
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:InvalidateCache')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsInvalidateCache')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -50,7 +51,8 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_EXPORT_RAW_TEMPLATES         = @{ AzOpsExportRawTemplate = 0 }
             AZOPS_IGNORE_CONTEXT_CHECK         = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
             AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
-            AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } #If discovery is done from
+            AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
+            AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -73,7 +75,7 @@ function Initialize-AzOpsGlobalVariables {
             finally {
                 # Set global variables for script
                 $GlobalVar = $AzOpsEnvVariables["$AzOpsEnv"].Keys
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Setting global variable $GlobalVar to $EnvVarValue"
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Setting global variable $GlobalVar to $EnvVarValue"
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
         }
@@ -93,6 +95,8 @@ function Initialize-AzOpsGlobalVariables {
                 break
             }
         }
+        # Ensure that registry value for long path support in windows has been set
+        Test-AzOpsRuntime
 
     }
 
@@ -101,37 +105,49 @@ function Initialize-AzOpsGlobalVariables {
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
         if ($Global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
-
+            #Get current tenant id
+            $TenantID = (Get-AzContext).Tenant.Id
+            # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
+            $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantID
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsSubscriptions"
-            $global:AzOpsSubscriptions = Get-AzSubscription -TenantId (Get-AzContext).Tenant.Id
+            $global:AzOpsSubscriptions = Get-AzSubscription -TenantId $TenantID
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
             # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
-            $global:AzOpsPartialRoot = @()
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
             # Get all managementgroups that principal has access to
+            $global:AzOpsPartialRoot = @()
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
-            try {
-                $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
-                if ($managementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
-                    foreach ($mgmtGroup in $managementGroups) {
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Expanding Management Group : $($mgmtGroup.Name)"
-                        #$global:AzOpsAzManagementGroup += (Get-AzManagementGroup -GroupName $mgmtGroup.Name -Expand -Recurse)
-                        $global:AzOpsAzManagementGroup += Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name
+
+            $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
+            if ($RootScope -in $managementGroups.Id -or 1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
+                # Handle user provided management groups
+                if (1 -eq $Global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
+                    $ManagementGroups = @()
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Processing user provided root management groups"
+                    $global:AzOpsPartialMgDiscoveryRoot -split ',' | ForEach-Object -Process {
+                        # Add for recursive discovery
+                        $ManagementGroups += [pscustomobject]@{ Name = $_ }
+                        # Add user provided root to partial root variable to know where discovery should start
+                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupName $_ -Recurse -Expand
                     }
-                    $global:AzOpsAzManagementGroup = $AzOpsAzManagementGroup | Sort-Object -Property Id -Unique
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized  $(Get-Date)"
                 }
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
+                foreach ($mgmtGroup in $managementGroups) {
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Expanding Management Group : $($mgmtGroup.Name)"
+                    $global:AzOpsAzManagementGroup += Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name
+                }
+                $global:AzOpsAzManagementGroup = $global:AzOpsAzManagementGroup | Sort-Object -Property Id -Unique
+
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized $(Get-Date)"
+
             }
-            catch {
-                # Handle errors related to Get-AzManagementGroup
-                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot find any Management Groups. Does the Service Principal/User have the appropriate privileges on the root Management Group or is the Management Group hierarchy not yet created?"
-                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message $_
-                throw
+            else {
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) has access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support."
             }
+
         }
         else {
             # If InvalidateCache was is not set to 1 and $global:AzOpsAzManagementGroup and $global:AzOpsSubscriptions set, use cached information

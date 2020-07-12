@@ -153,7 +153,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     } until ($ResourceGroups)
 
                     # Discover all resource groups in parallel
-                    $ResourceGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
+                    $ResourceGroups | Foreach-Object -ThrottleLimit $Global:AzOpsThrottleLimit -Parallel {
 
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
@@ -167,6 +167,8 @@ function Get-AzOpsResourceDefinitionAtScope {
                         $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
                         $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
                         $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
+                        $Global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                        $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
 
                         $OdataFilter = $using:OdataFilter
                         $backoffMultiplier = $using:backoffMultiplier
@@ -227,7 +229,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                 Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Management Group [$($scope.managementgroupDisplayName)] ($($scope.managementgroup))"
                 $ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
                 if ($ChildOfManagementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "$($scope.managementgroup) contains $($childofmanagementgroups.count) children"
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($scope.managementgroup) contains $($childofmanagementgroups.count) children"
                     <#
                         Due to Credential error below, we are restricting  Throttle Limit to 1 instead of $env:AzOpsThrottleLimit
                         https://github.com/Azure/azure-powershell/issues/9448
@@ -246,6 +248,9 @@ function Get-AzOpsResourceDefinitionAtScope {
                         $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
                         $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                         $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                        $Global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                        $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+
                         $SkipPolicy = $using:SkipPolicy
                         $SkipResourceGroup = $using:SkipResourceGroup
                         # endregion
