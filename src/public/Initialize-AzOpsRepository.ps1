@@ -116,30 +116,38 @@ function Initialize-AzOpsRepository {
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
         }
 
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Tenant root Management Group is: $TenantID"
+        Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Tenant root Management Group is: $TenantID"
 
-        if ($PSBoundParameters['Force']) {
-            # Force will delete $global:AzOpsState directory
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artifacts will be lost"
-            if (Test-Path -Path $global:AzOpsState) {
-                Remove-Item $global:AzOpsState -Recurse -Force -Confirm:$false -ErrorAction Stop
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory deleted: $global:AzOpsState"
+        if (Test-Path -Path $global:AzOpsState) {
+            #Handle migration from old folder structure by checking for parenthesis pattern
+            $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $global:AzOpsState -File | Where-Object { $_.Name -like "Microsoft.Management-managementGroups_$TenantId.parameters.json" } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
+            if ($MigrationRequired) {
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Migration from old to new structure required. All artifacts will be lost."
             }
-            else {
-                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+            if ($PSBoundParameters['Force'] -or $true -eq $MigrationRequired) {
+                # Force will delete $global:AzOpsState directory
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artifacts will be lost"
+                if (Test-Path -Path $global:AzOpsState) {
+                    Remove-Item $global:AzOpsState -Recurse -Force -Confirm:$false -ErrorAction Stop
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory deleted: $global:AzOpsState"
+                }
+                else {
+                    Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+                }
             }
-        }
-        if ($PSBoundParameters['Rebuild']) {
-            # Rebuild will delete .AzState folder inside AzOpsState directory.
-            # This will leave existing folder as it is so customer artefact are preserved upon recreating.
-            # If Subscription move and deletion activity happened in-between, it will not reconcile to on safe-side to wrongly associate artefact at incorrect scope.
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Rebuilding AzOpsState. Purging all .AzState directories"
-            if (Test-Path -Path $global:AzOpsState) {
-                Get-ChildItem $global:AzOpsState -Directory -Recurse -Force -Include '.AzState' | Remove-Item -Force -Recurse
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Purged all .AzState directories under path: $global:AzOpsState"
-            }
-            else {
-                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+            if ($PSBoundParameters['Rebuild']) {
+                # Rebuild will delete .AzState folder inside AzOpsState directory.
+                # This will leave existing folder as it is so customer artefact are preserved upon recreating.
+                # If Subscription move and deletion activity happened in-between, it will not reconcile to on safe-side to wrongly associate artefact at incorrect scope.
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Rebuilding AzOpsState. Purging all .AzState directories"
+                if (Test-Path -Path $global:AzOpsState) {
+                    Get-ChildItem $global:AzOpsState -Directory -Recurse -Force -Include '.AzState' | Remove-Item -Force -Recurse
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Purged all .AzState directories under path: $global:AzOpsState"
+                }
+                else {
+                    Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+                }
+
             }
         }
 
