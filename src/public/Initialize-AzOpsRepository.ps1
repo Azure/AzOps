@@ -50,8 +50,10 @@ function Initialize-AzOpsRepository {
     # The following SuppressMessageAttribute entries are used to surpress
     # PSScriptAnalyzer tests against known exceptions as per:
     # https://github.com/powershell/psscriptanalyzer#suppressing-rules
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsState')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
     [CmdletBinding()]
     [OutputType()]
     param(
@@ -82,11 +84,11 @@ function Initialize-AzOpsRepository {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         # Set environment variable InvalidateCache to 1 if switch InvalidateCache switch has been used
         if ($PSBoundParameters['InvalidateCache']) {
-            $env:InvalidateCache = 1
+            $env:AZOPS_INVALIDATE_CACHE = 1
         }
         # Set environment variable GeneralizeTemplates to 1 if switch GeneralizeTemplates switch has been used
         if ($PSBoundParameters['GeneralizeTemplates']) {
-            $env:GeneralizeTemplates = 1
+            $env:AZOPS_GENERALIZE_TEMPLATES = 1
         }
         # Set environment variable ExportRawTemplate to 1 if switch ExportRawTemplate switch has been used
         if ($PSBoundParameters['ExportRawTemplate']) {
@@ -107,47 +109,62 @@ function Initialize-AzOpsRepository {
     process {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        # Set/find the root scope based on TenantID
-        $TenantRootId = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
+        #
+        if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialRoot) {
+            $RootScope = $AzOpsPartialRoot.id
+        }
+        else {
+            $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
+        }
+
         Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Tenant root Management Group is: $TenantID"
 
-        if ($PSBoundParameters['Force']) {
-            # Force will delete $global:AzOpsState directory
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artefacts will be lost"
-            if (Test-Path -Path $global:AzOpsState) {
-                Remove-Item $global:AzOpsState -Recurse -Force -Confirm:$false -ErrorAction Stop
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory deleted: $global:AzOpsState"
+        if (Test-Path -Path $global:AzOpsState) {
+            #Handle migration from old folder structure by checking for parenthesis pattern
+            $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $global:AzOpsState -File | Where-Object { $_.Name -like "Microsoft.Management-managementGroups_$TenantId.parameters.json" } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
+            if ($MigrationRequired) {
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Migration from old to new structure required. All artifacts will be lost."
             }
-            else {
-                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+            if ($PSBoundParameters['Force'] -or $true -eq $MigrationRequired) {
+                # Force will delete $global:AzOpsState directory
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Forcing deletion of AzOpsState directory. All artifacts will be lost"
+                if (Test-Path -Path $global:AzOpsState) {
+                    Remove-Item $global:AzOpsState -Recurse -Force -Confirm:$false -ErrorAction Stop
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory deleted: $global:AzOpsState"
+                }
+                else {
+                    Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+                }
             }
-        }
-        if ($Rebuild) {
-            # Rebuild will delete .AzState folder inside AzOpsState directory.
-            # This will leave existing folder as it is so customer artefact are preserved upon recreating.
-            # If Subscription move and deletion activity happened in-between, it will not reconcile to on safe-side to wrongly associate artefact at incorrect scope.
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Rebuilding AzOpsState. Purging all .AzState directories"
-            if (Test-Path -Path $global:AzOpsState) {
-                Get-ChildItem $global:AzOpsState -Directory -Recurse -Force -Include '.AzState' | Remove-Item -Force -Recurse
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Purged all .AzState directories under path: $global:AzOpsState"
-            }
-            else {
-                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+            if ($PSBoundParameters['Rebuild']) {
+                # Rebuild will delete .AzState folder inside AzOpsState directory.
+                # This will leave existing folder as it is so customer artefact are preserved upon recreating.
+                # If Subscription move and deletion activity happened in-between, it will not reconcile to on safe-side to wrongly associate artefact at incorrect scope.
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Rebuilding AzOpsState. Purging all .AzState directories"
+                if (Test-Path -Path $global:AzOpsState) {
+                    Get-ChildItem $global:AzOpsState -Directory -Recurse -Force -Include '.AzState' | Remove-Item -Force -Recurse
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Purged all .AzState directories under path: $global:AzOpsState"
+                }
+                else {
+                    Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "AzOpsState directory not found: $global:AzOpsState"
+                }
+
             }
         }
 
         # Set AzOpsScope root scope based on tenant root id
-        $RootScope = $global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $TenantRootId }
-        if ($RootScope) {
-            $RootScopeId = $RootScope.Id
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Set root Management Group scope: $RootScopeId"
-            # Create AzOpsState Structure recursively
-            Save-AzOpsManagementGroupChildren -scope $RootScopeId
-            # Discover Resource at scope recursively
-            Get-AzOpsResourceDefinitionAtScope -scope $RootScopeId -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
-        }
-        else {
-            Write-Error "Root Management Group Not Found"
+        foreach ($Root in $RootScope) {
+            if (($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.Id -eq $Root })) {
+
+                # Create AzOpsState Structure recursively
+                Save-AzOpsManagementGroupChildren -scope $Root
+
+                # Discover Resource at scope recursively
+                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+            }
+            else {
+                Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
+            }
         }
     }
 
