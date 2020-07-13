@@ -37,15 +37,15 @@
 # The following SuppressMessageAttribute entries are used to surpress
 # PSScriptAnalyzer tests against known exceptions as per:
 # https://github.com/powershell/psscriptanalyzer#suppressing-rules
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','ModuleManifest')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','TestHt')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','TestPSCustomObject')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','policyDefinition')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','policyAssignment')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','policySetDefinition')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','resourceGroup')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','DuplicateTest')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments','SingleTest')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'ModuleManifest')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TestHt')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TestPSCustomObject')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'policyDefinition')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'policyAssignment')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'policySetDefinition')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'resourceGroup')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'DuplicateTest')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'SingleTest')]
 param()
 
 Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
@@ -120,10 +120,10 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         Import-Module -Name ("$PSScriptRoot/../src/AzOps.psd1") -Force
         Get-ChildItem "$PSScriptRoot/../src/private" -Force | ForEach-Object -Process { . $_.FullName }
         # Set required variables
-        $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
-        $env:AzOpsMainTemplate = ("$PSScriptRoot/../src/template.json")
-        $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
+        $env:AZOPS_STATE = $TestDrive
+        $env:AZOPS_INVALIDATE_CACHE = 1
+        $env:AZOPS_MAIN_TEMPLATE = ("$PSScriptRoot/../src/template.json")
+        $env:AZOPS_STATE_CONFIG = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
         Initialize-AzOpsGlobalVariables
 
     }
@@ -212,10 +212,6 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         It "Passes returns 3 subscriptions with duplicate names" {
             ($DuplicateTest | Where-Object { $_.Type -eq "Subscription" }).Count | Should -BeExactly 3
         }
-        It "Passes returns null when no duplicate subscriptions or Management Groups found" {
-            $SingleTest | Should -BeNullOrEmpty
-        }
-
     }
 
 }

@@ -1,9 +1,10 @@
 # The following SuppressMessageAttribute entries are used to surpress
 # PSScriptAnalyzer tests against known exceptions as per:
 # https://github.com/powershell/psscriptanalyzer#suppressing-rules
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsState')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsAzManagementGroup')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsSubscriptions')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExportRawTemplate')]
 param ()
 
 $ErrorActionPreference = "Stop"
@@ -198,7 +199,7 @@ class AzOpsScope {
             $this.resourcegroup = $this.GetResourceGroup()
             $this.resourceprovider = $this.IsResourceProvider()
             $this.resource = $this.GetResource()
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = $this.GetAzOpsResourcePath() + ".json"
             }
             else {
@@ -214,7 +215,7 @@ class AzOpsScope {
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             $this.resourcegroup = $this.GetResourceGroup()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources-resourceGroups_$($this.resourcegroup).json")
             }
             else {
@@ -229,7 +230,7 @@ class AzOpsScope {
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
             }
             else {
@@ -243,7 +244,7 @@ class AzOpsScope {
             $this.managementgroup = ($this.GetManagementGroup()).Trim()
             $this.managementgroupDisplayName = ($this.GetManagementGroupName()).Trim()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
-            if ($Env:ExportRawTemplate -eq 1) {
+            if ($global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management-managementGroups_$($this.managementgroup).json")
             }
             else {
@@ -342,13 +343,15 @@ class AzOpsScope {
 
     [string] GetAzOpsManagementGroupPath([string]$managementgroupName) {
         if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
-
-            if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId) {
-                $parentPath = $this.GetAzOpsManagementGroupPath( (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
-                return (join-path $parentPath -ChildPath ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
+            $ParentMgName = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split "/" | Select-Object -Last 1
+            if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $ParentMgName } )) {
+                $ParentPath = $this.GetAzOpsManagementGroupPath( (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
+                $Childpath = "{0} ({1})" -f ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
+                return (join-path $parentPath -ChildPath $ChildPath)
             }
             else {
-                return  (join-path $global:AzOpsState -ChildPath ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName)
+                $ChildPath = "{0} ({1})" -f ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
+                return (join-path $global:AzOpsState -ChildPath $Childpath)
             }
         }
         else {
@@ -365,14 +368,14 @@ class AzOpsScope {
             $mgId = ((($this.scope -split $this.regex_managementgroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
 
             if ($mgId) {
-                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Querying AzOpsAzManagementGroup for Id: $mgId"
+                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Querying Global variable for AzOpsAzManagementGroup"
                 $mgDisplayName = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
                 if ($mgDisplayName) {
                     Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Management Group found in Azure: $($mgDisplayName)"
                     return $mgDisplayName
                 }
                 else {
-                    Write-AzOpsLog -Level Warning -Topic "AzOpsScope" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
+                    Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
                     return  $mgId
                 }
             }
@@ -389,8 +392,8 @@ class AzOpsScope {
         return $null
     }
     [string] GetAzOpsSubscriptionPath() {
-
-        return join-path $this.GetAzOpsManagementGroupPath($this.managementgroup)  -ChildPath $this.subscriptionDisplayName
+        $childpath = "{0} ({1})" -f $this.subscriptionDisplayName, $this.subscription
+        return join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath $childpath
     }
     [string] GetAzOpsResourceGroupPath() {
 
@@ -455,18 +458,7 @@ class AzOpsScope {
         Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Getting Resource path for: $($this.scope)"
         if ($this.scope -imatch $this.regex_resourceGroupResource) {
             $rgpath = $this.GetAzOpsResourceGroupPath()
-
-            # Checking if generated filename is valid otherwise switchign to MD5 hash as filename.
-            if ( ($this.name.IndexOfAny([System.IO.Path]::GetInvalidFileNameChars() + '[' + ']') -eq -1 ) -and
-                (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name)).Length -lt 250
-            ) {
-                return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
-            }
-            else {
-                # Windows has 256 character limit hence shorting the name by hashing the resource and name.
-                $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
-                return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath (Get-FileHash -InputStream $stream -Algorithm MD5).Hash)
-            }
+            return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.resourceprovider + "_" + $this.resource + "-" + $this.name))
         }
         elseif ($this.scope -imatch $this.regex_subscriptionResource) {
             $subpath = $this.GetAzOpsSubscriptionPath()

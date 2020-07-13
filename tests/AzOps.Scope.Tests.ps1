@@ -43,9 +43,9 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         # Write-Verbose -Message "TestDrive: $TestDrive"
 
         # Task: Initialize environment variables
-        $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
-        $env:IgnoreContextCheck = 1
+        $env:AZOPS_STATE = $TestDrive
+        $env:AZOPS_INVALIDATE_CACHE = 1
+        $env:AZOPS_IGNORE_CONTEXT_CHECK = 1
 
         $TenantID = (Get-AzContext).Tenant.Id
 
@@ -133,7 +133,7 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
             $AzOpsScopeTest.pathToMg.type | Should -MatchExactly "managementGroups"
         }
         It "Path to Management Group of ManagementgroupDisplayName should match" {
-            $AzOpsScopeTest.pathToMg.managementgroupDisplayName | Should -MatchExactly $pathToMg.Name
+            "$($AzOpsScopeTest.pathToMg.managementgroupDisplayName) ($($AzOpsScopeTest.pathToMg.managementgroup))" | Should -BeExactly $pathToMg.Name
         }
         It "Path to Management Group Name should match" {
             $AzOpsScopeTest.pathToMg.name | Should -MatchExactly $($AzOpsScopeTest.pathToMg.scope.split('/') | Select-Object -last 1)
@@ -181,7 +181,7 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         }
         It "Path to Subscription of subscriptionDisplayName should match" {
             # Since everything is under .AzState we are checking parent directory name for displayname
-            $AzOpsScopeTest.pathToSubscription.subscriptionDisplayName | Should -MatchExactly $pathToSubscription.Name
+            "$($AzOpsScopeTest.pathToSubscription.subscriptionDisplayName) ($($AzOpsScopeTest.pathToSubscription.subscription))" | Should -BeExactly $pathToSubscription.Name
         }
         It "Path to Subscription of StatePath should Match Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json" {
             $AzOpsScopeTest.pathToSubscription.statepath | Should -Match "Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json"
