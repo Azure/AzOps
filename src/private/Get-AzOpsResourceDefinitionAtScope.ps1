@@ -252,7 +252,6 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                             $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
                             $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
-                            $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
 
                             $SkipPolicy = $using:SkipPolicy
                             $SkipResourceGroup = $using:SkipResourceGroup
