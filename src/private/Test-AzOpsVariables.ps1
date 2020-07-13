@@ -19,7 +19,7 @@
 function Test-AzOpsVariables {
 
     [CmdletBinding()]
-    [OutputType()]
+    [OutputType([bool])]
     param (
         # Variables to verify
         [Parameter(Mandatory = $false)]
@@ -32,14 +32,17 @@ function Test-AzOpsVariables {
     foreach ($Variable in $VariablesToCheck) {
         if (-not(Get-Variable -Scope Global -Name $Variable -ErrorAction Ignore)) {
             $NullVariables += $Variable
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`" is not set"
+            Write-AzOpsLog -Level Verbose -Topic "Test-AzOpsVariables" -Message "Required variable `"$Variable`" (NOT SET)"
         }
         else {
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Required variable `"$Variable`": $((Get-Variable -Scope Global -Name $Variable).value)"
+            Write-AzOpsLog -Level Verbose -Topic "Test-AzOpsVariables" -Message "Required variable `"$Variable`" (FOUND)"
         }
     }
     if ($NullVariables) {
-        throw "Run Initialize-AzOpsGlobalVariables to initialize required variables: $($NullVariables -join ', ')"
+        return $false
+    }
+    else {
+        return $true
     }
 
 }

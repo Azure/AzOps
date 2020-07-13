@@ -39,7 +39,7 @@ function Invoke-AzOpsGitPushRefresh {
                     git pull origin main
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
+                Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
                 Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
@@ -48,20 +48,20 @@ function Invoke-AzOpsGitPushRefresh {
                 } | Out-Host
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
-                $diff = Start-AzOpsNativeExecution { 
+                $diff = Start-AzOpsNativeExecution {
                     git diff --ignore-space-at-eol --name-only
                 }
-                
+
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local main branch"
                 Start-AzOpsNativeExecution {
                     git reset --hard
                 } | Out-Host
-                
+
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($env:GITHUB_HEAD_REF) exists"
                 $branch = Start-AzOpsNativeExecution {
                     git branch --list $env:GITHUB_HEAD_REF
                 }
-        
+
                 if ($branch) {
                     Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($env:GITHUB_HEAD_REF)"
                     Start-AzOpsNativeExecution {
@@ -74,7 +74,7 @@ function Invoke-AzOpsGitPushRefresh {
                         git checkout -b $env:GITHUB_HEAD_REF origin/$env:GITHUB_HEAD_REF
                     } | Out-Host
                 }
-        
+
                 if ($Diff) {
                     Write-AzOpsLog -Level Information -Topic "git" -Message "Formatting diff changes"
                     $Diff = $Diff -join ","
@@ -103,7 +103,7 @@ function Invoke-AzOpsGitPushRefresh {
                     git merge origin/$env:GITHUB_BASE_REF --no-commit
                 } | Out-Host
 
-                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
+                Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
                 Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"

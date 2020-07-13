@@ -19,7 +19,7 @@ function Invoke-AzOpsGitPullRefresh {
     }
 
     process {
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking repository initialization"
+        Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPullRefresh" -Message "Invoking repository initialization"
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
     }
 

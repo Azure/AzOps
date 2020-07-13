@@ -80,7 +80,7 @@
                 "Children": null
               }
             ]
-          }                  
+          }
         ],
         "properties": {
           "policyDefinitions": [
@@ -182,7 +182,7 @@
                   }
                 }
               }
-            }         
+            }
           ]
         }
       }

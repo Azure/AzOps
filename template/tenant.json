@@ -27,7 +27,7 @@
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/main/template/",
             "metadata": {
-                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment. 
+                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment.
                                 Please feel free to use template hosted here or override with choice of your location.
                                 If you chose to do so, please ensure future bug fixes are incorporated from above location to your private location."
             }
@@ -59,9 +59,9 @@
         "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
         "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
         "nestedTemplatesLocation": {
-            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]", 
+            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]",
             "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        }, 
+        },
 
 
         "input": "[union(parameters('hobo'),parameters('input'))]",
@@ -237,7 +237,7 @@
                                     },
                                     "remediationEnabledForPolicy": {
                                         "value": "[variables('remediationEnabledForPolicy')]"
-                                    } 
+                                    }
                                 }
                             }
                         },
@@ -328,7 +328,7 @@
 
                 Details: Trigger Nested Deployment to create policy Definition.
 
-                Change Log: 
+                Change Log:
                     1. Initial Definition
             */
 
@@ -377,7 +377,7 @@
 
                 Details: Trigger Nested Deployment to create policy Definition.
 
-                Change Log: 
+                Change Log:
                     1. Initial Definition
             */
 
@@ -456,7 +456,7 @@
 
                 Details: Trigger Nested Deployment to create policy Definition.
 
-                Change Log: 
+                Change Log:
                     1. Initial Definition
             */
 
@@ -508,7 +508,7 @@
 
                 Details: Trigger Nested Deployment to create policy Definition.
 
-                Change Log: 
+                Change Log:
                     1. Initial Definition
             */
 
@@ -550,7 +550,7 @@
             "condition": "[and(
                                 not(empty(variables('policyAssignments'))),
                                 contains(variables('scope'),'Microsoft.Management/managementGroups'),
-                                equals(toLower(variables('policyAssignments')[copyIndex()].Properties.scope),toLower(concat('/providers/',variables('scope')))) 
+                                equals(toLower(variables('policyAssignments')[copyIndex()].Properties.scope),toLower(concat('/providers/',variables('scope'))))
                             )]",
             "scope": "[variables('scope')]",
             "type": "Microsoft.Resources/deployments",
@@ -614,7 +614,7 @@
             "condition": "[and(
                                 not(empty(variables('policyAssignments'))),
                                 contains(variables('scope'),'subscriptions'),
-                                equals(tolower(variables('policyAssignments')[copyIndex()].Properties.scope),toLower(concat('/providers/',variables('scope')))) 
+                                equals(tolower(variables('policyAssignments')[copyIndex()].Properties.scope),toLower(concat('/providers/',variables('scope'))))
                             )]",
             "subscriptionId": "[parameters('input').Name]",
             "type": "Microsoft.Resources/deployments",
@@ -743,7 +743,7 @@
         },
         {
             /*
-             SUBSCRIPTION: Deployment Trigger for DINE Policy Assignment. 
+             SUBSCRIPTION: Deployment Trigger for DINE Policy Assignment.
 
              Subscription deployment is using "subscriptionId" property and not "scope".
              NOTE: Since reference() function do not work in condition, it will trigger empty deployment for policies for effects other than DINE.
