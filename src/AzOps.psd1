@@ -21,7 +21,7 @@
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
 
     # Author of this module
-    Author            = 'Customer Architecture Engineering'
+    Author            = 'Customer Architecture and Engineering'
 
     # Company or vendor of this module
     CompanyName       = 'Microsoft'
