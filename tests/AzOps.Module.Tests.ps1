@@ -81,7 +81,7 @@ Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
         }
 
         It 'Passes Test-ModuleManifest Author' {
-            $ModuleManifest.Author | Should -Be 'Customer Engineering'
+            $ModuleManifest.Author | Should -Be 'Customer Architecture and Engineering'
         }
 
         It 'Passes Test-ModuleManifest CompanyName' {
