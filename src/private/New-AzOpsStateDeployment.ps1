@@ -50,6 +50,7 @@ function New-AzOpsStateDeployment {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsEnrollmentAccountPrincipalName')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsOfferType')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsDefaultDeploymentRegion')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsMainTemplate')]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -168,7 +169,7 @@ function New-AzOpsStateDeployment {
                         $effectiveResourceType = ''
                     }
                     if ($effectiveResourceType -and ($MainTemplateSupportedTypes -Contains $effectiveResourceType)) {
-                        $templatePath = $Global:AzOpsMainTemplate
+                        $templatePath = $global:AzOpsMainTemplate
                     }
                 }
 

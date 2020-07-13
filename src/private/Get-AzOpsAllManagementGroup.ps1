@@ -3,7 +3,7 @@
     The cmdlet will recursively enumerates a management group and returns all children
 .DESCRIPTION
     The cmdlet will recursively enumerates a management group and returns all children mgs.
-    If the $Global:AzOpsSupportPartialMgDiscovery has been used, it will add all MG's where discovery should initiate to the AzOpsPartialRoot variable.
+    If the $global:AzOpsSupportPartialMgDiscovery has been used, it will add all MG's where discovery should initiate to the AzOpsPartialRoot variable.
 .EXAMPLE
     Get-AzOpsAllManagementGroup -ManagementGroup Tailspin
     Id                : /providers/Microsoft.Management/managementGroups/Tailspin
@@ -24,6 +24,12 @@
     Management Group Object
 #>
 function Get-AzOpsAllManagementGroup {
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -35,9 +41,9 @@ function Get-AzOpsAllManagementGroup {
     }
     process {
         $MG = Get-AzManagementGroup -GroupName $ManagementGroup -Expand -Recurse
-        if (1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
+        if (1 -eq $global:AzOpsSupportPartialMgDiscovery) {
             if ($MG.ParentId -and -not(Get-AzManagementGroup -GroupName $MG.ParentName -ErrorAction Ignore)) {
-                $Global:AzOpsPartialRoot += $MG
+                $global:AzOpsPartialRoot += $MG
             }
             if ($MG.Children) {
                 $MG.Children | where-object { $_.Type -eq "/providers/Microsoft.Management/managementGroups" } | Foreach-Object -Process {

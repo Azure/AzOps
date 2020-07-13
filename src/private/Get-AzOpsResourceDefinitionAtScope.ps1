@@ -39,6 +39,8 @@ function Get-AzOpsResourceDefinitionAtScope {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsStateConfig')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsThrottleLimit')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExportRawTemplate')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -168,8 +170,8 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
                             $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
-                            $Global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
-                            $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                            $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                            $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
 
                             $OdataFilter = $using:OdataFilter
                             $backoffMultiplier = $using:backoffMultiplier
@@ -248,9 +250,9 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
                             $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
-                            $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
-                            $Global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
-                            $Global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                            $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                            $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                            $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
 
                             $SkipPolicy = $using:SkipPolicy
                             $SkipResourceGroup = $using:SkipResourceGroup

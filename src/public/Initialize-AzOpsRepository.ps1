@@ -53,6 +53,7 @@ function Initialize-AzOpsRepository {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
     [CmdletBinding()]
     [OutputType()]
     param(
@@ -109,7 +110,7 @@ function Initialize-AzOpsRepository {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         #
-        if (1 -eq $Global:AzOpsSupportPartialMgDiscovery -and $Global:AzOpsPartialRoot) {
+        if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialRoot) {
             $RootScope = $AzOpsPartialRoot.id
         }
         else {

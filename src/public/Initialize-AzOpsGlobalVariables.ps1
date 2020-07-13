@@ -23,6 +23,9 @@ function Initialize-AzOpsGlobalVariables {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialMgDiscoveryRoot')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -81,8 +84,8 @@ function Initialize-AzOpsGlobalVariables {
         }
 
         # Create AzOpsState folder if not exists
-        if (-not (Test-Path -Path $Global:AzOpsState)) {
-            New-Item -path $Global:AzOpsState -Force -Type directory | Out-Null
+        if (-not (Test-Path -Path $global:AzOpsState)) {
+            New-Item -path $global:AzOpsState -Force -Type directory | Out-Null
         }
 
         # Validate number of AAD Tenants that the principal has access to.
@@ -104,7 +107,7 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($Global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
             #Get current tenant id
             $TenantID = (Get-AzContext).Tenant.Id
             # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
@@ -122,9 +125,9 @@ function Initialize-AzOpsGlobalVariables {
             $global:AzOpsAzManagementGroup = @()
 
             $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
-            if ($RootScope -in $managementGroups.Id -or 1 -eq $Global:AzOpsSupportPartialMgDiscovery) {
+            if ($RootScope -in $managementGroups.Id -or 1 -eq $global:AzOpsSupportPartialMgDiscovery) {
                 # Handle user provided management groups
-                if (1 -eq $Global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
+                if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
                     $ManagementGroups = @()
                     Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Processing user provided root management groups"
                     $global:AzOpsPartialMgDiscoveryRoot -split ',' | ForEach-Object -Process {
