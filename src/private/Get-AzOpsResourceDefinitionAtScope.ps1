@@ -31,6 +31,14 @@
 #>
 
 function Get-AzOpsResourceDefinitionAtScope {
+
+    # The following SuppressMessageAttribute entries are used to surpress
+    # PSScriptAnalyzer tests against known exceptions as per:
+    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsStateConfig')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -47,46 +55,48 @@ function Get-AzOpsResourceDefinitionAtScope {
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        # Ensure that required global variables are set.
-        Test-AzOpsVariables
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsResourceDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        # Set variables for retry with exponential backoff
+        [Int]$backoffMultiplier = 2
+        [Int]$maxRetryCount = 6
     }
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsResourceDefinitionAtScope: $scope"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsResourceDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing AzOpsResourceDefinitionAtScope [$scope]"
         # Get AzOpsScope for inputscope
+        # Why do we rebuild the $scope object from the ID value which was extracted
+        # from the original scope object which was already of type AzOpsScope?
         $scope = (New-AzOpsScope -scope $scope)
 
         # Scope contains Subscription (Subscription > Resource Group > Resource)
         if ($scope.subscription) {
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Found Subscription: $($scope.subscriptionDisplayName) ($($scope.subscription))"
             # Define variable with AzContext for later use in -DefaultProfile parameter
             $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scope.subscription }
             # Define variable with Odatafilter to use in Get-AzResourceGroup and Get-AzResource
             $OdataFilter = '$filter=subscriptionId eq ' + "'$($scope.subscription)'"
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Odatafilter is $odatafilter"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Setting Odatafilter: $OdataFilter"
         }
 
         # Process supported scopes
         switch ($scope.Type) {
             # Process resources
             'resource' {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving resource at $scope"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Resource [$($scope.resource)] in Resource Group [$($scope.resourcegroup)]"
                 # Get resource
                 $resource = Get-AzResource -ResourceId $scope.scope -ErrorAction:Continue
                 if ($resource) {
                     # Convert resource to AzOpsState
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
                     ConvertTo-AzOpsState -resource $resource
                 }
                 else {
-                    Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Unable to retrieve resource at Scope $($scope.scope)"
+                    Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Unable to process Resource [$($scope.resource)] in Resource Group [$($scope.resourcegroup)]"
                 }
             }
             # Process resource groups
             'resourcegroups' {
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Resource Group [$($scope.resourcegroup)] in Subscription [$($scope.subscriptionDisplayName)] ($($scope.subscription))"
                 if ($null -eq $rg.ManagedBy) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving resources at Scope $scope"
                     # Get resource group
                     $rg = (Get-AzResourceGroup -Name $scope.resourcegroup -DefaultProfile $context)
                     ConvertTo-AzOpsState -resourceGroup $rg
@@ -94,50 +104,61 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $Resources = Get-AzResource -DefaultProfile $context -ResourceGroupName $rg.ResourceGroupName -ODataQuery $OdataFilter -ExpandProperties
                     foreach ($Resource in $Resources) {
                         # Convert resources to AzOpsState
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Exporting resource $($resource.Resourceid)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Resource [$($resource.Name)] in Resource Group [$($resource.ResourceGroupName)]"
                         ConvertTo-AzOpsState -resource $resource
                     }
                 }
                 else {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Skipping $($rg.ResourceGroupName) as it is managed by $($rg.ManagedBy)"
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Skipping $($rg.ResourceGroupName) as it is managed by $($rg.ManagedBy)"
                 }
             }
             # Process subscriptions
             'subscriptions' {
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Subscription [$($scope.subscriptionDisplayName)] ($($scope.subscription))"
                 # Skip discovery of resource groups if SkipResourceGroup switch have been used
                 # Separate discovery of resource groups in subscriptions to support parallel discovery
                 if ($true -eq $SkipResourceGroup) {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "SkipResourceGroup switch used, will not discover Resource Groups"
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "SkipResourceGroup switch used, skipping Resource Group discovery"
                 }
                 else {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating ResourceGroups at scope $scope"
-
-                    # Get all resource groups in Subscription
-                    # $resourceGroup = Get-AzResourceGroup -DefaultProfile $context | Where-Object -Filterscript { -not($_.Managedby) }
-                    # Do/until loop to retry when getting the error "Your Azure Credentials have not been set up or expired"
-                    # $Resources = Get-AzResource  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $OdataFilter -DefaultProfile $context -ExpandProperties -ErrorAction Stop
+                    # Get all Resource Groups in Subscription
+                    # Retry loop with exponential backoff implemented to catch errors
+                    # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
-                    $Retry = 0
+                    # Define variables used by script
+                    $retryCount = 0
                     do {
                         try {
-                            $Retry++
-                            $ResourceError = $null
-                            $resourceGroup = Get-AzResourceGroup -DefaultProfile $context | Where-Object -Filterscript { -not($_.Managedby) }
-                        }
-                        catch {
-                            Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Retry Count: $Retry Caught Exception for Credential Error for Get-AzResourceGroup"
-                            $ResourceError = $_
-                        }
-                    } until ($null -eq $ResourceError -or $Retry -eq 10)
-                    if ($ResourceError) {
-                        Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Error exporting $($rg.ResourceGroupName), please check your AzContext."
+                            $retryCount++
+                            $ResourceGroups = Get-AzResourceGroup -DefaultProfile $context `
+                                -ErrorAction Stop `
+                            | Where-Object -Filterscript { -not($_.Managedby) }
+                            if ($null -eq $ResourceGroups) {
+                                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "No Resources Groups found in Subscription [$($scope.subscriptionDisplayName)] ($($scope.subscription))"
+                                break
+                            }
                     }
+                        catch {
+                            if ($retryCount -lt $maxRetryCount) {
+                                $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
+                                Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Caught error finding Resource Groups (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
+                                Start-Sleep -Seconds $sleepTimeInSeconds
+                            }
+                            elseif ($retryCount -ge $maxRetryCount) {
+                                Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Timeout exporting Resource Groups from Subscription $($context.Subscription.Id)."
+                                Write-AzOpsLog -Level Error -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($_.Exception.Message | Out-String)"
+                                break
+                            }
+                        }
+                    } until ($ResourceGroups)
 
                     # Discover all resource groups in parallel
-                    $resourcegroup | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
+                    $ResourceGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
+
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
                         # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
+
                         $RootPath = (Split-Path $using:PSScriptRoot -Parent)
                         Import-Module $RootPath/AzOps.psd1 -Force
                         Get-ChildItem -Path $RootPath\private -Include *.ps1 -Recurse -Force | ForEach-Object { . $_.FullName }
@@ -146,38 +167,55 @@ function Get-AzOpsResourceDefinitionAtScope {
                         $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
                         $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
                         $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
-                        # endregion
 
-                        # Convert resource group to AzOps-state.
-                        $rg = $_
-                        ConvertTo-AzOpsState -resourceGroup $rg
-                        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Enumerating Resource Group at $(get-date): $($rg.ResourceId)"
+                        $OdataFilter = $using:OdataFilter
+                        $backoffMultiplier = $using:backoffMultiplier
+                        $maxRetryCount = $using:maxRetryCount
+
+                        # endregion
 
                         $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scope.subscription }
 
-                        # Do/until loop to retry when getting the error "Your Azure Credentials have not been set up or expired"
-                        # $Resources = Get-AzResource  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $OdataFilter -DefaultProfile $context -ExpandProperties -ErrorAction Stop
+                        # Convert resource group to AzOps-state.
+                        $rg = $_
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Resource Group [$($rg.ResourceGroupName)]"
+                        ConvertTo-AzOpsState -ResourceGroup $rg
+
+                        # Retry loop with exponential backoff implemented to catch errors
+                        # Introduced due to error "Your Azure Credentials have not been set up or expired"
                         # https://github.com/Azure/azure-powershell/issues/9448
-                        $Retry = 0
+                        $retryCount = 0
                         do {
                             try {
-                                $Retry++
-                                $ResourceError = $null
-                                $Resources = Get-AzResource -DefaultProfile $context  -ResourceGroupName $rg.ResourceGroupName -ODataQuery $using:OdataFilter -ExpandProperties -ErrorAction Stop
+                                $retryCount++
+                                $Resources = Get-AzResource -DefaultProfile $context `
+                                    -ResourceGroupName $rg.ResourceGroupName `
+                                    -ODataQuery $OdataFilter `
+                                    -ExpandProperties `
+                                    -ErrorAction Stop
+                                if ($null -eq $Resources) {
+                                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "No Resources found in Resource Group [$($rg.ResourceGroupName)]"
+                                    break
+                                }
                             }
                             catch {
-                                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "Retry Count: $Retry Caught Exception for Credential Error for Get-AzResource for $($rg.ResourceId)"
-                                $ResourceError = $_
+                                if ($retryCount -lt $maxRetryCount) {
+                                    $sleepTimeInSeconds = [math]::Pow($backoffMultiplier, $retryCount)
+                                    Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Caught error finding Resources (retryCount=$retryCount). Waiting for $sleepTimeInSeconds seconds."
+                                    Start-Sleep -Seconds $sleepTimeInSeconds
+                                }
+                                elseif ($retryCount -ge $maxRetryCount) {
+                                    Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Timeout exporting Resources from Resource Group [$($rg.ResourceGroupName)]."
+                                    Write-AzOpsLog -Level Error -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($_.Exception.Message | Out-String)"
+                                    break
+                                }
                             }
-                        } until ($null -eq $ResourceError -or $Retry -eq 10)
-                        if ($ResourceError) {
-                            Write-AzOpsLog -Level Error -Topic "pwsh" -Message "Error exporting $($rg.ResourceGroupName), please check your AzContext."
-                        }
+                        } until ($Resources)
 
                         # Loop through resources and convert them to AzOpsState
                         foreach ($Resource in $Resources) {
                             # Convert resources to AzOpsState
-                            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Exporting resource $($resource.Resourceid)"
+                            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Resource [$($resource.Name)] in Resource Group [$($resource.ResourceGroupName)]"
                             ConvertTo-AzOpsState -resource $resource
                         }
                     }
@@ -186,7 +224,8 @@ function Get-AzOpsResourceDefinitionAtScope {
             }
             # Process Management Groups
             'managementGroups' {
-                $ChildOfManagementGroups = ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Management Group [$($scope.managementgroupDisplayName)] ($($scope.managementgroup))"
+                $ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
                 if ($ChildOfManagementGroups) {
 
                     <#
@@ -211,24 +250,23 @@ function Get-AzOpsResourceDefinitionAtScope {
                         # endregion
 
                         $child = $_
-                        # $scope = New-AzOpsScope -scope $child.id
-                        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Enumerating Child Of Management Group ID: $($child.id) and name: $($child.displayName)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Management Group Child Resource [$($child.Id)]"
                         Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
                     }
                 }
-                ConvertTo-AzOpsState -Resource ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
+                ConvertTo-AzOpsState -Resource ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
             }
         }
         # Process policies and policy assignments for resourcegroups, subscriptions and Management Groups
         if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups' -and -not($SkipPolicy)) {
             # Process policy definitions
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Definition at scope $scope"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Definition at scope $scope"
             $currentPolicyDefinitionsInAzure = @()
             $serializedPolicyDefinitionsInAzure = @()
             $currentPolicyDefinitionsInAzure = Get-AzOpsPolicyDefinitionAtScope -scope $scope
             foreach ($policydefinition in $currentPolicyDefinitionsInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
                 # Convert policyDefinition to AzOpsState
                 ConvertTo-AzOpsState -CustomObject $policydefinition
                 # Serialize policyDefinition in original format and add to variable for full export
@@ -236,13 +274,13 @@ function Get-AzOpsResourceDefinitionAtScope {
             }
 
             # Process policySetDefinitions (initiatives)
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Set Definition at scope $scope"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Set Definition at scope $scope"
             $currentPolicySetDefinitionsInAzure = @()
             $serializedPolicySetDefinitionsInAzure = @()
             $currentPolicySetDefinitionsInAzure = Get-AzOpsPolicySetDefinitionAtScope -scope $scope
             foreach ($policysetdefinition in $currentPolicySetDefinitionsInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
                 # Convert policySetDefinition to AzOpsState
                 ConvertTo-AzOpsState -CustomObject $policysetdefinition
                 # Serialize policySetDefinition in original format and add to variable for full export
@@ -250,12 +288,12 @@ function Get-AzOpsResourceDefinitionAtScope {
             }
 
             # Process policy assignments
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Assignment at scope $scope"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Assignment at scope $scope"
             $currentPolicyAssignmentInAzure = @()
             $serializedPolicyAssignmentInAzure = @()
             $currentPolicyAssignmentInAzure = Get-AzOpsPolicyAssignmentAtScope -scope $scope
             foreach ($policyAssignment in $currentPolicyAssignmentInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
                 # Convert policyAssignment to AzOpsState
                 ConvertTo-AzOpsState -CustomObject $policyAssignment
                 # Serialize policyAssignment in original format and add to variable for full export
@@ -282,17 +320,17 @@ function Get-AzOpsResourceDefinitionAtScope {
 
         # TEMPORARILY DISABLED
         # Role definitions and role assignments
-        # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Role Definition at scope $scope"
+        # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Definition at scope $scope"
         # Get-AzOpsRoleDefinitionAtScope -scope $scope
 
-        # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Role Assignment at scope $scope"
+        # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Assignment at scope $scope"
         # Get-AzOpsRoleAssignmentAtScope -scope $scope
 
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsResourceDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

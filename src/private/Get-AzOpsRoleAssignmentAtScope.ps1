@@ -13,33 +13,33 @@
 #>
 function Get-AzOpsRoleAssignmentAtScope {
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         $scope
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsRoleAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Processing $scope"
     }
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Role Assignment at Scope $scope"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsRoleAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Retrieving Role Assignment at Scope $scope"
 
         $currentRoleAssignmentsInAzure = Get-AzRoleAssignment -Scope $scope.scope | Where-Object -FilterScript { $_.Scope -eq $scope.scope }
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieved Role Assignment at Scope - Total Count $($currentRoleAssignmentsInAzure.count)"
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Retrieved Role Assignment at Scope - Total Count $($currentRoleAssignmentsInAzure.count)"
 
         foreach ($roleassignment in $currentRoleAssignmentsInAzure) {
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through Role definitition at scope $scope for $($roleassignment.RoleAssignmentId)"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Iterating through Role definitition at scope $scope for $($roleassignment.RoleAssignmentId)"
             ConvertTo-AzOpsState -assignment  $roleassignment
         }
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Finished Processing $scope"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsRoleAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

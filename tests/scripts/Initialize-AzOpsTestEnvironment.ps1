@@ -12,6 +12,12 @@
     None
 #>
 
+# The following SuppressMessageAttribute entries are used to surpress
+# PSScriptAnalyzer tests against known exceptions as per:
+# https://github.com/powershell/psscriptanalyzer#suppressing-rules
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+param ()
+
 # Output a the PSVersionTable to simplify version troubleshooting
 $PSVersionTable
 
@@ -20,22 +26,22 @@ $requiredModules = @(
     @{
         Name            = "Az.Accounts"
         Repository      = "PSGallery"
-        RequiredVersion = $($requiredVersion = $env:AZ_ACCOUNTS_REQUIREDVERSION ?? "latest"; $requiredVersion)
+        RequiredVersion = $($requiredVersion = $env:AZ_ACCOUNTS_REQUIRED_VERSION ?? "latest"; $requiredVersion)
     },
     @{
         Name            = "Az.Resources"
         Repository      = "PSGallery"
-        RequiredVersion = $($requiredVersion = $env:AZ_RESOURCES_REQUIREDVERSION ?? "latest"; $requiredVersion)
+        RequiredVersion = $($requiredVersion = $env:AZ_RESOURCES_REQUIRED_VERSION ?? "latest"; $requiredVersion)
     },
     @{
         Name            = "Pester"
         Repository      = "PSGallery"
-        RequiredVersion = $($requiredVersion = $env:PESTER_REQUIREDVERSION ?? "latest"; $requiredVersion)
+        RequiredVersion = $($requiredVersion = $env:PESTER_REQUIRED_VERSION ?? "latest"; $requiredVersion)
     },
     @{
         Name            = "PSScriptAnalyzer"
         Repository      = "PSGallery"
-        RequiredVersion = $($requiredVersion = $env:PSSCRIPTANALYZER_REQUIREDVERSION ?? "latest"; $requiredVersion)
+        RequiredVersion = $($requiredVersion = $env:PSSCRIPTANALYZER_REQUIRED_VERSION ?? "latest"; $requiredVersion)
     }
 )
 
