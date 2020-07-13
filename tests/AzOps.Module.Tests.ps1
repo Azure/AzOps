@@ -68,10 +68,6 @@ Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
             $ModuleManifest.RootModule | Should -Be 'AzOps.psm1'
         }
 
-        It 'Passes Test-ModuleManifest ModuleVersion' {
-            $ModuleManifest.Version | Should -Be '0.2'
-        }
-
         It 'Passes Test-ModuleManifest Copyright' {
             $ModuleManifest.Copyright | Should -Be '(c) Microsoft. All rights reserved.'
         }
@@ -85,7 +81,7 @@ Describe "AzOps.Module.Manifest" -Tag "module", "manifest" {
         }
 
         It 'Passes Test-ModuleManifest Author' {
-            $ModuleManifest.Author | Should -Be 'Customer Engineering'
+            $ModuleManifest.Author | Should -Be 'Customer Architecture and Engineering'
         }
 
         It 'Passes Test-ModuleManifest CompanyName' {
