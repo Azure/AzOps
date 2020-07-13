@@ -469,7 +469,7 @@
                 "name": "policySetDefinitions",
                 "count": "[length(variables('policySetDefinitions'))]"
             },
-            "name": "[if(not(empty(variables('policySetDefinitions'))), take(concat('PolicySetDefinitions-', variables('policyDefinitions')[copyIndex()].Name, variables('deploymentLocation')), 63), 'na-mgmt-policySetDefinitions')]",
+            "name": "[if(not(empty(variables('policySetDefinitions'))), take(concat('PolicySetDefinitions-', variables('PolicySetDefinitions')[copyIndex()].Name, variables('deploymentLocation')), 63), 'na-mgmt-policySetDefinitions')]",
             "dependsOn": [
                 "[parameters('input').Name]",
                 "policydefinitionloop",
