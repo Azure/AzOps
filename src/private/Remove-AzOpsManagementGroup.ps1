@@ -13,7 +13,7 @@
 #>
 function Remove-AzOpsManagementGroup {
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter()]
         [string]$GroupName,
@@ -29,20 +29,19 @@ function Remove-AzOpsManagementGroup {
 
     process {
         $ChildManagementGroups = (Get-AzManagementGroup -GroupName $GroupName -Expand -Recurse).Children
-        if ($ChildManagementGroups) {
+        if ($ChildManagementGroups -and $PSCmdlet.ShouldProcess("Remove Management Group(s) $($ChildManagementGroups.Name.foreach({'['+$_+']'}) -join ' ')?")) {
             foreach ($Child in $ChildManagementGroups) {
                 if ($Child.Type -eq '/subscriptions') {
-                    Write-Information "Moving Subscription $($Child.Name) under Root Management Group $RootManagementGroupName"
+                    Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Moving Subscription $($Child.Name) under Root Management Group $RootManagementGroupName"
                     New-AzManagementGroupSubscription -GroupName $RootManagementGroupName -SubscriptionId $Child.Name
                 }
                 else {
-                    Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($Child.Name)"
+                    Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($Child.Name)"
                     Remove-AzOpsManagementGroup -GroupName $Child.Name -RootManagementGroupName $RootManagementGroupName -ErrorAction SilentlyContinue
                 }
-
             }
         }
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Removing Management Group - $($groupName)"
+        Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($groupName)"
         Remove-AzManagementGroup -GroupName $groupName
     }
 

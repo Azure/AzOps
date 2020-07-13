@@ -1,5 +1,11 @@
+# The following SuppressMessageAttribute entries are used to surpress
+# PSScriptAnalyzer tests against known exceptions as per:
+# https://github.com/powershell/psscriptanalyzer#suppressing-rules
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars','global:AzOpsLogTimestampPreference')]
+param ()
+
 # Set default global preference variables
-[bool]$Global:AzOpsLogTimestampPreference = $true
+[bool]$global:AzOpsLogTimestampPreference = $true
 
 # Define Write-AzOpsLog Function
 function Write-AzOpsLog {
@@ -25,12 +31,12 @@ function Write-AzOpsLog {
         # Will apply the same values to all messages sent via pipeline
         # Uses AzOpsLogTimestampPreference variable to set defaults
         $messagePrefix = ""
-        if ($Timestamp -or $Global:AzOpsLogTimestampPreference) {
+        if ($Timestamp -or $AzOpsLogTimestampPreference) {
             $logTimeUtc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss.ffff")
             $messagePrefix = ($messagePrefix + "[$logTimeUtc] ")
         }
         if ($Topic) {
-            $messagePrefix = ($messagePrefix + "($Topic) ")            
+            $messagePrefix = ($messagePrefix + "($Topic) ")
         }
     }
 
@@ -56,7 +62,7 @@ function Write-AzOpsLog {
             }
         }
     }
-    
+
     end { }
 
 }

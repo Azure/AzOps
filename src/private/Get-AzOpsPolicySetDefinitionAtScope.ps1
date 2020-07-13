@@ -21,36 +21,34 @@ function Get-AzOpsPolicySetDefinitionAtScope {
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        # Ensure that required global variables are set.
-        Test-AzOpsVariables
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         $currentPolicySetDefinitionsInAzure = @()
     }
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message "Processing $scope"
         # Discover policysetsdefinitions at Resource Group, Subscription or Management Group level
         if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups') {
             # Discover policysetdefinitions at Management Group level
             if ($scope.type -eq 'managementGroups') {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving PolicySet Definition at ManagementGroup Scope $scope"
-                $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }                
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message "Retrieving PolicySet Definition at ManagementGroup Scope $scope"
+                $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -ManagementGroupName $scope.name | Where-Object -FilterScript { $_.ResourceId -match $scope.scope }
             }
             # Discover policysetdefinitions at Subscription level
             elseif ($scope.type -eq 'subscriptions') {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving PolicySet Definition at Subscription Scope $scope"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message "Retrieving PolicySet Definition at Subscription Scope $scope"
                 $SubscriptionID = $scope.scope.split('/')[2]
                 $currentPolicySetDefinitionsInAzure = Get-AzPolicySetDefinition -Custom -SubscriptionId $SubscriptionID | Where-Object -FilterScript { $_.SubscriptionId -eq $scope.name }
             }
             # Return object with discovered policysetdefinitions at scope
             return $currentPolicySetDefinitionsInAzure
         }
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished Processing $scope"
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message "Finished Processing $scope"
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicySetDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }
