@@ -12,7 +12,7 @@
     Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment
 #>
 function Get-AzOpsPolicyAssignmentAtScope {
-    
+
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment])]
     param (
@@ -22,27 +22,25 @@ function Get-AzOpsPolicyAssignmentAtScope {
     )
 
     begin {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
-        # Ensure that required global variables are set.
-        Test-AzOpsVariables
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing scope: $($scope.scope)"
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message "Processing scope: $($scope.scope)"
         $currentPolicyAssignmentInAzure = @()
     }
 
     process {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         # Discover policies at Resource Group, Subscription or Management Group level
         if ($scope.type -eq "resourcegroups" -or $scope.type -eq "subscriptions" -or $scope.type -eq "managementGroups" ) {
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Retrieving Policy Assignment at Scope $scope"
-            $currentPolicyAssignmentInAzure = Get-AzPolicyAssignment -Scope $scope.scope -WarningAction SilentlyContinue | Where-Object -FilterScript { $_.PolicyAssignmentId -match $scope.scope }            
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message "Retrieving Policy Assignment at Scope $scope"
+            $currentPolicyAssignmentInAzure = Get-AzPolicyAssignment -Scope $scope.scope -WarningAction SilentlyContinue | Where-Object -FilterScript { $_.PolicyAssignmentId -match $scope.scope }
             # Return object with discovered policy assignments
             return  $currentPolicyAssignmentInAzure
         }
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Finished processing scope: $($scope.scope)"
+        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message "Finished processing scope: $($scope.scope)"
     }
 
     end {
-        Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
+        Write-AzOpsLog -Level Debug -Topic "Get-AzOpsPolicyAssignmentAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 
 }

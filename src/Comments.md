@@ -20,7 +20,7 @@ To get started, select one of the following options, either `github-cli`, `bash`
 
 Please note, the `bash` and `powershell` commands will require a GitHub Personal Access Token.
 
-#### GitHub CLI 
+#### GitHub CLI
 
 ```bash
 gh api -X POST repos/<Organisation>/<Repository>/dispatches --field event_type='GitHub CLI'
