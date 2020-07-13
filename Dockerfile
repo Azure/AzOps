@@ -1,8 +1,5 @@
 FROM mcr.microsoft.com/powershell:latest
 
-LABEL "com.github.actions.name"="AzOps"
-LABEL "com.github.actions.description"="-"
-LABEL version="0.2"
 LABEL repository="https://github.com/Azure/AzOps"
 LABEL maintainer="Microsoft"
 
