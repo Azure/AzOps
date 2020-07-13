@@ -18,7 +18,7 @@ jobs:
 
   add_new_commit:
     needs: [build]
-    if: ${{needs.build.outputs.pushtodockerregistry == 'true' && github.event.ref_type == 'branch'}}
+    if: ${{ needs.build.outputs.pushtodockerregistry == 'true' && github.event.ref_type == 'branch' && contains(github.event.ref,'release') }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
