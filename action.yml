@@ -7,4 +7,7 @@ inputs:
     required: true
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: "docker://mscet/azops:main"
+branding:
+  icon: 'sunrise'
+  color: 'green'
