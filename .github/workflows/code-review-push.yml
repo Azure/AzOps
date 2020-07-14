@@ -5,7 +5,8 @@ name: Code Review (Changes Only)
 # Start the job on push for all branches #
 ##########################################
 on:
-  push
+  push:
+    branches-ignore: [release/**]
 
 ###############
 # Set the Job #
