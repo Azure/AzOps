@@ -1,4 +1,4 @@
-name: "Build Container Image"
+name: "Build container image"
 on:
   release:
     types: [created]

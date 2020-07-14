@@ -1,4 +1,4 @@
-name: "Create New Branch"
+name: "Create new branch"
 on:
   create:
 
