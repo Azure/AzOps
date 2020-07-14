@@ -51,7 +51,7 @@ jobs:
     - name: Extract branch version
       shell: bash
       run: |
-        echo "::set-env name=BRANCH_VERSION:: $(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
+        echo "::set-env name=BRANCH_VERSION::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
 
     - name: Display branch version
       run: |
