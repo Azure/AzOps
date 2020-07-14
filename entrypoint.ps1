@@ -39,35 +39,15 @@ function Initialization {
                 git config --global user.name $env:GITHUB_USERNAME
             } | Out-Host
 
-            # Set environment variables
-            if ($env:AZOPS_STATE) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsState to $($env:AZOPS_STATE)"
-                $env:AzOpsState = $env:AZOPS_STATE
-            }
-            if ($env:AZOPS_ENROLLMENT_ACCOUNT) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsEnrollmentAccountPrincipalName to $($env:AZOPS_ENROLLMENT_ACCOUNT)"
-                $env:AzOpsEnrollmentAccountPrincipalName = $env:AZOPS_ENROLLMENT_ACCOUNT
-            }
-            if ($env:AZOPS_OFFER_TYPE) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting offerType to $($env:AZOPS_OFFER_TYPE)"
-                $env:AzOpsOfferType = $env:AZOPS_OFFER_TYPE
-            }
-            if ($env:AZOPS_DEFAULT_DEPLOYMENT_REGION) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsDefaultDeploymentRegion to $($env:AZOPS_DEFAULT_DEPLOYMENT_REGION)"
-                $env:AzOpsDefaultDeploymentRegion = $env:AZOPS_DEFAULT_DEPLOYMENT_REGION
-            }
-            if ($env:AZOPS_INVALIDATE_CACHE) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting InvalidateCache to $($env:AZOPS_INVALIDATE_CACHE)"
-                $env:InvalidateCache = $env:AZOPS_INVALIDATE_CACHE
-            }
-            if ($env:AZOPS_IGNORE_CONTEXT_CHECK) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting IgnoreContextCheck to $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
-                $env:IgnoreContextCheck = $env:AZOPS_IGNORE_CONTEXT_CHECK
-            }
-            if ($env:AZOPS_THROTTLE_LIMIT) {
-                Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsThrottleLimit to $($env:AZOPS_THROTTLE_LIMIT)"
-                $env:AzOpsThrottleLimit = $env:AZOPS_THROTTLE_LIMIT
-            }
+            # Print environment variables
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsState to $($env:AZOPS_STATE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsEnrollmentAccountPrincipalName to $($env:AZOPS_ENROLLMENT_ACCOUNT)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting offerType to $($env:AZOPS_OFFER_TYPE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsDefaultDeploymentRegion to $($env:AZOPS_DEFAULT_DEPLOYMENT_REGION)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting InvalidateCache to $($env:AZOPS_INVALIDATE_CACHE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting IgnoreContextCheck to $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsThrottleLimit to $($env:AZOPS_THROTTLE_LIMIT)"
+
         }
         catch {
             Write-AzOpsLog -Level Error -Topic "entrypoint" -Message $PSItem.Exception.Message

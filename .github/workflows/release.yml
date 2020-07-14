@@ -5,8 +5,12 @@ on:
   push:
     branches:
       - main
-      - release/*
-
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to trigger docker push'
+        required: true
+        default: 'push'
 jobs:
   build:
     runs-on: ubuntu-latest
