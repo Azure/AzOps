@@ -74,7 +74,7 @@ jobs:
         then
           echo "Not updating Brach Version. Value of Branch Version is $BRANCH_VERSION "
         else
-          sed -i "s/ModuleVersion     = '.*'/ModuleVersion     = '$BRANCH_VERSION' /" src/AzOps.psd1
+          sed -i "s/ModuleVersion     = '.*'/ModuleVersion     = '$BRANCH_VERSION'/" src/AzOps.psd1
         fi
     
     - name: Setup Git
