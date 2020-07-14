@@ -1,8 +1,9 @@
 # AzOps
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
-[![Feature Requests](https://img.shields.io/github/issues/Azure/azops/feature.svg)](https://github.com/Azure/azops/issues?q=is%3Aopen+is%3Aissue+label%3Afeature+sort%3Areactions-%2B1-desc)
-[![Bugs](https://img.shields.io/github/issues/Azure/azops/bug.svg)](https://github.com/Azure/azops/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
 
 ## Welcome
 
