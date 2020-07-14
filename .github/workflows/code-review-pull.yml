@@ -23,8 +23,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run Super-Linter
-      # Need to pull "latest" until a new release tag includes arm-ttk linter
-      uses: docker://github/super-linter:latest
+      # Release tag v3.3.0 onwards includes arm-ttk linter
+      uses: docker://github/super-linter:v3.3.0
       env:
         # Lint all code on pull_request
         VALIDATE_ALL_CODEBASE: true
