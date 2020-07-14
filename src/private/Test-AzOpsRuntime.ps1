@@ -19,7 +19,7 @@ function Test-AzOpsRuntime {
     if ($PSVersionTable.Platform -eq "Win32NT") {
         $RegistryValue = Get-ItemPropertyValue -Path HKLM:SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled
         if ($RegistryValue -ne 1) {
-            Write-AzOpsLog -Level Error -Topic "Test-AzOpsRuntime" -Message  "Registry value (HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem\LongLongPathsEnabled) is not set to 1 to support paths over 256 characters in Windows.
+            Write-AzOpsLog -Level Error -Topic "Test-AzOpsRuntime" -Message  "Registry value (HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled) is not set to 1 to support paths over 256 characters in Windows.
             Change value as per https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#enable-long-paths-in-windows-10-version-1607-and-later, reboot and try again."
         }
 
