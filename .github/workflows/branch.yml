@@ -40,9 +40,9 @@ jobs:
 
     - name: Extract container name
       run: |
-        echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/\//-/g')"
+        echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
 
-    - name: Display Container Name
+    - name: Display container name
       run: |
         echo "${CONTAINER_NAME}"
 
@@ -58,7 +58,7 @@ jobs:
       run: |
         sed -i "s raw.githubusercontent.com.*template raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template g" template/template.json
 
-    - name: Updating template/tenant.json
+    - name: Updating Templates (template/tenant.json)
       run: |
         sed -i "s raw.githubusercontent.com.*template raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template g" template/tenant.json
 
@@ -72,7 +72,7 @@ jobs:
       run: |
         if [ -z $BRANCH_VERSION ]
         then
-          echo "Not updating Brach Version. Value of Branch Version is $BRANCH_VERSION "
+          echo "Not updating Brach Version. Value of Branch Version is $BRANCH_VERSION"
         else
           sed -i "s/ModuleVersion     = '.*'/ModuleVersion     = '$BRANCH_VERSION'/" src/AzOps.psd1
         fi
