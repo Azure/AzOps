@@ -40,13 +40,13 @@ function Initialization {
             } | Out-Host
 
             # Print environment variables
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsState to $($env:AZOPS_STATE)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsEnrollmentAccountPrincipalName to $($env:AZOPS_ENROLLMENT_ACCOUNT)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting offerType to $($env:AZOPS_OFFER_TYPE)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsDefaultDeploymentRegion to $($env:AZOPS_DEFAULT_DEPLOYMENT_REGION)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting InvalidateCache to $($env:AZOPS_INVALIDATE_CACHE)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting IgnoreContextCheck to $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
-            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "Setting AzOpsThrottleLimit to $($env:AZOPS_THROTTLE_LIMIT)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_STATE is $($env:AZOPS_STATE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_ENROLLMENT_ACCOUNT is $($env:AZOPS_ENROLLMENT_ACCOUNT)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_OFFER_TYPE is $($env:AZOPS_OFFER_TYPE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_DEFAULT_DEPLOYMENT_REGION is $($env:AZOPS_DEFAULT_DEPLOYMENT_REGION)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_INVALIDATE_CACHE is $($env:AZOPS_INVALIDATE_CACHE)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_IGNORE_CONTEXT_CHECK is $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
+            Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_THROTTLE_LIMIT is $($env:AZOPS_THROTTLE_LIMIT)"
 
         }
         catch {

@@ -518,22 +518,28 @@ function New-AzOpsScope {
     process {
         Write-AzOpsLog -Level Debug -Topic "New-AzOpsScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        # Return scope if scope was provided
-        if (($PSCmdlet.ParameterSetName -eq "scope") -and $PSCmdlet.ShouldProcess("Create new scope object?")) {
-            Write-AzOpsLog -Level Verbose -Topic "New-AzOpsScope" -Message ("Creating new AzOpsScope object using scope [$scope]")
-            return [AzOpsScope]::new($scope)
-        }
-        # Get scope from filepath
-        elseif ($PSCmdlet.ParameterSetName -eq "pathfile") {
-            # Remove .AzState file extension if present
-            $path = $path -replace $regex_findAzStateFileExtension, ''
-            if ((Test-Path $path) -and (Test-Path $path -IsValid) -and $PSCmdlet.ShouldProcess("Create new pathfile object?")) {
-                Write-AzOpsLog -Level Verbose -Topic "New-AzOpsScope" -Message ("Creating new AzOpsScope object using path [$path]")
-                return [AzOpsScope]::new($(Get-Item $path))
+        # Try to get scope based on scope or filepath
+        try {
+            # Return scope if scope was provided
+            if (($PSCmdlet.ParameterSetName -eq "scope") -and $PSCmdlet.ShouldProcess("Create new scope object?")) {
+                Write-AzOpsLog -Level Verbose -Topic "New-AzOpsScope" -Message ("Creating new AzOpsScope object using scope [$scope]")
+                return [AzOpsScope]::new($scope)
+            }
+            # Get scope from filepath
+            elseif ($PSCmdlet.ParameterSetName -eq "pathfile") {
+                # Remove .AzState file extension if present
+                $path = $path -replace $regex_findAzStateFileExtension, ''
+                if ((Test-Path $path) -and (Test-Path $path -IsValid) -and $PSCmdlet.ShouldProcess("Create new pathfile object?")) {
+                    Write-AzOpsLog -Level Verbose -Topic "New-AzOpsScope" -Message ("Creating new AzOpsScope object using path [$path]")
+                    return [AzOpsScope]::new($(Get-Item $path))
+                }
+            }
+            else {
+                Write-AzOpsLog -Level Warning -Topic "New-AzOpsScope" -Message "Path not found: $path"
             }
         }
-        else {
-            Write-AzOpsLog -Level Warning -Topic "New-AzOpsScope" -Message "Path not found: $path"
+        catch {
+            Write-AzOpsLog -Level Error -Topic "New-AzOpsScope" -Message "$_"
         }
     }
     end {
