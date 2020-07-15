@@ -65,9 +65,8 @@ function Get-AzOpsResourceDefinitionAtScope {
         Write-AzOpsLog -Level Debug -Topic "Get-AzOpsResourceDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing AzOpsResourceDefinitionAtScope [$scope]"
         # Get AzOpsScope for inputscope
-        # Why do we rebuild the $scope object from the ID value which was extracted
-        # from the original scope object which was already of type AzOpsScope?
         $scope = (New-AzOpsScope -scope $scope -ErrorAction SilentlyContinue)
+
         # Continue if scope exists (added since management group api returns disabled/inaccesible subscriptions)
         if ($scope) {
 

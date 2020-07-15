@@ -31,8 +31,9 @@ function Save-AzOpsManagementGroupChildren {
 
     process {
         Write-AzOpsLog -Level Debug -Topic "Save-AzOpsManagementGroupChildren" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
-        # Create new AzOpsScope object type from input scope object
+        # Create new AzOpsScope object type from input scope objects
         $scope = (New-AzOpsScope -scope $scope -ErrorAction SilentlyContinue)
+
         # Continue if scope exists (added since management group api returns disabled/inaccesible subscriptions)
         if ($scope) {
             Write-AzOpsLog -Level Verbose -Topic "Save-AzOpsManagementGroupChildren" -Message "Processing Scope: $($scope.scope)"
