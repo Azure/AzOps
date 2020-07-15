@@ -2,7 +2,7 @@
 name: "Bug report \U0001F41B"
 about: Report errors or unexpected behaviour
 title: 'Bug Report'
-labels: 'needs triage'
+labels: "needs triage :warning:"
 assignees: ''
 
 ---
