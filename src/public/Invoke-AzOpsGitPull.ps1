@@ -85,7 +85,7 @@ function Invoke-AzOpsGitPull {
                                     "color"       = "db9436"
                                 } | ConvertTo-Json)
                         }
-                        $response = Invoke-RestMethod -Method "Post" @params
+                        $response = Invoke-RestMethod -Method "Post" @params | Out-Null
                     }
 
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
@@ -97,7 +97,7 @@ function Invoke-AzOpsGitPull {
                             "Authorization" = ("Bearer " + $env:GITHUB_TOKEN)
                         }
                     }
-                    $response = Invoke-RestMethod -Method "Get" @params
+                    $response = Invoke-RestMethod -Method "Get" @params | Out-Null
 
                     if (!$response) {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
@@ -123,7 +123,7 @@ function Invoke-AzOpsGitPull {
                         }
                     }
                     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "URI: $($params.Uri)"
-                    $response = Invoke-RestMethod @params
+                    $response = Invoke-RestMethod @params | Out-Null
                     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Pull request response count: $($response.count)"
 
                     if ($response.count -eq 0) {
@@ -143,7 +143,7 @@ function Invoke-AzOpsGitPull {
                                     "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
                                 }  | ConvertTo-Json -Depth 5)
                         }
-                        $response = Invoke-RestMethod @params
+                        $response = Invoke-RestMethod @params | Out-Null
 
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Assigning pull request label"
 
