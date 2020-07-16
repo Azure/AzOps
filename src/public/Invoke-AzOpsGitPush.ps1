@@ -56,7 +56,7 @@ function Invoke-AzOpsGitPush {
                                 )
                             }  | ConvertTo-Json -Depth 5)
                     }
-                    Invoke-RestMethod @params -Verbose:$VerbosePreference
+                    Invoke-RestMethod @params
                     exit 1
                 }
                 Default {

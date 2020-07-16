@@ -123,7 +123,7 @@ function Invoke-AzOpsGitPull {
                         }
                     }
                     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "URI: $($params.Uri)"
-                    $response = Invoke-RestMethod @params -Verbose:$VerbosePreference
+                    $response = Invoke-RestMethod @params
                     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Pull request response count: $($response.count)"
 
                     if ($response.count -eq 0) {
@@ -143,7 +143,7 @@ function Invoke-AzOpsGitPull {
                                     "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
                                 }  | ConvertTo-Json -Depth 5)
                         }
-                        $response = Invoke-RestMethod @params -Verbose:$VerbosePreference
+                        $response = Invoke-RestMethod @params
 
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Assigning pull request label"
 
@@ -158,7 +158,7 @@ function Invoke-AzOpsGitPull {
                                     "name" = "system"
                                 }  | ConvertTo-Json -Depth 5)
                         }
-                        Invoke-RestMethod @params -Verbose:$VerbosePreference
+                        Invoke-RestMethod @params
                     }
                 }
                 #endregion
