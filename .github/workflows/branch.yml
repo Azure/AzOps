@@ -1,0 +1,91 @@
+name: "Create new branch"
+on:
+  create:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      pushtodockerregistry: ${{ steps.pushtodockerregistry.outputs.pushtodockerregistry }}
+    steps:
+      - name: Check whether push docker image to repository
+        id: pushtodockerregistry
+        env:
+            PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
+        run: |
+            echo "Enable Push to Docker Registry: ${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+            echo "::set-output name=pushtodockerregistry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
+
+  add_new_commit:
+    needs: [build]
+    if: ${{ needs.build.outputs.pushtodockerregistry == 'true' && github.event.ref_type == 'branch' && contains(github.event.ref,'release') }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: GitHub context
+      run: |
+        echo "$GITHUB_CONTEXT"
+
+    - name: Extract branch name
+      run: |
+        echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||')"
+
+    - name: Display branch name
+      run: |
+        echo "${BRANCH_NAME}"
+
+    - name: Extract container name
+      run: |
+        echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
+
+    - name: Display container name
+      run: |
+        echo "${CONTAINER_NAME}"
+
+    - name: Extract branch version
+      run: |
+        echo "::set-env name=BRANCH_VERSION::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
+
+    - name: Display branch version
+      run: |
+        echo "${BRANCH_VERSION}"
+
+    - name: Updating Templates (template/template.json)
+      run: |
+        sed -i "s raw.githubusercontent.com.*template raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template g" template/template.json
+
+    - name: Updating Templates (template/tenant.json)
+      run: |
+        sed -i "s raw.githubusercontent.com.*template raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template g" template/tenant.json
+
+    - name: Updating Actions Manifest (action.yml)
+      run: |
+        sed -i "s docker://.* docker://$PUSH_TO_DOCKER_REPOSITORY:$CONTAINER_NAME\" " action.yml
+      env:
+        PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
+
+    - name: Updating Module Manifest (AzOps.psd1)
+      run: |
+        if [ -z $BRANCH_VERSION ]
+        then
+          echo "Not updating Brach Version. Value of Branch Version is $BRANCH_VERSION"
+        else
+          sed -i "s/ModuleVersion     = '.*'/ModuleVersion     = '$BRANCH_VERSION'/" src/AzOps.psd1
+        fi
+    
+    - name: Setup Git
+      run: |
+        git config --global user.email new-branch-commit@noreply.com
+        git config --global user.name new-branch-commit
+    
+    - name: Add Changes
+      run: |
+        git add . && git commit -m "New Branch Commit for version $BRANCH_VERSION"
+    
+    - name: Push commit
+      run: |
+        git push origin $BRANCH_NAME

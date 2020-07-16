@@ -44,75 +44,78 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
         #region setup
         # Task: Initialize environment variables
-        $env:AzOpsState = $TestDrive
-        $env:InvalidateCache = 1
-        $env:AzOpsMainTemplate = ("$PSScriptRoot/../template/template.json")
-        $env:AzOpsStateConfig = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
+        $env:AZOPS_STATE = $TestDrive
+        $env:AZOPS_INVALIDATE_CACHE = 1
+        $env:AZOPS_MAIN_TEMPLATE = ("$PSScriptRoot/../template/template.json")
+        $env:AZOPS_STATE_CONFIG = ("$PSScriptRoot/../src/AzOpsStateConfig.json")
 
         #Use AzOpsReference published in https://github.com/Azure/Enterprise-Scale
         Start-AzOpsNativeExecution {
             git clone 'https://github.com/Azure/Enterprise-Scale'
         } | Out-Host
         $AzOpsReferenceFolder = (Join-Path $pwd -ChildPath 'Enterprise-Scale/azopsreference')
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "AzOpsReferenceFolder Path is: $AzOpsReferenceFolder"
+        $ContosoAzState = '3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState'
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "ContosoAzState Path is: $ContosoAzState"
 
         # Task: Check if 'Tailspin' Management Group exists
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Removing Tailspin Management Group"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Removing Tailspin Management Group"
         if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Remove-AzOpsManagementGroup"
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Remove-AzOpsManagementGroup"
             Remove-AzOpsManagementGroup -GroupName  'Tailspin'
         }
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Tailspin Management Group hierarchy removed."
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Tailspin Management Group hierarchy removed."
         #endregion
 
         # Task: Initialize azops/
-        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running Initialize-AzOpsRepository"
+        Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Initialize-AzOpsRepository"
         Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
-
-        # Comment: Find Tenant Root Group id
-        $tenantName = ($global:AzOpsAzManagementGroup | Where-Object -FilterScript { $_.ParentDisplayName -eq $null }).DisplayName
 
         # Task: Deployment of 10-create-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 10-create-managementgroup.parameters.json"
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         # Task: Deployment of 20-create-child-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/20-create-child-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 20-create-child-managementgroup.parameters.json"
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         # Task: Deployment of 30-create-policydefinition-at-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/30-create-policydefinition-at-managementgroup.parameters.json" | ForEach-Object {
+            $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
             Copy-Item -Path $_.FullName  -Destination $TestDrive
-            $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+            $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
             $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
 
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
-            New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+            Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running New-AzOpsStateDeployment for 30-create-policydefinition-at-managementgroup.parameters.json"
+            New-AzOpsStateDeployment -FileName $tempFileName
         }
 
         <# State: Disabling this due to bug where Policy assignment fails for first time.
 
             Get-ChildItem -Path "$PSScriptRoot/../template/40-create-policyassignment-at-managementgroup.parameters.json" | ForEach-Object {
+                $tempFileName = (Join-Path -Path $TestDrive -ChildPath $_.Name)
                 Copy-Item -Path $_.FullName  -Destination $TestDrive
-                $content = Get-Content -Path (Join-Path -Path $TestDrive -ChildPath $_.Name) | ConvertFrom-Json -Depth 100
+                $content = Get-Content -Path $tempFileName | ConvertFrom-Json -Depth 100
                 $content.parameters.input.value.ParentId = ("/providers/Microsoft.Management/managementGroups/" + (Get-AzTenant).Id)
-                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath (Join-Path -Path $TestDrive -ChildPath $_.Name)
-                New-AzOpsStateDeployment -FileName (Join-Path -Path $TestDrive -ChildPath $_.Name)
+                $content | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempFileName
+                New-AzOpsStateDeployment -FileName $tempFileName
             }
 
             #>
@@ -133,23 +136,23 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             (Get-AzTenantDeployment -Name "30-create-policydefinition-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
         }
         It "Passes Discovery of Tailspin Management Group" {
-            (Get-ChildItem -Directory -Recurse -Path $env:AzOpsState).Name | Should -Contain 'Tailspin'
+            (Get-ChildItem -Directory -Recurse -Path $env:AZOPS_STATE).Name | Should -Contain 'Tailspin (Tailspin)'
         }
 
         It "Passes Policy Definition Test" {
-            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object { $_.Name -eq 'Tailspin' }).FullName
-            $AzOpsReferencePolicyCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json").count
-            foreach ($policyDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policyDefinitions*.json")) {
+            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE) | Where-Object { $_.Name -eq 'Tailspin (Tailspin)' }).FullName
+            $AzOpsReferencePolicyCount = (Get-ChildItem "$AzOpsReferenceFolder/$ContosoAzState/Microsoft.Authorization_policyDefinitions*.json").count
+            foreach ($policyDefinition in (Get-ChildItem "$AzOpsReferenceFolder/$ContosoAzState/Microsoft.Authorization_policyDefinitions*.json")) {
                 Copy-Item $policyDefinition $TailspinAzOpsState -Force
             }
             foreach ($policyDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policyDefinitions*.json")) {
-                # Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Deploying Policy Definition: $policyDefinition"
+                # Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Deploying Policy Definition: $policyDefinition"
                 $scope = New-AzOpsScope -path $policyDefinition.FullName
                 $deploymentName = (Get-Item $policyDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
                 if ($deploymentName.Length -gt 64) {
                     $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
                 }
-                New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion -TemplateFile $env:AzOpsMainTemplate -TemplateParameterFile $policyDefinition.FullName -ManagementGroupId $scope.managementGroup -Name $deploymentName -AsJob
+                New-AzManagementGroupDeployment -Location $env:AZOPS_DEFAULT_DEPLOYMENT_REGION -TemplateFile $env:AZOPS_MAIN_TEMPLATE -TemplateParameterFile $policyDefinition.FullName -ManagementGroupId $scope.managementGroup -Name $deploymentName -AsJob
             }
 
             Get-Job | Wait-Job
@@ -177,25 +180,24 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         }
 
         It "Passes PolicySet Definition Test" {
-            $TailspinAzOpsState = ((Get-ChildItem -Recurse -Directory -path $env:AzOpsState) | Where-Object { $_.Name -eq 'Tailspin' }).FullName
-            $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json").count
-            foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/3fc1081d-6105-4e19-b60c-1ec1252cf560/contoso/.AzState/Microsoft.Authorization_policySetDefinitions*.json")) {
+            $TailspinAzOpsState = (Get-ChildItem -Recurse -Directory -path $env:AZOPS_STATE | Where-Object { $_.Name -eq 'Tailspin (Tailspin)' }).FullName
+            $AzOpsReferencePolicySetCount = (Get-ChildItem "$AzOpsReferenceFolder/$ContosoAzState/Microsoft.Authorization_policySetDefinitions*.json").count
+            foreach ($policySetDefinition in (Get-ChildItem "$AzOpsReferenceFolder/$ContosoAzState/Microsoft.Authorization_policySetDefinitions*.json")) {
                 Copy-Item $policySetDefinition $TailspinAzOpsState -Force
             }
             foreach ($policySetDefinition in (Get-ChildItem "$TailspinAzOpsState/Microsoft.Authorization_policySetDefinitions*.json")) {
-                # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Deploying Policy Definition: $policySetDefinition"
+                # Write-AzOpsLog -Level Verbose -Topic "AzOps.IAB.Tests" -Message "Deploying Policy Definition: $policySetDefinition"
 
                 # Changing the Scope to match Tailspin
                 (Get-Content -path $policySetDefinition -Raw) -replace '/providers/Microsoft.Management/managementGroups/contoso/', '/providers/Microsoft.Management/managementGroups/Tailspin/' | Set-Content -Path $policySetDefinition
-
                 $scope = New-AzOpsScope -path $policySetDefinition.FullName
 
                 $deploymentName = (Get-Item $policySetDefinition).BaseName.replace('.parameters', '').Replace(' ', '_')
                 if ($deploymentName.Length -gt 64) {
                     $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
                 }
-                New-AzManagementGroupDeployment -Location  $env:AzOpsDefaultDeploymentRegion `
-                    -TemplateFile $env:AzOpsMainTemplate `
+                New-AzManagementGroupDeployment -Location $env:AZOPS_DEFAULT_DEPLOYMENT_REGION `
+                    -TemplateFile $env:AZOPS_MAIN_TEMPLATE `
                     -TemplateParameterFile $policySetDefinition.FullName `
                     -ManagementGroupId $scope.managementGroup `
                     -Name $deploymentName -AsJob
@@ -229,7 +231,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
         # Disabling until pull for IAB pull is wired up
         # if(Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue)
         # {
-        #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Cleaning up Tailspin Management Group"
+        #     Write-AzOpsLog -Level Verbose -Topic "AzOps.IAB.Tests" -Message "Cleaning up Tailspin Management Group"
         #     Remove-AzOpsManagementGroup -groupName  'Tailspin'
         # }
     }

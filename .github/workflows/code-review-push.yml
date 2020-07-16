@@ -1,0 +1,35 @@
+---
+name: Code Review (Changes Only)
+
+##########################################
+# Start the job on push for all branches #
+##########################################
+on:
+  push:
+    branches-ignore: [release/**]
+
+###############
+# Set the Job #
+###############
+jobs:
+
+  build:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Run Super-Linter (Changes Only)
+      # Release tag v3.3.0 onwards includes arm-ttk linter
+      uses: docker://github/super-linter:v3.3.0
+      env:
+        # Only lint code which has been added or modified on push
+        VALIDATE_ALL_CODEBASE: false
+        # Need to define main branch as default is master
+        DEFAULT_BRANCH: main
+        # Temporarily allowing linter to complete with exit code 0 even
+        # if errors were detected while working on code clean-up
+        DISABLE_ERRORS: true

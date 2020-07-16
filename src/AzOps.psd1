@@ -12,7 +12,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.2'
+    ModuleVersion     = '0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -21,7 +21,7 @@
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
 
     # Author of this module
-    Author            = 'Customer Engineering'
+    Author            = 'Customer Architecture and Engineering'
 
     # Company or vendor of this module
     CompanyName       = 'Microsoft'
@@ -83,13 +83,13 @@
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-    CmdletsToExport   = '*'
+    # CmdletsToExport   = '*'
 
     # Variables to export from this module
-    VariablesToExport = '*'
+    # VariablesToExport = '*'
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport   = '*'
+    # AliasesToExport   = '*'
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()

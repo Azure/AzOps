@@ -11,7 +11,8 @@
     None.
 #>
 function Remove-AzOpsDeployments {
-    [CmdletBinding()]
+
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param()
 
     begin {

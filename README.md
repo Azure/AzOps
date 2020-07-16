@@ -1,8 +1,9 @@
 # AzOps
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
-[![Feature Requests](https://img.shields.io/github/issues/Azure/azops/feature.svg)](https://github.com/Azure/azops/issues?q=is%3Aopen+is%3Aissue+label%3Afeature+sort%3Areactions-%2B1-desc)
-[![Bugs](https://img.shields.io/github/issues/Azure/azops/bug.svg)](https://github.com/Azure/azops/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
 
 ## Welcome
 
@@ -60,7 +61,7 @@ IaC repo will have 100s if not 1000s of configuration artefact tracked and versi
 
 Provide tenant level ARM template to build Landing Zone using Enterprise-Scale guidelines.
 
-We will enable security, logging, networking, and any other plumbing needed for landing zones (i.e. Subscription) **autonomously** by the way of policy enforcement. We will bootstrap Azure environment with ARM template to create necessary structure for management and networking to declare desired goal state.  
+We will enable security, logging, networking, and any other plumbing needed for landing zones (i.e. Subscription) **autonomously** by the way of policy enforcement. We will bootstrap Azure environment with ARM template to create necessary structure for management and networking to declare desired goal state.
 
 File -> New -> Landing Zones (i.e. Subscription) process is ARM orchestrating following:
 
@@ -68,7 +69,7 @@ File -> New -> Landing Zones (i.e. Subscription) process is ARM orchestrating fo
 - Subscription move under the target management structure
 - Configuring Subscription to desired state by policy enfrorcement - autonomously.
 
-For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
+For quick start, an [**ARM template**](https://ms.portal.azure.com/?feature.customportal=false#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzOps%2Fmain%2Ftemplate%2Fux-foundation.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzOps%2Fmain%2Ftemplate%2Fesux.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
 
 - Create (1) Management Group hierarchy and (2) Subscription organization structure in (Platform + N) fashion where N represents number of landing zones.
 - Create Policies (deployIfNotExists) assigned to (2) Management Groups and (3) Subscription scope to govern and deploy necessary resources, enabling platform autonomy as new landing zones (Subscriptions) are being created by application teams
