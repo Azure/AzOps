@@ -192,7 +192,7 @@ function ConvertTo-AzOpsState {
             }
 
             # Check if Resource has to be generalized
-            if ($env:GeneralizeTemplates -eq 1) {
+            if ($global:AzOpsGeneralizeTemplates -eq 1) {
                 # Preserve Original Template before manipulating anything
                 # Only export original resource if generalize excluded properties exist
                 if ("excludedProperties" -in $ResourceConfig.Keys) {
@@ -261,7 +261,7 @@ function ConvertTo-AzOpsState {
             if ('orderObject' -in $ResourceConfig) {
                 $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
             }
-            if ($env:ExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
+            if ($global:AzOpsExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
                 if ($ReturnObject) {
                     # Return resource as object
                     Write-Output -InputObject $object
