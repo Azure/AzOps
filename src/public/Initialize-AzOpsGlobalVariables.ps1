@@ -120,7 +120,7 @@ function Initialize-AzOpsGlobalVariables {
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
             # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now"
             # Get all managementgroups that principal has access to
             $global:AzOpsPartialRoot = @()
             # Initialize global variable for Management Groups
@@ -146,7 +146,7 @@ function Initialize-AzOpsGlobalVariables {
                 }
                 $global:AzOpsAzManagementGroup = $global:AzOpsAzManagementGroup | Sort-Object -Property Id -Unique
 
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized $(Get-Date)"
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized"
 
             }
             else {
