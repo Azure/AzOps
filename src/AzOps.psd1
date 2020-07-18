@@ -52,8 +52,8 @@
 
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules   = @(
-        @("Az.Accounts", @{ ModuleName = "Az.Accounts"; ModuleVersion = "1.8.0" } )
-        @("Az.Resources", @{ ModuleName = "Az.Resources"; ModuleVersion = "2.0.1" } )
+        @("Az.Accounts", @{ ModuleName = "Az.Accounts"; ModuleVersion = "1.9.1" } )
+        @("Az.Resources", @{ ModuleName = "Az.Resources"; ModuleVersion = "2.3.0" } )
     )
 
     # Assemblies that must be loaded prior to importing this module

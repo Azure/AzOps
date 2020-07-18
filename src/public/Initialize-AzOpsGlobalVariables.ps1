@@ -26,6 +26,8 @@ function Initialize-AzOpsGlobalVariables {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialMgDiscoveryRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExcludedSubOffer')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExcludedSubState')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -47,6 +49,8 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
             AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
             AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" }
+            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" }
             AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
             AZOPS_DEFAULT_DEPLOYMENT_REGION    = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
             AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
@@ -79,6 +83,10 @@ function Initialize-AzOpsGlobalVariables {
                 # Set global variables for script
                 $GlobalVar = $AzOpsEnvVariables["$AzOpsEnv"].Keys
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Setting global variable $GlobalVar to $EnvVarValue"
+                # Convert comma separated vars to array (since all env vars are strings)
+                if ($EnvVarValue -match ',') {
+                    $EnvVarValue = $EnvVarValue -split ','
+                }
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
         }
@@ -114,9 +122,8 @@ function Initialize-AzOpsGlobalVariables {
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantID
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsSubscriptions"
-            $ExcludedPatterns = @('Access to Azure Active Directory')
-            $ExcludedState = ('Disabled', 'Deleted', 'Warned', 'Expired', 'PastDue')
-            $global:AzOpsSubscriptions = Get-AzSubscription -TenantId $TenantID | Where-Object { $_.State -notin $ExcludedState -and $_.Name -notin $ExcludedPatterns }
+            $global:AzOpsSubscription = Get-AzOpsAllSubscription -ExcludedOffers $global:AzOpsExcludedSubOffer -ExcludedStates $global:AzOpsExcludedSubState
+            #$global:AzOpsSubscriptions = Get-AzSubscription -TenantId $TenantID | Where-Object { $_.State -notin $ExcludedState -and $_.Name -notin $ExcludedPatterns }
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
             # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
