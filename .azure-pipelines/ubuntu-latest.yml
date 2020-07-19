@@ -1,12 +1,12 @@
 pr:
   paths:
     include:
-      - "*"
+      - '*'
     exclude:
       - .github/*
       - .vscode/*
       - docs/*
-      - "*.md"
+      - '*.md'
 
 variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
