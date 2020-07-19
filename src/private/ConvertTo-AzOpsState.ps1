@@ -170,6 +170,7 @@ function ConvertTo-AzOpsState {
         # Load default properties to exclude if defined
         if ("excludedProperties" -in $ResourceConfig.Keys) {
             $ExcludedProperties = $ResourceConfig.excludedProperties.default
+            Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Default excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
         }
 
         Write-AzOpsLog -Level Debug -Topic "ConvertTo-AzOpsState" -Message "Statepath is $objectFilePath"
@@ -192,13 +193,14 @@ function ConvertTo-AzOpsState {
             }
 
             # Check if Resource has to be generalized
-            if ($env:GeneralizeTemplates -eq 1) {
+            if ($global:AzOpsGeneralizeTemplates -eq 1) {
                 # Preserve Original Template before manipulating anything
                 # Only export original resource if generalize excluded properties exist
                 if ("excludedProperties" -in $ResourceConfig.Keys) {
                     # Set excludedproperties variable to generalize instead of default
                     $ExcludedProperties = ''
                     $ExcludedProperties = $ResourceConfig.excludedProperties.generalize
+                    Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "GeneralizeTemplates used: Excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
                     # Export preserved file
                     if ($objectFilePath) {
                         $parametersJson.parameters.input.value = $object
@@ -261,7 +263,7 @@ function ConvertTo-AzOpsState {
             if ('orderObject' -in $ResourceConfig) {
                 $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
             }
-            if ($env:ExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
+            if ($global:AzOpsExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
                 if ($ReturnObject) {
                     # Return resource as object
                     Write-Output -InputObject $object

@@ -403,10 +403,10 @@ class AzOpsScope {
         if ($this.scope -imatch $this.regex_subscriptionExtract) {
 
             $subId = ((($this.scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
-            $sub = $global:AzOpsSubscriptions | Where-Object { $_.Id -eq $subId }
+            $sub = $global:AzOpsSubscriptions | Where-Object { $_.subscriptionId -eq $subId }
             if ($sub) {
                 Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "SubscriptionId found in Azure: $($sub.Id)"
-                return $sub.Id
+                return $sub.subscriptionId
             }
             else {
                 Write-AzOpsLog -Level Warning -Topic "AzOpsScope" -Message "SubscriptionId not found in Azure. Using directory name instead: $($subId)"
@@ -419,10 +419,10 @@ class AzOpsScope {
         if ($this.scope -imatch $this.regex_subscriptionExtract) {
 
             $subId = ((($this.scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
-            $sub = $global:AzOpsSubscriptions | Where-Object { $_.Id -eq $subId }
+            $sub = $global:AzOpsSubscriptions | Where-Object { $_.subscriptionId -eq $subId }
             if ($sub) {
-                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Subscription DisplayName found in Azure: $($sub.Name)"
-                return $sub.Name
+                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Subscription DisplayName found in Azure: $($sub.displayName)"
+                return $sub.displayName
             }
             else {
                 Write-AzOpsLog -Level Warning -Topic "AzOpsScope" -Message "Subscription DisplayName not found in Azure. Using directory name instead: $($subId)"
