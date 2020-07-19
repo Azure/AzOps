@@ -49,8 +49,8 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
             AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
             AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
-            AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" }
-            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" }
+            AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" } # Excluded QuotaIDs as per https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/understand-cost-mgt-data#supported-microsoft-azure-offers
+            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" } # Excluded subscription states as per https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list#subscriptionstate
             AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
             AZOPS_DEFAULT_DEPLOYMENT_REGION    = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
             AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
