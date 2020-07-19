@@ -170,7 +170,7 @@ function ConvertTo-AzOpsState {
         # Load default properties to exclude if defined
         if ("excludedProperties" -in $ResourceConfig.Keys) {
             $ExcludedProperties = $ResourceConfig.excludedProperties.default
-            Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Default excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
+            Write-AzOpsLog -Level Debug -Topic "ConvertTo-AzOpsState" -Message "Default excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
         }
 
         Write-AzOpsLog -Level Debug -Topic "ConvertTo-AzOpsState" -Message "Statepath is $objectFilePath"
@@ -200,7 +200,7 @@ function ConvertTo-AzOpsState {
                     # Set excludedproperties variable to generalize instead of default
                     $ExcludedProperties = ''
                     $ExcludedProperties = $ResourceConfig.excludedProperties.generalize
-                    Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "GeneralizeTemplates used: Excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
+                    Write-AzOpsLog -Level Debug -Topic "ConvertTo-AzOpsState" -Message "GeneralizeTemplates used: Excluded properties: [$(($ExcludedProperties.Keys -join ','))]"
                     # Export preserved file
                     if ($objectFilePath) {
                         $parametersJson.parameters.input.value = $object
