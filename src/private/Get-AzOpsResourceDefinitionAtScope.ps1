@@ -336,7 +336,7 @@ function Get-AzOpsResourceDefinitionAtScope {
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
         }
         else {
-            Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Cannot find [$($PSBoundParameters['Scope'])] in Azure or scope is null - skipping"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Scope [$($PSBoundParameters['Scope'])] not found in Azure or it is excluded"
         }
     }
 

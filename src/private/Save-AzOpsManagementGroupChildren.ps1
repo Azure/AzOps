@@ -81,7 +81,7 @@ function Save-AzOpsManagementGroupChildren {
             }
         }
         else {
-            Write-AzOpsLog -Level Warning -Topic "Save-AzOpsManagementGroupChildren" -Message "Cannot find [$($PSBoundParameters['Scope'])] in Azure - skipping"
+            Write-AzOpsLog -Level Verbose -Topic "Save-AzOpsManagementGroupChildren" -Message "Scope [$($PSBoundParameters['Scope'])] not found in Azure or it is excluded"
         }
     }
 

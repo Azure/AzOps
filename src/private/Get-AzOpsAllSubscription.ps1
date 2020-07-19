@@ -37,19 +37,29 @@ function Get-AzOpsAllSubscription {
 
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription states are: $(($ExcludedStates -join ','))"
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription offers are: $(($ExcludedOffers -join ','))"
-        # Get all subscriptions and exclude states/offers
-        $AllSubscriptions = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100).Value | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers -and $_.tenantId -eq $TenantId }
-        if ($null -eq $AllSubscriptions) {
-            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($AllSubscriptions.count)] subscriptions - do you have permissions to any subscriptions?"
+        # Get all subscriptions in current tenant and and exclude states/offers
+        $AllSubscriptions = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100).Value | Where-Object { $_.tenantId -eq $TenantId }
+        $IncludedSubscriptions = $AllSubscriptions | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
+        # Validate that subscriptions were found
+        if ($null -eq $IncludedSubscriptions) {
+            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct."
         }
         else {
-            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found [$($AllSubscriptions.count)] subscriptions"
+            # Calculate no of excluded subscriptions
+            [int]$ExcludedSubscriptions = ($AllSubscriptions.count - $IncludedSubscriptions.Count)
+            if ($ExcludedSubscriptions -gt 0) {
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptions.count)] subscriptions"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded [$ExcludedSubscriptions] subscriptions due to state or offer"
+            }
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Including [$($IncludedSubscriptions.count)] subscriptions"
+            # Return object with subscriptions
+            return $IncludedSubscriptions
         }
 
     }
     end {
         Write-AzOpsLog -Level Debug -Topic "Get-AzOpsAllSubscription" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
-        return $AllSubscriptions
+
     }
 }
 

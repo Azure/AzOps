@@ -376,7 +376,7 @@ class AzOpsScope {
                 }
                 else {
                     Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
-                    return  $mgId
+                    return $mgId
                 }
             }
         }
@@ -409,7 +409,7 @@ class AzOpsScope {
                 return $sub.subscriptionId
             }
             else {
-                Write-AzOpsLog -Level Warning -Topic "AzOpsScope" -Message "SubscriptionId not found in Azure. Using directory name instead: $($subId)"
+                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "SubscriptionId not found in Azure. Using directory name instead: $($subId)"
                 return $subId
             }
         }
@@ -425,7 +425,7 @@ class AzOpsScope {
                 return $sub.displayName
             }
             else {
-                Write-AzOpsLog -Level Warning -Topic "AzOpsScope" -Message "Subscription DisplayName not found in Azure. Using directory name instead: $($subId)"
+                Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Subscription DisplayName not found in Azure. Using directory name instead: $($subId)"
                 return $subId
             }
         }
