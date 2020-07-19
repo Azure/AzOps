@@ -69,7 +69,7 @@ File -> New -> Landing Zones (i.e. Subscription) process is ARM orchestrating fo
 - Subscription move under the target management structure
 - Configuring Subscription to desired state by policy enfrorcement - autonomously.
 
-For quick start, an [**ARM template**](../examples/e2e-landing-zone.parameters.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
+For quick start, an [**ARM template**](https://ms.portal.azure.com/?feature.customportal=false#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzOps%2Fmain%2Ftemplate%2Fux-foundation.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzOps%2Fmain%2Ftemplate%2Fesux.json) that can be deployed at the tenant ("/") root scope will be provided to instantiate the **Enterprise-Scale architecture**. This template should provide everything that is necessary in [Implementation Guide](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation-guidelines), and will have the following sequence:
 
 - Create (1) Management Group hierarchy and (2) Subscription organization structure in (Platform + N) fashion where N represents number of landing zones.
 - Create Policies (deployIfNotExists) assigned to (2) Management Groups and (3) Subscription scope to govern and deploy necessary resources, enabling platform autonomy as new landing zones (Subscriptions) are being created by application teams
