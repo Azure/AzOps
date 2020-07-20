@@ -68,7 +68,9 @@
                     "ResourceId": "Remove",
                     "ResourceName": "Remove",
                     "ExtensionResourceName": "Remove",
-                    "PolicyAssignmentId": "Remove"
+                    "PolicyAssignmentId": "Remove",
+                    "ResourceGroupName": "Remove",
+                    "SubscriptionId": "Remove"
                 }
             }
         },
