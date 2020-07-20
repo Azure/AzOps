@@ -171,6 +171,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                             $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
                             $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                            $global:AzOpsGeneralizeTemplates = $using:Global:AzOpsGeneralizeTemplates
 
                             $OdataFilter = $using:OdataFilter
                             $backoffMultiplier = $using:backoffMultiplier
@@ -251,6 +252,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                             $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
                             $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                            $global:AzOpsGeneralizeTemplates = $using:Global:AzOpsGeneralizeTemplates
 
                             $SkipPolicy = $using:SkipPolicy
                             $SkipResourceGroup = $using:SkipResourceGroup
