@@ -122,7 +122,11 @@ function Initialize-AzOpsGlobalVariables {
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsSubscriptions"
+<<<<<<< HEAD
             $global:AzOpsSubscriptions = Get-AzOpsAllSubscription -ExcludedOffers $global:AzOpsExcludedSubOffer -ExcludedStates $global:AzOpsExcludedSubState -TenantId $TenantId
+=======
+            $global:AzOpsSubscriptions = Get-AzSubscription -TenantId $TenantID  | Where-Object { $_.State -notin 'Disabled', 'Deleted', 'Warned', 'Expired', 'Past Due' }
+>>>>>>> a2342c6... Subscription exclusion
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
             # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
