@@ -84,7 +84,7 @@
             }
         },
         "managementGroup": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                 },
