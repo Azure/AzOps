@@ -1,3 +1,10 @@
+# The following SuppressMessageAttribute entries are used to surpress
+# PSScriptAnalyzer tests against known exceptions as per:
+# https://github.com/powershell/psscriptanalyzer#suppressing-rules
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsLogTimestampPreference')]
+param ()
+
+# Define Write-AzOpsLog Function
 function Write-AzOpsLog {
 
     [CmdletBinding()]

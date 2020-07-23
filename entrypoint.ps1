@@ -30,7 +30,7 @@ function Initialization {
 
             # Connect azure account
             Connect-AzAccount -TenantId $credentials.tenantId -ServicePrincipal -Credential $credential -SubscriptionId $credentials.subscriptionId -WarningAction SilentlyContinue | Out-Null
-            
+
             # Initialize global variables
             Initialize-AzOpsGlobalVariables
 
