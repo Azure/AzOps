@@ -11,7 +11,7 @@ function Invoke-AzOpsGitPush {
         # Messages
 
         if ($null -ne $diff) {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is inconsistent with Azure"
 
             Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
             $output = @()
@@ -35,7 +35,7 @@ function Invoke-AzOpsGitPush {
             exit 1
         }
         else {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is consistent with Azure"
         }
 
         Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Initializing global variables"
