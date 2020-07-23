@@ -74,17 +74,17 @@ function Invoke-AzOpsGitPush {
             $diff = $diff -join ","
         }
 
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
+        $output = @()
+        $diff.Split(",") | ForEach-Object {
+            $output += ( "``" + $_ + "``")
+            $output += "`n`n"
+            Write-AzOpsLog -Level Information -Topic "git" -Message $_
+        }
+
         if ($null -ne $diff) {
             if ($global:AzOpsStrictMode -eq 1) {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not consistent with Azure"
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
-                $output = @()
-                $diff.Split(",") | ForEach-Object {
-                    $output += ( "``" + $_ + "``")
-                    $output += "`n`n"
-                    Write-AzOpsLog -Level Information -Topic "git" -Message $_
-                }
-
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                 Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                 $params = @{
@@ -99,15 +99,8 @@ function Invoke-AzOpsGitPush {
                 exit 1
             }
             if ($global:AzOpsStrictMode -eq 0) {
-                Write-AzOpsLog -Level Warning -Topic "git" -Message "Skipping strict mode"
+                Write-AzOpsLog -Level Warning -Topic "git" -Message "Default Mode"
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
-                $output = @()
-                $diff.Split(",") | ForEach-Object {
-                    $output += ( "``" + $_ + "``")
-                    $output += "`n`n"
-                    Write-AzOpsLog -Level Information -Topic "git" -Message $_
-                }
-
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                 Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                 $params = @{
