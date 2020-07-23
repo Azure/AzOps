@@ -64,7 +64,7 @@ function Initialize-AzOpsGlobalVariables {
             GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
             GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
             GITHUB_TOKEN                       = @{ GitHubToken = $null }
-            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 0 }
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 }
             GITHUB_BRANCH                      = @{ GitHubBranch = $null }
             GITHUB_COMMENTS                    = @{ GitHubComments = $null }
             GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
