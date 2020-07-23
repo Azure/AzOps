@@ -34,7 +34,6 @@ function Write-AzOpsLog {
     process {
         # Generate log message from messagePrefix
         $log = ($messagePrefix + $message)
-
         switch ($level) {
             "Information" {
                 Write-Information -MessageData $log -InformationAction Continue
@@ -54,9 +53,6 @@ function Write-AzOpsLog {
         }
     }
 
-    end { }
-
-} }
     end { }
 
 }
