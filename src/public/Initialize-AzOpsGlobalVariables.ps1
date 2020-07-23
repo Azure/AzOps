@@ -58,7 +58,7 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
             AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
-            AZOPS_LOG_TIMESPACE                = @{ AzOpsLogTimestampPreference = $true }
+            AZOPS_LOG_TIMESTAMP                = @{ AzOpsLogTimestamp = $true }
             GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
             GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
             GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }

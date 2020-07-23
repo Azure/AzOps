@@ -22,7 +22,7 @@ function Write-AzOpsLog {
         # Will apply the same values to all messages sent via pipeline
         # Uses AzOpsLogTimestampPreference variable to set defaults
         $messagePrefix = ""
-        if ($Timestamp -or $global:AzOpsLogTimestampPreference) {
+        if ($Timestamp -or $global:AzOpsLogTimestamp) {
             $logTimeUtc = (Get-Date).ToUniversalTime().ToString("HH:mm:ss.ffff")
             $messagePrefix = ($messagePrefix + "[$logTimeUtc] ")
         }
