@@ -169,7 +169,6 @@ function Invoke-AzOpsGitPush {
         }
 
         # Deployment
-
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
         | Sort-Object -Property $_ `
