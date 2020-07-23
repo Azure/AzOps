@@ -18,68 +18,65 @@ function Invoke-AzOpsGitPush {
             $skipPolicy = $false
         }
 
-        if ($global:AzOpsStrictMode -eq "1") {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Invoking pre refresh strict process"
-            
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
+        Start-AzOpsNativeExecution {
+            git fetch origin
+        } | Out-Host
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out origin branch (main)"
+        Start-AzOpsNativeExecution {
+            git checkout origin/main
+        } | Out-Host
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch (main) changes"
+        Start-AzOpsNativeExecution {
+            git pull origin main
+        } | Out-Host
+
+        Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
+        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
+        Start-AzOpsNativeExecution {
+            git add --intent-to-add $global:AzOpsState
+        } | Out-Host
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
+        $diff = Start-AzOpsNativeExecution {
+            git diff --ignore-space-at-eol --name-only
+        }
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local main branch"
+        Start-AzOpsNativeExecution {
+            git reset --hard
+        } | Out-Host
+
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($global:GitHubHeadRef) exists"
+        $branch = Start-AzOpsNativeExecution {
+            git branch --list $global:GitHubHeadRef
+        }
+
+        if ($branch) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
             Start-AzOpsNativeExecution {
-                git fetch origin
+                git checkout $global:GitHubHeadRef
             } | Out-Host
-
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out origin branch (main)"
+        }
+        else {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($global:GitHubHeadRef)"
             Start-AzOpsNativeExecution {
-                git checkout origin/main
+                git checkout -b $global:GitHubHeadRef origin/$global:GitHubHeadRef
             } | Out-Host
+        }
 
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch (main) changes"
-            Start-AzOpsNativeExecution {
-                git pull origin main
-            } | Out-Host
+        if ($diff) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Formatting diff changes"
+            $diff = $Diff -join ","
+        }
 
-            Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
-            Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
-
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
-            Start-AzOpsNativeExecution {
-                git add --intent-to-add $global:AzOpsState
-            } | Out-Host
-
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
-            $diff = Start-AzOpsNativeExecution {
-                git diff --ignore-space-at-eol --name-only
-            }
-
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local main branch"
-            Start-AzOpsNativeExecution {
-                git reset --hard
-            } | Out-Host
-
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($global:GitHubHeadRef) exists"
-            $branch = Start-AzOpsNativeExecution {
-                git branch --list $global:GitHubHeadRef
-            }
-
-            if ($branch) {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
-                Start-AzOpsNativeExecution {
-                    git checkout $global:GitHubHeadRef
-                } | Out-Host
-            }
-            else {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($global:GitHubHeadRef)"
-                Start-AzOpsNativeExecution {
-                    git checkout -b $global:GitHubHeadRef origin/$global:GitHubHeadRef
-                } | Out-Host
-            }
-
-            if ($diff) {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Formatting diff changes"
-                $diff = $Diff -join ","
-            }
-
-            if ($null -ne $diff) {
+        if ($null -ne $diff) {
+            if ($global:AzOpsStrictMode -eq "1") {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
-    
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
                 $output = @()
                 $diff.Split(",") | ForEach-Object {
@@ -87,7 +84,7 @@ function Invoke-AzOpsGitPush {
                     $output += "`n"
                     Write-AzOpsLog -Level Information -Topic "git" -Message $_
                 }
-    
+
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                 Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                 $params = @{
@@ -101,11 +98,15 @@ function Invoke-AzOpsGitPush {
                 Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
                 exit 1
             }
-            else {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
+            if ($global:AzOpsStrictMode -eq "0") {
+                Write-AzOpsLog -Level Warning -Topc "git" -Message "Branch is out of sync with Azure"
             }
-    
         }
+        else {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
+        }
+
+        
         
         Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Initializing global variables"
         Initialize-AzOpsGlobalVariables
