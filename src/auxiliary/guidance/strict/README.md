@@ -1,8 +1,8 @@
 ## AzOps
 
-Main branch in Git does not contain the latest configuration in Azure.
+The 'main' branch in the repository does not contain the latest configuration of Azure.
 
-It is strongly recommended to ensure feature and main branches contain current Azure configuration.
+It is strongly recommended to ensure that 'feature' and 'main' branches contain the current Azure configuration.
 
 ### Remediation
 
@@ -12,7 +12,7 @@ Upon successful completion, the action will create a new `system` branch and a n
 
 - Merge the new pull request from `system` branch into `main` branch
 
-- Update the feature branch from `main` branch - `git pull origin/main`
+- Merge the feature branch from `main` branch - `git pull origin/main`
 
 - Push the feature branch to origin - `git push`
 
