@@ -103,7 +103,7 @@ function Invoke-AzOpsGitPush {
             }
         }
         else {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is in sync with Azure"
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is consistent with Azure"
         }
     }
 
