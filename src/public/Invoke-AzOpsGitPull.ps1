@@ -42,7 +42,7 @@ function Invoke-AzOpsGitPull {
             } | Out-Host
         }
 
-        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsRepository" -Message "Invoking repository initialization"
+        Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
