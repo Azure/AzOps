@@ -31,7 +31,7 @@ function Invoke-AzOpsGitPush {
             git pull origin main
         } | Out-Host
 
-        Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
+        Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
@@ -69,7 +69,7 @@ function Invoke-AzOpsGitPush {
 
         if ($diff) {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Formatting diff changes"
-            $diff = $Diff -join ","
+            $diff = $diff -join ","
         }
 
         if ($null -ne $diff) {
@@ -209,7 +209,7 @@ function Invoke-AzOpsGitPush {
             git merge origin/$global:GitHubHeadRef --no-commit
         } | Out-Host
 
-        Write-AzOpsLog -Level Information -Topic "Get-AzOpsGitPushRefresh" -Message "Invoking repository initialization"
+        Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
