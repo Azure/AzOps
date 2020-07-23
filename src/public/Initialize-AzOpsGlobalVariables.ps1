@@ -57,10 +57,8 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
             AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
             AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
-            AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = "0" }
+            AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_LOG_TIMESPACE                = @{ AzOpsLogTimestampPreference = $true }
-            AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 0 }
-            AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
             GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
             GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
             GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
