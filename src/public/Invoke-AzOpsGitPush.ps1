@@ -7,12 +7,14 @@ function Invoke-AzOpsGitPush {
     begin {
         if ($global:AzOpsSkipResourceGroup -eq "1") {
             $skipResourceGroup = $true
-        } else {
+        }
+        else {
             $skipResourceGroup = $false
         }
         if ($global:AzOpsSkipPolicy -eq "1") {
             $skipPolicy = $true
-        } else {
+        }
+        else {
             $skipPolicy = $false
         }
 
@@ -73,10 +75,8 @@ function Invoke-AzOpsGitPush {
         }
 
         if ($null -ne $diff) {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not in sync with Azure"
-
             if ($global:AzOpsStrictMode -eq 1) {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not consistent with Azure"
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
                 $output = @()
                 $diff.Split(",") | ForEach-Object {
@@ -89,10 +89,10 @@ function Invoke-AzOpsGitPush {
                 Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                 $params = @{
                     Headers = @{
-                        "Authorization" = ("Bearer " + $global:GitHubToken )
+                        "Authorization" = ("Bearer " + $global:GitHubToken)
                     }
                     Body    = (@{
-                            "body" = "$(Get-Content -Path "$PSScriptRoot/../Comments.md" -Raw) `n Changes: `n`n$output"
+                            "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/strict/README.md" -Raw) `n Changes: `n`n$output"
                         } | ConvertTo-Json)
                 }
                 Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
@@ -100,6 +100,25 @@ function Invoke-AzOpsGitPush {
             }
             if ($global:AzOpsStrictMode -eq 0) {
                 Write-AzOpsLog -Level Warning -Topic "git" -Message "Skipping strict mode"
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
+                $output = @()
+                $diff.Split(",") | ForEach-Object {
+                    $output += ( "``" + $_ + "``")
+                    $output += "`n"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message $_
+                }
+
+                Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
+                Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
+                $params = @{
+                    Headers = @{
+                        "Authorization" = ("Bearer " + $global:GitHubToken)
+                    }
+                    Body    = (@{
+                            "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/strict/README.md" -Raw) `n Changes: `n`n$output"
+                        } | ConvertTo-Json)
+                }
+                Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
             }
         }
         else {
