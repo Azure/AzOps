@@ -6,7 +6,7 @@
     Key / Values in the AzOpsEnvVariables hashtable will be set as environment variables and global variables.
     All Management Groups and Subscription that the user/service principal have access to will be discovered and added to their respective variables.
 .EXAMPLE
-    Initialize-AzOpsGlobalVariables -Verbose
+    Initialize-AzOpsGlobalVariables
 .INPUTS
     None
 .OUTPUTS
@@ -16,9 +16,6 @@
 
 function Initialize-AzOpsGlobalVariables {
 
-    # The following SuppressMessageAttribute entries are used to surpress
-    # PSScriptAnalyzer tests against known exceptions as per:
-    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsInvalidateCache')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
@@ -57,9 +54,21 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_GENERALIZE_TEMPLATES         = @{ AzOpsGeneralizeTemplates = 0 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             AZOPS_EXPORT_RAW_TEMPLATES         = @{ AzOpsExportRawTemplate = 0 }
             AZOPS_IGNORE_CONTEXT_CHECK         = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
-            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery
             AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
             AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
+            AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
+            AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
+            AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
+            GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
+            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
+            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
+            GITHUB_TOKEN                       = @{ GitHubToken = $null }
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 }
+            GITHUB_BRANCH                      = @{ GitHubBranch = $null }
+            GITHUB_COMMENTS                    = @{ GitHubComments = $null }
+            GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
+            GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -171,4 +180,3 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 }
-

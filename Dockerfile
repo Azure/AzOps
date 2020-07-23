@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/powershell:latest
 LABEL repository="https://github.com/Azure/AzOps"
 LABEL maintainer="Microsoft"
 
-ARG github=0.10.0
+ARG github=0.11.0
 ARG azure_accounts=1.9.1
 ARG azure_resources=2.3.0
 

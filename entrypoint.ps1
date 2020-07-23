@@ -18,10 +18,7 @@ function Logging {
 }
 
 function Initialization {
-
-    # The following SuppressMessageAttribute entries are used to surpress
-    # PSScriptAnalyzer tests against known exceptions as per:
-    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
+    
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
     param ()
 
@@ -33,6 +30,7 @@ function Initialization {
 
             # Connect azure account
             Connect-AzAccount -TenantId $credentials.tenantId -ServicePrincipal -Credential $credential -SubscriptionId $credentials.subscriptionId -WarningAction SilentlyContinue | Out-Null
+
             # Configure git
             Start-AzOpsNativeExecution {
                 git config --global user.email $env:GITHUB_EMAIL
@@ -48,6 +46,8 @@ function Initialization {
             Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_IGNORE_CONTEXT_CHECK is $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
             Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_THROTTLE_LIMIT is $($env:AZOPS_THROTTLE_LIMIT)"
 
+            # Initialize global variables
+            Initialize-AzOpsGlobalVariables
         }
         catch {
             Write-AzOpsLog -Level Error -Topic "entrypoint" -Message $PSItem.Exception.Message
@@ -59,12 +59,9 @@ function Initialization {
         try {
             switch ($env:INPUT_MODE) {
                 "Push" {
-                    # Invoke push operation
                     Invoke-AzOpsGitPush
                 }
-
                 "Pull" {
-                    # Invoke pull operation
                     Invoke-AzOpsGitPull
                 }
             }
