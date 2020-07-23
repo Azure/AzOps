@@ -74,15 +74,15 @@ function Invoke-AzOpsGitPush {
             $diff = $diff -join ","
         }
 
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
-        $output = @()
-        $diff.Split(",") | ForEach-Object {
-            $output += ( "``" + $_ + "``")
-            $output += "`n`n"
-            Write-AzOpsLog -Level Information -Topic "git" -Message $_
-        }
-
         if ($null -ne $diff) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
+            $output = @()
+            $diff.Split(",") | ForEach-Object {
+                $output += ( "``" + $_ + "``")
+                $output += "`n`n"
+                Write-AzOpsLog -Level Information -Topic "git" -Message $_
+            }
+
             if ($global:AzOpsStrictMode -eq 1) {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not consistent with Azure"
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
