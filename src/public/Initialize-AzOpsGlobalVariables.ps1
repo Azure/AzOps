@@ -60,6 +60,7 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
             AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
+            AZOPS_LOG_TIMESTAMP                = @{ AzOpsLogTimestamp = $true }
             GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
             GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
             GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
