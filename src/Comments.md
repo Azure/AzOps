@@ -1,10 +1,12 @@
 ## AzOps
 
-_The repository does not contain the latest Azure Resource Manager state, remediation is required before merging of the Pull Request can complete._
+Main branch in Git does not contain the latest configuration in Azure.
 
-### Remediation:
+It is strongly recommended to ensure feature and main branches contain current Azure configuration.
 
-[Re-initialization](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) of the repository is required to pull the latest changes from Azure by manually invoking the GitHub Action.
+### Remediation
+
+[Re-initialization](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) of the repository to pull the latest changes from Azure by manually invoking the GitHub Action.
 
 Upon successful completion, the action will create a new `system` branch and a new `Azure Change Notification` pull request containing the latest configuration.
 
@@ -14,7 +16,7 @@ Upon successful completion, the action will create a new `system` branch and a n
 
 - Push the feature branch to origin - `git push`
 
-### Steps (Initialize):
+### Steps (Initialize)
 
 To get started, select one of the following options, either `github-cli`, `bash` or `powershell` and enter the following commands in and replace the placeholders (<...>) with your values.
 
