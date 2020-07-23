@@ -40,7 +40,7 @@ curl -u "<Username>:<Token>" -H "Content-Type: application/json" --url "https://
 $params = @{
     Method  = "Post"
     Uri     = ("https://api.github.com/repos/" + "<Organisation>/<Repository>" + "/dispatches")
-    Headers = @{
+    Headers = @{g
         "Content-Type"  = "application/json"
         "Authorization" = "Basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "<Username>", "<Token>"))))"
     }

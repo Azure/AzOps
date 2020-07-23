@@ -43,7 +43,7 @@ function Invoke-AzOpsGitPush {
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
         $diff = Start-AzOpsNativeExecution {
-            git diff --ignore-space-at-eol --name-only
+            git diff --ignore-space-at-eol --name-status
         }
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Resetting local main branch"
@@ -81,7 +81,7 @@ function Invoke-AzOpsGitPush {
                 $output = @()
                 $diff.Split(",") | ForEach-Object {
                     $output += ( "``" + $_ + "``")
-                    $output += "`n"
+                    $output += "`n`n"
                     Write-AzOpsLog -Level Information -Topic "git" -Message $_
                 }
 
@@ -104,7 +104,7 @@ function Invoke-AzOpsGitPush {
                 $output = @()
                 $diff.Split(",") | ForEach-Object {
                     $output += ( "``" + $_ + "``")
-                    $output += "`n"
+                    $output += "`n`n"
                     Write-AzOpsLog -Level Information -Topic "git" -Message $_
                 }
 
