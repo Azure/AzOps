@@ -7,12 +7,14 @@ function Invoke-AzOpsGitPull {
     begin {
         if ($global:AzOpsSkipResourceGroup -eq "1") {
             $skipResourceGroup = $true
-        } else {
+        }
+        else {
             $skipResourceGroup = $false
         }
         if ($global:AzOpsSkipPolicy -eq "1") {
             $skipPolicy = $true
-        } else {
+        }
+        else {
             $skipPolicy = $false
         }
     }
@@ -81,7 +83,7 @@ function Invoke-AzOpsGitPull {
             }
             $response = Invoke-RestMethod -Method "Get" @params | Where-Object -FilterScript { $_.name -like "system" }
 
-            if (!$response) {
+            if (-not $response) {
                 # GitHub Labels - Create
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Creating new label (system)"
                 # TODO: Replace REST call when GH CLI paging support is available
@@ -111,7 +113,7 @@ function Invoke-AzOpsGitPull {
             $response = Invoke-RestMethod -Method "Get" @params
 
             # GitHub Pull Request - Create
-            if (!$response) {
+            if (-not $response) {
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
                 Start-AzOpsNativeExecution {
                     gh pr create --title $global:GitHubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $global:GitHubRepository
@@ -133,14 +135,26 @@ function Invoke-AzOpsGitPull {
                 $response = Invoke-RestMethod -Method "Get" @params
                 
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
-                Start-AzOpsNativeExecution {
-                    gh pr merge $response[0].number --squash --delete-branch
-                } | Out-Host
+                try {
+                    Start-AzOpsNativeExecution {
+                        gh pr merge $response[0].number --squash --delete-branch
+                    } | Out-Host
+                }
+                catch {
+                    $params = @{
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $global:GitHubToken)
+                        }
+                        Body    = (@{
+                                "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/merge/README.md" -Raw)"
+                            } | ConvertTo-Json)
+                    }
+                    Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
+                }
             }
             else {
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
             }
-
         }
     }
 
