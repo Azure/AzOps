@@ -73,6 +73,8 @@ function Invoke-AzOpsGitPush {
         }
 
         if ($null -ne $diff) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not in sync with Azure"
+
             if ($global:AzOpsStrictMode -eq 1) {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
@@ -97,7 +99,8 @@ function Invoke-AzOpsGitPush {
                 exit 1
             }
             if ($global:AzOpsStrictMode -eq 0) {
-                Write-AzOpsLog -Level Warning -Topc "git" -Message "Branch is out of sync with Azure"
+                Write-AzOpsLog -Level Warning -Topc "git" -Message "Skipping strict mode"
+                Write-Host "This is a test...."
             }
         }
         else {
