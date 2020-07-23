@@ -53,20 +53,20 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             AZOPS_GENERALIZE_TEMPLATES         = @{ AzOpsGeneralizeTemplates = 0 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             AZOPS_EXPORT_RAW_TEMPLATES         = @{ AzOpsExportRawTemplate = 0 }
-            AZOPS_IGNORECONTEXTCHECK           = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
-            AZOPS_THROTTLELIMIT                = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AZOPS_IGNORE_CONTEXT_CHECK         = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
+            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
             AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
             AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
-            AZOPS_STRICTMODE                   = @{ AzOpsStrictMode = $null }
-            GITHUB_APIURL                      = @{ GitHubApiUrl = $null }
-            GITHUB_PULLREQUEST                 = @{ GitHubPullRequest = $null }
+            AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = "0" }
+            GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
+            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
             GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
             GITHUB_TOKEN                       = @{ GitHubToken = $null }
-            GITHUB_AUTOMERGE                   = @{ GitHubAutoMerge = $null }
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = "0" }
             GITHUB_BRANCH                      = @{ GitHubBranch = $null }
             GITHUB_COMMENTS                    = @{ GitHubComments = $null }
-            GITHUB_HEADREF                     = @{ GitHubHeadRef = $null }
-            GITHUB_BASEREF                     = @{ GitHubBaseRef = $null }
+            GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
+            GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
