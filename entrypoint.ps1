@@ -31,9 +31,6 @@ function Initialization {
             # Connect azure account
             Connect-AzAccount -TenantId $credentials.tenantId -ServicePrincipal -Credential $credential -SubscriptionId $credentials.subscriptionId -WarningAction SilentlyContinue | Out-Null
 
-            # Initialize global variables
-            Initialize-AzOpsGlobalVariables
-
             # Configure git
             Start-AzOpsNativeExecution {
                 git config --global user.email $env:GITHUB_EMAIL
@@ -48,6 +45,9 @@ function Initialization {
             Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_INVALIDATE_CACHE is $($env:AZOPS_INVALIDATE_CACHE)"
             Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_IGNORE_CONTEXT_CHECK is $($env:AZOPS_IGNORE_CONTEXT_CHECK)"
             Write-AzOpsLog -Level Information -Topic "entrypoint" -Message "AZOPS_THROTTLE_LIMIT is $($env:AZOPS_THROTTLE_LIMIT)"
+
+            # Initialize global variables
+            Initialize-AzOpsGlobalVariables
         }
         catch {
             Write-AzOpsLog -Level Error -Topic "entrypoint" -Message $PSItem.Exception.Message
