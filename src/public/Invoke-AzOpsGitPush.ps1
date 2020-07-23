@@ -99,8 +99,7 @@ function Invoke-AzOpsGitPush {
                 exit 1
             }
             if ($global:AzOpsStrictMode -eq 0) {
-                Write-AzOpsLog -Level Warning -Topc "git" -Message "Skipping strict mode"
-                Write-Host "This is a test...."
+                Write-AzOpsLog -Level Warning -Topic "git" -Message "Skipping strict mode"
             }
         }
         else {
