@@ -115,7 +115,7 @@ function Invoke-AzOpsGitPush {
                         "Authorization" = ("Bearer " + $global:GitHubToken)
                     }
                     Body    = (@{
-                            "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/strict/README.md" -Raw) `n Changes: `n`n$output"
+                            "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/default/README.md" -Raw) `n Changes: `n`n$output"
                         } | ConvertTo-Json)
                 }
                 Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
