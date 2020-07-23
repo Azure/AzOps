@@ -5,16 +5,14 @@ function Invoke-AzOpsGitPull {
     param ()
 
     begin {
-        if ($global:AzOpsSkipResourceGroup -eq "1") {
+        if ($env:AZOPS_SKIP_RESOURCE_GROUP -eq "1") {
             $skipResourceGroup = $true
-        }
-        else {
+        } else {
             $skipResourceGroup = $false
         }
-        if ($global:AzOpsSkipPolicy -eq "1") {
+        if ($env:AZOPS_SKIP_POLICY -eq "1") {
             $skipPolicy = $true
-        }
-        else {
+        } else {
             $skipPolicy = $false
         }
     }
