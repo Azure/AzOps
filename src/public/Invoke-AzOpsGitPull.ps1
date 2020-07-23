@@ -133,11 +133,11 @@ function Invoke-AzOpsGitPull {
                     }
                 }
                 $response = Invoke-RestMethod -Method "Get" @params
-                
+
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
                 try {
                     Start-AzOpsNativeExecution {
-                        gh pr merge $response[0].number --squash --delete-branch
+                        gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
                     } | Out-Host
                 }
                 catch {
