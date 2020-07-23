@@ -122,7 +122,7 @@ function Invoke-AzOpsGitPull {
             }
 
             # GitHub Pull Request - Merge
-            if ($global:GitHubAutoMerge -eq "1") {
+            if ($global:GitHubAutoMerge -eq 1) {
                 Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
                 $params = @{
                     Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + ("/pulls?state=open&head=") + $global:GitHubRepository + ":system")

@@ -73,7 +73,7 @@ function Invoke-AzOpsGitPush {
         }
 
         if ($null -ne $diff) {
-            if ($global:AzOpsStrictMode -eq "1") {
+            if ($global:AzOpsStrictMode -eq 1) {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is out of sync with Azure"
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
                 $output = @()
@@ -96,7 +96,7 @@ function Invoke-AzOpsGitPush {
                 Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
                 exit 1
             }
-            if ($global:AzOpsStrictMode -eq "0") {
+            if ($global:AzOpsStrictMode -eq 0) {
                 Write-AzOpsLog -Level Warning -Topc "git" -Message "Branch is out of sync with Azure"
             }
         }
