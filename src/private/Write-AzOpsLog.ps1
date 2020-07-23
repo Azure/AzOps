@@ -4,6 +4,9 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsLogTimestampPreference')]
 param ()
 
+# Set default global preference variables
+[bool]$global:AzOpsLogTimestamp = $true
+
 # Define Write-AzOpsLog Function
 function Write-AzOpsLog {
 
