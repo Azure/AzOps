@@ -9,5 +9,5 @@ runs:
   using: "docker"
   image: "docker://mscet/azops:main"
 branding:
-  icon: 'sunrise'
-  color: 'green'
+  icon: "sunrise"
+  color: "green"
