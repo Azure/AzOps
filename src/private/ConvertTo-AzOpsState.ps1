@@ -7,12 +7,12 @@
     $global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
 .EXAMPLE
     # Export custom policy definition to the AzOps StatePath
-    Initialize-AzOpsGlobalVariables
+    Initialize-AzOpsGlobalVariables -Verbose
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy
 .EXAMPLE
     # Serialize custom policy definition to the AzOps format, return object instead of export file
-    Initialize-AzOpsGlobalVariables
+    Initialize-AzOpsGlobalVariables -Verbose
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy -ReturnObject
     Name                           Value
@@ -185,12 +185,6 @@ function ConvertTo-AzOpsState {
                 Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "AzOpsState file not found. Creating new: $objectFilePath"
                 New-Item -Path $objectFilePath -ItemType "file" -Force | Out-Null
             }
-            # Convert resource object to json and export to the object filepath
-            # Check if object has to be ordered
-            if ("orderObject" -in $ResourceConfig -and ($true -eq $ResourceConfig.orderObject)) {
-                Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Creating ordered object"
-                $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
-            }
 
             # Check if Resource has to be generalized
             if ($global:AzOpsGeneralizeTemplates -eq 1) {
@@ -260,9 +254,11 @@ function ConvertTo-AzOpsState {
 
             # Export resource
             Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Exporting AzOpsState to $objectFilePath"
-            if ('orderObject' -in $ResourceConfig) {
+            if ('orderObject' -in $ResourceConfig.Keys -and ($true -eq $ResourceConfig.orderObject)) {
+                Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Ordering object"
                 $object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
             }
+
             if ($global:AzOpsExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
                 if ($ReturnObject) {
                     # Return resource as object
