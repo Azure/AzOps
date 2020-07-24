@@ -40,7 +40,8 @@
                     "ResourceId": "Remove",
                     "ResourceName": "Remove",
                     "ExtensionResourceName": "Remove",
-                    "PolicySetDefinitionId": "Remove"
+                    "PolicySetDefinitionId": "Remove",
+                    "SubscriptionId": "Remove"
                 }
             }
         },
@@ -75,7 +76,7 @@
             }
         },
         "subscription": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                 },
