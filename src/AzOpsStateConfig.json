@@ -23,7 +23,7 @@
             }
         },
         "policySetDefinition": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "Properties": {
@@ -45,7 +45,7 @@
             }
         },
         "policyAssignment": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "Properties": {
@@ -93,7 +93,7 @@
             }
         },
         "tenant": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },
@@ -102,7 +102,7 @@
             }
         },
         "resourceGroup": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "TagsTable": "Remove"
@@ -112,7 +112,7 @@
             }
         },
         "resource": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "TagsTable": "Remove"
@@ -122,7 +122,7 @@
             }
         },
         "roleDefinition": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },
@@ -131,7 +131,7 @@
             }
         },
         "roleAssignment": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },
