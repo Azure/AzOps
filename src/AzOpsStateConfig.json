@@ -112,7 +112,7 @@
             }
         },
         "resource": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                     "TagsTable": "Remove"
