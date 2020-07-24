@@ -7,12 +7,12 @@
     $global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
 .EXAMPLE
     # Export custom policy definition to the AzOps StatePath
-    Initialize-AzOpsGlobalVariables -Verbose
+    Initialize-AzOpsGlobalVariables
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy
 .EXAMPLE
     # Serialize custom policy definition to the AzOps format, return object instead of export file
-    Initialize-AzOpsGlobalVariables -Verbose
+    Initialize-AzOpsGlobalVariables
     $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
     ConvertTo-AzOpsState -Resource $policy -ReturnObject
     Name                           Value
