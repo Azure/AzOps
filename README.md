@@ -11,9 +11,9 @@ This repository is home to the GitHub Action: AzOps.
 
 ## Design Objectives
 
-This GitHub Action is rooted in the principle that **Everything in Azure is a resource** and to operate at-scale, it should be managed declaratively to **determine target goal state** of the overall platform.
+The AzOps GitHub Action is rooted in the principle that **Everything in Azure is a resource** and to operate at-scale, it should be managed declaratively to **determine target goal state** of the overall platform.
 
-In that spirit, this reference implementation has following three tenets:
+In that spirit, the AzOps implementation has following three tenets:
 
 ![](./docs/media/implementation-scope.png)
 
