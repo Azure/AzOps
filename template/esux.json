@@ -8,7 +8,7 @@
         "steps": [
             {
                 "name": "lzSettings",
-                "label": "Enterprise Scale Company Prefix",
+                "label": "Enterprise-Scale Company prefix",
                 "subLabel": {
                     "preValidation": "Provide a company prefix for the management group structure that will be created.",
                     "postValidation": "Done"
@@ -36,37 +36,25 @@
                             "regex": "^[a-z0-9A-Z-]{1,5}$",
                             "validationMessage": "The prefix must be 1-5 characters."
                         }
-                    },
-					{
-                        "name": "esMgmtSub",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Enable management subscription",
-                        "toolTip": "Provide the subscription id of an existing, empty subscription you want to dedicate for management, which will be moved into the management group for platform management. If you don't want to bring a subscription at this time, leave this parameter empty as is.",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[a-z0-9A-Z-]{36}$",
-                            "validationMessage": "A valid subscription id must contain 36 characters. If you don't want to bring a subscription at this point, leave the parameter completely empty."
-                        }
-                    }
+                    }   
                 ]
             },
             {
                 "name": "esSetup",
                 "label": "Select Enterprise-Scale setup",
                 "subLabel": {
-                    "preValidation": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivity to on-premises, select either VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
+                    "preValidation": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivy to on-premises, select eith VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
                     "postValidation": "Done"
                 },
                 "bladeTitle": "lzSetup",
-                "elements": [
+                "elements": [                                        
                     {
                         "name": "infoBox1",
                         "type": "Microsoft.Common.InfoBox",
                         "visible": true,
                         "options": {
                             "icon": "Info",
-                            "text": "Enterprise-Scale design principles and implementation can be adopted by all customers no matter what size and history of the Azure estate. The customer reference implementations below is targeting the most common customer scenarios for a Enterprise-Scale adoption.",
+                            "text": "Enterprise-Scale degin principles and implemantation can be adopted by all customer no matter what size and history of thier Azure estate. The customer reference implementations below is targeting the most common customer scenarios for a Enterprise-Scale adoption.",
                             "uri": "https://github.com/Azure/Enterprise-Scale/tree/main/docs/reference"
                         }
                     },
@@ -75,9 +63,13 @@
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Select the initial Enterprise-Scale setup",
                         "defaultValue": "Foundation",
-                        "toolTip": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivity to on-premises, select either VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
+                        "toolTip": "Select the type of initial deployment. Foundation will always be included and ideal for net new deployment/development in Azure without hybrid connectivity requirements. If hybrid connectivity is required for migration scenarios and/or connectivy to on-premises, select eith VWan (Microsoft managed network) or HubSpoke (customer managed network) to deploy the requisite networking setup.",
                         "constraints": {
                             "allowedValues": [
+                                {
+									"label": "Foundation",
+									"value": "Foundation"
+								},
                                 {
                                     "label": "HubSpoke",
                                     "value": "HubSpoke"
@@ -85,11 +77,7 @@
                                 {
                                     "label": "VWAN",
                                     "value": "VWAN"
-                                },
-								{
-									"label": "Foundation",
-									"value": "Foundation"
-								}
+                                }
                             ]
                         },
                         "visible": true
@@ -98,33 +86,45 @@
             },
             {
                 "name": "esGoalState",
-                "label": "Enable Resource Deployments",
+                "label": "Platform management, security, and governance",
                 "subLabel": {
                     "preValidation": "Select 'Yes' if goal state should be enforced during deployment. Select 'No' if you want to do it post deployment using Azure Policy.",
                     "postValidation": "Done"
                 },
                 "bladeTitle": "lzGs",
-                "elements": [
+                "elements": [       
                     {
                         "name": "infoBox1",
                         "type": "Microsoft.Common.InfoBox",
                         "visible": true,
                         "options": {
                             "icon": "Info",
-                            "text": "If 'Yes' is selected when also adding a subscription for management, ARM will assign two policies that will 1) deploy a Log Analytics workspace and an Automation Account to your management subscription, and 2) enable diagnostics of Activity Logs to be sent to the Log Analytics workspace. If 'No', it will be ignored.",
-                            "uri": "https://docs.microsoft.com/azure/role-based-access-control/elevate-access-global-admin"
+                            "text": "If you provide a subscriptionId for management, you can also select the desired resource deployments to ensure monitoring, security, and auditing is enabled for you Enterprise-Scale architecture during the setup",
+                            "uri": "https://github.com/Azure/Enterprise-Scale/blob/main/docs/reference/Readme.md"
                         }
                     },
+					{
+                        "name": "esMgmtSub",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Management subscription id",
+                        "toolTip": "Provide the subscription id of an existing, empty subscription that you want to dedicate for management, which will be moved into the management group for platform management. If you don't want to bring a subscription at this time, leave this parameter empty as is.",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[a-z0-9A-Z-]{36}$",
+                            "validationMessage": "A valid subscription id must contain 36 characters. If you don't want to bring a subscription at this point, leave the parameter completely empty."
+                        }
+                    },                                 
                     {
-                        "name": "management",
+                        "name": "esLogAnalytics",
                         "type": "Microsoft.Common.OptionsGroup",
-                        "label": "Enable Resource Deployments",
+                        "label": "Deploy Log Analytics workspace and enable monitoring for your platform and resources",
                         "defaultValue": "No",
-                        "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will assign two policies and do subsequent resource deployments.",
+                        "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continious compliance.",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
+                                    "label": "Yes (recommended)",
                                     "value": "Yes"
                                 },
                                 {
@@ -134,15 +134,224 @@
                             ]
                         },
                         "visible": true
+                    },
+					{
+                        "name": "esAsc",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Deploy Azure Security Center and enable security monitoring for your platform and resources",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continous compliance",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes, Standard Tier (recommended)",
+                                    "value": "Standard"
+                                },
+                                {
+                                    "label": "Yes, Free Tier",
+                                    "value": "Free"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
                     }
                 ]
-            }
+            },            
+            {
+                "name": "lzGoalState",
+                "label": "Landing zone configuration",
+                "subLabel": {
+                    "preValidation": "Select 'Yes' if goal state should be enforced during deployment. Select 'No' if you want to do it post deployment using Azure Policy.",
+                    "postValidation": "Done"
+                },
+                "bladeTitle": "lzGs",
+                "elements": [       
+                    {
+                        "name": "infoBox1",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "You can optionally provide a subscriptionId for your first landing zone, and also assign recommended policies that will ensure workloads will be secure, monitored, and protected according to best practices.",
+                            "uri": "https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/ES-schema.md"
+                        }
+                    },
+					{
+                        "name": "esLzSub",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Landing zone subscription id",
+                        "toolTip": "Provide the subscription id of an existing, empty subscription that you want to use as landing zone for your workload deployments.",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[a-z0-9A-Z-]{36}$",
+                            "validationMessage": "A valid subscription id must contain 36 characters. If you don't want to bring a subscription at this point, leave the parameter completely empty."
+                        }
+                    },                                 
+                    {
+                        "name": "esAzBackup",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Ensure VMs are enabled for backup",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned and enable Azure Backup on all VMs in the landing zones.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No",
+                                    "value": "No"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+					{
+                        "name": "esDenyRdp",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Prevent inbound RDP from internet",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned and prevent inbound RDP from internet",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    },
+					{
+                        "name": "esNsg",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Ensure subnets are associated with NSG",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned to ensure NSGs must be associated with subnets being created",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    },
+					{
+                        "name": "esIpForwarding",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Prevent IP forwarding",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned and prevent IP forwarding",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    },
+					{
+                        "name": "esSqlEncryption",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Ensure Azure SQL is enabled with transparent data encryption",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected when also adding a subscription for management, ARM will deploy resources and enable them for continous compliance",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    },
+					{
+                        "name": "esSqlAudit",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Ensure auditing is enabled on Azure SQL",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned to ensure auditing is enabled on Azure SQLs",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    },					
+					{
+                        "name": "esHttpsStorage",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Ensure secure connections (HTTPS) to storage accounts",
+                        "defaultValue": "No",
+                        "toolTip": "If 'Yes' is selected, Azure Policy will be assigned to ensure storage can only be accessed using HTTPS",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+								{
+									"label": "No",
+									"value": "No"
+								}
+                            ]
+                        },
+                        "visible": true
+                    }
+                ]
+            }			            			
         ],
         "outputs": {
             "setup": "[steps('esSetup').setup]",
-            "managementSubscriptionId": "[steps('lzSettings').esMgmtSub]",
-            "enableResourceDeployments": "[steps('esGoalState').management]",
-            "enterpriseScaleCompanyPrefix": "[steps('lzSettings').esMgmtGroup]"
+            "managementSubscriptionId": "[steps('esGoalState').esMgmtSub]",
+            "lzSubscriptionId": "[steps('lzGoalState').esLzSub]",
+            "enableLogAnalytics": "[steps('esGoalState').esLogAnalytics]",
+            "enableAsc": "[steps('esGoalState').esAsc]",
+            "enablePrivateEndpoint": "[steps('esGoalState').esPrivateEndpoint]",
+            "enableAzBackup": "[steps('esGoalState').esAzBackup]",
+            "enterpriseScaleCompanyPrefix": "[steps('lzSettings').esMgmtGroup]",
+            "enableSqlAudit":"[steps('lzGoalState').esSqlAudit]",
+            "enableSqlEncryption": "[steps('lzGoalState').esSqlEncryption]",
+            "enableVmBackup": "[steps('lzGoalState').esAzBackup]",
+            "denyRdp": "[steps('lzGoalState').esDenyRdp]",
+            "enableStorageHttps": "[steps('lzGoalState').esHttpsStorage]",
+            "denyIpForwarding": "[steps('lzGoalState').esIpForwarding]",
+            "denySubnetWithoutNsg": "[steps('lzGoalState').esNsg]"
+
         }
     }
 }
