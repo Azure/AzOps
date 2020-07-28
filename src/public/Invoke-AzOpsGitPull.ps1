@@ -150,6 +150,7 @@ function Invoke-AzOpsGitPull {
                             $unmerged = $true
                         }
                         else {
+                            Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge"
                             Start-Sleep -Seconds 5
                             $attempt = $attempt + 1
                         }
