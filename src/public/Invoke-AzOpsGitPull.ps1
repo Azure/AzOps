@@ -155,7 +155,7 @@ function Invoke-AzOpsGitPull {
                         }
                     }
                 }
-                while ($merged)
+                while ($unmerged)
 
                 if ($unmerged -eq $true) {
                     $params = @{
