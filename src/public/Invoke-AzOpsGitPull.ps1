@@ -135,12 +135,29 @@ function Invoke-AzOpsGitPull {
                 $response = Invoke-RestMethod -Method "Get" @params
 
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
-                try {
-                    Start-AzOpsNativeExecution {
-                        gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
-                    } | Out-Host
+                $attempt = 1
+                $retryCount = 3
+                $unmerged = $false
+                do {
+                    try {
+                        Start-AzOpsNativeExecution {
+                            gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
+                        } | Out-Host
+                        $unmerged = $false
+                    }
+                    catch {
+                        if ($attempt -gt $retryCount) {
+                            $unmerged = $true
+                        }
+                        else {
+                            Start-Sleep -Seconds 5
+                            $attempt = $attempt + 1
+                        }
+                    }
                 }
-                catch {
+                while ($merged)
+
+                if ($unmerged -eq $true) {
                     $params = @{
                         Headers = @{
                             "Authorization" = ("Bearer " + $global:GitHubToken)
