@@ -137,7 +137,7 @@ function Invoke-AzOpsGitPull {
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
                 $attempt = 1
                 $retryCount = 3
-                $unmerged = $false
+                $unmerged = $true
                 do {
                     try {
                         Start-AzOpsNativeExecution {
