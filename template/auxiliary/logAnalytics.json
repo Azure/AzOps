@@ -10,32 +10,33 @@
             "type": "string",
             "maxLength": 36
         },
-        "enableResourceDeployments": {
+        "enableLogAnalytics": {
             "type": "string",
+            "defaultValue": "No",
             "allowedValues": [
                 "Yes",
                 "No"
-            ]
+            ],
+            "metadata": {
+                "description": "If 'Yes' is selected when also adding a subscription for management, ARM will assign two policies to enable auditing in your environment, into the Log Analytics workspace for platform monitoring. If 'No', it will be ignored."
+            }
         }
     },
     "variables": {
         "policyDefinitions": {
-            "deployLogAnalytics": "[concat('/providers/Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'), '/providers/Microsoft.Authorization/policyDefinitions/Deploy-Log-Analytics')]",
-            "deployAzureActivityLog": "[concat('/providers/Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'), '/providers/Microsoft.Authorization/policyDefinitons/Deploy-Diagnostics-ActivityLog')]",
-            "ascMonitoring": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
+            "deployLogAnalytics": "[concat('/providers/Microsoft.Management/managementGroups/', parameters('topLevelManagementGroupPrefix'), '/providers/Microsoft.Authorization/policyDefinitions/Deploy-Log-Analytics')]"
         },
         "policyAssignmentNames": {
-            "logAnalytics": "Deploy-Log-Analytics",
-            "azureActivityLog": "Deploy-AzActivity-Log"
+            "logAnalytics": "Deploy-Log-Analytics"
         },
         "rbacOwner": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
         "roleAssignmentNames": {
-            "deployLogAnalytics": "[guid(variables('policyAssignmentNames').logAnalytics)]"
+            "deployLogAnalytics": "[guid(concat(parameters('topLevelManagementGroupPrefix'), variables('policyAssignmentNames').logAnalytics))]"
         }
     },
     "resources": [
         {
-            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableResourceDeployments'), 'Yes'))]",
+            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "type": "Microsoft.Authorization/policyAssignments",
             "apiVersion": "2018-05-01",
             "name": "[variables('policyAssignmentNames').loganalytics]",
@@ -68,7 +69,7 @@
             }
         },
         {
-            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableResourceDeployments'), 'Yes'))]",
+            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2019-04-01-preview",
             "name": "[variables('roleAssignmentNames').deployLogAnalytics]",
@@ -82,7 +83,7 @@
             }
         },
         {
-            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableResourceDeployments'), 'Yes'))]",
+            "condition": "[and(not(empty(parameters('managementSubscriptionId'))),equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "deployToMgmtSubscription",

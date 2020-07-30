@@ -53,7 +53,7 @@ function ConvertTo-AzOpsObject {
         # if [switch]$OrderObject has been used, go through each property recursively to ensure it is sorted/ordered properly
         if ($PSBoundParameters["OrderObject"]) {
             # Check input object type
-            if ($InputObject -is [PSObject] -or [PSCustomObject] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $InputObject -isnot [System.Collections.ICollection] -and $inputobject -isnot [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyType]) {
+            if ($InputObject -is [PSObject] -or [PSCustomObject] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64] -and $InputObject -isnot [System.Collections.ICollection] -and $inputobject -isnot [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyType]) {
                 # Create ordered PSCustomObject
                 $Object = [PSCustomObject][ordered]@{ }
                 # Sort properties
@@ -73,7 +73,7 @@ function ConvertTo-AzOpsObject {
                 Write-Output -NoEnumerate -InputObject $Object
             }
             # Handle hash tables and dictionaries
-            elseif ($InputObject -is [System.Collections.ICollection] -and $InputObject -isnot [string] -and $inputobject -isnot [array]) {
+            elseif ($InputObject -is [System.Collections.ICollection] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64]) {
                 $hash = [ordered]@{ }
                 $keys = ($Inputobject.Keys | Sort-Object)
                 foreach ($key in $keys ) {
@@ -98,7 +98,7 @@ function ConvertTo-AzOpsObject {
                 }
             }
             else {
-                # if the object isn't a collection, hash table or other psobject - it is a string
+                # if the object isn't a collection, hash table or other psobject - it is a string or int
                 $InputObject | Sort-Object
             }
         }

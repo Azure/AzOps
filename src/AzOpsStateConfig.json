@@ -23,7 +23,7 @@
             }
         },
         "policySetDefinition": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "Properties": {
@@ -40,12 +40,13 @@
                     "ResourceId": "Remove",
                     "ResourceName": "Remove",
                     "ExtensionResourceName": "Remove",
-                    "PolicySetDefinitionId": "Remove"
+                    "PolicySetDefinitionId": "Remove",
+                    "SubscriptionId": "Remove"
                 }
             }
         },
         "policyAssignment": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "Properties": {
@@ -68,12 +69,14 @@
                     "ResourceId": "Remove",
                     "ResourceName": "Remove",
                     "ExtensionResourceName": "Remove",
-                    "PolicyAssignmentId": "Remove"
+                    "PolicyAssignmentId": "Remove",
+                    "ResourceGroupName": "Remove",
+                    "SubscriptionId": "Remove"
                 }
             }
         },
         "subscription": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                 },
@@ -91,7 +94,7 @@
             }
         },
         "tenant": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },
@@ -100,7 +103,7 @@
             }
         },
         "resourceGroup": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                     "TagsTable": "Remove"
@@ -120,7 +123,7 @@
             }
         },
         "roleDefinition": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },
@@ -129,7 +132,7 @@
             }
         },
         "roleAssignment": {
-            "orderObject": false,
+            "orderObject": true,
             "excludedProperties": {
                 "default": {
                 },

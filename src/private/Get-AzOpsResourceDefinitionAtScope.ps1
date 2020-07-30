@@ -171,6 +171,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                             $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
                             $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
+                            $global:AzOpsGeneralizeTemplates = $using:Global:AzOpsGeneralizeTemplates
 
                             $OdataFilter = $using:OdataFilter
                             $backoffMultiplier = $using:backoffMultiplier
@@ -251,6 +252,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
                             $global:AzOpsExportRawTemplate = $using:Global:AzOpsExportRawTemplate
                             $global:AzOpsThrottleLimit = $using:Global:AzOpsThrottleLimit
+                            $global:AzOpsGeneralizeTemplates = $using:Global:AzOpsGeneralizeTemplates
 
                             $SkipPolicy = $using:SkipPolicy
                             $SkipResourceGroup = $using:SkipResourceGroup
@@ -336,7 +338,7 @@ function Get-AzOpsResourceDefinitionAtScope {
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
         }
         else {
-            Write-AzOpsLog -Level Warning -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Cannot find [$($PSBoundParameters['Scope'])] in Azure or scope is null - skipping"
+            Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Scope [$($PSBoundParameters['Scope'])] not found in Azure or it is excluded"
         }
     }
 

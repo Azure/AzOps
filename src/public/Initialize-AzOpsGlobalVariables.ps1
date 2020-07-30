@@ -6,7 +6,7 @@
     Key / Values in the AzOpsEnvVariables hashtable will be set as environment variables and global variables.
     All Management Groups and Subscription that the user/service principal have access to will be discovered and added to their respective variables.
 .EXAMPLE
-    Initialize-AzOpsGlobalVariables -Verbose
+    Initialize-AzOpsGlobalVariables
 .INPUTS
     None
 .OUTPUTS
@@ -16,9 +16,6 @@
 
 function Initialize-AzOpsGlobalVariables {
 
-    # The following SuppressMessageAttribute entries are used to surpress
-    # PSScriptAnalyzer tests against known exceptions as per:
-    # https://github.com/powershell/psscriptanalyzer#suppressing-rules
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsInvalidateCache')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsAzManagementGroup')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSubscriptions')]
@@ -26,6 +23,8 @@ function Initialize-AzOpsGlobalVariables {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsState')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialMgDiscoveryRoot')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExcludedSubOffer')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsExcludedSubState')]
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -47,15 +46,29 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
             AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
             AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" } # Excluded QuotaIDs as per https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/understand-cost-mgt-data#supported-microsoft-azure-offers
+            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" } # Excluded subscription states as per https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list#subscriptionstate
             AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
             AZOPS_DEFAULT_DEPLOYMENT_REGION    = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
             AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             AZOPS_GENERALIZE_TEMPLATES         = @{ AzOpsGeneralizeTemplates = 0 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
             AZOPS_EXPORT_RAW_TEMPLATES         = @{ AzOpsExportRawTemplate = 0 }
             AZOPS_IGNORE_CONTEXT_CHECK         = @{ AzOpsIgnoreContextCheck = 0 } # If set to 1, skip AAD tenant validation == 1
-            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttlelimit used in Foreach-Object -Parallel for resource/subscription discovery
+            AZOPS_THROTTLE_LIMIT               = @{ AzOpsThrottleLimit = 10 } # Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery
             AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY = @{ AzOpsSupportPartialMgDiscovery = $null } # Enable partial discovery
             AZOPS_PARTIAL_MG_DISCOVERY_ROOT    = @{ AzOpsPartialMgDiscoveryRoot = $null } # Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value (comma separated, not real array due to env variable constraints) "Contoso,Tailspin,Management"
+            AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
+            AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
+            AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
+            GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
+            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
+            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
+            GITHUB_TOKEN                       = @{ GitHubToken = $null }
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 }
+            GITHUB_BRANCH                      = @{ GitHubBranch = $null }
+            GITHUB_COMMENTS                    = @{ GitHubComments = $null }
+            GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
+            GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -79,6 +92,10 @@ function Initialize-AzOpsGlobalVariables {
                 # Set global variables for script
                 $GlobalVar = $AzOpsEnvVariables["$AzOpsEnv"].Keys
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Setting global variable $GlobalVar to $EnvVarValue"
+                # Convert comma separated vars to array (since all env vars are strings)
+                if ($EnvVarValue -match ',') {
+                    $EnvVarValue = $EnvVarValue -split ','
+                }
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
         }
@@ -109,25 +126,23 @@ function Initialize-AzOpsGlobalVariables {
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
         if ($global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
             #Get current tenant id
-            $TenantID = (Get-AzContext).Tenant.Id
+            $TenantId = (Get-AzContext).Tenant.Id
             # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
-            $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantID
+            $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Initializing Global Variable AzOpsSubscriptions"
-            $ExcludedPatterns = @('Access to Azure Active Directory')
-            $ExcludedState = ('Disabled', 'Deleted', 'Warned', 'Expired', 'PastDue')
-            $global:AzOpsSubscriptions = Get-AzSubscription -TenantId $TenantID | Where-Object { $_.State -notin $ExcludedState -and $_.Name -notin $ExcludedPatterns }
+            $global:AzOpsSubscriptions = Get-AzOpsAllSubscription -ExcludedOffers $global:AzOpsExcludedSubOffer -ExcludedStates $global:AzOpsExcludedSubState -TenantId $TenantId
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
             # Initialize global variable for partial root discovery that will be set in AzOpsAllManagementGroup
-            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now $(get-Date)"
+            Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now"
             # Get all managementgroups that principal has access to
             $global:AzOpsPartialRoot = @()
             # Initialize global variable for Management Groups
             $global:AzOpsAzManagementGroup = @()
 
             $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
-            if ($RootScope -in $managementGroups.Id -or 1 -eq $global:AzOpsSupportPartialMgDiscovery) {
+            if ($RootScope -in ($managementGroups | Select-Object -Property Id).Id -or 1 -eq $global:AzOpsSupportPartialMgDiscovery) {
                 # Handle user provided management groups
                 if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
                     $ManagementGroups = @()
@@ -146,11 +161,11 @@ function Initialize-AzOpsGlobalVariables {
                 }
                 $global:AzOpsAzManagementGroup = $global:AzOpsAzManagementGroup | Sort-Object -Property Id -Unique
 
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized $(Get-Date)"
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is initialized"
 
             }
             else {
-                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) has access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support."
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) have access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support."
             }
 
         }
@@ -165,4 +180,3 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 }
-
