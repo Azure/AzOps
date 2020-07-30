@@ -72,106 +72,163 @@ function Invoke-AzOpsGitPull {
                 git push origin system -f
             } | Out-Null
 
-            # GitHub Labels
-            Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if label (system) exists"
-            # TODO: Replace REST call when GH CLI paging support is available
-            $params = @{
-                Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/labels")
-                Headers = @{
-                    "Authorization" = ("Bearer " + $global:GitHubToken)
-                }
-            }
-            $response = Invoke-RestMethod -Method "Get" @params | Where-Object -FilterScript { $_.name -like "system" }
-
-            if (-not $response) {
-                # GitHub Labels - Create
-                Write-AzOpsLog -Level Information -Topic "rest" -Message "Creating new label (system)"
-                # TODO: Replace REST call when GH CLI paging support is available
-                $params = @{
-                    Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/labels")
-                    Headers = @{
-                        "Authorization" = ("Bearer " + $global:GitHubToken)
-                        "Content-Type"  = "application/json"
-                    }
-                    Body    = (@{
-                            "name"        = "system"
-                            "description" = "[AzOps] Do not delete"
-                            "color"       = "db9436"
-                        } | ConvertTo-Json)
-                }
-                $response = Invoke-RestMethod -Method "Post" @params
-            }
-
-            Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
-            # TODO: Replace REST call when GH CLI paging support is available
-            $params = @{
-                Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + ("/pulls?state=open&head=") + $global:GitHubRepository + ":system")
-                Headers = @{
-                    "Authorization" = ("Bearer " + $global:GitHubToken)
-                }
-            }
-            $response = Invoke-RestMethod -Method "Get" @params
-
-            # GitHub Pull Request - Create
-            if (-not $response) {
-                Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
-                Start-AzOpsNativeExecution {
-                    gh pr create --title $global:GitHubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $global:GitHubRepository
-                } | Out-Host
-            }
-            else {
-                Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request creation"
-            }
-
-            # GitHub Pull Request - Merge
-            if ($global:GitHubAutoMerge -eq 1) {
-                Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
-                $params = @{
-                    Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + ("/pulls?state=open&head=") + $global:GitHubRepository + ":system")
-                    Headers = @{
-                        "Authorization" = ("Bearer " + $global:GitHubToken)
-                    }
-                }
-                $response = Invoke-RestMethod -Method "Get" @params
-
-                Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
-                $attempt = 1
-                $retryCount = 3
-                $unmerged = $true
-                do {
-                    try {
-                        Start-AzOpsNativeExecution {
-                            gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
-                        } | Out-Host
-                        $unmerged = $false
-                    }
-                    catch {
-                        if ($attempt -gt $retryCount) {
-                            $unmerged = $true
-                        }
-                        else {
-                            Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge"
-                            Start-Sleep -Seconds 5
-                            $attempt = $attempt + 1
-                        }
-                    }
-                }
-                while ($unmerged)
-
-                if ($unmerged -eq $true) {
+            switch ($global:SCMPlatform) {
+                "GitHub" {
+                    # GitHub Labels
+                    Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if label (system) exists"
+                    # TODO: Replace REST call when GH CLI paging support is available
                     $params = @{
+                        Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/labels")
                         Headers = @{
                             "Authorization" = ("Bearer " + $global:GitHubToken)
                         }
-                        Body    = (@{
-                                "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/merge/README.md" -Raw)"
-                            } | ConvertTo-Json)
                     }
-                    Invoke-RestMethod -Method "POST" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
+                    $response = Invoke-RestMethod -Method "Get" @params | Where-Object -FilterScript { $_.name -like "system" }
+
+                    if (-not $response) {
+                        # GitHub Labels - Create
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Creating new label (system)"
+                        # TODO: Replace REST call when GH CLI paging support is available
+                        $params = @{
+                            Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/labels")
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $global:GitHubToken)
+                                "Content-Type"  = "application/json"
+                            }
+                            Body    = (@{
+                                    "name"        = "system"
+                                    "description" = "[AzOps] Do not delete"
+                                    "color"       = "db9436"
+                                } | ConvertTo-Json)
+                        }
+                        $response = Invoke-RestMethod -Method "Post" @params
+                    }
+
+                    Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
+                    # TODO: Replace REST call when GH CLI paging support is available
+                    $params = @{
+                        Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + ("/pulls?state=open&head=") + $global:GitHubRepository + ":system")
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $global:GitHubToken)
+                        }
+                    }
+                    $response = Invoke-RestMethod -Method "Get" @params
+
+                    # GitHub Pull Request - Create
+                    if (-not $response) {
+                        Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
+                        Start-AzOpsNativeExecution {
+                            gh pr create --title $global:GitHubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $global:GitHubRepository
+                        } | Out-Host
+                    }
+                    else {
+                        Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request creation"
+                    }
+
+                    # GitHub Pull Request - Merge
+                    if ($global:GitHubAutoMerge -eq 1) {
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
+                        $params = @{
+                            Uri     = ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + ("/pulls?state=open&head=") + $global:GitHubRepository + ":system")
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $global:GitHubToken)
+                            }
+                        }
+                        $response = Invoke-RestMethod -Method "Get" @params
+
+                        Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
+                        $attempt = 1
+                        $retryCount = 3
+                        $unmerged = $true
+                        do {
+                            try {
+                                Start-AzOpsNativeExecution {
+                                    gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
+                                } | Out-Host
+                                $unmerged = $false
+                            }
+                            catch {
+                                if ($attempt -gt $retryCount) {
+                                    $unmerged = $true
+                                }
+                                else {
+                                    Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge"
+                                    Start-Sleep -Seconds 5
+                                    $attempt = $attempt + 1
+                                }
+                            }
+                        }
+                        while ($unmerged)
+
+                        if ($unmerged -eq $true) {
+                            $params = @{
+                                Headers = @{
+                                    "Authorization" = ("Bearer " + $global:GitHubToken)
+                                }
+                                Body    = (@{
+                                        "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/merge/README.md" -Raw)"
+                                    } | ConvertTo-Json)
+                            }
+                            Invoke-RestMethod -Method "POST" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
+                        }
+                    }
+                    else {
+                        Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
+                    }
                 }
-            }
-            else {
-                Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
+                "AzureDevOps" {
+                    Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
+
+                    $params = @{
+                        Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests?searchCriteria.sourceRefName=refs/heads/system&searchCriteria.targetRefName=refs/heads/main&searchCriteria.status=active&api-version=5.1"
+                        Method  = "Get"
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
+                            "Content-Type"  = "application/json"
+                        }
+                    }
+                    Write-AzOpsLog -Level Verbose -Topic "rest" -Message "URI: $($params.Uri)"
+                    $response = Invoke-RestMethod @params
+                    Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Pull request response count: $($response.count)"
+
+                    if ($response.count -eq 0) {
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Creating new pull request"
+
+                        $params = @{
+                            Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests?api-version=5.1"
+                            Method  = "Post"
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
+                                "Content-Type"  = "application/json"
+                            }
+                            Body    = (@{
+                                    "sourceRefName" = "refs/heads/system"
+                                    "targetRefName" = "refs/heads/main"
+                                    "title"         = "$env:GITHUB_PULL_REQUEST"
+                                    "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
+                                }  | ConvertTo-Json -Depth 5)
+                        }
+                        $response = Invoke-RestMethod @params
+
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Assigning pull request label"
+
+                        $params = @{
+                            Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($response.pullRequestId)/labels?api-version=5.1-preview.1"
+                            Method  = "Post"
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
+                                "Content-Type"  = "application/json"
+                            }
+                            Body    = (@{
+                                    "name" = "system"
+                                }  | ConvertTo-Json -Depth 5)
+                        }
+                        Invoke-RestMethod @params
+                    }
+                }
+                default {
+                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
+                }
             }
         }
     }

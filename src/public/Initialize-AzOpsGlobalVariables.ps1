@@ -69,6 +69,7 @@ function Initialize-AzOpsGlobalVariables {
             GITHUB_COMMENTS                    = @{ GitHubComments = $null }
             GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
             GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
+            SCM_PLATFORM                       = @{ SCMPlatform = $null }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
