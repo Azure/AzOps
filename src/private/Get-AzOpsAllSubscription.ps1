@@ -38,8 +38,21 @@ function Get-AzOpsAllSubscription {
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription states are: $(($ExcludedStates -join ','))"
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription offers are: $(($ExcludedOffers -join ','))"
         # Get all subscriptions in current tenant and and exclude states/offers
-        $AllSubscriptions = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100).Value | Where-Object { $_.tenantId -eq $TenantId }
-        $IncludedSubscriptions = $AllSubscriptions | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
+
+        $AllSubscriptionsResults = @()
+        $nextLink = $null
+        $AllSubscriptionsJson = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100)
+        $AllSubscriptionsResults += $AllSubscriptionsJson.value | Where-Object { $_.tenantId -eq $TenantId }
+
+        if ((Get-Member -InputObject $AllSubscriptionsJson -name "nextLink" -MemberType Properties)) {
+            $nextLink = $AllSubscriptionsJson.nextLink
+            while ($nextLink) {
+                $list2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson  -Method GET).Content | ConvertFrom-Json -Depth 100)
+                $AllSubscriptionsResults += $list2.value | Where-Object { $_.tenantId -eq $TenantId };
+                $nextLink = $list2.nextlink;
+            }
+        }
+        $IncludedSubscriptions = $AllSubscriptionsResults | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
         # Validate that subscriptions were found
         if ($null -eq $IncludedSubscriptions) {
             Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct."
