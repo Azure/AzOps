@@ -56,9 +56,9 @@ function Get-AzOpsAllSubscription {
         }
         else {
             # Calculate no of excluded subscriptions
-            [int]$ExcludedSubscriptions = ($AllSubscriptions.count - $IncludedSubscriptions.Count)
+            [int]$ExcludedSubscriptions = ($AllSubscriptionsResults.count - $IncludedSubscriptions.Count)
             if ($ExcludedSubscriptions -gt 0) {
-                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptions.count)] subscriptions"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptionsResults.count)] subscriptions"
                 Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded [$ExcludedSubscriptions] subscriptions due to state or offer"
             }
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Including [$($IncludedSubscriptions.count)] subscriptions"
