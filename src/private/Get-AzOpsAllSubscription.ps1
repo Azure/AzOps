@@ -44,13 +44,10 @@ function Get-AzOpsAllSubscription {
         $AllSubscriptionsJson = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100)
         $AllSubscriptionsResults += $AllSubscriptionsJson.value | Where-Object { $_.tenantId -eq $TenantId }
 
-        if ((Get-Member -InputObject $AllSubscriptionsJson -name "nextLink" -MemberType Properties)) {
-            $nextLink = $AllSubscriptionsJson.nextLink
-            while ($nextLink) {
-                $list2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson  -Method GET).Content | ConvertFrom-Json -Depth 100)
-                $AllSubscriptionsResults += $list2.value | Where-Object { $_.tenantId -eq $TenantId };
-                $nextLink = $list2.nextlink;
-            }
+        while (Get-Member -InputObject $AllSubscriptionsJson -name "nextLink" -MemberType Properties) {
+            $AllSubscriptionsJson2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson.nextLink.Replace('https://management.azure.com','')  -Method GET).Content | ConvertFrom-Json -Depth 100)
+            $AllSubscriptionsResults += $AllSubscriptionsJson2.value | Where-Object { $_.tenantId -eq $TenantId }
+            $AllSubscriptionsJson = $AllSubscriptionsJson2
         }
         $IncludedSubscriptions = $AllSubscriptionsResults | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
         # Validate that subscriptions were found
