@@ -136,9 +136,10 @@ function Invoke-AzOpsGitPull {
 
                 Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
                 $attempt = 1
-                $retryCount = 3
+                $retryCount = 6
                 $unmerged = $true
                 do {
+                    $attempt = $attempt + 1
                     try {
                         Start-AzOpsNativeExecution {
                             gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
@@ -146,17 +147,11 @@ function Invoke-AzOpsGitPull {
                         $unmerged = $false
                     }
                     catch {
-                        if ($attempt -gt $retryCount) {
-                            $unmerged = $true
-                        }
-                        else {
-                            Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge"
-                            Start-Sleep -Seconds 5
-                            $attempt = $attempt + 1
-                        }
+                        Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge, attempt $attempt"
+                        Start-Sleep -Seconds 5
                     }
                 }
-                while ($unmerged)
+                while ($unmerged -and ($attempt -lt $retryCount))
 
                 if ($unmerged -eq $true) {
                     $params = @{
