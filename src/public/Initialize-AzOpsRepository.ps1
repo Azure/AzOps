@@ -92,7 +92,7 @@ function Initialize-AzOpsRepository {
         }
         # Set environment variable ExportRawTemplate to 1 if switch ExportRawTemplate switch has been used
         if ($PSBoundParameters['ExportRawTemplate']) {
-            $env:ExportRawTemplate = 1
+            $env:AZOPS_EXPORT_RAW_TEMPLATES = 1
         }
         # Initialize Global Variables and return error if not set
         Initialize-AzOpsGlobalVariables
