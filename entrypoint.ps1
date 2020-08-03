@@ -49,6 +49,12 @@ function Initialization {
                 }
             }
 
+            # Update branch names
+            if ($env:SCM_PLATFORM -eq "AzureDevOps") {
+                $env:AZDEVOPS_HEAD_BRANCH = ($env:AZDEVOPS_HEAD_BRANCH).Replace("refs/heads/", "")
+                $env:AZDEVOPS_BASE_BRANCH = ($env:AZDEVOPS_BASE_BRANCH).Replace("refs/heads/", "")
+            }
+
             # Print environment variables
             Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZOPS_STATE: $($env:AZOPS_STATE)"
             Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZOPS_INVALIDATE_CACHE: $($env:AZOPS_INVALIDATE_CACHE)"
