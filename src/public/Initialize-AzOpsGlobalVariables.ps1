@@ -66,8 +66,13 @@ function Initialize-AzOpsGlobalVariables {
             AZDEVOPS_EMAIL                     = @{ AzDevOpsEmail = $null }
             AZDEVOPS_USERNAME                  = @{ AzDevOpsUsername = $null }
             AZDEVOPS_PULL_REQUEST              = @{ AzDevOpsPullRequest = $null }
+            AZDEVOPS_PULL_REQUEST_ID           = @{ AzDevOpsPullRequestId = $null }
             AZDEVOPS_HEAD_REF                  = @{ AzDevOpsHeadRef = $null }
             AZDEVOPS_BASE_REF                  = @{ AzDevOpsBaseRef = $null }
+            AZDEVOPS_API_URL                   = @{ AzDevOpsApiUrl = $null }
+            AZDEVOPS_PROJECT_ID                = @{ AzDevOpsProjectId = $null }
+            AZDEVOPS_REPOSITORY                = @{ AzDevOpsRepository = $null } 
+            AZDEVOPS_TOKEN                     = @{ AzDevOpsToken = $null }
             # GitHub
             GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 } # Auto merge pull requests for pull workflow
             GITHUB_EMAIL                       = @{ GitHubEmail = $null }
