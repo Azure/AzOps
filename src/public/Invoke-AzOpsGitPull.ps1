@@ -170,7 +170,7 @@ function Invoke-AzOpsGitPull {
                                         "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/merge/README.md" -Raw)"
                                     } | ConvertTo-Json)
                             }
-                            Invoke-RestMethod -Method "POST" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
+                            Invoke-RestMethod -Method "Post" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
                         }
                     }
                     else {

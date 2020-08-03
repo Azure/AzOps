@@ -107,62 +107,80 @@ function Invoke-AzOpsGitPush {
             switch ($global:SCMPlatform) {
                 "GitHub" {
                     if ($global:AzOpsStrictMode -eq 1) {
-                        Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is not consistent with Azure"
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                         Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                         $params = @{
                             Headers = @{
                                 "Authorization" = ("Bearer " + $global:GitHubToken)
+                                "Content-Type"  = "application/json"
                             }
                             Body    = (@{
                                     "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/strict/github/README.md" -Raw) `n Changes: `n`n$output"
                                 } | ConvertTo-Json)
                         }
-                        Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
+                        Invoke-RestMethod -Method "Post" -Uri $global:GitHubComments @params | Out-Null
                         exit 1
                     }
                     if ($global:AzOpsStrictMode -eq 0) {
                         Write-AzOpsLog -Level Warning -Topic "git" -Message "Default Mode"
-                        Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                         Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $global:GitHubComments"
                         $params = @{
                             Headers = @{
                                 "Authorization" = ("Bearer " + $global:GitHubToken)
+                                "Content-Type"  = "application/json"
                             }
                             Body    = (@{
                                     "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/default/README.md" -Raw) `n Changes: `n`n$output"
                                 } | ConvertTo-Json)
                         }
-                        Invoke-RestMethod -Method "POST" -Uri $global:GitHubComments @params | Out-Null
+                        Invoke-RestMethod -Method "Post" -Uri $global:GitHubComments @params | Out-Null
                     }
                 }
                 "AzureDevOps" {
-                    # if ($env:AZDEVOPS_STRICT_MODE -eq 1) {
-                    #     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_ADO_COMMENTS"
-                    #     $params = @{
-                    #         Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($env:SYSTEM_PULLREQUEST_PULLREQUESTID)/threads?api-version=5.1"
-                    #         Method  = "Post"
-                    #         Headers = @{
-                    #             "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
-                    #             "Content-Type"  = "application/json"
-                    #         }
-                    #         Body    = (@{
-                    #                 comments = @(
-                    #                     (@{
-                    #                             "parentCommentId" = 0
-                    #                             "content"         = "$(Get-Content -Path "$PSScriptRoot/../Comments-ado.md" -Raw)"
-                    #                             "commentType"     = 1
-                    #                         })
-                    #                 )
-                    #             }  | ConvertTo-Json -Depth 5)
-                    #     }
-                    #     Invoke-RestMethod @params | Out-Null
-                    #     exit 1
-                    # }
-                    # if ($env:AZDEVOPS_STRICT_MODE -eq 0) {
-
-                    # }
+                    if ($global:AzOpsStrictMode -eq 1) {
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
+                        $params = @{
+                            Url     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
+                            Method  = "Post"
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $global:AzDevOpsToken)
+                                "Content-Type"  = "application/json"
+                            }
+                            Body    = (@{
+                                    comments = @(
+                                        (@{
+                                                "parentCommentId" = 0
+                                                "content"         = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/strict/azdevops/README.md" -Raw) `n Changes: `n`n$output"
+                                                "commentType"     = 1
+                                            })
+                                    )
+                                }  | ConvertTo-Json -Depth 5)
+                        }
+                        Invoke-RestMethod @params
+                        exit 1
+                    }
+                    if ($global:AzOpsStrictMode -eq 0) {
+                        Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
+                        $params = @{
+                            Url     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
+                            Method  = "Post"
+                            Headers = @{
+                                "Authorization" = ("Bearer " + $global:AzDevOpsToken)
+                                "Content-Type"  = "application/json"
+                            }
+                            Body    = (@{
+                                    comments = @(
+                                        (@{
+                                                "parentCommentId" = 0
+                                                "content"         = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/guidance/default/README.md" -Raw) `n Changes: `n`n$output"
+                                                "commentType"     = 1
+                                            })
+                                    )
+                                }  | ConvertTo-Json -Depth 5)
+                        }
+                        Invoke-RestMethod @params
+                    }
                 }
                 default {
                     Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
