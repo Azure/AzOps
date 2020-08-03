@@ -74,7 +74,7 @@ function Invoke-AzOpsGitPull {
 
             switch ($global:SCMPlatform) {
                 "GitHub" {
-                    # GitHub Labels
+                    # GitHub Labels - Get
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if label (system) exists"
                     # TODO: Replace REST call when GH CLI paging support is available
                     $params = @{
@@ -104,6 +104,7 @@ function Invoke-AzOpsGitPull {
                         $response = Invoke-RestMethod -Method "Post" @params
                     }
 
+                    # GitHub PUll Request - List
                     Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
                     # TODO: Replace REST call when GH CLI paging support is available
                     $params = @{
@@ -177,59 +178,39 @@ function Invoke-AzOpsGitPull {
                     }
                 }
                 "AzureDevOps" {
-                    Write-AzOpsLog -Level Information -Topic "rest" -Message "Checking if pull request exists"
+                    Write-AzOpsLog -Level Information -Topic "az" -Message "Checking if pull request exists"
                     $response = Start-AzOpsNativeExecution {
-                        az repos pr list --output json
-                    } | ConvertFrom-Json | ForEach-Object { $_ | Where-Object -FilterScript {$_.sourceRefName -eq "refs/heads/system"} }
+                        az repos pr list --status active --output json
+                    } | ConvertFrom-Json | ForEach-Object { $_ | Where-Object -FilterScript { $_.sourceRefName -eq "refs/heads/system" } }
 
-                    Write-AzOpsLog -Level Information -Topic "az" -Message "$($response)"
+                    # Azure DevOps Pull Request - Create
+                    if ($null -eq $response) {
+                        Write-AzOpsLog -Level Information -Topic "az" -Message "Creating new pull request"
+                        Start-AzOpsNativeExecution {
+                            az repos pr create --source-branch "refs/heads/system" --target-branch "refs/heads/main" --title $global:AzDevOpsPullRequest --description "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
+                        } | Out-Host
+                    }
+                    else {
+                        Write-AzOpsLog -Level Information -Topic "az" -Message "Skipping pull request creation"
+                    }
 
-                    # $params = @{
-                    #     Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests?searchCriteria.sourceRefName=refs/heads/system&searchCriteria.targetRefName=refs/heads/main&searchCriteria.status=active&api-version=5.1"
-                    #     Method  = "Get"
-                    #     Headers = @{
-                    #         "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
-                    #         "Content-Type"  = "application/json"
-                    #     }
-                    # }
-                    # $response = Invoke-RestMethod @params
+                    # Azure DevOps Pull Request - Merge
+                    if ($global:AzDevOpsAutoMerge -eq 1) {
+                        Write-AzOpsLog -Level Information -Topic "az" -Message "Retrieving new pull request"
+                        $response = Start-AzOpsNativeExecution {
+                            az repos pr list --status active --source-branch "refs/heads/system" --target-branch "refs/heads/main" --output json
+                        } | ConvertFrom-Json
 
-                    # if ($null -ne $response) {
-                    #     Write-AzOpsLog -Level Information -Topic "rest" -Message "Creating new pull request"
-                    #     $params = @{
-                    #         Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests?api-version=5.1"
-                    #         Method  = "Post"
-                    #         Headers = @{
-                    #             "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
-                    #             "Content-Type"  = "application/json"
-                    #         }
-                    #         Body    = (@{
-                    #                 "sourceRefName" = "refs/heads/system"
-                    #                 "targetRefName" = "refs/heads/main"
-                    #                 "title"         = "$env:GITHUB_PULL_REQUEST"
-                    #                 "description"   = "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
-                    #             }  | ConvertTo-Json -Depth 5)
-                    #     }
-                    #     $response = Invoke-RestMethod @params
+                        Write-AzOpsLog -Level Information -Topic "az" -Message "Merging new pull request"
+                        Start-AzOpsNativeExecution {
+                            az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
+                        }
+                    }
 
-                    #     Write-AzOpsLog -Level Information -Topic "rest" -Message "Assigning pull request label"
 
-                    #     $params = @{
-                    #         Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($response.pullRequestId)/labels?api-version=5.1-preview.1"
-                    #         Method  = "Post"
-                    #         Headers = @{
-                    #             "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
-                    #             "Content-Type"  = "application/json"
-                    #         }
-                    #         Body    = (@{
-                    #                 "name" = "system"
-                    #             }  | ConvertTo-Json -Depth 5)
-                    #     }
-                    #     Invoke-RestMethod @params
-                    # }
                 }
                 default {
-                    Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
+                    Write-AzOpsLog -Level Error -Topic "none" -Message "Could not determine SCM platform. Current value is $global:SCMPlatform"
                 }
             }
         }

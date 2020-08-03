@@ -51,30 +51,51 @@ function Invoke-AzOpsGitPush {
             git reset --hard
         } | Out-Host
 
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($global:GitHubHeadRef) exists"
-        $branch = Start-AzOpsNativeExecution {
-            git branch --list $global:GitHubHeadRef
-        }
-
-        if ($branch) {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
-            Start-AzOpsNativeExecution {
-                git checkout $global:GitHubHeadRef
-            } | Out-Host
-        }
-        else {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($global:GitHubHeadRef)"
-            Start-AzOpsNativeExecution {
-                git checkout -b $global:GitHubHeadRef origin/$global:GitHubHeadRef
-            } | Out-Host
+        switch ($global:SCMPlatform) {
+            "GitHub" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($global:GitHubHeadRef) exists"
+                $branch = Start-AzOpsNativeExecution {
+                    git branch --list $global:GitHubHeadRef
+                }
+        
+                if ($branch) {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git checkout $global:GitHubHeadRef
+                    } | Out-Host
+                }
+                else {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($global:GitHubHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git checkout -b $global:GitHubHeadRef origin/$global:GitHubHeadRef
+                    } | Out-Host
+                }
+            }
+            "AzureDevOps" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking if local branch ($global:AzDevOpsHeadRef) exists"
+                $branch = Start-AzOpsNativeExecution {
+                    git branch --list $global:AzDevOpsHeadRef
+                }
+        
+                if ($branch) {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:AzDevOpsHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git checkout $global:AzDevOpsHeadRef
+                    } | Out-Host
+                }
+                else {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out new local branch ($global:AzDevOpsHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git checkout -b $global:AzDevOpsHeadRef origin/$global:AzDevOpsHeadRef
+                    } | Out-Host
+                }
+            }
         }
 
         if ($diff) {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Formatting diff changes"
             $diff = $diff -join ","
-        }
 
-        if ($null -ne $diff) {
             Write-AzOpsLog -Level Information -Topic "git" -Message "Changes:"
             $output = @()
             $diff.Split(",") | ForEach-Object {
@@ -117,26 +138,31 @@ function Invoke-AzOpsGitPush {
                     }
                 }
                 "AzureDevOps" {
-                    Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_ADO_COMMENTS"
-                    $params = @{
-                        Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($env:SYSTEM_PULLREQUEST_PULLREQUESTID)/threads?api-version=5.1"
-                        Method  = "Post"
-                        Headers = @{
-                            "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
-                            "Content-Type"  = "application/json"
-                        }
-                        Body    = (@{
-                                comments = @(
-                                    (@{
-                                            "parentCommentId" = 0
-                                            "content"         = "$(Get-Content -Path "$PSScriptRoot/../Comments-ado.md" -Raw)"
-                                            "commentType"     = 1
-                                        })
-                                )
-                            }  | ConvertTo-Json -Depth 5)
-                    }
-                    Invoke-RestMethod @params | Out-Null
-                    exit 1
+                    # if ($env:AZDEVOPS_STRICT_MODE -eq 1) {
+                    #     Write-AzOpsLog -Level Verbose -Topic "rest" -Message "Uri: $env:INPUT_ADO_COMMENTS"
+                    #     $params = @{
+                    #         Uri     = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECTID)/_apis/git/repositories/$($env:BUILD_REPOSITORY_ID)/pullRequests/$($env:SYSTEM_PULLREQUEST_PULLREQUESTID)/threads?api-version=5.1"
+                    #         Method  = "Post"
+                    #         Headers = @{
+                    #             "Authorization" = ("Bearer " + $env:SYSTEM_ACCESSTOKEN)
+                    #             "Content-Type"  = "application/json"
+                    #         }
+                    #         Body    = (@{
+                    #                 comments = @(
+                    #                     (@{
+                    #                             "parentCommentId" = 0
+                    #                             "content"         = "$(Get-Content -Path "$PSScriptRoot/../Comments-ado.md" -Raw)"
+                    #                             "commentType"     = 1
+                    #                         })
+                    #                 )
+                    #             }  | ConvertTo-Json -Depth 5)
+                    #     }
+                    #     Invoke-RestMethod @params | Out-Null
+                    #     exit 1
+                    # }
+                    # if ($env:AZDEVOPS_STRICT_MODE -eq 0) {
+
+                    # }
                 }
                 default {
                     Write-AzOpsLog -Level Error -Topic "rest" -Message "Could not determine SCM platform from SCMPLATFORM. Current value is $env:SCMPLATFORM"
@@ -233,20 +259,30 @@ function Invoke-AzOpsGitPush {
             git fetch origin
         } | Out-Host
 
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
-        Start-AzOpsNativeExecution {
-            git checkout $global:GitHubHeadRef
-        } | Out-Host
-
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:GitHubHeadRef) changes"
-        Start-AzOpsNativeExecution {
-            git pull origin $global:GitHubHeadRef
-        } | Out-Host
-
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Merging origin branch ($global:GitHubBaseRef) changes"
-        Start-AzOpsNativeExecution {
-            git merge origin/$global:GitHubHeadRef --no-commit
-        } | Out-Host
+        switch ($global:SCMPlatform) {
+            "GitHub" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
+                Start-AzOpsNativeExecution {
+                    git checkout $global:GitHubHeadRef
+                } | Out-Host
+        
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:GitHubHeadRef) changes"
+                Start-AzOpsNativeExecution {
+                    git pull origin $global:GitHubHeadRef
+                } | Out-Host
+            }
+            "AzureDevOps" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:AzDevOpsHeadRef)"
+                Start-AzOpsNativeExecution {
+                    git checkout $global:AzDevOpsHeadRef
+                } | Out-Host
+        
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:AzDevOpsHeadRef) changes"
+                Start-AzOpsNativeExecution {
+                    git pull origin $global:AzDevOpsHeadRef
+                } | Out-Host
+            }
+        }
 
         Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
@@ -267,10 +303,20 @@ function Invoke-AzOpsGitPush {
                 git commit -m 'System commit'
             } | Out-Host
 
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:GitHubHeadRef)"
-            Start-AzOpsNativeExecution {
-                git push origin $global:GitHubHeadRef
-            } | Out-Host
+            switch ($global:SCMPlatform) {
+                "GitHub" {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:GitHubHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git push origin $global:GitHubHeadRef
+                    } | Out-Host
+                }
+                "AzureDevOps" {
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:AzDevOpsHeadRef)"
+                    Start-AzOpsNativeExecution {
+                        git push origin $global:AzDevOpsHeadRef
+                    } | Out-Host
+                }
+            }
         }
     }
 
