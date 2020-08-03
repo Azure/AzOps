@@ -282,7 +282,7 @@ function ConvertTo-AzOpsState {
             }
         }
         else {
-            Write-AzOpsLog -Level Warning -Topic "ConvertTo-AzOpsState" -Message "Unable to find valid object to convert."
+            Write-AzOpsLog -Level Warning -Topic "ConvertTo-AzOpsState" -Message "Unable to find valid object to convert"
         }
     }
 
