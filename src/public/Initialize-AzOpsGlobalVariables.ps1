@@ -85,7 +85,7 @@ function Initialize-AzOpsGlobalVariables {
             GITHUB_TOKEN                       = @{ GitHubToken = $null } # Built-in env var
             GITHUB_COMMENTS                    = @{ GitHubComments = $null } # Built-in env var
             # Source Control
-            SCM_PLATFORM                       = @{ SCMPlatform = $null }
+            SCM_PLATFORM                       = @{ SCMPlatform = "GitHub" }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
