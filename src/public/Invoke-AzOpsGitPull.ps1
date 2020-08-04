@@ -206,8 +206,6 @@ function Invoke-AzOpsGitPull {
                             az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
                         }
                     }
-
-
                 }
                 default {
                     Write-AzOpsLog -Level Error -Topic "none" -Message "Could not determine SCM platform. Current value is $global:SCMPlatform"
