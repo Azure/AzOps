@@ -118,9 +118,9 @@ function Invoke-AzOpsGitPull {
                     # GitHub Pull Request - Create
                     if (-not $response) {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Creating new pull request"
-                        Start-AzOpsNativeExecution {
-                            gh pr create --title $global:GitHubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $global:GitHubRepository
-                        } | Out-Host
+                        Headers = @{
+                            "Authorization" = ("Bearer " + $global:GitHubToken)
+                        }
                     }
                     else {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request creation"
@@ -172,30 +172,30 @@ function Invoke-AzOpsGitPull {
                             }
                             Invoke-RestMethod -Method "Post" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
                         }
-                    }
-                    else {
-                        Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
-                    }
-                }
-                "AzureDevOps" {
-                    Write-AzOpsLog -Level Information -Topic "az" -Message "Checking if pull request exists"
-                    $response = Start-AzOpsNativeExecution {
-                        az repos pr list --status active --output json
-                    } | ConvertFrom-Json | ForEach-Object { $_ | Where-Object -FilterScript { $_.sourceRefName -eq "refs/heads/system" } }
-
-                    # Azure DevOps Pull Request - Create
-                    if ($null -eq $response) {
-                        Write-AzOpsLog -Level Information -Topic "az" -Message "Creating new pull request"
-                        Start-AzOpsNativeExecution {
-                            az repos pr create --source-branch "refs/heads/system" --target-branch "refs/heads/main" --title $global:AzDevOpsPullRequest --description "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
-                        } | Out-Host
-                    }
-                    else {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Skipping pull request creation"
                     }
 
                     # Azure DevOps Pull Request - Merge
                     if ($global:AzDevOpsAutoMerge -eq 1) {
+                        "AzureDevOps" {
+                            Write-AzOpsLog -Level Information -Topic "az" -Message "Checking if pull request exists"
+                            $response = Start-AzOpsNativeExecution {
+                                az repos pr list --status active --output json
+                            } | ConvertFrom-Json | ForEach-Object { $_ | Where-Object -FilterScript { $_.sourceRefName -eq "refs/heads/system" } }
+
+                            # Azure DevOps Pull Request - Create
+                            if ($null -eq $response) {
+                                Write-AzOpsLog -Level Information -Topic "az" -Message "Creating new pull request"
+                                Start-AzOpsNativeExecution {
+                                    az repos pr create --source-branch "refs/heads/system" --target-branch "refs/heads/main" --title $global:AzDevOpsPullRequest --description "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
+                                } | Out-Host
+                            }
+                            else {
+                                Write-AzOpsLog -Level Information -Topic "az" -Message "Skipping pull request creation"
+                            }
+                            end {}
+
+                        }                   if ($global:AzDevOpsAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Retrieving new pull request"
                         $response = Start-AzOpsNativeExecution {
                             az repos pr list --status active --source-branch "refs/heads/system" --target-branch "refs/heads/main" --output json
@@ -206,8 +206,6 @@ function Invoke-AzOpsGitPull {
                             az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
                         }
                     }
-
-
                 }
                 default {
                     Write-AzOpsLog -Level Error -Topic "none" -Message "Could not determine SCM platform. Current value is $global:SCMPlatform"

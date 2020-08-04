@@ -38,17 +38,27 @@ function Get-AzOpsAllSubscription {
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription states are: $(($ExcludedStates -join ','))"
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded subscription offers are: $(($ExcludedOffers -join ','))"
         # Get all subscriptions in current tenant and and exclude states/offers
-        $AllSubscriptions = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100).Value | Where-Object { $_.tenantId -eq $TenantId }
-        $IncludedSubscriptions = $AllSubscriptions | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
+
+        $AllSubscriptionsResults = @()
+        $nextLink = $null
+        $AllSubscriptionsJson = ((Invoke-AzRestMethod -Path /subscriptions?api-version=$ApiVersion -Method GET).Content | ConvertFrom-Json -Depth 100)
+        $AllSubscriptionsResults += $AllSubscriptionsJson.value | Where-Object { $_.tenantId -eq $TenantId }
+
+        while (Get-Member -InputObject $AllSubscriptionsJson -name "nextLink" -MemberType Properties) {
+            $AllSubscriptionsJson2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson.nextLink.Replace('https://management.azure.com','')  -Method GET).Content | ConvertFrom-Json -Depth 100)
+            $AllSubscriptionsResults += $AllSubscriptionsJson2.value | Where-Object { $_.tenantId -eq $TenantId }
+            $AllSubscriptionsJson = $AllSubscriptionsJson2
+        }
+        $IncludedSubscriptions = $AllSubscriptionsResults | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
         # Validate that subscriptions were found
         if ($null -eq $IncludedSubscriptions) {
             Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct"
         }
         else {
             # Calculate no of excluded subscriptions
-            [int]$ExcludedSubscriptions = ($AllSubscriptions.count - $IncludedSubscriptions.Count)
+            [int]$ExcludedSubscriptions = ($AllSubscriptionsResults.count - $IncludedSubscriptions.Count)
             if ($ExcludedSubscriptions -gt 0) {
-                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptions.count)] subscriptions"
+                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptionsResults.count)] subscriptions"
                 Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded [$ExcludedSubscriptions] subscriptions due to state or offer"
             }
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Including [$($IncludedSubscriptions.count)] subscriptions"
