@@ -126,6 +126,9 @@ function Invoke-AzOpsGitPull {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request creation"
                     }
 
+                    # GitHub Pull Request - Wait
+                    Start-Sleep -Seconds 5
+
                     # GitHub Pull Request - Merge
                     if ($global:GitHubAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
@@ -138,40 +141,9 @@ function Invoke-AzOpsGitPull {
                         $response = Invoke-RestMethod -Method "Get" @params
 
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
-                        $attempt = 1
-                        $retryCount = 3
-                        $unmerged = $true
-                        do {
-                            try {
-                                Start-AzOpsNativeExecution {
-                                    gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
-                                } | Out-Host
-                                $unmerged = $false
-                            }
-                            catch {
-                                if ($attempt -gt $retryCount) {
-                                    $unmerged = $true
-                                }
-                                else {
-                                    Write-AzOpsLog -Level Warning -Topic "gh" -Message "Retrying pull request merge"
-                                    Start-Sleep -Seconds 5
-                                    $attempt = $attempt + 1
-                                }
-                            }
-                        }
-                        while ($unmerged)
-
-                        if ($unmerged -eq $true) {
-                            $params = @{
-                                Headers = @{
-                                    "Authorization" = ("Bearer " + $global:GitHubToken)
-                                }
-                                Body    = (@{
-                                        "body" = "$(Get-Content -Path "$PSScriptRoot/../auxiliary/merge/README.md" -Raw)"
-                                    } | ConvertTo-Json)
-                            }
-                            Invoke-RestMethod -Method "Post" -Uri ($global:GitHubApiUrl + "/repos/" + $global:GitHubRepository + "/issues/" + $response[0].number + "/comments") @params | Out-Null
-                        }
+                        Start-AzOpsNativeExecution {
+                            gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
+                        } | Out-Host
                     }
                     else {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
@@ -193,6 +165,9 @@ function Invoke-AzOpsGitPull {
                     else {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Skipping pull request creation"
                     }
+
+                    # Azure DevOps Pull Request - Wait
+                    Start-Sleep -Second 5
 
                     # Azure DevOps Pull Request - Merge
                     if ($global:AzDevOpsAutoMerge -eq 1) {
