@@ -33,17 +33,16 @@ function Initialization {
 
             # Configure git
             switch ($env:SCM_PLATFORM) {
-                "GitHub" {
-                    Start-AzOpsNativeExecution {
-                        git config --global user.name $env:GITHUB_USERNAME
-                        git config --global user.email $env:GITHUB_EMAIL
-                    } | Out-Host
-        
-                }
                 "AzureDevOps" {
                     Start-AzOpsNativeExecution {
                         git config --global user.name $env:AZDEVOPS_USERNAME
                         git config --global user.email $env:AZDEVOPS_EMAIL
+                    } | Out-Host
+                }
+                default {
+                    Start-AzOpsNativeExecution {
+                        git config --global user.name $env:GITHUB_USERNAME
+                        git config --global user.email $env:GITHUB_EMAIL
                     } | Out-Host
                 }
             }
@@ -65,7 +64,13 @@ function Initialization {
             Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZOPS_THROTTLE_LIMIT: $($env:AZOPS_THROTTLE_LIMIT)"
             Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZOPS_STRICT_MODE: $($env:AZOPS_STRICT_MODE)"
             switch ($env:SCM_PLATFORM) {
-                "GitHub" {  
+                "AzureDevOps" {
+                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_AUTO_MERGE: $($env:AZDEVOPS_AUTO_MERGE)"
+                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_EMAIL: $($env:AZDEVOPS_EMAIL)"
+                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_USERNAME: $($env:AZDEVOPS_USERNAME)"
+                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_PULL_REQUEST: $($env:AZDEVOPS_PULL_REQUEST)"
+                }
+                default {  
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_AUTO_MERGE: $($env:GITHUB_AUTO_MERGE)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_EMAIL: $($env:GITHUB_EMAIL)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_USERNAME: $($env:GITHUB_USERNAME)"
@@ -73,12 +78,6 @@ function Initialization {
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_HEAD_REF: $($env:GITHUB_HEAD_REF)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_BASE_REF: $($env:GITHUB_BASE_REF)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_COMMENTS: $($env:GITHUB_COMMENTS)"
-                }
-                "AzureDevOps" {
-                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_AUTO_MERGE: $($env:AZDEVOPS_AUTO_MERGE)"
-                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_EMAIL: $($env:AZDEVOPS_EMAIL)"
-                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_USERNAME: $($env:AZDEVOPS_USERNAME)"
-                    Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_PULL_REQUEST: $($env:AZDEVOPS_PULL_REQUEST)"
                 }
             }
 
