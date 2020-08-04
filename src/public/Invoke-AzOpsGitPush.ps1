@@ -141,7 +141,7 @@ function Invoke-AzOpsGitPush {
                     if ($global:AzOpsStrictMode -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                         $params = @{
-                            Url     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
+                            Uri     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
                             Method  = "Post"
                             Headers = @{
                                 "Authorization" = ("Bearer " + $global:AzDevOpsToken)
@@ -163,7 +163,7 @@ function Invoke-AzOpsGitPush {
                     if ($global:AzOpsStrictMode -eq 0) {
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Writing comment to pull request"
                         $params = @{
-                            Url     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
+                            Uri     = ($global:AzDevOpsApiUrl + $global:AzDevOpsProjectId + "/_apis/git/repositories/" + $global:AzDevOpsRepository + "/pullRequests/" + $global:AzDevOpsPullRequestId + "/threads?api-version=5.1")
                             Method  = "Post"
                             Headers = @{
                                 "Authorization" = ("Bearer " + $global:AzDevOpsToken)
