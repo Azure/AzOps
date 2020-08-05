@@ -17,7 +17,7 @@ function Invoke-AzOpsGitPush {
         else {
             $skipPolicy = $false
         }
-        #Ensure git on the host has info about orgin
+        #Ensure git on the host has info about origin
         Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
         Start-AzOpsNativeExecution {
             git fetch origin
