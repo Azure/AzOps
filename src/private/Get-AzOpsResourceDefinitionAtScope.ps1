@@ -241,7 +241,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                         https://github.com/Azure/azure-powershell/issues/9448
                         $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
                     #>
-                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 5 -Parallel {
+                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $global:AzOpsThrottleLimit  -Parallel {
                             # region Importing module
                             # We need to import all required modules and declare variables again because of the parallel runspaces
                             # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
