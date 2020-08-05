@@ -69,7 +69,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
         # Task: Initialize azops/
         Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Initialize-AzOpsRepository"
-        Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
+        Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy -SkipRole
 
         # Task: Deployment of 10-create-managementgroup.parameters.json
         Get-ChildItem -Path "$PSScriptRoot/../template/10-create-managementgroup.parameters.json" | ForEach-Object {
@@ -121,7 +121,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
             #>
 
         # Task: Re-initialize azops/
-        Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy
+        Initialize-AzOpsRepository -SkipResourceGroup -SkipPolicy -SkipRole
     }
 
     Context "In-a-Box" {

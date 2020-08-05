@@ -59,8 +59,11 @@ function Initialize-AzOpsRepository {
     param(
         # Skip discovery of policies for better performance.
         [Parameter(Mandatory = $false)]
+        # Skip discovery of Policy.
         [switch]$SkipPolicy,
-        # Skip discovery of resource groups resources for better performance.
+        # Skip discovery of role.
+        [switch]$SkipRole,
+        # Skip discovery of resource groups resources for better performance
         [Parameter(Mandatory = $false)]
         [switch]$SkipResourceGroup,
         # Invalidate cached subscriptions and Management Groups and do a full discovery.
@@ -160,7 +163,7 @@ function Initialize-AzOpsRepository {
                 Save-AzOpsManagementGroupChildren -scope $Root
 
                 # Discover Resource at scope recursively
-                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup
             }
             else {
                 Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"

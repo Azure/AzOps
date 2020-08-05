@@ -17,6 +17,12 @@ function Invoke-AzOpsGitPush {
         else {
             $skipPolicy = $false
         }
+        if ($global:AzOpsSkipRole -eq "1") {
+            $skipRole = $true
+        }
+        else {
+            $skipRole = $false
+        }
         #Ensure git on the host has info about origin
         Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
         Start-AzOpsNativeExecution {
@@ -37,7 +43,7 @@ function Invoke-AzOpsGitPush {
             } | Out-Host
 
             Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
-            Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
+            Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy -SkipRole:$skipRole
 
             Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
             Start-AzOpsNativeExecution {
@@ -210,7 +216,7 @@ function Invoke-AzOpsGitPush {
         } | Out-Host
 
         Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
-        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
+        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy -SkipRole:$skipRole
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
         Start-AzOpsNativeExecution {
