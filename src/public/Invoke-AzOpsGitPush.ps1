@@ -17,13 +17,14 @@ function Invoke-AzOpsGitPush {
         else {
             $skipPolicy = $false
         }
+        #Ensure git on the host has info about origin
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
+        Start-AzOpsNativeExecution {
+            git fetch origin
+        } | Out-Host
 
         if ($global:AzOpsStrictMode -eq 1) {
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 1, verifying pull before push"
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
-            Start-AzOpsNativeExecution {
-                git fetch origin
-            } | Out-Host
 
             Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out origin branch (main)"
             Start-AzOpsNativeExecution {
@@ -101,6 +102,7 @@ function Invoke-AzOpsGitPush {
             else {
                 Write-AzOpsLog -Level Information -Topic "git" -Message "Branch is consistent with Azure"
             }
+            #At this stage branch for the PR is checked out successfully.
         }
         else {
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 0, skipping pull before push"
@@ -108,10 +110,10 @@ function Invoke-AzOpsGitPush {
     }
 
     process {
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling latest changes"
-        Start-AzOpsNativeExecution {
-            git pull
-        } | Out-Host
+        # Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling latest changes"
+        # Start-AzOpsNativeExecution {
+        #     git pull
+        # } | Out-Host
 
         # Changes
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
