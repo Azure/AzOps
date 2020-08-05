@@ -156,7 +156,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -164,16 +164,15 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
-
 
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -181,7 +180,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
         | Sort-Object -Property $_ `
         | Foreach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
     }
