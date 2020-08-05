@@ -234,14 +234,14 @@ function Invoke-AzOpsGitPush {
     }
 
     end {
-        Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking post refresh process"
-
         Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
         Start-AzOpsNativeExecution {
             git fetch origin
         } | Out-Host
 
         if ($global:AzOpsStrictMode -eq 1) {
+            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 1, verifying pull before push"
+
             switch ($global:SCMPlatform) {
                 "GitHub" {
                     Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
