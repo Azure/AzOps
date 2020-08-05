@@ -18,6 +18,11 @@ function Invoke-AzOpsGitPush {
             $skipPolicy = $false
         }
 
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
+        Start-AzOpsNativeExecution {
+            git fetch origin
+        } | Out-Host
+
         if ($global:AzOpsStrictMode -eq 1) {
             Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 1, verifying pull before push"
             
@@ -158,10 +163,10 @@ function Invoke-AzOpsGitPush {
     }
 
     process {
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling latest changes"
-        Start-AzOpsNativeExecution {
-            git pull
-        } | Out-Host
+        # Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling latest changes"
+        # Start-AzOpsNativeExecution {
+        #     git pull
+        # } | Out-Host
 
         # Changes
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
@@ -204,7 +209,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -212,16 +217,15 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
-
 
         $addModifySet `
         | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
         | Sort-Object -Property $_ `
         | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
 
@@ -229,7 +233,7 @@ function Invoke-AzOpsGitPush {
         | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
         | Sort-Object -Property $_ `
         | Foreach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json"
+            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json for a file $_"
             New-AzOpsStateDeployment -filename $_
         }
     }
