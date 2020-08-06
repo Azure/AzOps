@@ -181,7 +181,7 @@ function Invoke-AzOpsGitPush {
                     git log -1 --pretty=format:%s
                 }
 
-                Write-Host "Commit message: $commit"
+                Write-Host "Commit message: $skipCommit"
                 
                 if ($skipCommit -match "System push commit") {
                     Write-AzOpsLog -Level Information -Topic "git" -Message "Deployment not required"
@@ -197,66 +197,65 @@ function Invoke-AzOpsGitPush {
             }
         }
 
-        if (!$changeSet) {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "No changes detected"
+        if ($changeSet) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Iterating through changes"
+            
+            $deleteSet = @()
+            $addModifySet = @()
+            foreach ($change in $changeSet) {
+                $filename = ($change -split "`t")[-1]
+                if (($change -split "`t" | Select-Object -first 1) -eq 'D') {
+                    $deleteSet += $filename
+                }
+                elseif (($change -split "`t" | Select-Object -first 1) -eq 'A' -or 'M' -or 'R') {
+                    $addModifySet += $filename
+                }
+            }
+
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Add / Modify:"
+            $addModifySet | ForEach-Object {
+                Write-AzOpsLog -Level Information -Topic "git" -Message $_
+            }
+
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Delete:"
+            $deleteSet | ForEach-Object {
+                Write-AzOpsLog -Level Information -Topic "git" -Message $_
+            }
+
+            $addModifySet `
+            | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
+            | Sort-Object -Property $_ `
+            | ForEach-Object {
+                Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json for a file $_"
+                New-AzOpsStateDeployment -filename $_
+            }
+
+            $addModifySet `
+            | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
+            | Sort-Object -Property $_ `
+            | ForEach-Object {
+                Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json for a file $_"
+                New-AzOpsStateDeployment -filename $_
+            }
+
+            $addModifySet `
+            | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
+            | Sort-Object -Property $_ `
+            | ForEach-Object {
+                Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json for a file $_"
+                New-AzOpsStateDeployment -filename $_
+            }
+
+            $addModifySet `
+            | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
+            | Sort-Object -Property $_ `
+            | Foreach-Object {
+                Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json for a file $_"
+                New-AzOpsStateDeployment -filename $_
+            }
         }
         else {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Iterating through changes"
-        }
-
-        $deleteSet = @()
-        $addModifySet = @()
-        foreach ($change in $changeSet) {
-            $filename = ($change -split "`t")[-1]
-            if (($change -split "`t" | Select-Object -first 1) -eq 'D') {
-                $deleteSet += $filename
-            }
-            elseif (($change -split "`t" | Select-Object -first 1) -eq 'A' -or 'M' -or 'R') {
-                $addModifySet += $filename
-            }
-        }
-
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Add / Modify:"
-        $addModifySet | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "git" -Message $_
-        }
-
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Delete:"
-        $deleteSet | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "git" -Message $_
-        }
-
-        # Deployment
-        $addModifySet `
-        | Where-Object -FilterScript { $_ -match '/*.subscription.json$' } `
-        | Sort-Object -Property $_ `
-        | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.subscription.json for a file $_"
-            New-AzOpsStateDeployment -filename $_
-        }
-
-        $addModifySet `
-        | Where-Object -FilterScript { $_ -match '/*.providerfeatures.json$' } `
-        | Sort-Object -Property $_ `
-        | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.providerfeatures.json for a file $_"
-            New-AzOpsStateDeployment -filename $_
-        }
-
-        $addModifySet `
-        | Where-Object -FilterScript { $_ -match '/*.resourceproviders.json$' } `
-        | Sort-Object -Property $_ `
-        | ForEach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.resourceproviders.json for a file $_"
-            New-AzOpsStateDeployment -filename $_
-        }
-
-        $addModifySet `
-        | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
-        | Sort-Object -Property $_ `
-        | Foreach-Object {
-            Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json for a file $_"
-            New-AzOpsStateDeployment -filename $_
+            Write-AzOpsLog -Level Information -Topic "git" -Message "No changes detected"
         }
     }
 
