@@ -188,7 +188,7 @@ function Invoke-AzOpsGitPush {
                     $skip = $true
                 }
 
-                if ($skipRun -eq $true) {
+                if ($skip -eq $true) {
                     $changeSet = @()
                 }
                 else {
