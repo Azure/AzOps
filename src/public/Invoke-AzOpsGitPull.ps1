@@ -143,7 +143,7 @@ function Invoke-AzOpsGitPull {
                     try {
                         Start-AzOpsNativeExecution {
                             gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
-                        } | Out-Host
+                        } -IgnoreExitcode  | Out-Host
                         $unmerged = $false
                     }
                     catch {
