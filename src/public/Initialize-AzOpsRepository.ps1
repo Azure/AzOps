@@ -92,12 +92,12 @@ function Initialize-AzOpsRepository {
         }
         # Set environment variable ExportRawTemplate to 1 if switch ExportRawTemplate switch has been used
         if ($PSBoundParameters['ExportRawTemplate']) {
-            $env:ExportRawTemplate = 1
+            $env:AZOPS_EXPORT_RAW_TEMPLATES = 1
         }
         # Initialize Global Variables and return error if not set
         Initialize-AzOpsGlobalVariables
         if (-not (Test-AzOpsVariables)) {
-            Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsRepository" -Message "AzOps Global Variables not set."
+            Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsRepository" -Message "AzOps Global Variables not set"
         }
         # Get tenant id for current Az Context
         $TenantId = (Get-AzContext).Tenant.Id
@@ -123,7 +123,7 @@ function Initialize-AzOpsRepository {
             #Handle migration from old folder structure by checking for parenthesis pattern
             $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $global:AzOpsState -File | Where-Object { $_.Name -like "Microsoft.Management-managementGroups_$TenantId.parameters.json" } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
             if ($MigrationRequired) {
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Migration from old to new structure required. All artifacts will be lost."
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Migration from old to new structure required. All artifacts will be lost"
             }
             if ($PSBoundParameters['Force'] -or $true -eq $MigrationRequired) {
                 # Force will delete $global:AzOpsState directory

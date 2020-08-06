@@ -52,7 +52,7 @@ function Get-AzOpsAllSubscription {
         $IncludedSubscriptions = $AllSubscriptionsResults | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
         # Validate that subscriptions were found
         if ($null -eq $IncludedSubscriptions) {
-            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct."
+            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct"
         }
         else {
             # Calculate no of excluded subscriptions

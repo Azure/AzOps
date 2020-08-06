@@ -42,10 +42,11 @@ function Initialize-AzOpsGlobalVariables {
 
         # Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
+            # AzOps
             AZOPS_STATE                        = @{ AzOpsState = (Join-Path $pwd -ChildPath "azops") } # Folder to store AzOpsState artefact
             AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
             AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
-            AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_ENROLLMENT_ACCOUNT           = @{ AzOpsEnrollmentAccountPrincipalName = $null }
             AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" } # Excluded QuotaIDs as per https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/understand-cost-mgt-data#supported-microsoft-azure-offers
             AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" } # Excluded subscription states as per https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list#subscriptionstate
             AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
@@ -60,15 +61,31 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
             AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
-            GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
-            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
-            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
-            GITHUB_TOKEN                       = @{ GitHubToken = $null }
-            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 }
-            GITHUB_BRANCH                      = @{ GitHubBranch = $null }
-            GITHUB_COMMENTS                    = @{ GitHubComments = $null }
+            # Azure DevOps
+            AZDEVOPS_AUTO_MERGE                = @{ AzDevOpsAutoMerge = 1 }
+            AZDEVOPS_EMAIL                     = @{ AzDevOpsEmail = $null }
+            AZDEVOPS_USERNAME                  = @{ AzDevOpsUsername = $null }
+            AZDEVOPS_PULL_REQUEST              = @{ AzDevOpsPullRequest = $null }
+            AZDEVOPS_PULL_REQUEST_ID           = @{ AzDevOpsPullRequestId = $null }
+            AZDEVOPS_HEAD_REF                  = @{ AzDevOpsHeadRef = $null }
+            AZDEVOPS_BASE_REF                  = @{ AzDevOpsBaseRef = $null }
+            AZDEVOPS_API_URL                   = @{ AzDevOpsApiUrl = $null }
+            AZDEVOPS_PROJECT_ID                = @{ AzDevOpsProjectId = $null }
+            AZDEVOPS_REPOSITORY                = @{ AzDevOpsRepository = $null } 
+            AZDEVOPS_TOKEN                     = @{ AzDevOpsToken = $null }
+            # GitHub
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 } # Auto merge pull requests for pull workflow
+            GITHUB_EMAIL                       = @{ GitHubEmail = $null }
+            GITHUB_USERNAME                    = @{ GitHubUsername = $null }
+            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null } # Pull Request title
             GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
             GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
+            GITHUB_API_URL                     = @{ GitHubApiUrl = $null } # Built-in env var
+            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null } # Built-in env var
+            GITHUB_TOKEN                       = @{ GitHubToken = $null } # Built-in env var
+            GITHUB_COMMENTS                    = @{ GitHubComments = $null } # Built-in env var
+            # Source Control
+            SCM_PLATFORM                       = @{ SCMPlatform = "GitHub" }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -165,7 +182,7 @@ function Initialize-AzOpsGlobalVariables {
 
             }
             else {
-                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) have access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support."
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) have access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support"
             }
 
         }
