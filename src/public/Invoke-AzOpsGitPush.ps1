@@ -17,6 +17,9 @@ function Invoke-AzOpsGitPush {
         else {
             $skipPolicy = $false
         }
+        
+        # Skip AzDevOps Run
+        $skip = $false
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Fetching latest origin changes"
         Start-AzOpsNativeExecution {
@@ -165,7 +168,6 @@ function Invoke-AzOpsGitPush {
     process {
         switch ($global:SCMPlatform) {
             "GitHub" {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
                 $changeSet = @()
                 $changeSet = Start-AzOpsNativeExecution {
                     git diff origin/main --ignore-space-at-eol --name-status
@@ -176,19 +178,20 @@ function Invoke-AzOpsGitPush {
                 Start-AzOpsNativeExecution {
                     git checkout $global:AzDevOpsHeadRef
                 } | Out-Host
-        
-                $skipCommit = Start-AzOpsNativeExecution {
+
+                $commitMessage = Start-AzOpsNativeExecution {
                     git log -1 --pretty=format:%s
                 }
+                Write-AzOpsLog -Level Verbose -Topic "git" -Message "Commit message: $commitMessage"
 
-                Write-Host "Commit message: $skipCommit"
-                
-                if ($skipCommit -match "System push commit") {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Deployment not required"
+                if ($commitMessage -match "System push commit") {
+                    $skip = $true
+                }
+
+                if ($skipRun -eq $true) {
                     $changeSet = @()
                 }
                 else {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
                     $changeSet = @()
                     $changeSet = Start-AzOpsNativeExecution {
                         git diff origin/main --ignore-space-at-eol --name-status
@@ -198,7 +201,7 @@ function Invoke-AzOpsGitPush {
         }
 
         if ($changeSet) {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Iterating through changes"
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Deployment required"
             
             $deleteSet = @()
             $addModifySet = @()
@@ -255,12 +258,12 @@ function Invoke-AzOpsGitPush {
             }
         }
         else {
-            Write-AzOpsLog -Level Information -Topic "git" -Message "No changes detected"
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Deployment not required"
         }
     }
 
     end {
-        if (-not($skipCommit -match "System push commit")) {
+        if ($skip -eq $false) {
             switch ($global:SCMPlatform) {
                 "GitHub" {
                     Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
