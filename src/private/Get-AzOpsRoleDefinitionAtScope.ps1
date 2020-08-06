@@ -20,7 +20,7 @@ class AzOpsRoleDefinition {
 
     AzOpsRoleDefinition([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition] $properties) {
         $this.properties = $properties
-        $this.Name = $properties.Id
+        $this.Name = $properties.Id -split '/' | Select-Object -last 1
         $this.ResourceId = $properties.AssignableScopes[0] + '/providers/Microsoft.Authorization/roleDefinitions/' + $properties.Id
         $this.ResourceType = "Microsoft.Authorization/roleDefinition"
     }
@@ -59,13 +59,14 @@ function Get-AzOpsRoleDefinitionAtScope {
         Write-AzOpsLog -Level Debug -Topic "Get-AzOpsRoleDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " begin")
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Processing $scope"
         $currentRoleDefinitionsInAzureToReturn = @()
+        $currentRoleDefinitionsInAzure = @()
     }
 
     process {
         Write-AzOpsLog -Level Debug -Topic "Get-AzOpsRoleDefinitionAtScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         # Checking role definition at Subscription and Management Group only
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Retrieving Role Definition at Scope $scope"
-        $currentRoleDefinitionsInAzure = Get-AzRoleDefinition -Custom -Scope $scope
+        $currentRoleDefinitionsInAzure = Get-AzRoleDefinition -Custom -Scope $scope -WarningAction SilentlyContinue
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Retrieved Role Definition at Scope - Total Count $($currentRoleDefinitionsInAzure.count)"
         foreach ($roledefinition in $currentRoleDefinitionsInAzure) {
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Iterating through Role definition at scope $scope for $($roledefinition.Id)"

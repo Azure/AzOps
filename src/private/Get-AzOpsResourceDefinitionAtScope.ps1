@@ -236,12 +236,8 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
                     if ($ChildOfManagementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($scope.managementgroup) contains $($childofmanagementgroups.count) children"
-                        <#
-                        Due to Credential error below, we are restricting  Throttle Limit to 1 instead of $env:AzOpsThrottleLimit
-                        https://github.com/Azure/azure-powershell/issues/9448
-                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
-                    #>
-                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $global:AzOpsThrottleLimit  -Parallel {
+
+                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $Global:AzOpsThrottleLimit  -Parallel {
                             # region Importing module
                             # We need to import all required modules and declare variables again because of the parallel runspaces
                             # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
