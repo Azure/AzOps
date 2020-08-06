@@ -64,7 +64,7 @@ function Invoke-AzOpsGitPull {
 
             Write-AzOpsLog -Level Information -Topic "git" -Message "Creating new commit"
             Start-AzOpsNativeExecution {
-                git commit -m 'System commit'
+                git commit -m 'System pull commit'
             } | Out-Host
 
             Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin"

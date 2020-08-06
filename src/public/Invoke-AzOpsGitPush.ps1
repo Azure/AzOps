@@ -163,11 +163,20 @@ function Invoke-AzOpsGitPush {
     }
 
     process {
-        # Changes
-        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
-        $changeSet = @()
-        $changeSet = Start-AzOpsNativeExecution {
-            git diff origin/main --ignore-space-at-eol --name-status
+        $commit = Start-AzOpsNativeExecution {
+            git log -1 --pretty=format:%s
+        }
+
+        if ($commit -match "System push commit") {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Deployment not required"
+            $changeSet = @()
+        }
+        else {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
+            $changeSet = @()
+            $changeSet = Start-AzOpsNativeExecution {
+                git diff origin/main --ignore-space-at-eol --name-status
+            }    
         }
 
         if (!$changeSet) {
@@ -239,66 +248,64 @@ function Invoke-AzOpsGitPush {
             git fetch origin
         } | Out-Host
 
-        if ($global:AzOpsStrictMode -eq 1) {
-            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 1, verifying pull before push"
+        Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsStrictMode is set to 1, verifying pull before push"
 
+        switch ($global:SCMPlatform) {
+            "GitHub" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
+                Start-AzOpsNativeExecution {
+                    git checkout $global:GitHubHeadRef
+                } | Out-Host
+            
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:GitHubHeadRef) changes"
+                Start-AzOpsNativeExecution {
+                    git pull origin $global:GitHubHeadRef
+                } | Out-Host
+            }
+            "AzureDevOps" {
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:AzDevOpsHeadRef)"
+                Start-AzOpsNativeExecution {
+                    git checkout $global:AzDevOpsHeadRef
+                } | Out-Host
+            
+                Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:AzDevOpsHeadRef) changes"
+                Start-AzOpsNativeExecution {
+                    git pull origin $global:AzDevOpsHeadRef
+                } | Out-Host
+            }
+        }
+    
+        Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
+        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
+    
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
+        Start-AzOpsNativeExecution {
+            git add $global:AzOpsState
+        } | Out-Host
+    
+        Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
+        $status = Start-AzOpsNativeExecution {
+            git status --short
+        }
+    
+        if ($status) {
+            Write-AzOpsLog -Level Information -Topic "git" -Message "Creating new commit"
+            Start-AzOpsNativeExecution {
+                git commit -m 'System push commit'
+            } | Out-Host
+    
             switch ($global:SCMPlatform) {
                 "GitHub" {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:GitHubHeadRef)"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:GitHubHeadRef)"
                     Start-AzOpsNativeExecution {
-                        git checkout $global:GitHubHeadRef
-                    } | Out-Host
-            
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:GitHubHeadRef) changes"
-                    Start-AzOpsNativeExecution {
-                        git pull origin $global:GitHubHeadRef
+                        git push origin $global:GitHubHeadRef
                     } | Out-Host
                 }
                 "AzureDevOps" {
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Checking out existing local branch ($global:AzDevOpsHeadRef)"
+                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:AzDevOpsHeadRef)"
                     Start-AzOpsNativeExecution {
-                        git checkout $global:AzDevOpsHeadRef
+                        git push origin $global:AzDevOpsHeadRef
                     } | Out-Host
-            
-                    Write-AzOpsLog -Level Information -Topic "git" -Message "Pulling origin branch ($global:AzDevOpsHeadRef) changes"
-                    Start-AzOpsNativeExecution {
-                        git pull origin $global:AzDevOpsHeadRef
-                    } | Out-Host
-                }
-            }
-    
-            Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
-            Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
-    
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
-            Start-AzOpsNativeExecution {
-                git add $global:AzOpsState
-            } | Out-Host
-    
-            Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for additions / modifications / deletions"
-            $status = Start-AzOpsNativeExecution {
-                git status --short
-            }
-    
-            if ($status) {
-                Write-AzOpsLog -Level Information -Topic "git" -Message "Creating new commit"
-                Start-AzOpsNativeExecution {
-                    git commit -m 'System commit'
-                } | Out-Host
-    
-                switch ($global:SCMPlatform) {
-                    "GitHub" {
-                        Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:GitHubHeadRef)"
-                        Start-AzOpsNativeExecution {
-                            git push origin $global:GitHubHeadRef
-                        } | Out-Host
-                    }
-                    "AzureDevOps" {
-                        Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:AzDevOpsHeadRef)"
-                        Start-AzOpsNativeExecution {
-                            git push origin $global:AzDevOpsHeadRef
-                        } | Out-Host
-                    }
                 }
             }
         }
