@@ -64,10 +64,9 @@ function Get-AzOpsRoleDefinitionAtScope {
 
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Processing $scope"
         $currentRoleDefinitionsInAzureToReturn = @()
-        $currentRoleDefinitionsInAzure = @()
 
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Retrieving Role Definition at Scope $scope"
-        $currentRoleDefinitionsInAzure = Get-AzRoleDefinition -Custom -Scope $scope -WarningAction SilentlyContinue
+        [array] $currentRoleDefinitionsInAzure = Get-AzRoleDefinition -Custom -Scope $scope -WarningAction SilentlyContinue
         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Retrieved Role Definition at Scope - Total Count $($currentRoleDefinitionsInAzure.count)"
         foreach ($roledefinition in $currentRoleDefinitionsInAzure) {
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Iterating through Role definition at scope $scope for $($roledefinition.Id)"
