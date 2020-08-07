@@ -187,7 +187,7 @@ function New-AzOpsStateDeployment {
                             New-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
                         }
                         else {
-                            Write-AzOpsLog -Level Error -Topic "New-AzOpsStateDeployment" -Message "Resource Group [$($scope.resourcegroup)] not found. Unable to initiate deployment."
+                            Write-AzOpsLog -Level Error -Topic "New-AzOpsStateDeployment" -Message "Resource Group [$($scope.resourcegroup)] not found. Unable to initiate deployment"
                         }
                     }
                     elseif ($scope.subscription -and $PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
