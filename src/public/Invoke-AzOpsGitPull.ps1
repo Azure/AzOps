@@ -129,7 +129,7 @@ function Invoke-AzOpsGitPull {
                     # GitHub Pull Request - Wait
                     Start-Sleep -Seconds 5
 
-                    # GitHub Pull Request - Merge
+                    # GitHub Pull Request - Merge (Best Effort)
                     if ($global:GitHubAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
                         $params = @{
