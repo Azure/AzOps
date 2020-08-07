@@ -169,7 +169,7 @@ function Invoke-AzOpsGitPull {
                     # Azure DevOps Pull Request - Wait
                     Start-Sleep -Second 5
 
-                    # Azure DevOps Pull Request - Merge
+                    # Azure DevOps Pull Request - Merge (Best Effort)
                     if ($global:AzDevOpsAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Retrieving new pull request"
                         $response = Start-AzOpsNativeExecution {
@@ -179,7 +179,7 @@ function Invoke-AzOpsGitPull {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Merging new pull request"
                         Start-AzOpsNativeExecution {
                             az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
-                        }
+                        } -IgnoreExitcode | Out-Host
                     }
                 }
                 default {
