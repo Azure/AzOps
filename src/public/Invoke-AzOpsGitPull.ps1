@@ -129,7 +129,7 @@ function Invoke-AzOpsGitPull {
                     # GitHub Pull Request - Wait
                     Start-Sleep -Seconds 5
 
-                    # GitHub Pull Request - Merge
+                    # GitHub Pull Request - Merge (Best Effort)
                     if ($global:GitHubAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "rest" -Message "Retrieving new pull request"
                         $params = @{
@@ -143,7 +143,7 @@ function Invoke-AzOpsGitPull {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Merging new pull request"
                         Start-AzOpsNativeExecution {
                             gh pr merge $response[0].number --squash --delete-branch -R $global:GitHubRepository
-                        } | Out-Host
+                        } -IgnoreExitcode  | Out-Host
                     }
                     else {
                         Write-AzOpsLog -Level Information -Topic "gh" -Message "Skipping pull request merge"
@@ -169,7 +169,7 @@ function Invoke-AzOpsGitPull {
                     # Azure DevOps Pull Request - Wait
                     Start-Sleep -Second 5
 
-                    # Azure DevOps Pull Request - Merge
+                    # Azure DevOps Pull Request - Merge (Best Effort)
                     if ($global:AzDevOpsAutoMerge -eq 1) {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Retrieving new pull request"
                         $response = Start-AzOpsNativeExecution {
@@ -179,7 +179,7 @@ function Invoke-AzOpsGitPull {
                         Write-AzOpsLog -Level Information -Topic "az" -Message "Merging new pull request"
                         Start-AzOpsNativeExecution {
                             az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
-                        }
+                        } -IgnoreExitcode | Out-Host
                     }
                 }
                 default {
