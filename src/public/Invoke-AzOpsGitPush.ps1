@@ -249,12 +249,99 @@ function Invoke-AzOpsGitPush {
                 New-AzOpsStateDeployment -filename $_
             }
 
+            $AzOpsDeploymentList = @()
             $addModifySet `
-            | Where-Object -FilterScript { $_ -match '/*.parameters.json$' } `
-            | Sort-Object -Property $_ `
+            | Where-Object -FilterScript { $_ -match ((get-item $Global:AzOpsState).Name) } `
             | Foreach-Object {
-                Write-AzOpsLog -Level Information -Topic "Invoke-AzOpsGitPush" -Message "Invoking new state deployment - *.parameters.json for a file $_"
-                New-AzOpsStateDeployment -filename $_
+                $scope = (New-AzOpsScope -path $_)
+                if ($scope) {
+                    $templateFilePath = $null
+                    $templateParameterFilePath = $null
+                    $deploymentName = $null
+                    #Find the template
+                    if ($_.EndsWith('.parameters.json')) {
+                        $templateParameterFilePath = (Get-Item $_).FullName
+
+                        if (Test-Path (Get-Item $_).FullName.Replace('.parameters.json', '.json')) {
+                            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Template found $(($(Get-Item $_).FullName.Replace('.parameters.json', '.json')))"
+                            $templateFilePath = (Get-Item $_).FullName.Replace('.parameters.json', '.json')
+                        }
+                        else {
+                            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Template NOT found $(($(Get-Item $_).FullName.Replace('.parameters.json', '.json')))"
+                            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Determining resource type $((Get-Item $global:AzOpsMainTemplate).FullName)"
+                            # Determine Resource Type in Parameter file
+                            $templateParameterFileHashtable = Get-Content ($_) | ConvertFrom-Json -AsHashtable
+                            $effectiveResourceType = $null
+                            if (
+                                ($null -ne $templateParameterFileHashtable) -and
+                                ($templateParameterFileHashtable.Keys -contains "`$schema") -and
+                                ($templateParameterFileHashtable.Keys -contains "parameters") -and
+                                ($templateParameterFileHashtable.parameters.Keys -contains "input")
+                            ) {
+                                if ($templateParameterFileHashtable.parameters.input.value.Keys -contains "Type") {
+                                    # ManagementGroup and Subscription
+                                    $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.Type
+                                }
+                                elseif ($templateParameterFileHashtable.parameters.input.value.Keys -contains "ResourceType") {
+                                    # Resource
+                                    $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.ResourceType
+                                }
+                            }
+                            # Check if generic template is supporting the resource type for the deployment.
+                            if ($effectiveResourceType -and
+                                ((Get-Content (Get-Item $global:AzOpsMainTemplate).FullName) | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.ContainsKey($effectiveResourceType)) {
+                                Write-AzOpsLog -Level Information -Topic "pwsh" -Message "effectiveResourceType: $effectiveResourceType AzOpsMainTemplate supports resource type $effectiveResourceType in $((Get-Item $global:AzOpsMainTemplate).FullName)"
+                                $templateFilePath = (Get-Item $global:AzOpsMainTemplate).FullName
+                            }
+                            else {
+                                Write-AzOpsLog -Level Warning -Topic "pwsh" -Message "effectiveResourceType: $effectiveResourceType AzOpsMainTemplate does NOT supports resource type $effectiveResourceType in $((Get-Item $global:AzOpsMainTemplate).FullName). Deployment will be ignored"
+                            }
+                        }
+                    }
+                    #Find the template parameter file
+                    elseif ($_.EndsWith('.json')) {
+                        $templateFilePath = (Get-Item $_).FullName
+                        if (Test-Path (Get-Item $_).FullName.Replace('.json', '.parameters.json')) {
+                            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Template Parameter found $(($(Get-Item $_).FullName.Replace('.json', '.parameters.json')))"
+                            $templateParameterFilePath = (Get-Item $_).FullName.Replace('.json', '.parameters.json')
+                        }
+                        else {
+                            Write-AzOpsLog -Level Information -Topic "pwsh" -Message "Template Parameter NOT found $(($(Get-Item $_).FullName.Replace('.json', '.parameters.json')))"
+                        }
+                    }
+                    #Deployment Name
+                    if ($null -ne $templateParameterFilePath) {
+                        $deploymentName = (Get-Item $templateParameterFilePath).BaseName.replace('.parameters', '').Replace(' ', '_')
+                        if ($deploymentName.Length -gt 64) {
+                            $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
+                        }
+                    }
+                    elseif ($null -ne $templateFilePath) {
+                        $deploymentName = (Get-Item $templateFilePath).BaseName.replace('.json', '').Replace(' ', '_')
+                        if ($deploymentName.Length -gt 64) {
+                            $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
+                        }
+                    }
+                    #construct deployment object
+                    $AzOpsDeploymentList += [PSCustomObject] @{
+                        [string] 'templateFilePath'          = $templateFilePath
+                        [string] 'templateParameterFilePath' = $templateParameterFilePath
+                        [string] 'deploymentName'            = $deploymentName
+                        [string] 'scope'                     = $scope.scope
+                    }
+                    #New-AzOpsDeployment -templateFilePath $templateFilePath -templateParameterFilePath $templateParameterFilePath
+                }
+                else {
+                    Write-AzOpsLog -Level Information -Topic "pwsh" -Message "$_ is not under $($Global:AzOpsState) and ignored for the deployment"
+                }
+            }
+            #Starting Tenant Deployment
+            $AzOpsDeploymentList `
+            | Where-Object -FilterScript { $null -ne $_.templateFilePath } `
+            | Select-Object  scope, deploymentName, templateFilePath, templateParameterFilePath -Unique `
+            | ForEach-Object {
+                New-AzOpsDeployment -templateFilePath $_.templateFilePath `
+                                    -templateParameterFilePath  ($_.templateParameterFilePath ? $_.templateParameterFilePath : $null)
             }
         }
         else {

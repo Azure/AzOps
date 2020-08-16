@@ -2,10 +2,6 @@
 .SYNOPSIS
     This cmdlet processes AzOpsState changes and takes appropriate action by invoking ARM deployment and limited set of imperative operations required by platform that is currently not supported in ARM.
 .DESCRIPTION
-    This cmdlet invokes ARM deployment by calling New-AzDeployment* command at appropriate scope mapped to tenant, Management Group, Subscription or resource group in AzOpsState folder.
-        1) Filename must end with <template-name>.parameters.json
-        2) This cmdlet will look for <template-name>.json in same directory and use that template if found.
-        3) If no template file is found, it will use default template\template.json for supported resource types.
 
     This cmdlet invokes following imperative operations that are not supported in ARM.
         1) Subscription Creation with Enterprise Enrollment - Subscription will be created if not found in Azure where service principle have access. Subscription will also be moved to the Management Group.
@@ -25,9 +21,6 @@
                     "RegistrationState":  ""
                 }
             ]
-.EXAMPLE
-    # Invoke ARM Template Deployment
-    New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\.AzState\Microsoft.Management-managementGroups_contoso.parameters.json'
 .EXAMPLE
     # Invoke Subscription Creation
     New-AzOpsStateDeployment -filename 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\platform\connectivity\subscription.json'
@@ -124,96 +117,10 @@ function New-AzOpsStateDeployment {
 
                 Register-AzOpsResourceProvider -filename $filename -scope $scope
             }
-            if ($filename -match '/*.parameters.json$') {
-                Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Template deployment"
-
-                $MainTemplateSupportedTypes = @(
-                    "Microsoft.Resources/resourceGroups",
-                    "Microsoft.Authorization/policyAssignments",
-                    "Microsoft.Authorization/policyDefinitions",
-                    "Microsoft.Authorization/PolicySetDefinitions",
-                    "Microsoft.Authorization/roleDefinitions",
-                    "Microsoft.Authorization/roleAssignments",
-                    "Microsoft.PolicyInsights/remediations",
-                    "Microsoft.ContainerService/ManagedClusters",
-                    "Microsoft.KeyVault/vaults",
-                    "Microsoft.Network/virtualWans",
-                    "Microsoft.Network/virtualHubs",
-                    "Microsoft.Network/virtualNetworks",
-                    "Microsoft.Network/azureFirewalls",
-                    "/providers/Microsoft.Management/managementGroups",
-                    "/subscriptions"
-                )
-
-                if (($scope.subscription) -and (Get-AzContext).Subscription.Id -ne $scope.subscription) {
-                    Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Switching Subscription context from $($(Get-AzContext).Subscription.Name) to $scope.subscription "
-                    Set-AzContext -SubscriptionId $scope.subscription
-                }
-
-                $templatename = (Get-Item $filename).BaseName.Replace('.parameters', '.json')
-                $templatePath = (Join-Path (Get-Item $filename).Directory.FullName -ChildPath $templatename )
-                if (Test-Path $templatePath) {
-                    $templatePath = (Join-Path (Get-Item $filename).Directory.FullName -ChildPath $templatename )
-                }
-                else {
-
-                    $effectiveResourceType = ''
-                    # Check if generic template is supporting the resource type for the deployment.
-                    if ((Get-Member -InputObject $templateParametersJson.parameters.input.value -Name ResourceType)) {
-                        $effectiveResourceType = $templateParametersJson.parameters.input.value.ResourceType
-                    }
-                    elseif ((Get-Member -InputObject $templateParametersJson.parameters.input.value -Name Type)) {
-                        $effectiveResourceType = $templateParametersJson.parameters.input.value.Type
-                    }
-                    else {
-                        $effectiveResourceType = ''
-                    }
-                    if ($effectiveResourceType -and ($MainTemplateSupportedTypes -Contains $effectiveResourceType)) {
-                        $templatePath = $global:AzOpsMainTemplate
-                    }
-                }
-
-                if (Test-Path $templatePath) {
-                    $deploymentName = (Get-Item $filename).BaseName.replace('.parameters', '').Replace(' ', '_')
-
-                    if ($deploymentName.Length -gt 64) {
-                        $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
-                    }
-                    Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Template is $templatename / $templatepath and Deployment Name is $deploymentName"
-                    if ($scope.resourcegroup) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Resource Group] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
-                        Test-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -OutVariable templateErrors
-                        if (-not $templateErrors -and $PSCmdlet.ShouldProcess("Start Resource Group Deployment?")) {
-                            New-AzResourceGroupDeployment -ResourceGroupName $scope.resourcegroup -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
-                        }
-                        else {
-                            Write-AzOpsLog -Level Error -Topic "New-AzOpsStateDeployment" -Message "Resource Group [$($scope.resourcegroup)] not found. Unable to initiate deployment"
-                        }
-                    }
-                    elseif ($scope.subscription -and $PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Subscription] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
-                        New-AzSubscriptionDeployment -Location $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename -Name $deploymentName
-                    }
-                    elseif ($scope.managementgroup -and $PSCmdlet.ShouldProcess("Start Management Group Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Management Group] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
-                        New-AzManagementGroupDeployment -ManagementGroupId $scope.managementgroup -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
-                    }
-                    elseif ($scope.type -eq 'root' -and $PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
-                        Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Starting [Tenant] deployment in [$($global:AzOpsDefaultDeploymentRegion)]"
-                        New-AzTenantDeployment -Name $deploymentName  -Location  $global:AzOpsDefaultDeploymentRegion -TemplateFile $templatePath -TemplateParameterFile $filename
-                    }
-                }
-            }
-            else {
-                Write-AzOpsLog -Level Verbose -Topic "New-AzOpsStateDeployment" -Message "Template Path for $templatePath for $filename not found"
-            }
         }
         else {
             Write-AzOpsLog -Level Warning -Topic "New-AzOpsStateDeployment" -Message "Unable to determine scope type for $filename"
         }
-
     }
-
     end {}
-
 }
