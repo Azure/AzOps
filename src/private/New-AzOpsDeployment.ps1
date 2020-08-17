@@ -25,7 +25,7 @@ function New-AzOpsDeployment {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Position = 0, ParameterSetName = "template", Mandatory = $false, ValueFromPipeline = $true)]
-        [string]$name = "azops-template-deployment",
+        [string]$deploymentName = "azops-template-deployment",
         [Parameter(Position = 0, ParameterSetName = "template", ValueFromPipeline = $true)]
         [ValidateScript( { Test-Path $_ })]
         [string]$templateFilePath,
