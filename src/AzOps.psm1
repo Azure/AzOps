@@ -96,6 +96,7 @@ class AzOpsScope {
                 $resourcepath = Get-Content ($path) | ConvertFrom-Json -AsHashtable
 
                 if (
+                    ($null -ne $resourcepath) -and
                     ($resourcepath.Keys -contains "`$schema") -and
                     ($resourcepath.Keys -contains "parameters") -and
                     ($resourcepath.parameters.Keys -contains "input")
@@ -229,7 +230,6 @@ class AzOpsScope {
             $this.subscriptionDisplayName = $this.GetSubscriptionDisplayName()
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
-            # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "subscription.json")
             if ($global:AzOpsExportRawTemplate -eq 1) {
                 $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
             }
@@ -529,7 +529,12 @@ function New-AzOpsScope {
             elseif ($PSCmdlet.ParameterSetName -eq "pathfile") {
                 # Remove .AzState file extension if present
                 $path = $path -replace $regex_findAzStateFileExtension, ''
-                if ((Test-Path $path) -and (Test-Path $path -IsValid) -and $PSCmdlet.ShouldProcess("Create new pathfile object?")) {
+                if (
+                        (Test-Path $path) -and
+                        (Test-Path $path -IsValid) -and
+                        (Resolve-Path $path).path.StartsWith((Resolve-Path $Global:AzOpsState).Path) -and
+                        $PSCmdlet.ShouldProcess("Create new pathfile object?")
+                    ) {
                     Write-AzOpsLog -Level Verbose -Topic "New-AzOpsScope" -Message ("Creating new AzOpsScope object using path [$path]")
                     return [AzOpsScope]::new($(Get-Item $path))
                 }
@@ -546,5 +551,4 @@ function New-AzOpsScope {
         Write-AzOpsLog -Level Debug -Topic "New-AzOpsScope" -Message ("Initiating function " + $MyInvocation.MyCommand + " end")
     }
 }
-
 Export-ModuleMember -Function * -Alias *
