@@ -113,6 +113,10 @@ function Initialize-AzOpsGlobalVariables {
                 if ($EnvVarValue -match ',') {
                     $EnvVarValue = $EnvVarValue -split ','
                 }
+                # Handle string to integer conversions (since env variables are always strings)
+                if ($EnvVarValue -match '^(0|-*[1-9]+[0-9]*)$' -and $EnvVarValue -isnot [int]) {
+                    $EnvVarValue = $EnvVarValue -as [int]
+                }
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
         }
