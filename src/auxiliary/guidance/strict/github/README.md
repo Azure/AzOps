@@ -6,7 +6,7 @@ It is strongly recommended to ensure that 'feature' and 'main' branches contain 
 
 ### Remediation
 
-[Re-initialization](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) of the repository to pull the latest changes from Azure by manually invoking the GitHub Action.
+[Re-initialize](https://github.com/Azure/Enterprise-Scale/blob/main/docs/Deploy/discover-environment.md#initialize-existing-environment) of the repository to pull the latest changes from Azure by manually invoking the GitHub Action.
 
 Upon successful completion, the action will create a new `system` branch and a new `Azure Change Notification` pull request containing the latest configuration.
 
