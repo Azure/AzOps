@@ -237,7 +237,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     if ($ChildOfManagementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($scope.managementgroup) contains $($childofmanagementgroups.count) children"
 
-                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 3 -Parallel {
+                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 1 -Parallel {
                             # region Importing module
                             # We need to import all required modules and declare variables again because of the parallel runspaces
                             # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
