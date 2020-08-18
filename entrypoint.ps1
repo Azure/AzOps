@@ -18,7 +18,7 @@ function Logging {
 }
 
 function Initialization {
-    
+
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
     param ()
 
@@ -70,7 +70,7 @@ function Initialization {
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_USERNAME: $($env:AZDEVOPS_USERNAME)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "AZDEVOPS_PULL_REQUEST: $($env:AZDEVOPS_PULL_REQUEST)"
                 }
-                default {  
+                default {
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_AUTO_MERGE: $($env:GITHUB_AUTO_MERGE)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_EMAIL: $($env:GITHUB_EMAIL)"
                     Write-AzOpsLog -Level Information -Topic "env-var" -Message "GITHUB_USERNAME: $($env:GITHUB_USERNAME)"
