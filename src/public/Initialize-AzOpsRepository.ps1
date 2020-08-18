@@ -97,6 +97,17 @@ function Initialize-AzOpsRepository {
         if ($PSBoundParameters['ExportRawTemplate']) {
             $env:AZOPS_EXPORT_RAW_TEMPLATES = 1
         }
+        # If role discovery is enabled, validate Azure AD Directory.Read permissions.
+        if ($true -ne $PSBoundParameters['SkipRole']) {
+            try {
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Validating Azure AD Permissions for RoleAssignments/RoleDefinitions"
+                $TestAADCall = Get-AzADUser -First 1 -ErrorAction Stop
+            }
+            catch [System.Exception]  {
+                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "Missing Directory.Read permissions in Azure AD Graph. Skipping discovery of RoleAssingments and RoleDefinitions"
+                $SkipRole = $true
+            }
+        }
         # Initialize Global Variables and return error if not set
         Initialize-AzOpsGlobalVariables
         if (-not (Test-AzOpsVariables)) {
