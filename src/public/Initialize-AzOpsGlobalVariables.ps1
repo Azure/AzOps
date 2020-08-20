@@ -160,13 +160,11 @@ function Initialize-AzOpsGlobalVariables {
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now"
             # Get all managementgroups that principal has access to
             $global:AzOpsPartialRoot = @()
-            # Initialize global variable for Management Groups
-            $global:AzOpsAzManagementGroup = @()
 
             $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
             if ($RootScope -in ($managementGroups | Select-Object -Property Id).Id -or 1 -eq $global:AzOpsSupportPartialMgDiscovery) {
                 # Handle user provided management groups
-                if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
+                if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot -match '.') {
                     $ManagementGroups = @()
                     Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Processing user provided root management groups"
                     $global:AzOpsPartialMgDiscoveryRoot -split ',' | ForEach-Object -Process {
