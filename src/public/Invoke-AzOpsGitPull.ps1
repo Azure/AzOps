@@ -17,6 +17,12 @@ function Invoke-AzOpsGitPull {
         else {
             $skipPolicy = $false
         }
+        if ($global:AzOpsSkipRole -eq "1") {
+            $skipRole = $true
+        }
+        else {
+            $skipRole = $false
+        }
     }
 
     process {
@@ -45,7 +51,7 @@ function Invoke-AzOpsGitPull {
         }
 
         Write-AzOpsLog -Level Information -Topic "Initialize-AzOpsRepository" -Message "Invoking repository initialization"
-        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy
+        Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy -SkipRole:$skipRole
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Adding azops file changes"
         Start-AzOpsNativeExecution {

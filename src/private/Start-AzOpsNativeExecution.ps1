@@ -40,4 +40,4 @@ function Start-AzOpsNativeExecution {
         $script:ErrorActionPreference = $backupEAP
     }
 
-} 
+}

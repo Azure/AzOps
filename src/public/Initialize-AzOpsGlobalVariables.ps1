@@ -61,6 +61,7 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
             AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
+            AZOPS_SKIP_ROLE                    = @{ AzOpsSkipRole = 0 }
             # Azure DevOps
             AZDEVOPS_AUTO_MERGE                = @{ AzDevOpsAutoMerge = 1 }
             AZDEVOPS_EMAIL                     = @{ AzDevOpsEmail = $null }
@@ -71,7 +72,7 @@ function Initialize-AzOpsGlobalVariables {
             AZDEVOPS_BASE_REF                  = @{ AzDevOpsBaseRef = $null }
             AZDEVOPS_API_URL                   = @{ AzDevOpsApiUrl = $null }
             AZDEVOPS_PROJECT_ID                = @{ AzDevOpsProjectId = $null }
-            AZDEVOPS_REPOSITORY                = @{ AzDevOpsRepository = $null } 
+            AZDEVOPS_REPOSITORY                = @{ AzDevOpsRepository = $null }
             AZDEVOPS_TOKEN                     = @{ AzDevOpsToken = $null }
             # GitHub
             GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 } # Auto merge pull requests for pull workflow
@@ -112,6 +113,10 @@ function Initialize-AzOpsGlobalVariables {
                 # Convert comma separated vars to array (since all env vars are strings)
                 if ($EnvVarValue -match ',') {
                     $EnvVarValue = $EnvVarValue -split ','
+                }
+                # Handle string to integer conversions (since env variables are always strings)
+                if ($EnvVarValue -match '^(0|-*[1-9]+[0-9]*)$' -and $EnvVarValue -isnot [int]) {
+                    $EnvVarValue = $EnvVarValue -as [int]
                 }
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }

@@ -59,8 +59,11 @@ function Initialize-AzOpsRepository {
     param(
         # Skip discovery of policies for better performance.
         [Parameter(Mandatory = $false)]
+        # Skip discovery of Policy.
         [switch]$SkipPolicy,
-        # Skip discovery of resource groups resources for better performance.
+        # Skip discovery of role.
+        [switch]$SkipRole,
+        # Skip discovery of resource groups resources for better performance
         [Parameter(Mandatory = $false)]
         [switch]$SkipResourceGroup,
         # Invalidate cached subscriptions and Management Groups and do a full discovery.
@@ -93,6 +96,17 @@ function Initialize-AzOpsRepository {
         # Set environment variable ExportRawTemplate to 1 if switch ExportRawTemplate switch has been used
         if ($PSBoundParameters['ExportRawTemplate']) {
             $env:AZOPS_EXPORT_RAW_TEMPLATES = 1
+        }
+        # If role discovery is enabled, validate Azure AD Directory.Read permissions.
+        if ($true -ne $PSBoundParameters['SkipRole']) {
+            try {
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Validating Azure AD Permissions for RoleAssignments/RoleDefinitions"
+                $TestAADCall = Get-AzADUser -First 1 -ErrorAction Stop
+            }
+            catch [System.Exception]  {
+                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "Missing Directory.Read permissions in Azure AD Graph. Skipping discovery of RoleAssingments and RoleDefinitions"
+                $SkipRole = $true
+            }
         }
         # Initialize Global Variables and return error if not set
         Initialize-AzOpsGlobalVariables
@@ -160,7 +174,7 @@ function Initialize-AzOpsRepository {
                 Save-AzOpsManagementGroupChildren -scope $Root
 
                 # Discover Resource at scope recursively
-                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup
+                Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup
             }
             else {
                 Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
