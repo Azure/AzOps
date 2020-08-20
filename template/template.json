@@ -91,7 +91,7 @@
             "Microsoft.Resources/resourceGroups": "2019-05-10",
             "Microsoft.Authorization/policyAssignments": "2019-06-01",
             "Microsoft.Authorization/policyDefinitions": "2018-05-01",
-            "Microsoft.Authorization/PolicySetDefinitions": "2018-05-01",
+            "Microsoft.Authorization/policySetDefinitions": "2018-05-01",
             "Microsoft.Authorization/roleDefinitions": "2018-01-01-preview",
             "Microsoft.Authorization/roleAssignments": "2018-09-01-preview",
             "Microsoft.PolicyInsights/remediations": "2019-07-01",
