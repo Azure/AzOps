@@ -98,13 +98,13 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
     Context "In-a-Box" {
         # Debug: Get-AzTenantDeployment | Sort-Object -Property Timestamp -Descending | Format-Table
         It "Passes ProvisioningState 10-create-managementgroup" {
-            (Get-AzTenantDeployment -Name "10-create-managementgroup").ProvisioningState | Should -Match "Succeeded"
+            (Get-AzTenantDeployment -Name "AzOps-10-create-managementgroup").ProvisioningState | Should -Match "Succeeded"
         }
         It "Passes ProvisioningState 20-create-child-managementgroup" {
-            (Get-AzTenantDeployment -Name "20-create-child-managementgroup").ProvisioningState | Should -Match "Succeeded"
+            (Get-AzTenantDeployment -Name "AzOps-20-create-child-managementgroup").ProvisioningState | Should -Match "Succeeded"
         }
         It "Passes ProvisioningState 30-create-policydefinition-at-managementgroup" {
-            (Get-AzTenantDeployment -Name "30-create-policydefinition-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
+            (Get-AzTenantDeployment -Name "AzOps-30-create-policydefinition-at-managementgroup").ProvisioningState | Should -Match "Succeeded"
         }
         It "Passes Discovery of Tailspin Management Group" {
             (Get-ChildItem -Directory -Recurse -Path $env:AZOPS_STATE).Name | Should -Contain 'Tailspin (Tailspin)'
