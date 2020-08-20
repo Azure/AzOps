@@ -130,6 +130,7 @@
                 "default": {
                 },
                 "generalize": {
+                    "Id": "Remove"
                 }
             }
         },

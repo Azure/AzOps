@@ -318,7 +318,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $currentRoleDefinitionsInAzure = @()
                     $currentRoleDefinitionsInAzure = Get-AzOpsRoleDefinitionAtScope -scope $scope
                     foreach ($roleDefinition in $currentRoleDefinitionsInAzure) {
-                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role definition at scope $scope for $($roleDefinition.ResourceId)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role definition at scope $scope for $($roleDefinition.Id)"
                         # Convert roleAssignment to AzOpsState
                         ConvertTo-AzOpsState -CustomObject $roleDefinition
                         # Serialize roleAssignment in original format and add to variable for full export
@@ -330,7 +330,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $currentRoleAssignmentInAzure = @()
                     $currentRoleAssignmentInAzure = Get-AzOpsRoleAssignmentAtScope -scope $scope
                     foreach ($roleAssignment in $currentRoleAssignmentInAzure) {
-                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role assignment at scope $scope for $($roleAssignment.ResourceId)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role assignment at scope $scope for $($roleAssignment.Id)"
                         # Convert roleAssignment to AzOpsState
                         ConvertTo-AzOpsState -CustomObject $roleAssignment
                         # Serialize roleAssignment in original format and add to variable for full export
@@ -355,14 +355,6 @@ function Get-AzOpsResourceDefinitionAtScope {
                     ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
                 }
             }
-            # TEMPORARILY DISABLED
-            # Role definitions and role assignments
-            # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Definition at scope $scope"
-            # Get-AzOpsRoleDefinitionAtScope -scope $scope
-
-            # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Assignment at scope $scope"
-            # Get-AzOpsRoleAssignmentAtScope -scope $scope
-
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
         }
         else {

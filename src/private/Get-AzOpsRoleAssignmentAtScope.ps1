@@ -15,14 +15,19 @@
 class AzOpsRoleAssignment {
     [string] $ResourceType
     [string] $Name
-    [string] $ResourceId
-    [string] $RoleDefinitionId
-    [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleAssignment] $properties
+    [string] $Id
+    [hashtable]$properties
 
-    AzOpsRoleAssignment([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleAssignment] $properties) {
-        $this.properties = $properties
-        $this.Name = $properties.DisplayName
-        $this.ResourceId = $properties.RoleAssignmentId
+    AzOpsRoleAssignment($properties) {
+        $this.properties = [ordered]@{
+            DisplayName        = $properties.DisplayName
+            PrincipalId        = $properties.ObjectId
+            RoleDefinitionName = $properties.RoleDefinitionName
+            ObjectType         = $properties.ObjectType
+            RoleDefinitionId   = '/providers/Microsoft.Authorization/RoleDefinitions/{0}' -f $properties.RoleDefinitionId
+        }
+        $this.Id = $properties.RoleAssignmentId
+        $this.Name = ($properties.RoleAssignmentId -split "/")[-1]
         $this.ResourceType = "Microsoft.Authorization/roleAssignments"
     }
 }

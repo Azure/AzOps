@@ -14,15 +14,26 @@
 class AzOpsRoleDefinition {
     [string] $ResourceType
     [string] $Name
-    [string] $ResourceId
-    [string] $RoleDefinitionId
-    [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition] $properties
+    [string] $Id
+    [hashtable] $properties
 
-    AzOpsRoleDefinition([Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition] $properties) {
-        $this.properties = $properties
-        $this.Name = $properties.Id -split '/' | Select-Object -last 1
-        $this.ResourceId = $properties.AssignableScopes[0] + '/providers/Microsoft.Authorization/roleDefinitions/' + $properties.Id
-        $this.ResourceType = "Microsoft.Authorization/roleDefinition"
+    AzOpsRoleDefinition($properties) {
+        $this.properties = [ordered]@{
+            roleName         = $properties.Name
+            description      = $properties.Description
+            assignableScopes = @($properties.AssignableScopes)
+            permissions      = @(
+                @{
+                    actions        = @($properties.Actions)
+                    notActions     = @($properties.NotActions)
+                    dataActions    = @($properties.DataActions)
+                    notdataActions = @($properties.NotDataActions)
+                }
+            )
+        }
+        $this.Name = $properties.Id
+        $this.Id = $properties.AssignableScopes[0] + '/providers/Microsoft.Authorization/roleDefinitions/' + $properties.Id
+        $this.ResourceType = "Microsoft.Authorization/roleDefinitions"
     }
 }
 function New-AzOpsRoleDefinition {
