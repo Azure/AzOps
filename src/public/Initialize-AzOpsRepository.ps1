@@ -123,7 +123,7 @@ function Initialize-AzOpsRepository {
     process {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        #
+        # Set rootscope to discover, either partial or from the root mg
         if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialRoot -match '.') {
             $RootScope = $AzOpsPartialRoot.id | Sort-Object -Unique
         }
