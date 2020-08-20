@@ -4,8 +4,8 @@ LABEL repository="https://github.com/Azure/AzOps"
 LABEL maintainer="Microsoft"
 
 ARG github=0.11.0
-ARG azure_accounts=1.9.1
-ARG azure_resources=2.3.0
+ARG azure_accounts=1.9.2
+ARG azure_resources=2.4.0
 
 RUN [ "/bin/bash", "-c", "apt-get update &> /dev/null && apt-get install -y git wget &> /dev/null" ]
 RUN [ "/bin/bash", "-c", "wget https://github.com/cli/cli/releases/download/v${github}/gh_${github}_linux_amd64.deb -O /tmp/gh_${github}_linux_amd64.deb  &> /dev/null" ]

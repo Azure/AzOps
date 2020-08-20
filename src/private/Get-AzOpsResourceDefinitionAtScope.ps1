@@ -50,6 +50,9 @@ function Get-AzOpsResourceDefinitionAtScope {
         # Skip discovery of policies for better performance.
         [Parameter(Mandatory = $false)]
         [switch]$SkipPolicy,
+        # Skip discovery of policies for better performance.
+        [Parameter(Mandatory = $false)]
+        [switch]$SkipRole,
         # Skip discovery of resource groups and resources for better performance.
         [Parameter(Mandatory = $false)]
         [switch]$SkipResourceGroup
@@ -233,11 +236,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup }).Children
                     if ($ChildOfManagementGroups) {
                         Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "$($scope.managementgroup) contains $($childofmanagementgroups.count) children"
-                        <#
-                        Due to Credential error below, we are restricting  Throttle Limit to 1 instead of $env:AzOpsThrottleLimit
-                        https://github.com/Azure/azure-powershell/issues/9448
-                        $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
-                    #>
+
                         $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 1 -Parallel {
                             # region Importing module
                             # We need to import all required modules and declare variables again because of the parallel runspaces
@@ -255,58 +254,88 @@ function Get-AzOpsResourceDefinitionAtScope {
                             $global:AzOpsGeneralizeTemplates = $using:Global:AzOpsGeneralizeTemplates
 
                             $SkipPolicy = $using:SkipPolicy
+                            $SkipRole = $using:SkipRole
                             $SkipResourceGroup = $using:SkipResourceGroup
                             # endregion
 
                             $child = $_
                             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Processing Management Group Child Resource [$($child.Id)]"
-                            Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
+                            Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
                         }
                     }
                     ConvertTo-AzOpsState -Resource ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
                 }
             }
             # Process policies and policy assignments for resourcegroups, subscriptions and Management Groups
-            if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups' -and -not($SkipPolicy)) {
-                # Process policy definitions
-                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Definition at scope $scope"
-                $currentPolicyDefinitionsInAzure = @()
+            if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups' ) {
                 $serializedPolicyDefinitionsInAzure = @()
-                $currentPolicyDefinitionsInAzure = Get-AzOpsPolicyDefinitionAtScope -scope $scope
-                foreach ($policydefinition in $currentPolicyDefinitionsInAzure) {
-                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
-                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
-                    # Convert policyDefinition to AzOpsState
-                    ConvertTo-AzOpsState -CustomObject $policydefinition
-                    # Serialize policyDefinition in original format and add to variable for full export
-                    $serializedPolicyDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policydefinition -ReturnObject -ExportRawTemplate
-                }
-
-                # Process policySetDefinitions (initiatives)
-                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Set Definition at scope $scope"
-                $currentPolicySetDefinitionsInAzure = @()
                 $serializedPolicySetDefinitionsInAzure = @()
-                $currentPolicySetDefinitionsInAzure = Get-AzOpsPolicySetDefinitionAtScope -scope $scope
-                foreach ($policysetdefinition in $currentPolicySetDefinitionsInAzure) {
-                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
-                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
-                    # Convert policySetDefinition to AzOpsState
-                    ConvertTo-AzOpsState -CustomObject $policysetdefinition
-                    # Serialize policySetDefinition in original format and add to variable for full export
-                    $serializedPolicySetDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policysetdefinition -ReturnObject -ExportRawTemplate
-                }
+                $serializedPolicyAssignmentsInAzure = @()
+                $serializedRoleDefinitionsInAzure = @()
+                $serializedRoleAssignmentInAzure = @()
 
-                # Process policy assignments
-                Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Assignment at scope $scope"
-                $currentPolicyAssignmentInAzure = @()
-                $serializedPolicyAssignmentInAzure = @()
-                $currentPolicyAssignmentInAzure = Get-AzOpsPolicyAssignmentAtScope -scope $scope
-                foreach ($policyAssignment in $currentPolicyAssignmentInAzure) {
-                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
-                    # Convert policyAssignment to AzOpsState
-                    ConvertTo-AzOpsState -CustomObject $policyAssignment
-                    # Serialize policyAssignment in original format and add to variable for full export
-                    $serializedPolicyAssignmentInAzure += ConvertTo-AzOpsState -Resource $policyAssignment -ReturnObject -ExportRawTemplate
+                if (-not $SkipPolicy) {
+                    # Process policy definitions
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Definition at scope $scope"
+                    $currentPolicyDefinitionsInAzure = @()
+                    $currentPolicyDefinitionsInAzure = Get-AzOpsPolicyDefinitionAtScope -scope $scope
+                    foreach ($policydefinition in $currentPolicyDefinitionsInAzure) {
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+                        # Convert policyDefinition to AzOpsState
+                        ConvertTo-AzOpsState -CustomObject $policydefinition
+                        # Serialize policyDefinition in original format and add to variable for full export
+                        $serializedPolicyDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policydefinition -ReturnObject -ExportRawTemplate
+                    }
+                    # Process policySetDefinitions (initiatives)
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Set Definition at scope $scope"
+                    $currentPolicySetDefinitionsInAzure = @()
+                    $currentPolicySetDefinitionsInAzure = Get-AzOpsPolicySetDefinitionAtScope -scope $scope
+                    foreach ($policysetdefinition in $currentPolicySetDefinitionsInAzure) {
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+                        # Convert policySetDefinition to AzOpsState
+                        ConvertTo-AzOpsState -CustomObject $policysetdefinition
+                        # Serialize policySetDefinition in original format and add to variable for full export
+                        $serializedPolicySetDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policysetdefinition -ReturnObject -ExportRawTemplate
+                    }
+
+                    # Process policy assignments
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Policy Assignment at scope $scope"
+                    $currentPolicyAssignmentInAzure = @()
+                    $currentPolicyAssignmentInAzure = Get-AzOpsPolicyAssignmentAtScope -scope $scope
+                    foreach ($policyAssignment in $currentPolicyAssignmentInAzure) {
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
+                        # Convert policyAssignment to AzOpsState
+                        ConvertTo-AzOpsState -CustomObject $policyAssignment
+                        # Serialize policyAssignment in original format and add to variable for full export
+                        $serializedPolicyAssignmentsInAzure += ConvertTo-AzOpsState -Resource $policyAssignment -ReturnObject -ExportRawTemplate
+                    }
+                }
+                if (-not $SkipRole) {
+                    # Process role Definition
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleDefinitionAtScope" -Message "Iterating Role Definition at scope $scope"
+                    $currentRoleDefinitionsInAzure = @()
+                    $currentRoleDefinitionsInAzure = Get-AzOpsRoleDefinitionAtScope -scope $scope
+                    foreach ($roleDefinition in $currentRoleDefinitionsInAzure) {
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role definition at scope $scope for $($roleDefinition.Id)"
+                        # Convert roleAssignment to AzOpsState
+                        ConvertTo-AzOpsState -CustomObject $roleDefinition
+                        # Serialize roleAssignment in original format and add to variable for full export
+                        $serializedRoleDefinitionsInAzure += ConvertTo-AzOpsState -Resource $roleDefinition -ReturnObject -ExportRawTemplate
+                    }
+
+                    # Process role assignment
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsRoleAssignmentAtScope" -Message "Iterating Role Assignment at scope $scope"
+                    $currentRoleAssignmentInAzure = @()
+                    $currentRoleAssignmentInAzure = Get-AzOpsRoleAssignmentAtScope -scope $scope
+                    foreach ($roleAssignment in $currentRoleAssignmentInAzure) {
+                        Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating through role assignment at scope $scope for $($roleAssignment.Id)"
+                        # Convert roleAssignment to AzOpsState
+                        ConvertTo-AzOpsState -CustomObject $roleAssignment
+                        # Serialize roleAssignment in original format and add to variable for full export
+                        $serializedRoleAssignmentInAzure += ConvertTo-AzOpsState -Resource $roleAssignment -ReturnObject -ExportRawTemplate
+                    }
                 }
                 # For subscriptions and Management Groups, export all policy/policyset/policyassignments at scope in one file
                 if ($scope.Type -in 'subscriptions', 'managementgroups') {
@@ -316,9 +345,9 @@ function Get-AzOpsResourceDefinitionAtScope {
                     $propertyBag = [ordered]@{
                         'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
                         'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-                        'policyAssignments'    = @($serializedPolicyAssignmentInAzure)
-                        'roleDefinitions'      = $null
-                        'roleAssignments'      = $null
+                        'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
+                        'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
+                        'roleAssignments'      = @($serializedRoleAssignmentInAzure)
                     }
                     # Add property bag to parameters json
                     $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
@@ -326,15 +355,6 @@ function Get-AzOpsResourceDefinitionAtScope {
                     ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
                 }
             }
-
-            # TEMPORARILY DISABLED
-            # Role definitions and role assignments
-            # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Definition at scope $scope"
-            # Get-AzOpsRoleDefinitionAtScope -scope $scope
-
-            # Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Iterating Role Assignment at scope $scope"
-            # Get-AzOpsRoleAssignmentAtScope -scope $scope
-
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
         }
         else {

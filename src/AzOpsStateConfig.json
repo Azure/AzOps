@@ -52,7 +52,9 @@
                     "Properties": {
                         "Metadata": "Remove",
                         "EnforcementMode": "Remove"
-                    }
+                    },
+                    "ResourceGroupName": "Remove",
+                    "SubscriptionId": "Remove"
                 },
                 "generalize": {
                     "Properties": {
@@ -128,6 +130,7 @@
                 "default": {
                 },
                 "generalize": {
+                    "Id": "Remove"
                 }
             }
         },
