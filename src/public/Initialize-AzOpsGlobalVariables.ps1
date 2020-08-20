@@ -61,6 +61,7 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
             AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
+            AZOPS_SKIP_ROLE                    = @{ AzOpsSkipRole = 0 }
             # Azure DevOps
             AZDEVOPS_AUTO_MERGE                = @{ AzDevOpsAutoMerge = 1 }
             AZDEVOPS_EMAIL                     = @{ AzDevOpsEmail = $null }
