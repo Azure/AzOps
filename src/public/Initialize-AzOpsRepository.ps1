@@ -103,7 +103,7 @@ function Initialize-AzOpsRepository {
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsRepository" -Message "Validating Azure AD Permissions for RoleAssignments/RoleDefinitions"
                 $TestAADCall = Get-AzADUser -First 1 -ErrorAction Stop
             }
-            catch [System.Exception]  {
+            catch [System.Exception] {
                 Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "Missing Directory.Read permissions in Azure AD Graph. Skipping discovery of RoleAssingments and RoleDefinitions"
                 $SkipRole = $true
             }
@@ -123,9 +123,9 @@ function Initialize-AzOpsRepository {
     process {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsRepository" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
-        #
-        if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialRoot) {
-            $RootScope = $AzOpsPartialRoot.id
+        # Set rootscope to discover, either partial or from the root mg
+        if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialRoot -match '.') {
+            $RootScope = $AzOpsPartialRoot.id | Sort-Object -Unique
         }
         else {
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId

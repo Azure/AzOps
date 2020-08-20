@@ -113,7 +113,7 @@ function Invoke-AzOpsChange {
                             }
                             # Check if generic template is supporting the resource type for the deployment.
                             if ($effectiveResourceType -and
-                                ((Get-Content (Get-Item $global:AzOpsMainTemplate).FullName) | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.ContainsKey($effectiveResourceType)) {
+                                ((Get-Content (Get-Item $global:AzOpsMainTemplate).FullName) | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.Keys -icontains $effectiveResourceType) {
                                 Write-AzOpsLog -Level Information -Topic "pwsh" -Message "effectiveResourceType: $effectiveResourceType AzOpsMainTemplate supports resource type $effectiveResourceType in $((Get-Item $global:AzOpsMainTemplate).FullName)"
                                 $templateFilePath = (Get-Item $global:AzOpsMainTemplate).FullName
                             }
