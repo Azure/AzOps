@@ -136,16 +136,11 @@ function Invoke-AzOpsChange {
                     #Deployment Name
                     if ($null -ne $templateParameterFilePath) {
                         $deploymentName = (Get-Item $templateParameterFilePath).BaseName.replace('.parameters', '').Replace(' ', '_')
-                        if ($deploymentName.Length -gt 64) {
-                            $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
-                        }
                     }
                     elseif ($null -ne $templateFilePath) {
                         $deploymentName = (Get-Item $templateFilePath).BaseName.replace('.json', '').Replace(' ', '_')
-                        if ($deploymentName.Length -gt 64) {
-                            $deploymentName = $deploymentName.SubString($deploymentName.IndexOf('-') + 1)
-                        }
                     }
+                    $deploymentName = 'AzOps-' + $deploymentName.SubString(0, ($deploymentName.Length -gt 58 )?58:$deploymentName.Length)
                     #construct deployment object
                     $AzOpsDeploymentList += [PSCustomObject] @{
                         [string] 'templateFilePath'          = $templateFilePath
