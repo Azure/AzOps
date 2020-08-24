@@ -150,9 +150,9 @@ class AzOpsScope {
             if (-not ($path.FullName.EndsWith('.azstate', "CurrentCultureIgnoreCase"))) {
                 $path = Join-Path $path -ChildPath '.AzState'
             }
-            $managementGroupFileName = "Microsoft.Management-managementGroups_*.parameters.json"
-            $subscriptionFileName = "Microsoft.Subscription-subscriptions_*.parameters.json"
-            $resourceGroupFileName = "Microsoft.Resources-resourceGroups_*.parameters.json"
+            $managementGroupFileName = "Microsoft.Management_managementGroups-*.parameters.json"
+            $subscriptionFileName = "Microsoft.Subscription_subscriptions-*.parameters.json"
+            $resourceGroupFileName = "Microsoft.Resources_resourceGroups-*.parameters.json"
 
             if (Get-ChildItem -Force  -path $path -File | Where-Object { $_.Name -like $managementGroupFileName }) {
                 $mg = Get-Content (Get-ChildItem -Force  -path $path -File | Where-Object { $_.Name -like $managementGroupFileName }) | ConvertFrom-Json
@@ -217,10 +217,10 @@ class AzOpsScope {
             $this.resourcegroup = $this.GetResourceGroup()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
             if ($global:AzOpsExportRawTemplate -eq 1) {
-                $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources-resourceGroups_$($this.resourcegroup).json")
+                $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources_resourceGroups-$($this.resourcegroup).json")
             }
             else {
-                $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources-resourceGroups_$($this.resourcegroup).parameters.json")
+                $this.statepath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources_resourceGroups-$($this.resourcegroup).parameters.json")
             }
         }
         elseif ($this.IsSubscription()) {
@@ -231,10 +231,10 @@ class AzOpsScope {
             $this.managementgroup = $this.GetManagementGroup()
             $this.managementgroupDisplayName = $this.GetManagementGroupName()
             if ($global:AzOpsExportRawTemplate -eq 1) {
-                $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).json")
+                $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription_subscriptions-$($this.subscription).json")
             }
             else {
-                $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription-subscriptions_$($this.subscription).parameters.json")
+                $this.statepath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription_subscriptions-$($this.subscription).parameters.json")
             }
 
         }
@@ -245,10 +245,10 @@ class AzOpsScope {
             $this.managementgroupDisplayName = ($this.GetManagementGroupName()).Trim()
             # $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
             if ($global:AzOpsExportRawTemplate -eq 1) {
-                $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management-managementGroups_$($this.managementgroup).json")
+                $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management_managementGroups-$($this.managementgroup).json")
             }
             else {
-                $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management-managementGroups_$($this.managementgroup).parameters.json")
+                $this.statepath = (join-path $this.GetAzOpsManagementGroupPath($this.managementgroup) -ChildPath ".AzState\Microsoft.Management_managementGroups-$($this.managementgroup).parameters.json")
             }
         }
         elseif ($this.IsRoot()) {
@@ -481,7 +481,7 @@ class AzOpsScope {
     scope                      : /providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560
     type                       : managementGroups
     name                       : 3fc1081d-6105-4e19-b60c-1ec1252cf560
-    statepath                  : C:\git\cet-northstar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\.AzState\Microsoft.Management-managementGroups_3fc1081d-6105-4e19-b60c-1ec1252cf560.parame
+    statepath                  : C:\git\cet-northstar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\.AzState\Microsoft.Management_managementGroups-3fc1081d-6105-4e19-b60c-1ec1252cf560.parame
                                 ters.json
     managementgroup            : 3fc1081d-6105-4e19-b60c-1ec1252cf560
     managementgroupDisplayName : 3fc1081d-6105-4e19-b60c-1ec1252cf560
