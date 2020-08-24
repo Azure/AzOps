@@ -22,7 +22,7 @@ function Get-AzOpsAllSubscription {
         [Parameter(Mandatory = $false)]
         [string[]]$ExcludedOffers = @('AzurePass_2014-09-01', 'FreeTrial_2014-09-01', 'AAD_2015-09-01'),
         [Parameter(Mandatory = $false)]
-        [string[]]$ExcludedStates = @('Disabled', 'Deleted', 'Warned', 'Expired', 'PastDue'),
+        [string[]]$ExcludedStates = @('Disabled', 'Deleted', 'Warned', 'Expired'),
         [Parameter(Mandatory = $true)]
         [ValidateScript( { $_ -in (Get-AzContext).Tenant.Id } )]
         [guid]$TenantId,
@@ -45,14 +45,15 @@ function Get-AzOpsAllSubscription {
         $AllSubscriptionsResults += $AllSubscriptionsJson.value | Where-Object { $_.tenantId -eq $TenantId }
 
         while (Get-Member -InputObject $AllSubscriptionsJson -name "nextLink" -MemberType Properties) {
-            $AllSubscriptionsJson2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson.nextLink.Replace('https://management.azure.com','')  -Method GET).Content | ConvertFrom-Json -Depth 100)
+            $AllSubscriptionsJson2 = ((Invoke-AzRestMethod -Path $AllSubscriptionsJson.nextLink.Replace('https://management.azure.com', '')  -Method GET).Content | ConvertFrom-Json -Depth 100)
             $AllSubscriptionsResults += $AllSubscriptionsJson2.value | Where-Object { $_.tenantId -eq $TenantId }
             $AllSubscriptionsJson = $AllSubscriptionsJson2
         }
+
         $IncludedSubscriptions = $AllSubscriptionsResults | Where-Object { $_.state -notin $ExcludedStates -and $_.subscriptionPolicies.quotaId -notin $ExcludedOffers }
         # Validate that subscriptions were found
         if ($null -eq $IncludedSubscriptions) {
-            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$($IncludedSubscriptions.count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct"
+            Write-AzOpsLog -Level Error -Topic "Get-AzOpsAllSubscription" -Message "Found [$(($IncludedSubscriptions | Measure-Object).Count)] subscriptions - verify appropriate permissions or that excluded offers and states are correct"
         }
         else {
             # Calculate no of excluded subscriptions
@@ -60,6 +61,11 @@ function Get-AzOpsAllSubscription {
             if ($ExcludedSubscriptions -gt 0) {
                 Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Found total [$($AllSubscriptionsResults.count)] subscriptions"
                 Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Excluded [$ExcludedSubscriptions] subscriptions due to state or offer"
+            }
+            # Throw warning for subscriptions that are "PastDue"
+            $PastDueSubscriptions = $IncludedSubscriptions | Where-Object { $_.State -eq "PastDue" }
+            if ($PastDueSubscriptions) {
+                Write-AzOpsLog -Level Warning -Topic "Get-AzOpsAllSubscription" -Message "Found [$($PastDueSubscriptions.count)] subscriptions that are in state 'PastDue' - ensure billing works correctly and resolve past due balance as per https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/resolve-past-due-balance"
             }
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllSubscription" -Message "Including [$($IncludedSubscriptions.count)] subscriptions"
             # Return object with subscriptions
