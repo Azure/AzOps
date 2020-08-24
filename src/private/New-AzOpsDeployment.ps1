@@ -10,7 +10,7 @@
 
 .EXAMPLE
     # Invoke ARM Template Deployment
-    New-AzOpsDeployment -templateParameterFilePath 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\.AzState\Microsoft.Management-managementGroups_contoso.parameters.json'
+    New-AzOpsDeployment -templateParameterFilePath 'C:\Git\CET-NorthStar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\contoso\.AzState\Microsoft.Management_managementGroups-contoso.parameters.json'
 .INPUTS
     Filename
 .OUTPUTS
