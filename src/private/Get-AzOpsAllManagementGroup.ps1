@@ -33,16 +33,16 @@ function Get-AzOpsAllManagementGroup {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateScript( { Get-AzManagementGroup -GroupName $_ } )]
+        [ValidateScript( { Get-AzManagementGroup -GroupId $_ -WarningAction SilentlyContinue } )]
         $ManagementGroup
     )
     begin {
 
     }
     process {
-        $MG = Get-AzManagementGroup -GroupName $ManagementGroup -Expand -Recurse
+        $MG = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -Recurse -WarningAction SilentlyContinue
         if (1 -eq $global:AzOpsSupportPartialMgDiscovery) {
-            if ($MG.ParentId -and -not(Get-AzManagementGroup -GroupName $MG.ParentName -ErrorAction Ignore)) {
+            if ($MG.ParentId -and -not(Get-AzManagementGroup -GroupId $MG.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $global:AzOpsPartialRoot += $MG
             }
             if ($MG.Children) {
