@@ -95,9 +95,9 @@ function ConvertTo-AzOpsState {
             }
             # AzOpsRoleDefinition
             { $_ -is [AzOpsRoleDefinition] } {
-                Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Found object type: Role Assignment"
+                Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Found object type: Role Definition"
                 $objectFilePath = (New-AzOpsScope -scope $object.Id).statepath
-                $ResourceConfig = $ResourceConfig.Values.roleAssignment
+                $ResourceConfig = $ResourceConfig.Values.roleDefinition
                 break
             }
             # Role Assignments

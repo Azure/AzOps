@@ -18,21 +18,21 @@ class AzOpsRoleDefinition {
     [hashtable] $properties
 
     AzOpsRoleDefinition($properties) {
+        $this.Id = $properties.AssignableScopes[0] + '/providers/Microsoft.Authorization/roleDefinitions/' + $properties.Id
+        $this.Name = $properties.Id
         $this.properties = [ordered]@{
-            roleName         = $properties.Name
-            description      = $properties.Description
             assignableScopes = @($properties.AssignableScopes)
+            description      = $properties.Description
             permissions      = @(
-                @{
+                [ordered]@{
                     actions        = @($properties.Actions)
-                    notActions     = @($properties.NotActions)
                     dataActions    = @($properties.DataActions)
+                    notActions     = @($properties.NotActions)
                     notdataActions = @($properties.NotDataActions)
                 }
             )
+            roleName         = $properties.Name
         }
-        $this.Name = $properties.Id
-        $this.Id = $properties.AssignableScopes[0] + '/providers/Microsoft.Authorization/roleDefinitions/' + $properties.Id
         $this.ResourceType = "Microsoft.Authorization/roleDefinitions"
     }
 }
