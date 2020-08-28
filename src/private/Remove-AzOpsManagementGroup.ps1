@@ -37,7 +37,7 @@ function Remove-AzOpsManagementGroup {
                 }
                 else {
                     Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($Child.Name)"
-                    Remove-AzOpsManagementGroup -GroupId $Child.Name -RootManagementGroupName $RootManagementGroupName -ErrorAction SilentlyContinue -WarningAction SilentlyContinue 
+                    Remove-AzOpsManagementGroup -GroupName $Child.Name -RootManagementGroupName $RootManagementGroupName -ErrorAction SilentlyContinue -WarningAction SilentlyContinue 
                 }
             }
         }
