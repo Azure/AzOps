@@ -593,7 +593,10 @@
                                                         contains(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'policySetDefinitions'),
                                                         and(
                                                             not(contains(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'policySetDefinitions')),
-                                                            equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists'))
+                                                            or(
+                                                                equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
+                                                                equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                                            )
                                                         )
                                                     )
                                                 ),
@@ -658,7 +661,10 @@
                                                         contains(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'policySetDefinitions'),
                                                         and(
                                                             not(contains(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'policySetDefinitions')),
-                                                            equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists'))
+                                                            or(
+                                                                equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
+                                                                equals(toLower(reference(variables('policyAssignments')[copyIndex()].Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                                            )
                                                         )
                                                     )
                                                 ),
