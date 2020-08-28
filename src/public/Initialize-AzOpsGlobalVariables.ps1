@@ -171,7 +171,7 @@ function Initialize-AzOpsGlobalVariables {
                         # Add for recursive discovery
                         $ManagementGroups += [pscustomobject]@{ Name = $_ }
                         # Add user provided root to partial root variable to know where discovery should start
-                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupName $_ -Recurse -Expand
+                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Recurse -Expand -WarningAction SilentlyContinue
                     }
                 }
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
