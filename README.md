@@ -5,6 +5,12 @@
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
 
+<p>
+    <a href="https://online.visualstudio.com/environments/new?name=AzOps&repo=Azure/AzOps">
+        <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Faka.ms%2Fvso-badge">
+    </a>
+</p>
+
 ## Welcome
 
 This repository is home to the GitHub Action: AzOps.
