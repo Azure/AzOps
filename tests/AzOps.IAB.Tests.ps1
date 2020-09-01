@@ -62,7 +62,7 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
         # Task: Check if 'Tailspin' Management Group exists
         Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Removing Tailspin Management Group"
-        if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
+        if (Get-AzManagementGroup -GroupId 'Tailspin' -ErrorAction SilentlyContinue -WarningAction SilentlyContinue) {
             Write-AzOpsLog -Level Information -Topic "AzOps.IAB.Tests" -Message "Running Remove-AzOpsManagementGroup"
             #Remove-AzOpsManagementGroup -GroupName  'Tailspin'
         }
@@ -199,9 +199,9 @@ Describe "Tenant E2E Deployment (Integration Test)" -Tag "integration", "e2e", "
 
     AfterAll {
         # Cleaning up Tailspin Management Group
-        if (Get-AzManagementGroup -GroupName 'Tailspin' -ErrorAction SilentlyContinue) {
+        if (Get-AzManagementGroup -GroupId 'Tailspin' -ErrorAction SilentlyContinue -WarningAction SilentlyContinue) {
             Write-AzOpsLog -Level Verbose -Topic "AzOps.IAB.Tests" -Message "Cleaning up Tailspin Management Group"
-            Remove-AzOpsManagementGroup -groupName  'Tailspin'
+            Remove-AzOpsManagementGroup -GroupName 'Tailspin' -WarningAction SilentlyContinue 
         }
     }
 }
