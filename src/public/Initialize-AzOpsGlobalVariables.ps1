@@ -146,7 +146,7 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($global:AzOpsInvalidateCache -eq 1 -or -not(Get-Variable -Scope Global -Name AzOpsAzManagementGroup -ValueOnly -ErrorAction SilentlyContinue) -or -not(Get-Variable -Scope Global -Name AzOpsSubscriptions -ValueOnly -ErrorAction SilentlyContinue)) {
             #Get current tenant id
             $TenantId = (Get-AzContext).Tenant.Id
             # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
