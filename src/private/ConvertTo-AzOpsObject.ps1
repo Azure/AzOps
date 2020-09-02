@@ -82,7 +82,7 @@ function ConvertTo-AzOpsObject {
                 $hash
             }
             # Handle arrays
-            elseif ($InputObject -is [array] -or [Collections.Generic.List[string]] -and $InputObject -isnot [string] -and $InputObject -isnot [System.Boolean] -and $null -ne $Inputobject) {
+            elseif ($InputObject -is [array] -or [Collections.Generic.List[string]] -and $InputObject -isnot [string] -and $InputObject -isnot [System.Boolean] -and $null -ne $Inputobject -and $inputobject -isnot [int64]) {
 
                 if ($InputObject.count -eq 0) {
                     # Return empty array if empty array (powershell will by default return $null)
