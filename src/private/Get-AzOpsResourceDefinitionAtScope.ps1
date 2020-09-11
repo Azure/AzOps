@@ -347,7 +347,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                         'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
                         'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
                         'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
-                        'roleAssignments'      = @($serializedRoleAssignmentInAzure)
+                        'roleAssignments'      = if ($global:AzOpsGeneralizeTemplates -eq 1) { , @() } else { , @($serializedRoleAssignmentInAzure) }
                     }
                     # Add property bag to parameters json
                     $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
