@@ -33,7 +33,7 @@ function Remove-AzOpsManagementGroup {
             foreach ($Child in $ChildManagementGroups) {
                 if ($Child.Type -eq '/subscriptions') {
                     Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Moving Subscription $($Child.Name) under Root Management Group $RootManagementGroupName"
-                    New-AzManagementGroupSubscription -GroupId $RootManagementGroupName -SubscriptionId $Child.Name
+                    New-AzManagementGroupSubscription -GroupName $RootManagementGroupName -SubscriptionId $Child.Name
                 }
                 else {
                     Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($Child.Name)"
