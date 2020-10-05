@@ -62,7 +62,4 @@ function Write-AzOpsLog {
             }
         }
     }
-
-    end { }
-
 }
