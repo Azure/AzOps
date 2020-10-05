@@ -75,13 +75,16 @@ Get-Module -ListAvailable
 
 # Create credential variables
 $azureCredentials = $env:AZURE_CREDENTIALS | ConvertFrom-Json
-$credential = New-Object System.Management.Automation.PSCredential `
-    -ArgumentList `
-$($azureCredentials.clientId), `
-$($azureCredentials.clientSecret | ConvertTo-SecureString -AsPlainText -Force)
+$credential = [System.Management.Automation.PSCredential]::new(
+	$azureCredentials.clientId,
+	($azureCredentials.clientSecret | ConvertTo-SecureString -AsPlainText -Force)
+)
 
-Connect-AzAccount `
-    -ServicePrincipal `
-    -TenantId $($azureCredentials.tenantId) `
-    -SubscriptionId $($azureCredentials.subscriptionId) `
-    -Credential $credential
+$paramConnectAzAccount = @{
+	ServicePrincipal = $true
+	TenantId		 = $azureCredentials.tenantId
+	SubscriptionId   = $azureCredentials.subscriptionId
+	Credential	     = $credential
+}
+
+Connect-AzAccount @paramConnectAzAccount
