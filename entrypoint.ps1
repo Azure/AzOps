@@ -19,17 +19,26 @@ function Logging {
 
 function Initialization {
 
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
+	[CmdletBinding()]
     param ()
 
     begin {
         try {
             # Create credential
-            $credentials = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
-            $credential = New-Object System.Management.Automation.PSCredential -ArgumentList $credentials.clientId, ($credentials.clientSecret | ConvertTo-SecureString -AsPlainText -Force)
-
+            $credentials = $env:AZURE_CREDENTIALS | ConvertFrom-Json
+			$credential = [System.Management.Automation.PSCredential]::new($credentials.clientId, ($credentials.clientSecret | ConvertTo-SecureString -AsPlainText -Force))
+			$supportedEnvironments = 'AzureUSGovernment','AzureCloud','AzureChinaCloud'
+			if (-not $env:AZURE_ENVIRONMENT) { $environment = 'AzureCloud' }
+			elseif ($env:AZURE_ENVIRONMENT -notin $supportedEnvironments) {
+				Write-AzOpsLog -Level Error -Topic "env-var" -Message "Illegal azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
+				throw "Illegal azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
+			}
+			else { $environment = $env:AZURE_ENVIRONMENT }
+			
             # Connect azure account
-            Connect-AzAccount -TenantId $credentials.tenantId -ServicePrincipal -Credential $credential -SubscriptionId $credentials.subscriptionId -WarningAction SilentlyContinue | Out-Null
+            $null = Connect-AzAccount -TenantId $credentials.tenantId -ServicePrincipal -Credential $credential -SubscriptionId $credentials.subscriptionId -WarningAction SilentlyContinue -Environment $environment
+			
 
             # Configure git
             switch ($env:SCM_PLATFORM) {
@@ -106,10 +115,6 @@ function Initialization {
             exit 1
         }
     }
-
-    end {
-    }
-
 }
 
 Logging
