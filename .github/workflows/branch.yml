@@ -7,18 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check whether push docker image to repository
-        id: dockerregistry
+        id: registry
         env:
             DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
         run: |
             echo "Enable Push to Docker Registry: ${{ env.DOCKER_REPOSITORY != '' }}"
-            echo "::set-output name=dockerregistry::${{ env.DOCKER_REPOSITORY != '' }}"
+            echo "::set-output name=registry::${{ env.DOCKER_REPOSITORY != '' }}"
     outputs:
-      dockerregistry: ${{ steps.dockerregistry.outputs.dockerregistry }}
+      registry: ${{ steps.registry.outputs.registry }}
 
   build:
     needs: [pre]
-    if: ${{ needs.pre.outputs.dockerregistry == 'true' && github.event.ref_type == 'branch' && contains(github.event.ref,'release') }}
+    if: ${{ needs.pre.outputs.registry == 'true' && github.event.ref_type == 'branch' && contains(github.event.ref,'release') }}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
