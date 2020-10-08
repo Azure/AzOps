@@ -13,7 +13,7 @@ on:
         default: 'push'
 
 jobs:
-  build:
+  pre:
     runs-on: ubuntu-latest
     steps:
       - name: Check whether push docker image to repository
@@ -27,8 +27,8 @@ jobs:
       registry: ${{ steps.registry.outputs.registry }}
 
   push:
-    needs: [build]
-    if: github.event_name == 'push' && needs.build.outputs.registry == 'true'
+    needs: [pre]
+    if: github.event_name == 'push' && needs.pre.outputs.registry == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: checkout
@@ -44,8 +44,8 @@ jobs:
         tags: ${{ github.sha }}, latest
 
   release:
-    needs: [build]
-    if: github.event_name == 'release' && needs.build.outputs.registry == 'true'
+    needs: [pre]
+    if: github.event_name == 'release' && needs.pre.outputs.registry == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: checkout
