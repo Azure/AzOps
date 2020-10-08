@@ -1,4 +1,4 @@
-name: Code Review (Changes Only)
+name: Lint - Changes
 on:
   push:
     branches-ignore: [release/**]
