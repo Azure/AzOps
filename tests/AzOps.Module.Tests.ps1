@@ -142,7 +142,7 @@ Describe "AzOps.Module.Cmdlets" -Tag "module", "cmdlets" {
         }
 
         It "Passes conversion of strongly typed object to [PSCustomObject]" {
-            ConvertTo-AzOpsObject -InputObject (Get-AzPolicyDefinition -Custom | Get-Random) | Should -BeOfType [PSCustomObject]
+            ConvertTo-AzOpsObject -InputObject (Get-AzPolicyDefinition -Custom -ManagementGroupName Contoso | Get-Random) | Should -BeOfType [PSCustomObject]
         }
         It "Passes ordering of hashtable" {
             [array]($TestHt | ConvertTo-AzOpsObject -OrderObject).Keys | Select-Object -Last 1 | Should -BeExactly "z"
