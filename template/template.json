@@ -254,6 +254,7 @@
             "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "scope": "/",
             "location": "[deployment().location]",
             "name": "[concat('NorthStar-MG-', variables('input').Name)]",
             "dependsOn": [

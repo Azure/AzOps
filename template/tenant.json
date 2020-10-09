@@ -100,6 +100,7 @@
             */
             "condition": "[and(contains(variables('scope'),'Microsoft.Management/managementGroups'), contains(parameters('input'),'ParentId'))]",
             "type": "Microsoft.Management/managementGroups",
+            "scope": "/",
             "apiVersion": "2020-05-01",
             "name": "[parameters('input').Name]",
             "properties": {
@@ -140,6 +141,7 @@
             */
             "condition": "[not(empty(variables('Children')))]",
             "type": "Microsoft.Resources/deployments",
+            "scope": "/",
             "apiVersion": "2019-07-01",
             "copy": {
                 "name": "childmove",
@@ -247,6 +249,7 @@
                         {
                             "condition": "[not(contains(if(contains(variables('Children')[copyIndex()], 'Id'),variables('Children')[copyIndex()].Id, concat('Microsoft.Management/managementGroups/',variables('Children')[copyIndex()].Name)),'Microsoft.Management/managementGroups'))]",
                             "type": "Microsoft.Management/managementGroups/subscriptions",
+                            "scope": "/",
                             "apiVersion": "2020-05-01",
                             "name": "[concat(parameters('input').Name,'/',variables('Children')[copyIndex()].Name)]",
                             "properties": {
