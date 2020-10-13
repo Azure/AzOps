@@ -302,7 +302,7 @@
             "location": "[deployment().location]",
             "name": "[if(
                             not(empty(parameters('input').children)),
-                            concat(parameters('input').Name,'-children-',copyIndex()),
+                            concat(parameters('input').Name,'-children1-',copyIndex()),
                             'create-mg-child-na'
                     )]",
             "properties": {
