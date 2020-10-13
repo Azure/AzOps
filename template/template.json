@@ -302,7 +302,7 @@
             "location": "[deployment().location]",
             "name": "[if(
                             not(empty(parameters('input').children)),
-                            concat(parameters('input').Name,'-children1-',copyIndex()),
+                            concat(parameters('input').Name,'-children2-',copyIndex()),
                             'create-mg-child-na'
                     )]",
             "properties": {
@@ -316,7 +316,7 @@
                         "value": "[if(
                                         not(empty(parameters('input').children)),
                                         parameters('input').children[copyIndex()],
-                                        json('[]')
+                                        createArray()
                                 )]"
                     },
                     "_artifactsLocation": {
