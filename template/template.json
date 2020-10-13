@@ -284,14 +284,20 @@
                 Change Log:
                     1. Initial Definition
             */
-            "copy": {
-                "name": "create-mg-child",
-                "count": "[length(parameters('input').children)]"
-            },
             "condition": "[and(
                                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
                                 not(empty(parameters('input').children))
                           )]",
+            "copy": {
+                "name": "create-mg-child",
+                "count": "[length(
+                            if(
+                                and(contains(parameters('input'), 'Children'),not(empty(parameters('input').Children))),
+                                parameters('input').Children,
+                                json('[]')
+                            )
+                            )]"
+            },
             "scope": "[if(
                             contains(parameters('input'), 'Id'),
                             replace(parameters('input').Id,'/providers/',''),
@@ -302,7 +308,7 @@
             "location": "[deployment().location]",
             "name": "[if(
                             not(empty(parameters('input').children)),
-                            concat(parameters('input').Name,'-children2-',copyIndex()),
+                            concat(parameters('input').Name,'-children3-',copyIndex()),
                             'create-mg-child-na'
                     )]",
             "properties": {
