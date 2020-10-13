@@ -257,7 +257,9 @@
             "properties": {
                 "displayName": "[parameters('input').DisplayName]",
                 "details": "[if(
-                                    not(empty(parameters('input').ParentId)),
+                                    and(contains(parameters('input'), 'ParentId'),
+                                        not(empty(parameters('input').ParentId))
+                                    ),
                                     json(concat('{\"parent\": {\"id\": \"', replace(parameters('input').ParentId,'/','\/') ,'\"}}')),
                                     json('{}')
                             )]"
@@ -292,7 +294,7 @@
                           )]",
             "scope": "[if(
                             contains(parameters('input'), 'Id'),
-                            replace(parameters('input').Id,'/providers/',''), 
+                            replace(parameters('input').Id,'/providers/',''),
                             concat('Microsoft.Management/managementGroups/',parameters('input').name)
                         )]",
             "type": "Microsoft.Resources/deployments",
@@ -309,9 +311,17 @@
                     "input": {
                         "value": {
                             "Name": "[variables('Children')[copyIndex()].Name]",
+                            "DisplayName": "[variables('Children')[copyIndex()].DisplayName]",
                             "Id": "[variables('Children')[copyIndex()].Id]",
                             "Type": "/providers/Microsoft.Management/managementGroups",
-                            "Children": "[if(and(contains(variables('Children')[copyIndex()], 'Children'),not(empty(variables('Children')[copyIndex()].Children))),variables('Children')[copyIndex()].Children,json('[]'))]"
+                            "Children": "[if(
+                                            and(
+                                                contains(variables('Children')[copyIndex()], 'Children'),
+                                                not(empty(variables('Children')[copyIndex()].Children))
+                                            ),
+                                            variables('Children')[copyIndex()].Children,
+                                            json('[]')
+                                        )]"
                         }
                     },
                     "_artifactsLocation": {
