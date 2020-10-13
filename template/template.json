@@ -316,7 +316,7 @@
                         "value": "[if(
                                         not(empty(parameters('input').children)),
                                         parameters('input').children[copyIndex()],
-                                        json('null')
+                                        json('[]')
                                 )]"
                     },
                     "_artifactsLocation": {
