@@ -28,12 +28,12 @@ function Remove-AzOpsManagementGroup {
     }
 
     process {
-        $ChildManagementGroups = (Get-AzManagementGroup -GroupId $GroupName -Expand -Recurse).Children
+        $ChildManagementGroups = (Get-AzManagementGroup -GroupName $GroupName -Expand -Recurse).Children
         if ($ChildManagementGroups -and $PSCmdlet.ShouldProcess("Remove Management Group(s) $($ChildManagementGroups.Name.foreach({'['+$_+']'}) -join ' ')?")) {
             foreach ($Child in $ChildManagementGroups) {
                 if ($Child.Type -eq '/subscriptions') {
                     Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Moving Subscription $($Child.Name) under Root Management Group $RootManagementGroupName"
-                    New-AzManagementGroupSubscription -GroupId $RootManagementGroupName -SubscriptionId $Child.Name
+                    New-AzManagementGroupSubscription -GroupName $RootManagementGroupName -SubscriptionId $Child.Name
                 }
                 else {
                     Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($Child.Name)"
@@ -42,7 +42,7 @@ function Remove-AzOpsManagementGroup {
             }
         }
         Write-AzOpsLog -Level Verbose -Topic "Remove-AzOpsManagementGroup" -Message "Removing Management Group - $($groupName)"
-        Remove-AzManagementGroup -GroupId $groupName -WarningAction SilentlyContinue
+        Remove-AzManagementGroup -GroupName $GroupName -WarningAction SilentlyContinue
     }
 
     end {}
