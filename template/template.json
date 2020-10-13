@@ -285,7 +285,7 @@
                     1. Initial Definition
             */
             "copy": {
-                "name": "childmove",
+                "name": "create-mg-child",
                 "count": "[length(parameters('input').children)]"
             },
             "condition": "[and(
@@ -300,7 +300,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
-            "name": "[concat(parameters('input').Name,'-children-',copyIndex())]",
+            "name": "[if(
+                            not(empty(parameters('input').children)),
+                            concat(parameters('input').Name,'-children-',copyIndex()),
+                            'create-mg-child-na'
+                    )]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -309,20 +313,11 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": {
-                            "Name": "[variables('Children')[copyIndex()].Name]",
-                            "DisplayName": "[variables('Children')[copyIndex()].DisplayName]",
-                            "Id": "[variables('Children')[copyIndex()].Id]",
-                            "Type": "/providers/Microsoft.Management/managementGroups",
-                            "Children": "[if(
-                                            and(
-                                                contains(variables('Children')[copyIndex()], 'Children'),
-                                                not(empty(variables('Children')[copyIndex()].Children))
-                                            ),
-                                            variables('Children')[copyIndex()].Children,
-                                            json('[]')
-                                        )]"
-                        }
+                        "value": "[if(
+                                        not(empty(parameters('input').children)),
+                                        parameters('input').children[copyIndex()],
+                                        json('null')
+                                )]"
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
