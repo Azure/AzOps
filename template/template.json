@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "input": {
@@ -7,9 +7,11 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/blob/feature/scope/template/",
+            "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/",
             "metadata": {
-                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment. Please feel free to use template hosted here or override with choice of your location. If you chose to do so, please ensure future bug fixes are incorporated from above location to your private location."
+                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment.
+                                Please feel free to use template hosted here or override with choice of your location.
+                                If you chose to do so, please ensure future bug fixes are incorporated from above location to your private location."
             }
         },
         "_artifactsLocationSasToken": {
@@ -28,21 +30,22 @@
             "type": "bool",
             "defaultValue": false
         },
-        "debug":{
+        "debug": {
             "type": "bool",
             "defaultValue": true
         }
     },
     "variables": {
         "debug": "[parameters('debug')]",
-        "roleAssignmentEnabledForPolicy": "[parameters('roleAssignmentEnabledForPolicy')]",
-        "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
-        "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
         "nestedTemplatesLocation": {
             "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]",
             "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         },
+        "roleAssignmentEnabledForPolicy": "[parameters('roleAssignmentEnabledForPolicy')]",
+        "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
+        "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
         "input": "[parameters('input')]",
+        "Children": "[if(and(contains(parameters('input'), 'Children'),not(empty(parameters('input').Children))),parameters('input').Children,json('[]'))]",
         "resourceType": "[if(
                             and(contains(parameters('input'), 'ResourceType'),not(empty(parameters('input').ResourceType))),
                             parameters('input').ResourceType,
@@ -63,7 +66,7 @@
                                         variables('ResourceType'),
                                         variables('type')
                                 )]",
-        "identity":"[if(
+        "identity": "[if(
                         and(
                             contains(variables('input'),'identity'),
                             not(empty(variables('input').identity))
@@ -102,7 +105,7 @@
             "Microsoft.Network/virtualNetworks": "2017-10-01",
             "Microsoft.Network/azureFirewalls": "2019-04-01",
             "/providers/Microsoft.Management/managementGroups": "2020-05-01",
-            "/subscriptions" : "2020-05-01",
+            "/subscriptions": "2020-05-01",
             "na": "0000-00-00",
             "": "0000-00-00"
         },
@@ -161,7 +164,7 @@
                                 not(empty(variables('input').Identity))
                             )]",
             "type": "Microsoft.Authorization/roleAssignments",
-            "name" : "[guid(variables('input').name)]",
+            "name": "[guid(variables('input').name)]",
             "apiVersion": "2019-04-01-preview",
             "location": "[deployment().location]",
             "Properties": {
@@ -259,6 +262,76 @@
                                     json('{}')
                             )]"
             }
+        },
+        {
+            /*
+
+                Intent: Upsert Management Group Children
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+
+                Scope: Tenant root
+
+                Condition: We have Parent ID available to ensure inadvertently place Management Group directly the root.
+
+                Details: If ParentID do not exist, then it is a child and creation of Management Group would have happened when parent's children were iterated upon.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "copy": {
+                "name": "childmove",
+                "count": "[length(parameters('input').children)]"
+            },
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                not(empty(parameters('input').children))
+                          )]",
+            "scope": "[if(
+                            contains(parameters('input'), 'Id'),
+                            replace(parameters('input').Id,'/providers/',''), 
+                            concat('Microsoft.Management/managementGroups/',parameters('input').name)
+                        )]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "location": "[deployment().location]",
+            "name": "[concat(parameters('input').Name,'-children-',copyIndex())]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": {
+                            "Name": "[variables('Children')[copyIndex()].Name]",
+                            "Id": "[variables('Children')[copyIndex()].Id]",
+                            "Type": "/providers/Microsoft.Management/managementGroups",
+                            "Children": "[if(and(contains(variables('Children')[copyIndex()], 'Children'),not(empty(variables('Children')[copyIndex()].Children))),variables('Children')[copyIndex()].Children,json('[]'))]"
+                        }
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+
         }
         /*
         {
@@ -401,7 +474,8 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
-        },
+        }
+        /*
         "tenantTemplate": {
             "condition": "[variables('debug')]",
             "type": "string",
@@ -412,5 +486,6 @@
             "type": "string",
             "value": "[variables('nestedTemplatesLocation').resourceTemplate]"
         }
+        */
     }
 }
