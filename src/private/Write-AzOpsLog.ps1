@@ -61,5 +61,6 @@ function Write-AzOpsLog {
                 Write-Debug -Message $log
             }
         }
-    }
+	}
+	end { }
 }

@@ -31,8 +31,8 @@ function Initialization {
 			$supportedEnvironments = 'AzureUSGovernment','AzureCloud','AzureChinaCloud'
 			if (-not $env:AZURE_ENVIRONMENT) { $environment = 'AzureCloud' }
 			elseif ($env:AZURE_ENVIRONMENT -notin $supportedEnvironments) {
-				Write-AzOpsLog -Level Error -Topic "env-var" -Message "Illegal azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
-				throw "Illegal azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
+				Write-AzOpsLog -Level Error -Topic "env-var" -Message "Unsupported azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
+				throw "Unsupported azure environment: $env:AZURE_ENVIRONMENT . Supported environments: $($supportedEnvironments -join ",")"
 			}
 			else { $environment = $env:AZURE_ENVIRONMENT }
 			
@@ -114,7 +114,8 @@ function Initialization {
             Write-AzOpsLog -Level Error -Topic "entrypoint" -Message $PSItem.Exception.Message
             exit 1
         }
-    }
+	}
+	end { }
 }
 
 Logging
