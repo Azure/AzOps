@@ -309,7 +309,7 @@
             "location": "[deployment().location]",
             "name": "[if(
                             and(contains(parameters('input'), 'children'),not(empty(parameters('input').children))),
-                            concat(parameters('input').Name,'-children4-',parameters('input').children[copyIndex()].Name),
+                            concat(parameters('input').Name,'-',parameters('input').children[copyIndex()].Name),
                             'create-mg-child-na'
                     )]",
             "properties": {
