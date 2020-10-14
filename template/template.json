@@ -286,6 +286,7 @@
             */
             "condition": "[and(
                                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(parameters('input'), 'children'),
                                 not(empty(parameters('input').children))
                           )]",
             "copy": {
@@ -307,8 +308,8 @@
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
             "name": "[if(
-                            not(empty(parameters('input').children)),
-                            concat(parameters('input').Name,'-children3-',copyIndex()),
+                            and(contains(parameters('input'), 'children'),not(empty(parameters('input').children))),
+                            concat(parameters('input').Name,'-children4-',parameters('input').children[copyIndex()].Name),
                             'create-mg-child-na'
                     )]",
             "properties": {
@@ -319,11 +320,14 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": "[if(
-                                        not(empty(parameters('input').children)),
-                                        parameters('input').children[copyIndex()],
-                                        createArray()
-                                )]"
+                        "value": {
+                            "Name": "[parameters('input').children[copyIndex()].Name]",
+                            "Id": "[parameters('input').children[copyIndex()].Id]",
+                            "ParentId": "[parameters('input').Id]",
+                            "Type": "/providers/Microsoft.Management/managementGroups",
+                            "Children": "[if(and(contains(parameters('input').children[copyIndex()], 'Children'),not(empty(parameters('input').children[copyIndex()].Children))),parameters('input').children[copyIndex()].Children,json('[]'))]",
+                            "properties": "[if(and(contains(parameters('input').children[copyIndex()], 'properties'),not(empty(parameters('input').children[copyIndex()].properties))),parameters('input').children[copyIndex()].properties,json('{}'))]"
+                        }
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
