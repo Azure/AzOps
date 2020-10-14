@@ -322,6 +322,7 @@
                     "input": {
                         "value": {
                             "Name": "[parameters('input').children[copyIndex()].Name]",
+                            "DisplayName": "[parameters('input').children[copyIndex()].DisplayName]",
                             "Id": "[parameters('input').children[copyIndex()].Id]",
                             "ParentId": "[parameters('input').Id]",
                             "Type": "/providers/Microsoft.Management/managementGroups",
