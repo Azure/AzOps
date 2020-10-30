@@ -42,12 +42,13 @@ function Initialize-AzOpsGlobalVariables {
 
         # Required environment variables hashtable with default values
         $AzOpsEnvVariables = @{
+            # AzOps
             AZOPS_STATE                        = @{ AzOpsState = (Join-Path $pwd -ChildPath "azops") } # Folder to store AzOpsState artefact
             AZOPS_MAIN_TEMPLATE                = @{ AzOpsMainTemplate = "$PSScriptRoot\..\..\template\template.json" } # Main template json
             AZOPS_STATE_CONFIG                 = @{ AzOpsStateConfig = "$PSScriptRoot\..\AzOpsStateConfig.json" } # Configuration file for resource serialization
-            AZOPS_ENROLLMENT_PRINCIPAL_NAME    = @{ AzOpsEnrollmentAccountPrincipalName = $null }
+            AZOPS_ENROLLMENT_ACCOUNT           = @{ AzOpsEnrollmentAccountPrincipalName = $null }
             AZOPS_EXCLUDED_SUB_OFFER           = @{ AzOpsExcludedSubOffer = "AzurePass_2014-09-01,FreeTrial_2014-09-01,AAD_2015-09-01" } # Excluded QuotaIDs as per https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/understand-cost-mgt-data#supported-microsoft-azure-offers
-            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired,PastDue" } # Excluded subscription states as per https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list#subscriptionstate
+            AZOPS_EXCLUDED_SUB_STATE           = @{ AzOpsExcludedSubState = "Disabled,Deleted,Warned,Expired" } # Excluded subscription states as per https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list#subscriptionstate
             AZOPS_OFFER_TYPE                   = @{ AzOpsOfferType = 'MS-AZR-0017P' }
             AZOPS_DEFAULT_DEPLOYMENT_REGION    = @{ AzOpsDefaultDeploymentRegion = 'northeurope' } # Default deployment region for state deployments (ARM region, not region where a resource is deployed)
             AZOPS_INVALIDATE_CACHE             = @{ AzOpsInvalidateCache = 1 } # Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered
@@ -60,15 +61,32 @@ function Initialize-AzOpsGlobalVariables {
             AZOPS_STRICT_MODE                  = @{ AzOpsStrictMode = 0 }
             AZOPS_SKIP_RESOURCE_GROUP          = @{ AzOpsSkipResourceGroup = 1 }
             AZOPS_SKIP_POLICY                  = @{ AzOpsSkipPolicy = 0 }
-            GITHUB_API_URL                     = @{ GitHubApiUrl = $null }
-            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null }
-            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null }
-            GITHUB_TOKEN                       = @{ GitHubToken = $null }
-            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 }
-            GITHUB_BRANCH                      = @{ GitHubBranch = $null }
-            GITHUB_COMMENTS                    = @{ GitHubComments = $null }
+            AZOPS_SKIP_ROLE                    = @{ AzOpsSkipRole = 0 }
+            # Azure DevOps
+            AZDEVOPS_AUTO_MERGE                = @{ AzDevOpsAutoMerge = 1 }
+            AZDEVOPS_EMAIL                     = @{ AzDevOpsEmail = $null }
+            AZDEVOPS_USERNAME                  = @{ AzDevOpsUsername = $null }
+            AZDEVOPS_PULL_REQUEST              = @{ AzDevOpsPullRequest = $null }
+            AZDEVOPS_PULL_REQUEST_ID           = @{ AzDevOpsPullRequestId = $null }
+            AZDEVOPS_HEAD_REF                  = @{ AzDevOpsHeadRef = $null }
+            AZDEVOPS_BASE_REF                  = @{ AzDevOpsBaseRef = $null }
+            AZDEVOPS_API_URL                   = @{ AzDevOpsApiUrl = $null }
+            AZDEVOPS_PROJECT_ID                = @{ AzDevOpsProjectId = $null }
+            AZDEVOPS_REPOSITORY                = @{ AzDevOpsRepository = $null }
+            AZDEVOPS_TOKEN                     = @{ AzDevOpsToken = $null }
+            # GitHub
+            GITHUB_AUTO_MERGE                  = @{ GitHubAutoMerge = 1 } # Auto merge pull requests for pull workflow
+            GITHUB_EMAIL                       = @{ GitHubEmail = $null }
+            GITHUB_USERNAME                    = @{ GitHubUsername = $null }
+            GITHUB_PULL_REQUEST                = @{ GitHubPullRequest = $null } # Pull Request title
             GITHUB_HEAD_REF                    = @{ GitHubHeadRef = $null }
             GITHUB_BASE_REF                    = @{ GitHubBaseRef = $null }
+            GITHUB_API_URL                     = @{ GitHubApiUrl = $null } # Built-in env var
+            GITHUB_REPOSITORY                  = @{ GitHubRepository = $null } # Built-in env var
+            GITHUB_TOKEN                       = @{ GitHubToken = $null } # Built-in env var
+            GITHUB_COMMENTS                    = @{ GitHubComments = $null } # Built-in env var
+            # Source Control
+            SCM_PLATFORM                       = @{ SCMPlatform = "GitHub" }
         }
         # Iterate through each variable and take appropriate action
         foreach ($AzOpsEnv in $AzOpsEnvVariables.Keys) {
@@ -95,6 +113,10 @@ function Initialize-AzOpsGlobalVariables {
                 # Convert comma separated vars to array (since all env vars are strings)
                 if ($EnvVarValue -match ',') {
                     $EnvVarValue = $EnvVarValue -split ','
+                }
+                # Handle string to integer conversions (since env variables are always strings)
+                if ($EnvVarValue -match '^(0|-*[1-9]+[0-9]*)$' -and $EnvVarValue -isnot [int]) {
+                    $EnvVarValue = $EnvVarValue -as [int]
                 }
                 Set-Variable -Name $GlobalVar -Scope Global -Value $EnvvarValue
             }
@@ -124,7 +146,7 @@ function Initialize-AzOpsGlobalVariables {
         Write-AzOpsLog -Level Debug -Topic "Initialize-AzOpsGlobalVariables" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
 
         # Get all subscriptions and Management Groups if InvalidateCache is set to 1 or if the variables are not set
-        if ($global:AzOpsInvalidateCache -eq 1 -or $global:AzOpsAzManagementGroup.count -eq 0 -or $global:AzOpsSubscriptions.Count -eq 0) {
+        if ($global:AzOpsInvalidateCache -eq 1 -or -not(Get-Variable -Scope Global -Name AzOpsAzManagementGroup -ValueOnly -ErrorAction SilentlyContinue) -or -not(Get-Variable -Scope Global -Name AzOpsSubscriptions -ValueOnly -ErrorAction SilentlyContinue)) {
             #Get current tenant id
             $TenantId = (Get-AzContext).Tenant.Id
             # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
@@ -138,20 +160,18 @@ function Initialize-AzOpsGlobalVariables {
             Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Global Variable AzOpsState or AzOpsAzManagementGroup is not Initialized. Initializing it now"
             # Get all managementgroups that principal has access to
             $global:AzOpsPartialRoot = @()
-            # Initialize global variable for Management Groups
-            $global:AzOpsAzManagementGroup = @()
 
             $managementGroups = (Get-AzManagementGroup -ErrorAction:Stop)
             if ($RootScope -in ($managementGroups | Select-Object -Property Id).Id -or 1 -eq $global:AzOpsSupportPartialMgDiscovery) {
                 # Handle user provided management groups
-                if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot) {
+                if (1 -eq $global:AzOpsSupportPartialMgDiscovery -and $global:AzOpsPartialMgDiscoveryRoot -match '.') {
                     $ManagementGroups = @()
                     Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Processing user provided root management groups"
                     $global:AzOpsPartialMgDiscoveryRoot -split ',' | ForEach-Object -Process {
                         # Add for recursive discovery
                         $ManagementGroups += [pscustomobject]@{ Name = $_ }
                         # Add user provided root to partial root variable to know where discovery should start
-                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupName $_ -Recurse -Expand
+                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Recurse -Expand -WarningAction SilentlyContinue
                     }
                 }
                 Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
@@ -165,7 +185,7 @@ function Initialize-AzOpsGlobalVariables {
 
             }
             else {
-                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) have access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support."
+                Write-AzOpsLog -Level Error -Topic "Initialize-AzOpsGlobalVariables" -Message "Cannot access root management group $RootScope. Verify that principal $((Get-AzContext).Account.Id) have access or set env:AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY to 1 for partial discovery support"
             }
 
         }

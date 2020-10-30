@@ -1,6 +1,6 @@
 # AzOps
 
-[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=main)](https://dev.azure.com/mscet/CET-AzOps)
+[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F129%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)

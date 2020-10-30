@@ -53,7 +53,7 @@ function ConvertTo-AzOpsObject {
         # if [switch]$OrderObject has been used, go through each property recursively to ensure it is sorted/ordered properly
         if ($PSBoundParameters["OrderObject"]) {
             # Check input object type
-            if ($InputObject -is [PSObject] -or [PSCustomObject] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64] -and $InputObject -isnot [System.Collections.ICollection] -and $inputobject -isnot [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyType]) {
+            if ($InputObject -is [PSObject] -or [PSCustomObject] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64] -and $InputObject -isnot [System.Collections.ICollection] -and $inputobject -isnot [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyType] -and $inputobject -isnot [Collections.Generic.List[string]] -and $InputObject -isnot [System.Boolean] -and $null -ne $InputObject) {
                 # Create ordered PSCustomObject
                 $Object = [PSCustomObject][ordered]@{ }
                 # Sort properties
@@ -73,7 +73,7 @@ function ConvertTo-AzOpsObject {
                 Write-Output -NoEnumerate -InputObject $Object
             }
             # Handle hash tables and dictionaries
-            elseif ($InputObject -is [System.Collections.ICollection] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64]) {
+            elseif ($InputObject -is [System.Collections.ICollection] -and $InputObject -isnot [string] -and $inputobject -isnot [array] -and $inputobject -isnot [int64] -and $inputobject -isnot [Collections.Generic.List[string]]) {
                 $hash = [ordered]@{ }
                 $keys = ($Inputobject.Keys | Sort-Object)
                 foreach ($key in $keys ) {
@@ -82,7 +82,7 @@ function ConvertTo-AzOpsObject {
                 $hash
             }
             # Handle arrays
-            elseif ($InputObject -is [array]) {
+            elseif ($InputObject -is [array] -or [Collections.Generic.List[string]] -and $InputObject -isnot [string] -and $InputObject -isnot [System.Boolean] -and $null -ne $InputObject -and $InputObject -isnot [int64]) {
 
                 if ($InputObject.count -eq 0) {
                     # Return empty array if empty array (powershell will by default return $null)

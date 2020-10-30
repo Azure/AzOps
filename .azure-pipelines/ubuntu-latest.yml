@@ -1,18 +1,18 @@
 pr:
   paths:
     include:
-      - '*'
+      - "*"
     exclude:
       - .github/*
       - .vscode/*
       - docs/*
-      - '*.md'
+      - "*.md"
 
 variables:
   DEFAULT_JOB_TIMEOUT_IN_MINUTES: 30
-  AZ_ACCOUNTS_REQUIRED_VERSION: "1.9.1"
-  AZ_RESOURCES_REQUIRED_VERSION: "2.3.0"
-  PESTER_REQUIRED_VERSION: "5.0.2"
+  AZ_ACCOUNTS_REQUIRED_VERSION: "1.9.3"
+  AZ_RESOURCES_REQUIRED_VERSION: "2.5.0"
+  PESTER_REQUIRED_VERSION: "5.0.3"
 
 jobs:
   - job: pesterTests1

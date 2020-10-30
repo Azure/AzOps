@@ -55,12 +55,12 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         # Get random Management Group
         $mg = (Get-AzManagementGroup | Get-Random)
         # Get all ManagementGroup
-        $pathToManagementGroup = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Management-managementGroups_*" })).Directory.Parent
+        $pathToManagementGroup = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Management_managementGroups-*" })).Directory.Parent
 
         # Get all Subscriptions
         $subs = Get-AzSubscription -TenantId $TenantId -WarningAction SilentlyContinue
         # Get all subscriptions in the folder structure
-        $pathToSubscriptions = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Subscription-subscriptions*" })).Directory.Parent
+        $pathToSubscriptions = ((Get-ChildItem -path $TestDrive -File -Recurse -Force | Where-Object { $_.Name -like "Microsoft.Subscription_subscriptions-*" })).Directory.Parent
 
         # Get all resource groups from all subscriptions with resource graph
         # $rgs = Get-AzSubscription | ForEach-Object -Process { Select-AzSubscription -SubscriptionId $_.Id | Out-Null ; Get-AzResourceGroup | Where-Object { -not($_.ManagedBy) } }
@@ -122,8 +122,8 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         It "Management Group Name should match" {
             $AzOpsScopeTest.mg.name | Should -MatchExactly $($AzOpsScopeTest.mg.scope.split('/') | Select-Object -last 1)
         }
-        It "Management Group StatePath should Match  Microsoft.Management-managementGroups_$($AzOpsScopeTest.mg.name).parameters.json" {
-            $AzOpsScopeTest.mg.statepath | Should -Match "Microsoft.Management-managementGroups_$($AzOpsScopeTest.mg.name).parameters.json"
+        It "Management Group StatePath should Match  Microsoft.Management_managementGroups-$($AzOpsScopeTest.mg.name).parameters.json" {
+            $AzOpsScopeTest.mg.statepath | Should -Match "Microsoft.Management_managementGroups-$($AzOpsScopeTest.mg.name).parameters.json"
         }
 
         It "Path to Management Group should not be null or empty" {
@@ -138,8 +138,8 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         It "Path to Management Group Name should match" {
             $AzOpsScopeTest.pathToMg.name | Should -MatchExactly $($AzOpsScopeTest.pathToMg.scope.split('/') | Select-Object -last 1)
         }
-        It "Path to Management Group of StatePath should Match Microsoft.Management-managementGroups_$($AzOpsScopeTest.pathToMg.name).parameters.json" {
-            $AzOpsScopeTest.pathToMg.statepath | Should -Match  "Microsoft.Management-managementGroups_$($AzOpsScopeTest.pathToMg.name).parameters.json"
+        It "Path to Management Group of StatePath should Match Microsoft.Management_managementGroups-$($AzOpsScopeTest.pathToMg.name).parameters.json" {
+            $AzOpsScopeTest.pathToMg.statepath | Should -Match  "Microsoft.Management_managementGroups-$($AzOpsScopeTest.pathToMg.name).parameters.json"
         }
 
         It "Subscription should not be null or empty" {
@@ -157,8 +157,8 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
         It "Subscription of Subscription property  should match" {
             $AzOpsScopeTest.sub.subscription | Should -MatchExactly $($sub.Id)
         }
-        It "Subscription of StatePath should Match with Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.sub.subscription).parameters.json" {
-            $AzOpsScopeTest.sub.statepath | Should -Match "Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.sub.subscription).parameters.json"
+        It "Subscription of StatePath should Match with Microsoft.Subscription_subscriptions-$($AzOpsScopeTest.sub.subscription).parameters.json" {
+            $AzOpsScopeTest.sub.statepath | Should -Match "Microsoft.Subscription_subscriptions-$($AzOpsScopeTest.sub.subscription).parameters.json"
         }
         It "Subscription count from platform should match number of subscription.json" {
             $AzOpsScopeTest.subs.Count | Should -BeExactly $pathToSubscriptions.Count
@@ -183,8 +183,8 @@ Describe "AzOpsScope (Unit Test)" -Tag "unit", "scope" {
             # Since everything is under .AzState we are checking parent directory name for displayname
             "$($AzOpsScopeTest.pathToSubscription.subscriptionDisplayName) ($($AzOpsScopeTest.pathToSubscription.subscription))" | Should -BeExactly $pathToSubscription.Name
         }
-        It "Path to Subscription of StatePath should Match Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json" {
-            $AzOpsScopeTest.pathToSubscription.statepath | Should -Match "Microsoft.Subscription-subscriptions_$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json"
+        It "Path to Subscription of StatePath should Match Microsoft.Subscription_subscriptions-$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json" {
+            $AzOpsScopeTest.pathToSubscription.statepath | Should -Match "Microsoft.Subscription_subscriptions-$($AzOpsScopeTest.pathToSubscription.subscription).parameters.json"
         }
 
         <#
