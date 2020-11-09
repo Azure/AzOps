@@ -104,7 +104,7 @@ function Initialize-AzOpsRepository {
                 $TestAADCall = Get-AzADUser -First 1 -ErrorAction Stop
             }
             catch [System.Exception] {
-                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "Missing Directory.Read permissions in Azure AD Graph. Skipping discovery of RoleAssingments and RoleDefinitions"
+                Write-AzOpsLog -Level Warning -Topic "Initialize-AzOpsRepository" -Message "Missing Directory.Read permissions in Azure AD Graph. Skipping discovery of RoleAssignments and RoleDefinitions"
                 $SkipRole = $true
             }
         }
