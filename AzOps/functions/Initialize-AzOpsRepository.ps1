@@ -132,6 +132,22 @@
 		if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
 			$rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
 		}
+		
+		foreach ($root in $rootScope) {
+			if ($script:AzOpsAzManagementGroup.Id -notcontains $root) {
+				Write-PSFMessage -Level Warning -String 'Initialize-AzOpsRepository.ManagementGroup.AccessError' -StringValues (Get-AzContext).Account.Id
+				Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
+				continue
+			}
+			
+			#TODO: Implement
+			# Create AzOpsState Structure recursively
+			Save-AzOpsManagementGroupChildren -scope $Root
+			
+			#TODO: Implement
+			# Discover Resource at scope recursively
+			Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup
+		}
 		#endregion Root Scopes
 	}
 	end {

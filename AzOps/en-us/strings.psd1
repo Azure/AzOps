@@ -11,5 +11,7 @@ Please reconnect with Connect-AzAccount using an account/service principal that 
 	'Initialize-AzOpsEnvironment.UsingCache'		   = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions'
 	
 	'Invoke-NativeCommand.Failed.WithCallstack' = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}'
-	'Invoke-NativeCommand.Failed.NoCallstack' = 'Execution of {{{0}}} failed with exit code {1}'
+	'Invoke-NativeCommand.Failed.NoCallstack'		   = 'Execution of {{{0}}} failed with exit code {1}'
+	
+	'AzOpsScope.Input.BadData.ManagementGroup' = '{0} does not contain .parameters.input.value.Id'
 }
