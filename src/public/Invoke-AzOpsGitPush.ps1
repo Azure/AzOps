@@ -269,10 +269,12 @@ function Invoke-AzOpsGitPush {
                         } | Out-Host
                     }
                     "AzureDevOps" {
-                        Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:AzDevOpsHeadRef)"
-                        Start-AzOpsNativeExecution {
-                            git push origin $global:AzDevOpsHeadRef
-                        } | Out-Host
+                        # Patch - ljtill
+                        # Disable system commit after run
+                        # Write-AzOpsLog -Level Information -Topic "git" -Message "Pushing new changes to origin ($global:AzDevOpsHeadRef)"
+                        # Start-AzOpsNativeExecution {
+                        #     git push origin $global:AzDevOpsHeadRef
+                        # } | Out-Host
                     }
                 }
             }
