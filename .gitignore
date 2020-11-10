@@ -1,3 +1,26 @@
+﻿
+# ignore the settings folder and files for VSCode and PSS
+.vscode/*
+*.psproj
+*TempPoint*
+
+# Ignore staging info from Visual Studio
+library/AzOps/.vs/*
+library/AzOps/AzOps/bin/*
+library/AzOps/AzOps/obj/*
+
+# ignore PowerShell Studio MetaData
+AzOps/AzOps.psproj
+AzOps/AzOps.psproj.bak
+AzOps/AzOps.psprojs
+AzOps/AzOps.psproj
+
+# ignore the TestResults
+TestResults/*
+
+# ignore the publishing Directory
+publish/*
+
 #Debug
 **.private**
 debug.ps1
@@ -18,6 +41,3 @@ debug.ps1
 
 #Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/*
-
-#AzOps
-azops/*

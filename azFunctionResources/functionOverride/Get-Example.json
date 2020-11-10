@@ -1,0 +1,19 @@
+﻿{
+    "bindings": [
+        {
+        "authLevel": "function",
+        "type": "httpTrigger",
+        "direction": "in",
+        "name": "Request",
+        "methods": [
+            "delete"
+        ]
+        },
+        {
+        "type": "http",
+        "direction": "out",
+        "name": "Response"
+        }
+    ],
+    "disabled": true
+}
