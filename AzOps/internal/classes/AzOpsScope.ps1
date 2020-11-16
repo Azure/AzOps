@@ -144,6 +144,7 @@
 			}
 			else {
 				#TODO: Clarify whether to interrupt in terminal error
+				#--> KILL WITH MAXIMUM PREJUDICE
 				Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ManagementGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
 			}
 		}

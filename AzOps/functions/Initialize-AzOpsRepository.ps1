@@ -90,7 +90,7 @@
 				$SkipRole = $true
 			}
 		}
-		#TODO: Discuss need for this
+		
 		$parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
 		Initialize-AzOpsEnvironment @parameters
 		

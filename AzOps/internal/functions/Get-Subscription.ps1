@@ -55,7 +55,7 @@
 		}
 		while ($nextLink)
 		
-		$includedSubscriptions = $AllSubscriptionsResults | Where-Object {
+		$includedSubscriptions = $allSubscriptionsResults | Where-Object {
 			$_.state -notin $ExcludedStates -and
 			$_.subscriptionPolicies.quotaId -notin $ExcludedOffers
 		}
