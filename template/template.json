@@ -332,6 +332,9 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
                     "contentVersion": "1.0.0.0"
@@ -345,7 +348,14 @@
                             "ParentId": "[parameters('input').Id]",
                             "Type": "[parameters('input').children[copyIndex()].Type]",
                             "Children": "[if(and(contains(parameters('input').children[copyIndex()], 'Children'),not(empty(parameters('input').children[copyIndex()].Children))),parameters('input').children[copyIndex()].Children,json('[]'))]",
-                            "properties": "[if(and(contains(parameters('input').children[copyIndex()], 'properties'),not(empty(parameters('input').children[copyIndex()].properties))),parameters('input').children[copyIndex()].properties,json('{}'))]"
+                            "properties": "[if(
+                                                and(
+                                                    contains(parameters('input').children[copyIndex()], 'properties'),
+                                                    not(empty(parameters('input').children[copyIndex()].properties))
+                                                ),
+                                                parameters('input').children[copyIndex()].properties,
+                                                json('{}'
+                                            ))]"
                         }
                     },
                     "_artifactsLocation": {
