@@ -366,7 +366,7 @@
         {
             /*
 
-                Intent: Create Nested Deployment for properties.policyDefinitions
+                Intent: Create Nested Deployment for policyDefinitions
 
                 Required Parameters:
                     1. Name: Management Group Name
@@ -381,10 +381,8 @@
                     1. Initial Definition
             */
             "condition": "[and(
-                                contains(parameters('input'), 'properties'),
-                                not(empty(parameters('input').properties)),
-                                contains(parameters('input').properties, 'policyDefinitions'),
-                                not(empty(parameters('input').properties.policyDefinitions))
+                                contains(parameters('input'), 'policyDefinitions'),
+                                not(empty(parameters('input').policyDefinitions))
                           )]",
             "dependsOn": [
                 "[parameters('input').Name]"
@@ -393,12 +391,10 @@
                 "name": "copy-properties-policyDefinitions",
                 "count": "[if(
                                 and(
-                                contains(parameters('input'), 'properties'),
-                                not(empty(parameters('input').properties)),
-                                contains(parameters('input').properties, 'policyDefinitions'),
-                                not(empty(parameters('input').properties.policyDefinitions))
+                                    contains(parameters('input'), 'policyDefinitions'),
+                                    not(empty(parameters('input').policyDefinitions))
                                 ),
-                                length(parameters('input').properties.policyDefinitions),
+                                length(parameters('input').policyDefinitions),
                                 0
                            )]"
             },
@@ -408,12 +404,10 @@
             "location": "[deployment().location]",
             "name": "[if(
                         and(
-                            contains(parameters('input'), 'properties'),
-                            not(empty(parameters('input').properties)),
-                            contains(parameters('input').properties, 'policyDefinitions'),
-                            not(empty(parameters('input').properties.policyDefinitions))
+                            contains(parameters('input'), 'policyDefinitions'),
+                            not(empty(parameters('input').policyDefinitions))
                         ),
-                        take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+                        take(concat('PolicyDefinition-', parameters('input').policyDefinitions[copyIndex()].Name),63),
                         'PolicyDefinition-na'
                     )]",
             "properties": {
@@ -424,7 +418,7 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": "[parameters('input').properties.policyDefinitions[copyIndex()]]"
+                        "value": "[parameters('input').policyDefinitions[copyIndex()]]"
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
@@ -447,7 +441,7 @@
         {
             /*
 
-                Intent: Create Nested Deployment for properties.policyAssignments
+                Intent: Create Nested Deployment for policyAssignments
 
                 Required Parameters:
                     1. Name: Management Group Name
@@ -462,10 +456,8 @@
                     1. Initial Definition
             */
             "condition": "[and(
-                                contains(parameters('input'), 'properties'),
-                                not(empty(parameters('input').properties)),
-                                contains(parameters('input').properties, 'policyAssignments'),
-                                not(empty(parameters('input').properties.policyAssignments))
+                                contains(parameters('input'), 'policyAssignments'),
+                                not(empty(parameters('input').policyAssignments))
                           )]",
             "dependsOn": [
                 "[parameters('input').Name]"
@@ -474,12 +466,10 @@
                 "name": "copy-properties-policyAssignments",
                 "count": "[if(
                                 and(
-                                contains(parameters('input'), 'properties'),
-                                not(empty(parameters('input').properties)),
-                                contains(parameters('input').properties, 'policyAssignments'),
-                                not(empty(parameters('input').properties.policyAssignments))
+                                    contains(parameters('input'), 'policyAssignments'),
+                                    not(empty(parameters('input').policyAssignments))
                                 ),
-                                length(parameters('input').properties.policyAssignments),
+                                length(parameters('input').policyAssignments),
                                 0
                            )]"
             },
@@ -489,12 +479,10 @@
             "location": "[deployment().location]",
             "name": "[if(
                         and(
-                            contains(parameters('input'), 'properties'),
-                            not(empty(parameters('input').properties)),
-                            contains(parameters('input').properties, 'policyAssignments'),
-                            not(empty(parameters('input').properties.policyAssignments))
-                        ),
-                        take(concat('policyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
+                                contains(parameters('input'), 'policyAssignments'),
+                                not(empty(parameters('input').policyAssignments))
+                            ),
+                        take(concat('policyAssignments-', parameters('input').policyAssignments[copyIndex()].Name),63),
                         'policyAssignments-na'
                     )]",
             "properties": {
@@ -505,7 +493,7 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": "[parameters('input').properties.policyAssignments[copyIndex()]]"
+                        "value": "[parameters('input').policyAssignments[copyIndex()]]"
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
