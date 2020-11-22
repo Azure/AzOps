@@ -118,7 +118,7 @@
             "apiVersion": "[variables('apiversion')]",
             "location": "[variables('location')]",
             "tags": "[variables('tags')]",
-            "Properties": "[if(contains(variables('input'),'Properties') ,variables('input').Properties, json('{}'))]"
+            "Properties": "[variables('input').Properties]"
         },
         {
             "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
@@ -144,6 +144,7 @@
             "identity": "[
                             if(
                                 and(
+                                    contains(variables('input'), 'Properties'),
                                     contains(variables('input').Properties, 'policyDefinitionId'),
                                     or(
                                         contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
