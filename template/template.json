@@ -143,13 +143,16 @@
             "apiVersion": "[variables('apiversion')]",
             "identity": "[
                             if(
-                                or(
-                                    contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
-                                    and(
-                                        not(contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions')),
-                                        or(
-                                            equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
-                                            equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                and(
+                                    contains(variables('input').Properties, 'policyDefinitionId'),
+                                    or(
+                                        contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
+                                        and(
+                                            not(contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions')),
+                                            or(
+                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
+                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                            )
                                         )
                                     )
                                 ),
@@ -412,6 +415,9 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
                     "contentVersion": "1.0.0.0"
@@ -487,6 +493,9 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
                     "contentVersion": "1.0.0.0"
