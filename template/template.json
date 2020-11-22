@@ -118,7 +118,7 @@
             "apiVersion": "[variables('apiversion')]",
             "location": "[variables('location')]",
             "tags": "[variables('tags')]",
-            "Properties": "[variables('input').Properties]"
+            "Properties": "[if(contains(variables('input'),'Properties') ,variables('input').Properties, json('{}'))]"
         },
         {
             "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
@@ -532,131 +532,6 @@
                 }
             }
         }
-        /*
-        {
-                Intent: Fan out Management Group Deployment for Policy/PolicySet/Role Definition and Assignment.
-                Required Parameters (of PolicyDefinitions[] Object):
-
-                    1. Name
-                    2. "ResourceType": "Microsoft.Management/managementGroups",
-                    3. Properties Object with following optional Properties
-                        3.1  "policySetDefinitions": []
-                        3.2  "policyDefinitions": []
-                        3.3  "policyAssignments": []
-                        3.4  "roleDefinitions": []
-                        3.5  "roleAssignments": []
-
-                Scope: Management Group
-
-                Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
-
-                Details: Trigger Nested Deployment at MG scope
-
-                Change Log:
-                    1. Initial Definition
-            "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "location": "[deployment().location]",
-            "name": "[concat('NorthStar-MG-', variables('input').Name)]",
-            "dependsOn": [
-            ],
-            "Properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').tenantTemplate]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "input": {
-                        "value": "[variables('input')]"
-                    },
-                    "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-                    },
-                    "_artifactsLocationSasToken": {
-                        "value": "[parameters('_artifactsLocationSasToken')]"
-                    },
-                    "roleAssignmentEnabledForPolicy": {
-                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    },
-                    "deploymentEnabledForPolicy": {
-                        "value": "[variables('deploymentEnabledForPolicy')]"
-                    },
-                    "remediationEnabledForPolicy": {
-                        "value": "[variables('remediationEnabledForPolicy')]"
-                    }
-                }
-            }
-        }
-        */
-        /*
-        {
-            /*
-                Intent: Fan out Subscription Deployment for Policy/PolicySet/Role Definition and Assignment.
-
-                Required Parameters (of PolicyDefinitions[] Object):
-
-                    1. Name
-                    2. "ResourceType": "Microsoft.Management/managementGroups",
-                    3. Properties Object with following optional Properties
-                        3.1  "policySetDefinitions": []
-                        3.2  "policyDefinitions": []
-                        3.3  "policyAssignments": []
-                        3.4  "roleDefinitions": []
-                        3.5  "roleAssignments": []
-
-                Scope: Management Group
-
-                Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
-
-                Details: Trigger Nested Deployment at MG scope
-
-                Change Log:
-                    1. Initial Definition
-
-            "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('/subscriptions'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "location": "[deployment().location]",
-            "name": "[concat('NorthStar-Sub-', variables('input').Name)]",
-            "dependsOn": [
-            ],
-            "Properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').tenantTemplate]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "input": {
-                        "value": "[variables('input')]"
-                    },
-                    "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-                    },
-                    "_artifactsLocationSasToken": {
-                        "value": "[parameters('_artifactsLocationSasToken')]"
-                    },
-                    "roleAssignmentEnabledForPolicy": {
-                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    },
-                    "deploymentEnabledForPolicy": {
-                        "value": "[variables('deploymentEnabledForPolicy')]"
-                    },
-                    "remediationEnabledForPolicy": {
-                        "value": "[variables('remediationEnabledForPolicy')]"
-                    }
-                }
-            }
-        },
-        */
     ],
     "outputs": {
         "hobo": {
