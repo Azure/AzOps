@@ -277,9 +277,7 @@
 
                 Scope: Tenant root
 
-                Condition: We have Parent ID available to ensure inadvertently place Management Group directly the root.
-
-                Details: If ParentID do not exist, then it is a child and creation of Management Group would have happened when parent's children were iterated upon.
+                Condition: If Children property bag not null or empty.
 
                 Change Log:
                     1. Initial Definition
