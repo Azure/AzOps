@@ -45,7 +45,6 @@
         "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
         "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
         "input": "[parameters('input')]",
-        "Children": "[if(and(contains(parameters('input'), 'Children'),not(empty(parameters('input').Children))),parameters('input').Children,json('[]'))]",
         "resourceType": "[if(
                             and(contains(parameters('input'), 'ResourceType'),not(empty(parameters('input').ResourceType))),
                             parameters('input').ResourceType,
@@ -142,7 +141,25 @@
             "type": "Microsoft.Authorization/policyAssignments",
             "name": "[variables('input').name]",
             "apiVersion": "[variables('apiversion')]",
-            "identity": "[variables('identity')]",
+            "identity": "[
+                            if(
+                                or(
+                                    contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
+                                    and(
+                                        not(contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions')),
+                                        or(
+                                            equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
+                                            equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                        )
+                                    )
+                                ),
+                                if(
+                                    contains(variables('input').Identity),
+                                    variables('input').Identity,
+                                    json('{\"type\":\"SystemAssigned\"}')
+                                ),
+                                json('null')
+                          )]",
             "location": "[variables('location')]",
             "Properties": "[variables('input').Properties]"
         },
@@ -239,6 +256,7 @@
                     1. Name: Management Group Name
                     2. DisplayName: Management Group Display Name
                     3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    4. Id -  ResourceID of the management group '/providers/Microsoft.Management/managementGroups/<name>'
 
                 Scope: Tenant root
 
@@ -287,6 +305,9 @@
                                 contains(parameters('input'), 'children'),
                                 not(empty(parameters('input').children))
                           )]",
+            "dependsOn": [
+                "[parameters('input').Name]"
+            ],
             "copy": {
                 "name": "create-mg-child",
                 "count": "[length(
@@ -323,6 +344,168 @@
                             "Children": "[if(and(contains(parameters('input').children[copyIndex()], 'Children'),not(empty(parameters('input').children[copyIndex()].Children))),parameters('input').children[copyIndex()].Children,json('[]'))]",
                             "properties": "[if(and(contains(parameters('input').children[copyIndex()], 'properties'),not(empty(parameters('input').children[copyIndex()].properties))),parameters('input').children[copyIndex()].properties,json('{}'))]"
                         }
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+            /*
+
+                Intent: Create Nested Deployment for properties.policyDefinitions
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+
+                Scope: Tenant root
+
+                Condition: If Children property bag not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(parameters('input'), 'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyDefinitions'),
+                                not(empty(parameters('input').properties.policyDefinitions))
+                          )]",
+            "dependsOn": [
+                "[parameters('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-policyDefinitions",
+                "count": "[if(
+                                and(
+                                contains(parameters('input'), 'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyDefinitions'),
+                                not(empty(parameters('input').properties.policyDefinitions))
+                                ),
+                                length(parameters('input').properties.policyDefinitions),
+                                0
+                           )]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(parameters('input'), 'properties'),
+                            not(empty(parameters('input').properties)),
+                            contains(parameters('input').properties, 'policyDefinitions'),
+                            not(empty(parameters('input').properties.policyDefinitions))
+                        ),
+                        take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+                        'PolicyDefinition-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[parameters('input').properties.policyDefinitions[copyIndex()]]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+            /*
+
+                Intent: Create Nested Deployment for properties.policyAssignments
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+
+                Scope: Tenant root
+
+                Condition: If Children property bag not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(parameters('input'), 'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyAssignments'),
+                                not(empty(parameters('input').properties.policyAssignments))
+                          )]",
+            "dependsOn": [
+                "[parameters('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-policyAssignments",
+                "count": "[if(
+                                and(
+                                contains(parameters('input'), 'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyAssignments'),
+                                not(empty(parameters('input').properties.policyAssignments))
+                                ),
+                                length(parameters('input').properties.policyAssignments),
+                                0
+                           )]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(parameters('input'), 'properties'),
+                            not(empty(parameters('input').properties)),
+                            contains(parameters('input').properties, 'policyAssignments'),
+                            not(empty(parameters('input').properties.policyAssignments))
+                        ),
+                        take(concat('policyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
+                        'policyAssignments-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[parameters('input').properties.policyAssignments[copyIndex()]]"
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
