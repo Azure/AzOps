@@ -297,7 +297,7 @@
                             )
                             )]"
             },
-            "scope": "[concat('/providers/Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
