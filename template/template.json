@@ -299,8 +299,9 @@
                             )
                             )]"
             },
-            "scope": "/",
+            
             /*
+            "scope": "/",
             "scope": "[if(
                             contains(parameters('input'), 'Id'),
                             replace(parameters('input').Id,'/providers/',''),
