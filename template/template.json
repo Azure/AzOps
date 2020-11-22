@@ -153,6 +153,7 @@
             "location": "[deployment().location]",
             "Properties": "[variables('input').Properties]"
         },
+        /*
         {
             "condition": "[and( variables('roleAssignmentEnabledForPolicy'),
                                 equals(
@@ -181,6 +182,7 @@
                                     )]"
             }
         },
+        */
         {
             "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/roleAssignments'))]",
             "type": "Microsoft.Authorization/roleAssignments",
