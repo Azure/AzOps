@@ -141,29 +141,7 @@
             "type": "Microsoft.Authorization/policyAssignments",
             "name": "[variables('input').name]",
             "apiVersion": "[variables('apiversion')]",
-            "identity": "[
-                            if(
-                                and(
-                                    contains(variables('input'), 'Properties'),
-                                    contains(variables('input').Properties, 'policyDefinitionId'),
-                                    or(
-                                        contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
-                                        and(
-                                            not(contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions')),
-                                            or(
-                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
-                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
-                                            )
-                                        )
-                                    )
-                                ),
-                                if(
-                                    contains(variables('input').Identity),
-                                    variables('input').Identity,
-                                    json('{\"type\":\"SystemAssigned\"}')
-                                ),
-                                json('null')
-                          )]",
+            "identity": "[variables('identity')]",
             "location": "[variables('location')]",
             "Properties": "[variables('input').Properties]"
         },
@@ -334,7 +312,7 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "inner"
+                    "scope": "outer"
                 },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
@@ -427,7 +405,7 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "inner"
+                    "scope": "outer"
                 },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
@@ -505,7 +483,7 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "inner"
+                    "scope": "outer"
                 },
                 "templateLink": {
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
@@ -513,7 +491,39 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": "[parameters('input').policyAssignments[copyIndex()]]"
+                        "value": {
+                            "Name": "[parameters('input').policyAssignments[copyIndex()].Name]",
+                            "Type": "[parameters('input').policyAssignments[copyIndex()].Type]",
+                            "identity": "[
+                                            if(
+                                                and(
+                                                    contains(variables('input'), 'Properties'),
+                                                    contains(variables('input').Properties, 'policyDefinitionId'),
+                                                    or(
+                                                        contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions'),
+                                                        and(
+                                                            not(contains(variables('input').Properties.policyDefinitionId,'policySetDefinitions')),
+                                                            or(
+                                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('deployIfNotExists')),
+                                                                equals(toLower(reference(variables('input').Properties.policyDefinitionId,'2018-05-01').policyRule.then.effect), toLower('modify'))
+                                                            )
+                                                        )
+                                                    )
+                                                ),
+                                                if(
+                                                    contains(variables('input'), 'Identity'),
+                                                    parameters('input').policyAssignments[copyIndex()].Identity,
+                                                    json('{\"type\":\"SystemAssigned\"}')
+                                                ),
+                                                json('null')
+                                        )]",
+                            "Location": "[if(
+                                            contains(parameters('input').policyAssignments[copyIndex()],'Location'),
+                                            parameters('input').policyAssignments[copyIndex()].Location,
+                                            deployment().location
+                                        )]",
+                            "properties": "[parameters('input').policyAssignments[copyIndex()].Properties]"
+                        }
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
