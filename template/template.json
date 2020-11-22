@@ -299,14 +299,11 @@
                             )
                             )]"
             },
-            /*
-            "scope": "/",
             "scope": "[if(
                             contains(parameters('input'), 'Id'),
                             replace(parameters('input').Id,'/providers/',''),
                             concat('/providers/Microsoft.Management/managementGroups/',parameters('input').name)
                         )]",
-            */
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
