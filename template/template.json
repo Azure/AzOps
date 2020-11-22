@@ -302,7 +302,7 @@
             "scope": "[if(
                             contains(parameters('input'), 'Id'),
                             replace(parameters('input').Id,'/providers/',''),
-                            concat('Microsoft.Management/managementGroups/',parameters('input').name)
+                            concat('/providers/Microsoft.Management/managementGroups/',parameters('input').name)
                         )]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
