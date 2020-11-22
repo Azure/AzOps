@@ -299,7 +299,6 @@
                             )
                             )]"
             },
-            
             /*
             "scope": "/",
             "scope": "[if(
@@ -329,7 +328,7 @@
                             "DisplayName": "[parameters('input').children[copyIndex()].DisplayName]",
                             "Id": "[parameters('input').children[copyIndex()].Id]",
                             "ParentId": "[parameters('input').Id]",
-                            "Type": "/providers/Microsoft.Management/managementGroups",
+                            "Type": "[parameters('input').children[copyIndex()].Type]",
                             "Children": "[if(and(contains(parameters('input').children[copyIndex()], 'Children'),not(empty(parameters('input').children[copyIndex()].Children))),parameters('input').children[copyIndex()].Children,json('[]'))]",
                             "properties": "[if(and(contains(parameters('input').children[copyIndex()], 'properties'),not(empty(parameters('input').children[copyIndex()].properties))),parameters('input').children[copyIndex()].properties,json('{}'))]"
                         }
