@@ -396,17 +396,18 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "location": "[deployment().location]",
-            "name": "[if(
-                        and(
-                            contains(variables('input'),'Properties'),
-                            not(empty(variables('input').Properties)),
-                            contains(variables('input').Properties, 'policyDefinitions'),
-                            not(empty(variables('input').Properties.policyDefinitions)),
-                            greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63)
-                        ),
-                        take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
-                        concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
-                    )]",
+            // "name": "[if(
+            //             and(
+            //                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+            //                 contains(variables('input'),'Properties'),
+            //                 not(empty(variables('input').Properties)),
+            //                 contains(variables('input').Properties, 'policyDefinitions'),
+            //                 not(empty(variables('input').Properties.policyDefinitions))
+            //             ),
+            //             'test',
+            //             'PolicyDefinition-na'
+            //         )]",
+            "name": "test",
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
