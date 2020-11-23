@@ -116,14 +116,14 @@
             "tags": "[variables('tags')]",
             "Properties": "[variables('input').Properties]"
         },
-        {
-            "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
-            "type": "Microsoft.Authorization/policyDefinitions",
-            "name": "[variables('input').name]",
-            "apiVersion": "[variables('apiversion')]",
-            "location": "[deployment().location]",
-            "Properties": "[variables('input').Properties]"
-        },
+        // {
+        //     "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
+        //     "type": "Microsoft.Authorization/policyDefinitions",
+        //     "name": "[variables('input').name]",
+        //     "apiVersion": "[variables('apiversion')]",
+        //     "location": "[deployment().location]",
+        //     "Properties": "[variables('input').Properties]"
+        // },
         {
             "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policySetDefinitions'))]",
             "type": "Microsoft.Authorization/policySetDefinitions",
@@ -386,7 +386,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
-            "name": "test",
+            "name": "test1",
             // "name": "[if(
             //             and(
             //                 not(empty(parameters('input').properties)),
@@ -398,9 +398,26 @@
             //         )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
+                // "expressionEvaluationOptions": {
+                //     "scope": "outer"
+                // },
+                // "template": {
+
+                //     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                //     "contentVersion": "1.0.0.0",
+                //     "parameters": {
+                //         "input": {
+                //             "type": "object"
+                //         }
+                //     },
+                //     "variables": {
+                //     },
+                //     "resources": [
+                //     ],
+                //     "outputs": {
+                //     }
+
+                // },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -408,22 +425,22 @@
                 "parameters": {
                     "input": {
                         "value": "[parameters('input').properties.policyDefinitions[copyIndex()]]"
-                    },
-                    "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-                    },
-                    "_artifactsLocationSasToken": {
-                        "value": "[parameters('_artifactsLocationSasToken')]"
-                    },
-                    "roleAssignmentEnabledForPolicy": {
-                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    },
-                    "deploymentEnabledForPolicy": {
-                        "value": "[variables('deploymentEnabledForPolicy')]"
-                    },
-                    "remediationEnabledForPolicy": {
-                        "value": "[variables('remediationEnabledForPolicy')]"
                     }
+                    // "_artifactsLocation": {
+                    //     "value": "[parameters('_artifactsLocation')]"
+                    // },
+                    // "_artifactsLocationSasToken": {
+                    //     "value": "[parameters('_artifactsLocationSasToken')]"
+                    // },
+                    // "roleAssignmentEnabledForPolicy": {
+                    //     "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    // },
+                    // "deploymentEnabledForPolicy": {
+                    //     "value": "[variables('deploymentEnabledForPolicy')]"
+                    // },
+                    // "remediationEnabledForPolicy": {
+                    //     "value": "[variables('remediationEnabledForPolicy')]"
+                    // }
                 }
             }
         },
@@ -627,6 +644,16 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
+        },
+        "test": {
+            "type": "bool",
+            "value": "[and(
+                                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                 contains(parameters('input'),'properties'),
+                                not(empty(parameters('input').properties)),
+                                 contains(parameters('input').properties, 'policyDefinitions'),
+                                 not(empty(parameters('input').properties.policyDefinitions))
+                           )]"
         }
     }
 }
