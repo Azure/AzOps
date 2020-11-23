@@ -453,8 +453,10 @@
                     1. Initial Definition
             */
             "condition": "[and(
-                                contains(parameters('input'), 'policyAssignments'),
-                                not(empty(parameters('input').policyAssignments))
+                                contains(parameters('input'),'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyAssignments'),
+                                not(empty(parameters('input').properties.policyAssignments))
                           )]",
             "dependsOn": [
                 "[parameters('input').Name]"
@@ -463,10 +465,12 @@
                 "name": "copy-properties-policyAssignments",
                 "count": "[if(
                                 and(
-                                    contains(parameters('input'), 'policyAssignments'),
-                                    not(empty(parameters('input').policyAssignments))
+                                    contains(parameters('input'),'properties'),
+                                    not(empty(parameters('input').properties)),
+                                    contains(parameters('input').properties, 'policyAssignments'),
+                                    not(empty(parameters('input').properties.policyAssignments))
                                 ),
-                                length(parameters('input').policyAssignments),
+                                length(parameters('input').properties.policyAssignments),
                                 0
                            )]"
             },
@@ -476,10 +480,12 @@
             "location": "[deployment().location]",
             "name": "[if(
                         and(
-                                contains(parameters('input'), 'policyAssignments'),
-                                not(empty(parameters('input').policyAssignments))
+                                contains(parameters('input'),'properties'),
+                                not(empty(parameters('input').properties)),
+                                contains(parameters('input').properties, 'policyAssignments'),
+                                not(empty(parameters('input').properties.policyAssignments))
                             ),
-                        take(concat('PolicyAssignments-', parameters('input').policyAssignments[copyIndex()].Name),63),
+                        take(concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
                         'policyAssignments-na'
                     )]",
             "properties": {
@@ -494,15 +500,15 @@
                 "parameters": {
                     "input": {
                         "value": {
-                            "Name": "[parameters('input').policyAssignments[copyIndex()].Name]",
-                            "Type": "[parameters('input').policyAssignments[copyIndex()].Type]",
-                            "identity": "[parameters('input').policyAssignments[copyIndex()].Identity]",
+                            "Name": "[parameters('input').properties.policyAssignments[copyIndex()].Name]",
+                            "Type": "[parameters('input').properties.policyAssignments[copyIndex()].Type]",
+                            "identity": "[parameters('input').properties.policyAssignments[copyIndex()].Identity]",
                             "Location": "[if(
-                                            contains(parameters('input').policyAssignments[copyIndex()],'Location'),
-                                            parameters('input').policyAssignments[copyIndex()].Location,
+                                            contains(parameters('input').properties.policyAssignments[copyIndex()],'Location'),
+                                            parameters('input').properties.policyAssignments[copyIndex()].Location,
                                             deployment().location
                                         )]",
-                            "properties": "[parameters('input').policyAssignments[copyIndex()].Properties]"
+                            "properties": "[parameters('input').properties.policyAssignments[copyIndex()].Properties]"
                         }
                     },
                     "_artifactsLocation": {
