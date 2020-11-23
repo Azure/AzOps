@@ -353,17 +353,15 @@
         },
         {
             /*
-
-                Intent: Create Nested Deployment for policyDefinitions
+                Intent: Create Nested Deployment for properties.policyDefinitions
 
                 Required Parameters:
                     1. Name: Management Group Name
-                    2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. Properties.policyDefinitions[]
 
-                Scope: Tenant root
+                Scope: Management Group
 
-                Condition: If Children property bag not null or empty.
+                Condition: If properties.policyDefinitions[] not null or empty.
 
                 Change Log:
                     1. Initial Definition
@@ -455,17 +453,15 @@
         },
         {
             /*
-
-                Intent: Create Nested Deployment for policySetDefinitions
+                Intent: Create Nested Deployment for properties.policySetDefinitions
 
                 Required Parameters:
                     1. Name: Management Group Name
-                    2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. Properties.policySetDefinitions[]
 
-                Scope: Tenant root
+                Scope: Management Group
 
-                Condition: If Children property bag not null or empty.
+                Condition: If properties.policySetDefinitions[] not null or empty.
 
                 Change Log:
                     1. Initial Definition
@@ -557,18 +553,16 @@
             }
         },
         {
-            /*
-
-                Intent: Create Nested Deployment for policyAssignments
+             /*
+                Intent: Create Nested Deployment for properties.policyAssignments
 
                 Required Parameters:
                     1. Name: Management Group Name
-                    2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. Properties.policyAssignments[]
 
-                Scope: Tenant root
+                Scope: Management Group
 
-                Condition: If Children property bag not null or empty.
+                Condition: If properties.policyAssignments[] not null or empty.
 
                 Change Log:
                     1. Initial Definition
@@ -661,18 +655,16 @@
             }
         },
         {
-            /*
-
-                Intent: Create Nested Deployment for roleDefinitions
+             /*
+                Intent: Create Nested Deployment for properties.roleDefinitions
 
                 Required Parameters:
                     1. Name: Management Group Name
-                    2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. Properties.roleDefinitions[]
 
-                Scope: Tenant root
+                Scope: Management Group
 
-                Condition: If Children property bag not null or empty.
+                Condition: If properties.roleDefinitions[] not null or empty.
 
                 Change Log:
                     1. Initial Definition
@@ -763,18 +755,16 @@
             }
         },
         {
-            /*
-
-                Intent: Create Nested Deployment for roleAssignments
+             /*
+                Intent: Create Nested Deployment for properties.roleAssignments
 
                 Required Parameters:
                     1. Name: Management Group Name
-                    2. DisplayName: Management Group Display Name
-                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    3. Properties.roleAssignments[]
 
-                Scope: Tenant root
+                Scope: Management Group
 
-                Condition: If Children property bag not null or empty.
+                Condition: If properties.roleAssignments[] not null or empty.
 
                 Change Log:
                     1. Initial Definition
@@ -816,11 +806,11 @@
                             not(empty(variables('input').Properties.roleAssignments))
                         ),
                         if(
-                            greaterOrEquals(length(concat('roleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)),63),
-                            take(concat('roleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name),63),
-                            concat('roleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)
+                            greaterOrEquals(length(concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)),63),
+                            take(concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name),63),
+                            concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)
                         ),
-                        'roleAssignments-na'
+                        'RoleAssignments-na'
                     )]",
             "properties": {
                 "mode": "Incremental",
@@ -885,16 +875,6 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        },
-        "test": {
-            "type": "bool",
-            "value": "[and(
-                                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
-                                 contains(parameters('input'),'properties'),
-                                not(empty(parameters('input').properties)),
-                                 contains(parameters('input').properties, 'roleAssignments'),
-                                 not(empty(parameters('input').properties.roleAssignments))
-                           )]"
         }
     }
 }
