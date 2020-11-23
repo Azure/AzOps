@@ -479,10 +479,10 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "inner"
+                    "scope": "outer"
                 },
                 "templateLink": {
-                    "uri": "[deployment().properties.templateLink.uri]",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
