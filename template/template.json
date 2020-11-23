@@ -37,9 +37,6 @@
     },
     "variables": {
         "debug": "[parameters('debug')]",
-        "nestedTemplatesLocation": {
-            "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        },
         "roleAssignmentEnabledForPolicy": "[parameters('roleAssignmentEnabledForPolicy')]",
         "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
         "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
@@ -485,7 +482,7 @@
                     "scope": "inner"
                 },
                 "templateLink": {
-                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "uri": "[deployment().properties.templateLink.uri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
