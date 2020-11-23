@@ -485,10 +485,13 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "outer"
+                    "scope": "inner"
                 },
                 "templateLink": {
+                    /*
                     "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    */
+                    "uri": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/template.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -513,7 +516,7 @@
                                                     )
                                                 ),
                                                 if(
-                                                    contains(variables('input'), 'Identity'),
+                                                    contains(parameters('input').policyAssignments[copyIndex()], 'Identity'),
                                                     parameters('input').policyAssignments[copyIndex()].Identity,
                                                     json('{\"type\":\"SystemAssigned\"}')
                                                 ),
