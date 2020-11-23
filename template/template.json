@@ -386,7 +386,16 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
-            "name": "[take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63)]",
+            "name": "test",
+            // "name": "[if(
+            //             and(
+            //                 not(empty(parameters('input').properties)),
+            //                 not(empty(parameters('input').properties.policyDefinitions)),
+            //                 greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63)
+            //             ),
+            //             take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+            //             concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
+            //         )]",
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
