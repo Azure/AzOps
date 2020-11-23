@@ -507,9 +507,9 @@
                             not(empty(variables('input').Properties.policySetDefinitions))
                         ),
                         if(
-                            greaterOrEquals(length(concat('policySetDefinitions-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63),
-                            take(concat('policySetDefinitions-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
-                            concat('policySetDefinitions-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
+                            greaterOrEquals(length(concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name)),63),
+                            take(concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name),63),
+                            concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name)
                         ),
                         'policySetDefinitions-na'
                     )]",
