@@ -556,7 +556,7 @@
                 }
             }
         },
-         {
+        {
             /*
 
                 Intent: Create Nested Deployment for policyAssignments
@@ -659,6 +659,108 @@
                     }
                 }
             }
+        },
+        {
+            /*
+
+                Intent: Create Nested Deployment for roleDefinitions
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+
+                Scope: Tenant root
+
+                Condition: If Children property bag not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'roleDefinitions'),
+                                not(empty(variables('input').Properties.roleDefinitions))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-roleDefinitions",
+                "count": "[if(
+                            and(
+                                        contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                        contains(variables('input'),'Properties'),
+                                        not(empty(variables('input').Properties)),
+                                        contains(variables('input').Properties, 'roleDefinitions'),
+                                        not(empty(variables('input').Properties.roleDefinitions))
+                                ),
+                            length(variables('input').Properties.roleDefinitions),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'roleDefinitions'),
+                            not(empty(variables('input').Properties.roleDefinitions))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name)),63),
+                            take(concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name),63),
+                            concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name)
+                        ),
+                        'RoleDefinitions-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "outer"
+                },
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                    contains(variables('input'),'Properties'),
+                                                    not(empty(variables('input').Properties)),
+                                                    contains(variables('input').Properties, 'roleDefinitions'),
+                                                    not(empty(variables('input').Properties.roleDefinitions))
+                                            ),
+                                        parameters('input').properties.roleDefinitions[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
@@ -688,8 +790,8 @@
                                  contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
                                  contains(parameters('input'),'properties'),
                                 not(empty(parameters('input').properties)),
-                                 contains(parameters('input').properties, 'policyDefinitions'),
-                                 not(empty(parameters('input').properties.policyDefinitions))
+                                 contains(parameters('input').properties, 'roleDefinitions'),
+                                 not(empty(parameters('input').properties.roleDefinitions))
                            )]"
         }
     }
