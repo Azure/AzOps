@@ -379,28 +379,14 @@
             ],
             "copy": {
                 "name": "copy-properties-policyDefinitions",
-                "count": "[if(
-                                and(
-                                    contains(parameters('input'),'properties'),
-                                    not(empty(parameters('input').properties)),
-                                    contains(parameters('input').properties, 'policyDefinitions'),
-                                    not(empty(parameters('input').properties.policyDefinitions))
-                                ),
-                                length(parameters('input').properties.policyDefinitions),
-                                0
-                           )]"
+                "count": "[length(parameters('input').properties.policyDefinitions)]"
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
             "name": "[if(
-                        and(
-                            contains(parameters('input'),'properties'),
-                            not(empty(parameters('input').properties)),
-                            contains(parameters('input').properties, 'policyDefinitions'),
-                            not(empty(parameters('input').properties.policyDefinitions))
-                        ),
+                        not(empty(parameters('input').properties.policyDefinitions)),
                         take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
                         'PolicyDefinition-na'
                     )]",
@@ -459,7 +445,8 @@
                                 not(empty(parameters('input').properties.policySetDefinitions))
                           )]",
             "dependsOn": [
-                "[parameters('input').Name]"
+                "[parameters('input').Name]",
+                "copy-properties-policyDefinitions"
             ],
             "copy": {
                 "name": "copy-properties-policySetDefinitions",
@@ -486,7 +473,7 @@
                             not(empty(parameters('input').properties.policySetDefinitions))
                         ),
                         take(concat('PolicyDefinition-', parameters('input').properties.policySetDefinitions[copyIndex()].Name),63),
-                        'PolicyDefinition-na'
+                        'PolicySetDefinition-na'
                     )]",
             "properties": {
                 "mode": "Incremental",
