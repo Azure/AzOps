@@ -164,17 +164,30 @@
             "location": "[deployment().location]",
             "Properties": {
                 "principalType": "ServicePrincipal",
-                "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                //"roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "roleDefinitionId": "[ if(
+                                        and(
+                                            variables('roleAssignmentEnabledForPolicy'),
+                                            equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
+                                            and(
+                                                contains(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.effect), 'policyRule'),
+                                                contains(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.effect).policyRule, 'then'),
+                                                contains(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.effect).policyRule.then, 'details'),
+                                                contains(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.effect).policyRule.then.details, 'roleDefinitionIds')
+                                            )
+                                        ),
+                                        last(split(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details.roleDefinitionIds[0]),'/')),
+                                        'na'
+                                    )]",
                 "principalId": "[ if(
                                         and(
                                             variables('roleAssignmentEnabledForPolicy'),
-                                            equals(toLower(variables('effectiveResourceType')),
-                                            toLower('Microsoft.Authorization/policyAssignments')),
+                                            equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
                                             contains(reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full'),'identity')
                                         ),
                                         reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full').identity.principalId,
                                         'na'
-                                    )]"
+                                )]"
             }
         },
         {
@@ -879,6 +892,10 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        }
+        },
+        // "policyref": {
+        //     "type": "String",
+        //     "value": "[last(split(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details.roleDefinitionIds[0]),'/'))]"
+        // }
     }
 }
