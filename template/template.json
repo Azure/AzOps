@@ -404,10 +404,13 @@
                             contains(variables('input').Properties, 'policyDefinitions'),
                             not(empty(variables('input').Properties.policyDefinitions))
                         ),
-                        'test',
+                        if(
+                            greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63),
+                            take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+                            concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
+                        ),
                         'PolicyDefinition-na'
                     )]",
-            // "name": "test",
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
