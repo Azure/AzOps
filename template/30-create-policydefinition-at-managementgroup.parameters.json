@@ -9,6 +9,7 @@
         "Id": "/providers/Microsoft.Management/managementGroups/Tailspin",
         "ParentId": "/providers/Microsoft.Management/managementGroups/360d509d-82f2-42d5-9446-fbf417d9139c",
         "Type": "/providers/Microsoft.Management/managementGroups",
+        /*
         "Children": [
           {
             "Type": "/providers/Microsoft.Management/managementGroups",
@@ -83,12 +84,12 @@
             ]
           }
         ],
+        */
         "properties": {
           "policyDefinitions": [
             {
               "Name": "Deploy-Diagnostics-KeyVault",
-              "ResourceType": "Microsoft.Management/managementGroups",
-              "ExtensionResourceType": "Microsoft.Authorization/policyDefinitions",
+              "ResourceType": "Microsoft.Authorization/policyDefinitions",
               "Properties": {
                 "displayName": "Deploy-Diagnostics-KeyVault",
                 "policyType": "Custom",
