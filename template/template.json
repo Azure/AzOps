@@ -38,7 +38,6 @@
     "variables": {
         "debug": "[parameters('debug')]",
         "nestedTemplatesLocation": {
-            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]",
             "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         },
         "roleAssignmentEnabledForPolicy": "[parameters('roleAssignmentEnabledForPolicy')]",
@@ -315,7 +314,7 @@
                     "scope": "outer"
                 },
                 "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -408,7 +407,7 @@
                     "scope": "outer"
                 },
                 "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -486,10 +485,7 @@
                     "scope": "inner"
                 },
                 "templateLink": {
-                    /*
-                    "uri": "[variables('nestedTemplatesLocation').resourceTemplate]",
-                    */
-                    "uri": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/template.json",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -540,18 +536,11 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
-        }
-        /*
-        "tenantTemplate": {
-            "condition": "[variables('debug')]",
-            "type": "string",
-            "value": "[variables('nestedTemplatesLocation').tenantTemplate]"
         },
-        "resourceTemplate": {
+        "templateLocation": {
             "condition": "[variables('debug')]",
             "type": "string",
-            "value": "[variables('nestedTemplatesLocation').resourceTemplate]"
+            "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         }
-        */
     }
 }
