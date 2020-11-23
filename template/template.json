@@ -452,7 +452,7 @@
                           )]",
             "dependsOn": [
                 "[parameters('input').Name]",
-                "copy-properties-policyDefinitions"
+                // "copy-properties-policyDefinitions"
             ],
             "copy": {
                 "name": "copy-properties-policySetDefinitions",
