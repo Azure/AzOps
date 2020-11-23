@@ -370,9 +370,9 @@
             */
             "condition": "[and(
                                 contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
-                                contains(parameters('input'),'properties'),
-                                not(empty(parameters('input').properties)),
-                                contains(parameters('input').properties, 'policyDefinitions'),
+                                contains(parameters('input'),'Properties'),
+                                not(empty(parameters('input').Properties)),
+                                contains(parameters('input').Properties, 'policyDefinitions'),
                                 not(empty(parameters('input').properties.policyDefinitions))
                           )]",
             "dependsOn": [
@@ -411,7 +411,7 @@
                         "value": {
                             "Name": "[variables('input').properties.policyDefinitions[copyIndex()].Name]",
                             "ExtensionResourceType": "Microsoft.Authorization/policyDefinitions",
-                            "Properties": "[variables('input').properties.policyDefinitions[copyIndex()].Properties]"
+                            "Properties": "[variables('input').properties.policyDefinitions[0]]"
                         }
                     },
                     "_artifactsLocation": {
