@@ -869,7 +869,11 @@
         "apiversion": {
             "condition": "[variables('debug')]",
             "type": "string",
-            "value": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
+            "value": "[if(
+                            empty(variables('effectiveResourceType')),
+                            variables('apiVersionLookup')[''],
+                            variables('apiVersionLookup')[variables('effectiveResourceType')]
+                    )]"
         },
         "templateLocation": {
             "condition": "[variables('debug')]",
