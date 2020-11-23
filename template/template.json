@@ -408,23 +408,27 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": "[variables('input').properties.policyDefinitions[copyIndex()]]"
+                        "value": {
+                            "Name": "[variables('input').properties.policyDefinitions[copyIndex()].Name]",
+                            "ExtensionResourceType": "Microsoft.Authorization/policyDefinitions",
+                            "Properties": "[variables('input').properties.policyDefinitions[copyIndex()].Properties]"
+                        }
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
                     }
-                    // "_artifactsLocation": {
-                    //     "value": "[parameters('_artifactsLocation')]"
-                    // },
-                    // "_artifactsLocationSasToken": {
-                    //     "value": "[parameters('_artifactsLocationSasToken')]"
-                    // },
-                    // "roleAssignmentEnabledForPolicy": {
-                    //     "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    // },
-                    // "deploymentEnabledForPolicy": {
-                    //     "value": "[variables('deploymentEnabledForPolicy')]"
-                    // },
-                    // "remediationEnabledForPolicy": {
-                    //     "value": "[variables('remediationEnabledForPolicy')]"
-                    // }
                 }
             }
         },
