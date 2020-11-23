@@ -396,44 +396,55 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "location": "[deployment().location]",
-            "name": "test1",
-            // "name": "[if(
-            //             and(
-            //                 not(empty(parameters('input').properties)),
-            //                 not(empty(parameters('input').properties.policyDefinitions)),
-            //                 greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63)
-            //             ),
-            //             take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
-            //             concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
-            //         )]",
+            "name": "[if(
+                        and(
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'policyDefinitions'),
+                            not(empty(variables('input').Properties.policyDefinitions)),
+                            greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63)
+                        ),
+                        take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+                        concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
+                    )]",
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
                     "scope": "outer"
                 },
-                // "template": {
-                //     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                //     "contentVersion": "1.0.0.0",
-                //     "parameters": {
-                //         // "input": {
-                //         //     "type": "object"
-                //         // }
-                //     },
-                //     "variables": {
-                //     },
-                //     "resources": [
-                //     ],
-                //     "outputs": {
-                //     }
-                // },
                 "templateLink": {
-                    // "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
-                    "uri": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/template.json",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "input": {
-                        "value": "[parameters('input').properties.policyDefinitions[copyIndex()]]"
+                        "value": "[
+                                    if(
+                                        and(
+                                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                    contains(variables('input'),'Properties'),
+                                                    not(empty(variables('input').Properties)),
+                                                    contains(variables('input').Properties, 'policyDefinitions'),
+                                                    not(empty(variables('input').Properties.policyDefinitions))
+                                            ),
+                                        parameters('input').properties.policyDefinitions[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
                     }
                 }
             }
