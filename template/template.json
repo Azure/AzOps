@@ -329,8 +329,8 @@
                                                     not(empty(parameters('input').children[copyIndex()].properties))
                                                 ),
                                                 parameters('input').children[copyIndex()].properties,
-                                                json('{}'
-                                            ))]"
+                                                json('{}')
+                                            )]"
                         }
                     },
                     "_artifactsLocation": {
@@ -369,6 +369,7 @@
                     1. Initial Definition
             */
             "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
                                 contains(parameters('input'),'properties'),
                                 not(empty(parameters('input').properties)),
                                 contains(parameters('input').properties, 'policyDefinitions'),
@@ -386,9 +387,9 @@
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
             "name": "[if(
-                        not(empty(parameters('input').properties.policyDefinitions)),
+                        greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63),
                         take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
-                        'PolicyDefinition-na'
+                        concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
                     )]",
             "properties": {
                 "mode": "Incremental",
