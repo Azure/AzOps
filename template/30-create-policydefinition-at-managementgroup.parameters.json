@@ -85,7 +85,7 @@
           }
         ],
         */
-        "properties": {
+        "Properties": {
           "policyDefinitions": [
             {
               "Name": "Deploy-Diagnostics-KeyVault",

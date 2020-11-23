@@ -116,14 +116,14 @@
             "tags": "[variables('tags')]",
             "Properties": "[variables('input').Properties]"
         },
-        // {
-        //     "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
-        //     "type": "Microsoft.Authorization/policyDefinitions",
-        //     "name": "[variables('input').name]",
-        //     "apiVersion": "[variables('apiversion')]",
-        //     "location": "[deployment().location]",
-        //     "Properties": "[variables('input').Properties]"
-        // },
+        {
+            "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyDefinitions'))]",
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "[variables('input').name]",
+            "apiVersion": "[variables('apiversion')]",
+            "location": "[deployment().location]",
+            "Properties": "[variables('input').Properties]"
+        },
         {
             "condition": "[equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policySetDefinitions'))]",
             "type": "Microsoft.Authorization/policySetDefinitions",
@@ -373,18 +373,28 @@
                                 contains(variables('input'),'Properties'),
                                 not(empty(variables('input').Properties)),
                                 contains(variables('input').Properties, 'policyDefinitions'),
-                                not(empty(variables('input').properties.policyDefinitions))
+                                not(empty(variables('input').Properties.policyDefinitions))
                           )]",
             "dependsOn": [
                 "[variables('input').Name]"
             ],
             "copy": {
                 "name": "copy-properties-policyDefinitions",
-                "count": "[length(variables('input').properties.policyDefinitions)]"
+                "count": "[if(
+                            and(
+                                        contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                        contains(variables('input'),'Properties'),
+                                        not(empty(variables('input').Properties)),
+                                        contains(variables('input').Properties, 'policyDefinitions'),
+                                        not(empty(variables('input').Properties.policyDefinitions))
+                                ),
+                            length(variables('input').Properties.policyDefinitions),
+                            0)
+                        ]"
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "location": "[deployment().location]",
             "name": "test1",
             // "name": "[if(
@@ -399,15 +409,15 @@
             "properties": {
                 "mode": "Incremental",
                 "expressionEvaluationOptions": {
-                    "scope": "inner"
+                    "scope": "outer"
                 },
                 // "template": {
                 //     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                 //     "contentVersion": "1.0.0.0",
                 //     "parameters": {
-                //         "input": {
-                //             "type": "object"
-                //         }
+                //         // "input": {
+                //         //     "type": "object"
+                //         // }
                 //     },
                 //     "variables": {
                 //     },
@@ -423,27 +433,8 @@
                 },
                 "parameters": {
                     "input": {
-                        "value": {
-                            "Name": "[variables('input').properties.policyDefinitions[copyIndex()].Name]",
-                            "ResourceType": "Microsoft.Authorization/policyDefinitions",
-                            "Properties": "[variables('input').properties.policyDefinitions[copyIndex()]]"
-                        }
-                    },
-                    // "_artifactsLocation": {
-                    //     "value": "[parameters('_artifactsLocation')]"
-                    // },
-                    // "_artifactsLocationSasToken": {
-                    //     "value": "[parameters('_artifactsLocationSasToken')]"
-                    // },
-                    // "roleAssignmentEnabledForPolicy": {
-                    //     "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    // },
-                    // "deploymentEnabledForPolicy": {
-                    //     "value": "[variables('deploymentEnabledForPolicy')]"
-                    // },
-                    // "remediationEnabledForPolicy": {
-                    //     "value": "[variables('remediationEnabledForPolicy')]"
-                    // }
+                        "value": "[parameters('input').properties.policyDefinitions[copyIndex()]]"
+                    }
                 }
             }
         }
