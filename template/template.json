@@ -401,26 +401,26 @@
                 "expressionEvaluationOptions": {
                     "scope": "inner"
                 },
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "input": {
-                            "type": "object"
-                        }
-                    },
-                    "variables": {
-                    },
-                    "resources": [
-                    ],
-                    "outputs": {
-                    }
-                },
-                // "templateLink": {
-                //     // "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
-                //     "uri": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/template.json",
-                //     "contentVersion": "1.0.0.0"
+                // "template": {
+                //     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                //     "contentVersion": "1.0.0.0",
+                //     "parameters": {
+                //         "input": {
+                //             "type": "object"
+                //         }
+                //     },
+                //     "variables": {
+                //     },
+                //     "resources": [
+                //     ],
+                //     "outputs": {
+                //     }
                 // },
+                "templateLink": {
+                    // "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "uri": "https://raw.githubusercontent.com/Azure/AzOps/feature/scope/template/template.json",
+                    "contentVersion": "1.0.0.0"
+                },
                 "parameters": {
                     "input": {
                         "value": {
