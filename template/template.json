@@ -319,9 +319,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -423,9 +420,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -524,9 +518,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -626,9 +617,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -726,9 +714,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
@@ -826,9 +811,6 @@
                     )]",
             "properties": {
                 "mode": "Incremental",
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
                 "templateLink": {
                     "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
