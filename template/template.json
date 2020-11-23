@@ -612,11 +612,11 @@
                             not(empty(variables('input').Properties.policyAssignments))
                         ),
                         if(
-                            greaterOrEquals(length(concat('policyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)),63),
-                            take(concat('policyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
-                            concat('policyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)
+                            greaterOrEquals(length(concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)),63),
+                            take(concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
+                            concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)
                         ),
-                        'policyAssignments-na1'
+                        'PolicyAssignments-na'
                     )]",
             "properties": {
                 "mode": "Incremental",
