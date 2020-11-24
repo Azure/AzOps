@@ -173,7 +173,7 @@ function Initialize-AzOpsGlobalVariables {
                         # Add for recursive discovery
                         $ManagementGroups += [pscustomobject]@{ Name = $_ }
                         # Add user provided root to partial root variable to know where discovery should start
-                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Recurse -Expand -WarningAction SilentlyContinue
+                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Expand -WarningAction SilentlyContinue
                     }
                 }
                 # If permissions exist at tenant root management group, filter out directly assigned permissions further down in the hierarchy to improve performance
