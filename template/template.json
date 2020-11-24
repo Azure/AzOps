@@ -7,7 +7,8 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/main/template/",
+            // "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/main/template/",
+            "defaultValue": "https://raw.githubusercontent.com/uday31in/AzOps/main/template/template.json",
             "metadata": {
                 "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment.
                                 Please feel free to use template hosted here or override with choice of your location.
@@ -308,7 +309,13 @@
                             )
                             )]"
             },
+            /*
+            Note: Disabling scoped deployment for child management group due to validation API error.
+            
+            Issue: Validation API throws an error for nested deployment  for the scope that is yet to be created.
+            
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            */
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
