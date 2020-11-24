@@ -41,7 +41,7 @@ function Get-AzOpsAllManagementGroup {
 
     }
     process {
-        $MG = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -Recurse -WarningAction SilentlyContinue
+        $MG = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -WarningAction SilentlyContinue
         if (1 -eq $global:AzOpsSupportPartialMgDiscovery -or -not ($Global:AzOpsTenantRootPermissions)) {
             if ($MG.ParentId -and -not(Get-AzManagementGroup -GroupId $MG.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $global:AzOpsPartialRoot += $MG
