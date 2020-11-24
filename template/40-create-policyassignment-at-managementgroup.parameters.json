@@ -6,8 +6,10 @@
       "value": {
         "Name": "Tailspin",
         "DisplayName": "Tailspin",
-        "ParentId": "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560",
+        "Id": "/providers/Microsoft.Management/managementGroups/Tailspin",
+        "ParentId": "/providers/Microsoft.Management/managementGroups/360d509d-82f2-42d5-9446-fbf417d9139c",
         "Type": "/providers/Microsoft.Management/managementGroups",
+        
         "Children": [
           {
             "Id": "/providers/Microsoft.Management/managementGroups/Tailspin-bu1",
@@ -91,6 +93,9 @@
               "Name": "ADINE-KeyVault",
               "Type": "Microsoft.Authorization/policyAssignments",
               "ResourceType": "Microsoft.Authorization/policyAssignments",
+              "Identity": {
+                "type": "SystemAssigned"
+              },
               "Properties": {
                 "displayName": "ADINE-KeyVault",
                 "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/Tailspin/providers/Microsoft.Authorization/policyDefinitions/DINE-KeyVault",
