@@ -884,35 +884,6 @@
             "condition": "[variables('debug')]",
             "type": "string",
             "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        },
-        "policyrefResult": {
-            "type": "bool",
-            "value": "[
-                        and(
-                                variables('roleAssignmentEnabledForPolicy'),
-                                equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
-                                and(
-                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01'), 'policyRule'),
-                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule, 'then'),
-                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details, 'roleDefinitionIds')
-                                )
-                    )]"
-        },
-        "policyref": {
-            "type": "String",
-            "value": "[ if(
-                                            and(
-                                                variables('roleAssignmentEnabledForPolicy'),
-                                                equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
-                                                and(
-                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01'), 'policyRule'),
-                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule, 'then'),
-                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details, 'roleDefinitionIds')
-                                                )
-                                            ),
-                                            last(split(toLower(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details.roleDefinitionIds[0]),'/')),
-                                            'na'
-                                    )]"
         }
     }
 }
