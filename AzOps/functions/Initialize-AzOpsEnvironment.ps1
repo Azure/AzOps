@@ -43,22 +43,22 @@
 	[CmdletBinding()]
 	param (
 		[switch]
-		$IgnoreContextCheck = (Get-PSFConfigValue -FullName 'AzOps.AzOps.IgnoreContextCheck'),
+		$IgnoreContextCheck = (Get-PSFConfigValue -FullName 'AzOps.General.IgnoreContextCheck'),
 		
 		[switch]
-		$InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.AzOps.InvalidateCache'),
+		$InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.General.InvalidateCache'),
 		
 		[string[]]
-		$ExcludedSubOffer = (Get-PSFConfigValue -FullName 'AzOps.AzOps.ExcludedSubOffer'),
+		$ExcludedSubOffer = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubOffer'),
 		
 		[string[]]
-		$ExcludedSubState = (Get-PSFConfigValue -FullName 'AzOps.AzOps.ExcludedSubState'),
+		$ExcludedSubState = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubState'),
 		
 		[switch]
-		$PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.AzOps.PartialMgDiscoveryRoot'),
+		$PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
 		
 		[string[]]
-		$PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.AzOps.PartialMgDiscoveryRoot')
+		$PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot')
 	)
 	
 	begin {
@@ -86,8 +86,8 @@
 		$rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
 		
 		Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Initializing'
-		if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.AzOps.State'))) {
-			$null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.AzOps.State') -Force -ItemType directory
+		if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.General.State'))) {
+			$null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.General.State') -Force -ItemType directory
 		}
 		$script:AzOpsSubscriptions = Get-Subscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
 		$script:AzOpsAzManagementGroup = @()
@@ -96,7 +96,7 @@
 		
 		#region Management Group Processing
 		$managementGroups = Get-AzManagementGroup -ErrorAction Stop
-		if ($rootScope -notin ($managementGroups | Select-Object -Property Id).Id -and -not $PartialMgDiscovery) {
+		if ($rootScope -notin $managementGroups.Id -and -not $PartialMgDiscovery) {
 			Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NotFound' -StringValues $rootScope, (Get-AzContext).Account.Id -Tag Error
 			return
 		}
@@ -116,7 +116,7 @@
 		Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -StringValues $managementGroups.Count
 		$tempResolved = foreach ($mgmtGroup in $managementGroups) {
 			Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expaning' -StringValues $mgmtGroup.Name
-			Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name
+			Get-AllManagementGroup -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
 		}
 		$script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
 		#endregion Management Group Resolution

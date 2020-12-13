@@ -48,15 +48,15 @@
 		
 		[Parameter(Mandatory = $false)]
 		[switch]
-		$InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.AzOps.InvalidateCache'),
+		$InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.General.InvalidateCache'),
 		
 		[Parameter(Mandatory = $false)]
 		[switch]
-		$GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.AzOps.GeneralizeTemplates'),
+		$GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates'),
 		
 		[Parameter(Mandatory = $false)]
 		[switch]
-		$ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.AzOps.ExportRawTemplate'),
+		$ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.General.ExportRawTemplate'),
 		
 		[Parameter(Mandatory = $false)]
 		[switch]
@@ -67,13 +67,13 @@
 		$Force,
 		
 		[switch]
-		$PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.AzOps.PartialMgDiscoveryRoot'),
+		$PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
 		
 		[string[]]
-		$PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.AzOps.PartialMgDiscoveryRoot'),
+		$PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
 		
 		[string]
-		$StatePath = (Get-PSFConfigValue -FullName 'AzOps.AzOps.State')
+		$StatePath = (Get-PSFConfigValue -FullName 'AzOps.General.State')
 	)
 	
 	begin {
@@ -135,14 +135,14 @@
 		
 		foreach ($root in $rootScope) {
 			if ($script:AzOpsAzManagementGroup.Id -notcontains $root) {
-				Write-PSFMessage -Level Warning -String 'Initialize-AzOpsRepository.ManagementGroup.AccessError' -StringValues (Get-AzContext).Account.Id
+				Write-PSFMessage -Level Warning -String 'Initialize-AzOpsRepository.ManagementGroup.AccessError' -StringValues $root, (Get-AzContext).Account.Id
 				Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
 				continue
 			}
 			
 			#TODO: Implement
 			# Create AzOpsState Structure recursively
-			Save-AzOpsManagementGroupChildren -scope $Root
+			Save-ManagementGroupChildren -scope $Root
 			
 			#TODO: Implement
 			# Discover Resource at scope recursively

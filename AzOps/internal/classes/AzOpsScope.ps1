@@ -121,6 +121,7 @@
 	}
 	#endregion Constructors
 	
+	#region Initializers
 	hidden [void] InitializeMemberVariablesFromPath([System.IO.DirectoryInfo]$Path) {
 		
 		if ($Path.FullName -eq (Get-Item $this.StateRoot).FullName) {
@@ -143,9 +144,8 @@
 				$this.InitializeMemberVariables($managementGroupConfig.parameters.input.value.Id)
 			}
 			else {
-				#TODO: Clarify whether to interrupt in terminal error
-				#--> KILL WITH MAXIMUM PREJUDICE
 				Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ManagementGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
+				throw "Invalid Management Group Data! Validate integrity of $($children.FullName -join ', ')"
 			}
 		}
 		elseif ($children = Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $subscriptionFileName) {
@@ -154,8 +154,8 @@
 				$this.InitializeMemberVariables($subscriptionConfig.parameters.input.value.Id)
 			}
 			else {
-				#TODO: Clarify whether to interrupt in terminal error
 				Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.Subscription' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
+				throw "Invalid Subscription Data! Validate integrity of $($children.FullName -join ', ')"
 			}
 		}
 		elseif ($children = Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $resourceGroupFileName) {
@@ -164,17 +164,16 @@
 				$this.InitializeMemberVariables($resourceGroupConfig.parameters.input.value.ResourceId)
 			}
 			else {
-				#TODO: Clarify whether to interrupt in terminal error
 				Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ResourceGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
+				throw "Invalid Resource Group Data! Validate integrity of $($children.FullName -join ', ')"
 			}
 		}
 		else {
-			#TODO: Clarify whether to interrupt in terminal error
 			Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.UnknownType' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+			throw "Invalid File Structure! Cannot find Management Group / Subscription / Resource Group files in $Path!"
 		}
 	}
 	hidden [void] InitializeMemberVariables([string]$Scope) {
-		
 		$this.Scope = $Scope
 		
 		if ($this.IsResource()) {
@@ -187,7 +186,7 @@
 			$this.ResourceGroup = $this.GetResourceGroup()
 			$this.ResourceProvider = $this.IsResourceProvider()
 			$this.Resource = $this.GetResource()
-			if ($global:AzOpsExportRawTemplate -eq 1) {
+			if (Get-PSFConfigValue -FullName AzOps.General.ExportRawTemplate) {
 				$this.StatePath = $this.GetAzOpsResourcePath() + ".json"
 			}
 			else {
@@ -202,8 +201,7 @@
 			$this.ManagementGroup = $this.GetManagementGroup()
 			$this.ManagementGroupDisplayName = $this.GetManagementGroupName()
 			$this.ResourceGroup = $this.GetResourceGroup()
-			# $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "resourcegroup.json")
-			if ($global:AzOpsExportRawTemplate -eq 1) {
+			if (Get-PSFConfigValue -FullName AzOps.General.ExportRawTemplate) {
 				$this.StatePath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources_resourceGroups-$($this.ResourceGroup).json")
 			}
 			else {
@@ -217,7 +215,7 @@
 			$this.SubscriptionDisplayName = $this.GetSubscriptionDisplayName()
 			$this.ManagementGroup = $this.GetManagementGroup()
 			$this.ManagementGroupDisplayName = $this.GetManagementGroupName()
-			if ($global:AzOpsExportRawTemplate -eq 1) {
+			if (Get-PSFConfigValue -FullName AzOps.General.ExportRawTemplate) {
 				$this.StatePath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription_subscriptions-$($this.Subscription).json")
 			}
 			else {
@@ -230,8 +228,7 @@
 			$this.Name = $this.GetManagementGroup()
 			$this.ManagementGroup = ($this.GetManagementGroup()).Trim()
 			$this.ManagementGroupDisplayName = ($this.GetManagementGroupName()).Trim()
-			# $this.statepath = (join-path $this.FindAzOpsStatePath() -ChildPath "managementgroup.json")
-			if ($global:AzOpsExportRawTemplate -eq 1) {
+			if (Get-PSFConfigValue -FullName AzOps.General.ExportRawTemplate) {
 				$this.StatePath = (join-path $this.GetAzOpsManagementGroupPath($this.ManagementGroup) -ChildPath ".AzState\Microsoft.Management_managementGroups-$($this.ManagementGroup).json")
 			}
 			else {
@@ -241,83 +238,85 @@
 		elseif ($this.IsRoot()) {
 			$this.Type = "root"
 			$this.Name = "/"
-			$this.StatePath = $global:AzOpsState
+			$this.StatePath = $this.StateRoot
 		}
 	}
+	#endregion Initializers
 	
 	[String] ToString() {
 		return $this.Scope
 	}
 	
+	#region Validators
 	[bool] IsRoot() {
-		if (($this.Scope -imatch $this.regex_tenant)) {
+		if (($this.Scope -match $this.regex_tenant)) {
 			return $true
 		}
 		return $false
 	}
 	[bool] IsManagementGroup() {
-		if (($this.Scope -imatch $this.regex_managementgroup)) {
+		if (($this.Scope -match $this.regex_managementgroup)) {
 			return $true
 		}
 		return $false
 	}
 	
 	[string] IsSubscription() {
-		# if ( ($this.scope.Split('/').count -eq 3) -and ($this.scope -imatch $this.regex_subscription)) {
-		if (($this.Scope -imatch $this.regex_subscription)) {
+		if (($this.Scope -match $this.regex_subscription)) {
 			return ($this.Scope.Split('/')[2])
 		}
 		return $null
 	}
-	[string] IsResourceGroup () {
-		# if (($this.scope.Split('/').count -eq 5) -and ($this.scope -imatch $this.regex_resourceGroup)) {
-		if (($this.Scope -imatch $this.regex_resourceGroup)) {
+	[string] IsResourceGroup() {
+		if (($this.Scope -match $this.regex_resourceGroup)) {
 			return ($this.Scope.Split('/')[4])
 		}
 		return $null
 	}
-	[string] IsResourceProvider () {
+	[string] IsResourceProvider() {
 		
-		if ($this.Scope -imatch $this.regex_managementgroupProvider) {
+		if ($this.Scope -match $this.regex_managementgroupProvider) {
 			return (($this.regex_managementgroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[1]
 		}
-		if ($this.Scope -imatch $this.regex_subscriptionProvider) {
+		if ($this.Scope -match $this.regex_subscriptionProvider) {
 			return (($this.regex_subscriptionProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[1]
 		}
-		if ($this.Scope -imatch $this.regex_resourceGroupProvider) {
+		if ($this.Scope -match $this.regex_resourceGroupProvider) {
 			return (($this.regex_resourceGroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[1]
 		}
 		
 		return $null
 	}
-	[string] IsResource () {
+	[string] IsResource() {
 		
-		if ($this.Scope -imatch $this.regex_managementgroupResource) {
+		if ($this.Scope -match $this.regex_managementgroupResource) {
 			return ($this.regex_managementgroupResource.Split($this.Scope) | Select-Object -last 1)
 		}
-		if ($this.Scope -imatch $this.regex_subscriptionResource) {
+		if ($this.Scope -match $this.regex_subscriptionResource) {
 			return ($this.regex_subscriptionResource.Split($this.Scope) | Select-Object -last 1)
 		}
-		if ($this.Scope -imatch $this.regex_resourceGroupResource) {
+		if ($this.Scope -match $this.regex_resourceGroupResource) {
 			return ($this.regex_resourceGroupResource.Split($this.Scope) | Select-Object -last 1)
 		}
 		return $null
 	}
+	#endregion Validators
 	
-    <#
+    #region Data Accessors
+	<#
         Should Return Management Group Name
     #>
 	[string] GetManagementGroup() {
 		
 		if ($this.GetManagementGroupName()) {
-			foreach ($mgmt in $global:AzOpsAzManagementGroup) {
+			foreach ($mgmt in $script:AzOpsAzManagementGroup) {
 				if ($mgmt.DisplayName -eq $this.GetManagementGroupName()) {
 					return $mgmt.Name
 				}
 			}
 		}
 		if ($this.Subscription) {
-			foreach ($mgmt in $global:AzOpsAzManagementGroup) {
+			foreach ($mgmt in $script:AzOpsAzManagementGroup) {
 				foreach ($child in $mgmt.Children) {
 					if ($child.DisplayName -eq $this.subscriptionDisplayName) {
 						return $mgmt.Name
@@ -329,21 +328,22 @@
 	}
 	
 	[string] GetAzOpsManagementGroupPath([string]$managementgroupName) {
-		if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName })) {
-			$ParentMgName = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split "/" | Select-Object -Last 1
-			if (($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -and ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $ParentMgName })) {
-				$ParentPath = $this.GetAzOpsManagementGroupPath((($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).parentId -split '/' | Select-Object -last 1))
-				$Childpath = "{0} ({1})" -f ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
-				return (join-path $parentPath -ChildPath $ChildPath)
+		if ($groupObject = $script:AzOpsAzManagementGroup | Where-Object Name -eq $managementgroupName) {
+			$parentMgName = $groupObject.parentId -split "/" | Select-Object -Last 1
+			$parentObject = $script:AzOpsAzManagementGroup | Where-Object Name -eq $parentMgName
+			if ($groupObject.parentId -and $parentObject) {
+				$parentPath = $this.GetAzOpsManagementGroupPath($parentMgName)
+				$childpath = "{0} ({1})" -f $groupObject.DisplayName, $parentObject.Name
+				return (join-path $parentPath -ChildPath $childPath)
 			}
 			else {
-				$ChildPath = "{0} ({1})" -f ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).DisplayName, ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $managementgroupName }).Name
-				return (join-path $global:AzOpsState -ChildPath $Childpath)
+				$childPath = "{0} ({1})" -f $groupObject.DisplayName, $groupObject.Name
+				return (join-path $this.StateRoot -ChildPath $childPath)
 			}
 		}
 		else {
-			Write-AzOpsLog -Level Error -Topic "AzOpsScope" -Message "Management Group not found: $managementgroupName"
-			return $null
+			Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.GetAzOpsManagementGroupPath.NotFound' -StringValues $managementgroupName -FunctionName AzOpsScope -ModuleName AzOps
+			throw "Management Group not found: $managementgroupName"
 		}
 	}
 	
@@ -351,27 +351,26 @@
         Should Return Management Group Display Name
     #>
 	[string] GetManagementGroupName() {
-		if ($this.Scope -imatch $this.regex_managementgroupExtract) {
-			$mgId = ((($this.Scope -split $this.regex_managementgroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
+		if ($this.Scope -match $this.regex_managementgroupExtract) {
+			$mgId = $this.Scope -split $this.regex_managementgroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
 			
 			if ($mgId) {
-				Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Querying Global variable for AzOpsAzManagementGroup"
-				$mgDisplayName = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $mgId }).DisplayName
+				$mgDisplayName = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $mgId).DisplayName
 				if ($mgDisplayName) {
-					Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Management Group found in Azure: $($mgDisplayName)"
+					Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
 					return $mgDisplayName
 				}
 				else {
-					Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Management Group not found in Azure. Using directory name instead: $($mgId)"
+					Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.NotFound' -StringValues $mgId -FunctionName AzOpsScope -ModuleName AzOps
 					return $mgId
 				}
 			}
 		}
 		if ($this.Subscription) {
-			foreach ($mgmt in $global:AzOpsAzManagementGroup) {
-				foreach ($child in $mgmt.Children) {
+			foreach ($managementGroup in $script:AzOpsAzManagementGroup) {
+				foreach ($child in $managementGroup.Children) {
 					if ($child.DisplayName -eq $this.subscriptionDisplayName) {
-						return $mgmt.DisplayName
+						return $managementGroup.DisplayName
 					}
 				}
 			}
@@ -387,32 +386,32 @@
 		return join-path $this.GetAzOpsSubscriptionPath() -ChildPath $this.ResourceGroup
 	}
 	[string] GetSubscription() {
-		if ($this.Scope -imatch $this.regex_subscriptionExtract) {
+		if ($this.Scope -match $this.regex_subscriptionExtract) {
 			
-			$subId = ((($this.Scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
-			$sub = $global:AzOpsSubscriptions | Where-Object { $_.subscriptionId -eq $subId }
+			$subId = $this.Scope -split $this.regex_subscriptionExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
+			$sub = $script:AzOpsSubscriptions | Where-Object subscriptionId -eq $subId
 			if ($sub) {
-				Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "SubscriptionId found in Azure: $($sub.Id)"
+				Write-PSFMessage -Level Debug -String 'AzOpsScope.GetSubscription.Found' -StringValues $sub.Id -FunctionName AzOpsScope -ModuleName AzOps
 				return $sub.subscriptionId
 			}
 			else {
-				Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "SubscriptionId not found in Azure. Using directory name instead: $($subId)"
+				Write-PSFMessage -Level Debug -String 'AzOpsScope.GetSubscription.NotFound' -StringValues $subId -FunctionName AzOpsScope -ModuleName AzOps
 				return $subId
 			}
 		}
 		return $null
 	}
 	[string] GetSubscriptionDisplayName() {
-		if ($this.Scope -imatch $this.regex_subscriptionExtract) {
+		if ($this.Scope -match $this.regex_subscriptionExtract) {
 			
-			$subId = ((($this.Scope -split $this.regex_subscriptionExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
-			$sub = $global:AzOpsSubscriptions | Where-Object { $_.subscriptionId -eq $subId }
+			$subId = $this.Scope -split $this.regex_subscriptionExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
+			$sub = $script:AzOpsSubscriptions | Where-Object subscriptionId -eq $subId
 			if ($sub) {
-				Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Subscription DisplayName found in Azure: $($sub.displayName)"
+				Write-PSFMessage -Level Debug -String 'AzOpsScope.GetSubscriptionDisplayName.Found' -StringValues $sub.displayName -FunctionName AzOpsScope -ModuleName AzOps
 				return $sub.displayName
 			}
 			else {
-				Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Subscription DisplayName not found in Azure. Using directory name instead: $($subId)"
+				Write-PSFMessage -Level Debug -String 'AzOpsScope.GetSubscriptionDisplayName.NotFound' -StringValues $subId -FunctionName AzOpsScope -ModuleName AzOps
 				return $subId
 			}
 		}
@@ -420,20 +419,20 @@
 	}
 	[string] GetResourceGroup() {
 		
-		if ($this.Scope -imatch $this.regex_resourceGroupExtract) {
-			return ((($this.Scope -split $this.regex_resourceGroupExtract) -split '/') | Where-Object { $_ } | Select-Object -First 1)
+		if ($this.Scope -match $this.regex_resourceGroupExtract) {
+			return ($this.Scope -split $this.regex_resourceGroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1)
 		}
 		return $null
 	}
 	[string] GetResource() {
 		
-		if ($this.Scope -imatch $this.regex_managementgroupProvider) {
+		if ($this.Scope -match $this.regex_managementgroupProvider) {
 			return (($this.regex_managementgroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[2]
 		}
-		if ($this.Scope -imatch $this.regex_subscriptionProvider) {
+		if ($this.Scope -match $this.regex_subscriptionProvider) {
 			return (($this.regex_subscriptionProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[2]
 		}
-		if ($this.Scope -imatch $this.regex_resourceGroupProvider) {
+		if ($this.Scope -match $this.regex_resourceGroupProvider) {
 			return (($this.regex_resourceGroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[2]
 		}
 		
@@ -442,20 +441,21 @@
 	
 	[string] GetAzOpsResourcePath() {
 		
-		Write-AzOpsLog -Level Debug -Topic "AzOpsScope" -Message "Getting Resource path for: $($this.Scope)"
-		if ($this.Scope -imatch $this.regex_resourceGroupResource) {
+		Write-PSFMessage -Level Debug -String 'AzOpsScope.GetAzOpsResourcePath.Retrieving' -StringValues $this.Scope -FunctionName AzOpsScope -ModuleName AzOps
+		if ($this.Scope -match $this.regex_resourceGroupResource) {
 			$rgpath = $this.GetAzOpsResourceGroupPath()
 			return (Join-Path (Join-Path $rgpath -ChildPath ".AzState") -ChildPath ($this.ResourceProvider + "_" + $this.Resource + "-" + $this.Name))
 		}
-		elseif ($this.Scope -imatch $this.regex_subscriptionResource) {
+		elseif ($this.Scope -match $this.regex_subscriptionResource) {
 			$subpath = $this.GetAzOpsSubscriptionPath()
 			return (Join-Path (Join-path $subpath -ChildPath ".AzState") -ChildPath ($this.ResourceProvider + "_" + $this.Resource + "-" + $this.Name))
 		}
-		elseif ($this.Scope -imatch $this.regex_managementgroupResource) {
+		elseif ($this.Scope -match $this.regex_managementgroupResource) {
 			$mgmtPath = $this.GetAzOpsManagementGroupPath($this.ManagementGroup)
 			return (Join-Path (Join-path $mgmtPath -ChildPath ".AzState") -ChildPath ($this.ResourceProvider + "_" + $this.Resource + "-" + $this.Name))
 		}
-		Write-AzOpsLog -Level Error -Topic "AzOpsScope" -Message "Unable to determine Resource Scope for: $($this.Scope)"
-		return $null
+		Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.GetAzOpsResourcePath.NotFound' -StringValues $this.Scope -FunctionName AzOpsScope -ModuleName AzOps
+		throw "Unable to determine Resource Scope for: $($this.Scope)"
 	}
+	#endregion Data Accessors
 }

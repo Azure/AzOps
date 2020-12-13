@@ -29,10 +29,10 @@
 	[CmdletBinding()]
 	param (
 		[string[]]
-		$ExcludedOffers = (Get-PSFConfigValue -FullName 'AzOps.AzOps.ExcludedSubOffer'),
+		$ExcludedOffers = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubOffer'),
 		
 		[string[]]
-		$ExcludedStates = (Get-PSFConfigValue -FullName 'AzOps.AzOps.ExcludedSubState'),
+		$ExcludedStates = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubState'),
 		
 		[Parameter(Mandatory = $true)]
 		[ValidateScript({ $_ -in (Get-AzContext).Tenant.Id })]
