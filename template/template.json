@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "input": {
@@ -7,9 +7,12 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/main/template/",
+            // "defaultValue": "https://raw.githubusercontent.com/Azure/AzOps/main/template/",
+            "defaultValue": "https://raw.githubusercontent.com/uday31in/AzOps/main/template/template.json",
             "metadata": {
-                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment. Please feel free to use template hosted here or override with choice of your location. If you chose to do so, please ensure future bug fixes are incorporated from above location to your private location."
+                "description": "This is the link to the nested template that must to be accessible to ARM to be able to use as a part of nested deployment.
+                                Please feel free to use template hosted here or override with choice of your location.
+                                If you chose to do so, please ensure future bug fixes are incorporated from above location to your private location."
             }
         },
         "_artifactsLocationSasToken": {
@@ -28,7 +31,7 @@
             "type": "bool",
             "defaultValue": false
         },
-        "debug":{
+        "debug": {
             "type": "bool",
             "defaultValue": true
         }
@@ -38,10 +41,6 @@
         "roleAssignmentEnabledForPolicy": "[parameters('roleAssignmentEnabledForPolicy')]",
         "deploymentEnabledForPolicy": "[parameters('deploymentEnabledForPolicy')]",
         "remediationEnabledForPolicy": "[parameters('remediationEnabledForPolicy')]",
-        "nestedTemplatesLocation": {
-            "tenantTemplate": "[uri(parameters('_artifactsLocation'), concat('tenant.json', parameters('_artifactsLocationSasToken')))]",
-            "resourceTemplate": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
-        },
         "input": "[parameters('input')]",
         "resourceType": "[if(
                             and(contains(parameters('input'), 'ResourceType'),not(empty(parameters('input').ResourceType))),
@@ -63,7 +62,7 @@
                                         variables('ResourceType'),
                                         variables('type')
                                 )]",
-        "identity":"[if(
+        "identity": "[if(
                         and(
                             contains(variables('input'),'identity'),
                             not(empty(variables('input').identity))
@@ -77,7 +76,7 @@
                             not(empty(variables('input').location))
                         ),
                         variables('input').location,
-                        'eastus'
+                        deployment().location
                     )]",
         "tags": "[if(
                         and(
@@ -88,22 +87,22 @@
                         json('null')
                     )]",
         "apiVersionLookup": {
-            "Microsoft.Resources/resourceGroups": "2019-05-10",
-            "Microsoft.Authorization/policyAssignments": "2019-06-01",
-            "Microsoft.Authorization/policyDefinitions": "2018-05-01",
-            "Microsoft.Authorization/PolicySetDefinitions": "2018-05-01",
+            "Microsoft.Resources/resourceGroups":"2020-06-01",
+            "Microsoft.Authorization/policyAssignments": "2020-03-01",
+            "Microsoft.Authorization/policyDefinitions": "2020-03-01",
+            "Microsoft.Authorization/PolicySetDefinitions": "2020-03-01",
             "Microsoft.Authorization/roleDefinitions": "2018-01-01-preview",
-            "Microsoft.Authorization/roleAssignments": "2018-09-01-preview",
+            "Microsoft.Authorization/roleAssignments": "2020-04-01-preview",
             "Microsoft.PolicyInsights/remediations": "2019-07-01",
-            "Microsoft.ContainerService/ManagedClusters": "2019-10-01",
-            "Microsoft.KeyVault/vaults": "2018-02-14",
-            "Microsoft.Network/virtualWans": "2019-09-01",
-            "Microsoft.Network/virtualHubs": "2019-09-01",
-            "Microsoft.Network/virtualNetworks": "2017-10-01",
-            "Microsoft.Network/azureFirewalls": "2019-04-01",
+            "Microsoft.ContainerService/ManagedClusters": "2020-09-01",
+            "Microsoft.KeyVault/vaults":"2019-09-01",
+            "Microsoft.Network/virtualWans":  "2020-05-01",
+            "Microsoft.Network/virtualHubs": "2020-05-01",
+            "Microsoft.Network/virtualNetworks": "2020-06-01",
+            "Microsoft.Network/azureFirewalls": "2020-06-01",
             "/providers/Microsoft.Management/managementGroups": "2020-05-01",
-            "/subscriptions" : "2020-05-01",
-            "na": "0000-00-00",
+            "/subscriptions": "2020-05-01",
+            "na": "9999-99-99",
             "": "0000-00-00"
         },
         "apiVersion": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
@@ -161,22 +160,34 @@
                                 not(empty(variables('input').Identity))
                             )]",
             "type": "Microsoft.Authorization/roleAssignments",
-            "name" : "[guid(variables('input').name)]",
+            "name": "[guid(variables('input').name)]",
             "apiVersion": "2019-04-01-preview",
             "location": "[deployment().location]",
             "Properties": {
                 "principalType": "ServicePrincipal",
-                "roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                //"roleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "roleDefinitionId": "[ if(
+                                            and(
+                                                variables('roleAssignmentEnabledForPolicy'),
+                                                equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
+                                                and(
+                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01'), 'policyRule'),
+                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule, 'then'),
+                                                    contains(reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details, 'roleDefinitionIds')
+                                                )
+                                            ),
+                                            reference(variables('input').Properties.policyDefinitionId,'2019-06-01').policyRule.then.details.roleDefinitionIds[0],
+                                            'na'
+                                    )]",
                 "principalId": "[ if(
                                         and(
                                             variables('roleAssignmentEnabledForPolicy'),
-                                            equals(toLower(variables('effectiveResourceType')),
-                                            toLower('Microsoft.Authorization/policyAssignments')),
+                                            equals(toLower(variables('effectiveResourceType')),toLower('Microsoft.Authorization/policyAssignments')),
                                             contains(reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full'),'identity')
                                         ),
                                         reference(concat('Microsoft.Authorization/policyAssignments/' , variables('input').name), '2018-05-01', 'Full').identity.principalId,
                                         'na'
-                                    )]"
+                                )]"
             }
         },
         {
@@ -229,47 +240,606 @@
         },
         {
             /*
-                Intent: Fan out Management Group Deployment for Policy/PolicySet/Role Definition and Assignment.
-                Required Parameters (of PolicyDefinitions[] Object):
 
-                    1. Name
-                    2. "ResourceType": "Microsoft.Management/managementGroups",
-                    3. Properties Object with following optional Properties
-                        3.1  "policySetDefinitions": []
-                        3.2  "policyDefinitions": []
-                        3.3  "policyAssignments": []
-                        3.4  "roleDefinitions": []
-                        3.5  "roleAssignments": []
+                Intent: Upsert Management Group
 
-                Scope: Management Group
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+                    4. Id -  ResourceID of the management group '/providers/Microsoft.Management/managementGroups/<name>'
 
-                Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
+                Scope: Tenant root
 
-                Details: Trigger Nested Deployment at MG scope
+                Condition: We have Parent ID available to ensure inadvertently place Management Group directly the root.
+
+                Details: If ParentID do not exist, then it is a child and creation of Management Group would have happened when parent's children were iterated upon.
 
                 Change Log:
                     1. Initial Definition
             */
-
             "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups'))]",
+            "type": "Microsoft.Management/managementGroups",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('input').Name]",
+            "scope": "/",
+            "properties": {
+                "displayName": "[parameters('input').DisplayName]",
+                "details": "[if(
+                                    and(contains(parameters('input'), 'ParentId'),
+                                        not(empty(parameters('input').ParentId))
+                                    ),
+                                    json(concat('{\"parent\": {\"id\": \"', replace(parameters('input').ParentId,'/','\/') ,'\"}}')),
+                                    json('{}')
+                            )]"
+            }
+        },
+        {
+            /*
+
+                Intent: Upsert Management Group Children
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    2. DisplayName: Management Group Display Name
+                    3. ParentID - To determine where to place Management Group. It could be root or any other valid ID of the Management Group. For the top level manage
+
+                Scope: Tenant root
+
+                Condition: If Children property bag not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(parameters('input'), 'children'),
+                                not(empty(parameters('input').children))
+                          )]",
+            "dependsOn": [
+                "[parameters('input').Name]"
+            ],
+            "copy": {
+                "name": "create-mg-child",
+                "count": "[length(
+                            if(
+                                and(contains(parameters('input'), 'Children'),not(empty(parameters('input').Children))),
+                                parameters('input').Children,
+                                json('[]')
+                            )
+                            )]"
+            },
+            /*
+            Note: Disabling scoped deployment for child management group due to validation API error.
+            
+            Issue: Validation API throws an error for nested deployment  for the scope that is yet to be created.
+            
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            */
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "location": "[deployment().location]",
-            "name": "[concat('NorthStar-MG-', variables('input').Name)]",
-            "dependsOn": [
-            ],
-            "Properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
+            "name": "[if(
+                        and(contains(parameters('input'), 'children'),not(empty(parameters('input').children))),
+                        if(
+                            greaterOrEquals(length(concat(parameters('input').Name,'-',parameters('input').children[copyIndex()].Name)),63),
+                            take(concat(parameters('input').Name,'-',parameters('input').children[copyIndex()].Name),63),
+                            concat(parameters('input').Name,'-',parameters('input').children[copyIndex()].Name)
+                        ),
+                        'create-mg-child-na'
+                    )]",
+            "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').tenantTemplate]",
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "input": {
-                        "value": "[variables('input')]"
+                        "value": {
+                            "Name": "[parameters('input').children[copyIndex()].Name]",
+                            "DisplayName": "[parameters('input').children[copyIndex()].DisplayName]",
+                            "Id": "[parameters('input').children[copyIndex()].Id]",
+                            "ParentId": "[parameters('input').Id]",
+                            "Type": "[parameters('input').children[copyIndex()].Type]",
+                            "Children": "[if(and(contains(parameters('input').children[copyIndex()], 'Children'),not(empty(parameters('input').children[copyIndex()].Children))),parameters('input').children[copyIndex()].Children,json('[]'))]",
+                            "properties": "[if(
+                                                and(
+                                                    contains(parameters('input').children[copyIndex()], 'properties'),
+                                                    not(empty(parameters('input').children[copyIndex()].properties))
+                                                ),
+                                                parameters('input').children[copyIndex()].properties,
+                                                json('{}')
+                                            )]"
+                        }
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+            /*
+                Intent: Create Nested Deployment for properties.policyDefinitions
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    3. Properties.policyDefinitions[]
+
+                Scope: Management Group
+
+                Condition: If properties.policyDefinitions[] not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'policyDefinitions'),
+                                not(empty(variables('input').Properties.policyDefinitions))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-policyDefinitions",
+                "count": "[if(
+                            and(
+                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                    contains(variables('input'),'Properties'),
+                                    not(empty(variables('input').Properties)),
+                                    contains(variables('input').Properties, 'policyDefinitions'),
+                                    not(empty(variables('input').Properties.policyDefinitions))
+                                ),
+                            length(variables('input').Properties.policyDefinitions),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'policyDefinitions'),
+                            not(empty(variables('input').Properties.policyDefinitions))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)),63),
+                            take(concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name),63),
+                            concat('PolicyDefinition-', parameters('input').properties.policyDefinitions[copyIndex()].Name)
+                        ),
+                        'PolicyDefinition-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                contains(variables('input'),'Properties'),
+                                                not(empty(variables('input').Properties)),
+                                                contains(variables('input').Properties, 'policyDefinitions'),
+                                                not(empty(variables('input').Properties.policyDefinitions))
+                                            ),
+                                        parameters('input').properties.policyDefinitions[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+            /*
+                Intent: Create Nested Deployment for properties.policySetDefinitions
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    3. Properties.policySetDefinitions[]
+
+                Scope: Management Group
+
+                Condition: If properties.policySetDefinitions[] not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'policySetDefinitions'),
+                                not(empty(variables('input').Properties.policySetDefinitions))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]",
+                "copy-properties-policyDefinitions"
+            ],
+            "copy": {
+                "name": "copy-properties-policySetDefinitions",
+                "count": "[if(
+                            and(
+                                        contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                        contains(variables('input'),'Properties'),
+                                        not(empty(variables('input').Properties)),
+                                        contains(variables('input').Properties, 'policySetDefinitions'),
+                                        not(empty(variables('input').Properties.policySetDefinitions))
+                                ),
+                            length(variables('input').Properties.policySetDefinitions),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'policySetDefinitions'),
+                            not(empty(variables('input').Properties.policySetDefinitions))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name)),63),
+                            take(concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name),63),
+                            concat('policySetDefinitions-', parameters('input').properties.policySetDefinitions[copyIndex()].Name)
+                        ),
+                        'policySetDefinitions-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                    contains(variables('input'),'Properties'),
+                                                    not(empty(variables('input').Properties)),
+                                                    contains(variables('input').Properties, 'policySetDefinitions'),
+                                                    not(empty(variables('input').Properties.policySetDefinitions))
+                                            ),
+                                        parameters('input').properties.policySetDefinitions[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+             /*
+                Intent: Create Nested Deployment for properties.policyAssignments
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    3. Properties.policyAssignments[]
+
+                Scope: Management Group
+
+                Condition: If properties.policyAssignments[] not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'policyAssignments'),
+                                not(empty(variables('input').Properties.policyAssignments))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]",
+                "copy-properties-policyDefinitions",
+                "copy-properties-policySetDefinitions"
+            ],
+            "copy": {
+                "name": "copy-properties-policyAssignments",
+                "count": "[if(
+                            and(
+                                        contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                        contains(variables('input'),'Properties'),
+                                        not(empty(variables('input').Properties)),
+                                        contains(variables('input').Properties, 'policyAssignments'),
+                                        not(empty(variables('input').Properties.policyAssignments))
+                                ),
+                            length(variables('input').Properties.policyAssignments),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'policyAssignments'),
+                            not(empty(variables('input').Properties.policyAssignments))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)),63),
+                            take(concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name),63),
+                            concat('PolicyAssignments-', parameters('input').properties.policyAssignments[copyIndex()].Name)
+                        ),
+                        'PolicyAssignments-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                    contains(variables('input'),'Properties'),
+                                                    not(empty(variables('input').Properties)),
+                                                    contains(variables('input').Properties, 'policyAssignments'),
+                                                    not(empty(variables('input').Properties.policyAssignments))
+                                            ),
+                                        parameters('input').properties.policyAssignments[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+             /*
+                Intent: Create Nested Deployment for properties.roleDefinitions
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    3. Properties.roleDefinitions[]
+
+                Scope: Management Group
+
+                Condition: If properties.roleDefinitions[] not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'roleDefinitions'),
+                                not(empty(variables('input').Properties.roleDefinitions))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-roleDefinitions",
+                "count": "[if(
+                            and(
+                                        contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                        contains(variables('input'),'Properties'),
+                                        not(empty(variables('input').Properties)),
+                                        contains(variables('input').Properties, 'roleDefinitions'),
+                                        not(empty(variables('input').Properties.roleDefinitions))
+                                ),
+                            length(variables('input').Properties.roleDefinitions),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'roleDefinitions'),
+                            not(empty(variables('input').Properties.roleDefinitions))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name)),63),
+                            take(concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name),63),
+                            concat('RoleDefinitions-', parameters('input').properties.roleDefinitions[copyIndex()].Name)
+                        ),
+                        'RoleDefinitions-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                    contains(variables('input'),'Properties'),
+                                                    not(empty(variables('input').Properties)),
+                                                    contains(variables('input').Properties, 'roleDefinitions'),
+                                                    not(empty(variables('input').Properties.roleDefinitions))
+                                            ),
+                                        parameters('input').properties.roleDefinitions[copyIndex()],
+                                        json('[]')
+                            )]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "roleAssignmentEnabledForPolicy": {
+                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
+                    },
+                    "deploymentEnabledForPolicy": {
+                        "value": "[variables('deploymentEnabledForPolicy')]"
+                    },
+                    "remediationEnabledForPolicy": {
+                        "value": "[variables('remediationEnabledForPolicy')]"
+                    }
+                }
+            }
+        },
+        {
+             /*
+                Intent: Create Nested Deployment for properties.roleAssignments
+
+                Required Parameters:
+                    1. Name: Management Group Name
+                    3. Properties.roleAssignments[]
+
+                Scope: Management Group
+
+                Condition: If properties.roleAssignments[] not null or empty.
+
+                Change Log:
+                    1. Initial Definition
+            */
+            "condition": "[and(
+                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                contains(variables('input'),'Properties'),
+                                not(empty(variables('input').Properties)),
+                                contains(variables('input').Properties, 'roleAssignments'),
+                                not(empty(variables('input').Properties.roleAssignments))
+                          )]",
+            "dependsOn": [
+                "[variables('input').Name]"
+            ],
+            "copy": {
+                "name": "copy-properties-roleAssignments",
+                "count": "[if(
+                            and(
+                                    contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                    contains(variables('input'),'Properties'),
+                                    not(empty(variables('input').Properties)),
+                                    contains(variables('input').Properties, 'roleAssignments'),
+                                    not(empty(variables('input').Properties.roleAssignments))
+                                ),
+                            length(variables('input').Properties.roleAssignments),
+                            0)
+                        ]"
+            },
+            "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "location": "[deployment().location]",
+            "name": "[if(
+                        and(
+                            contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                            contains(variables('input'),'Properties'),
+                            not(empty(variables('input').Properties)),
+                            contains(variables('input').Properties, 'roleAssignments'),
+                            not(empty(variables('input').Properties.roleAssignments))
+                        ),
+                        if(
+                            greaterOrEquals(length(concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)),63),
+                            take(concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name),63),
+                            concat('RoleAssignments-', parameters('input').properties.roleAssignments[copyIndex()].Name)
+                        ),
+                        'RoleAssignments-na'
+                    )]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "input": {
+                        "value": "[
+                                    if(
+                                        and(
+                                                contains(tolower(variables('effectiveResourceType')),toLower('Microsoft.Management/managementGroups')),
+                                                contains(variables('input'),'Properties'),
+                                                not(empty(variables('input').Properties)),
+                                                contains(variables('input').Properties, 'roleAssignments'),
+                                                not(empty(variables('input').Properties.roleAssignments))
+                                            ),
+                                        parameters('input').properties.roleAssignments[copyIndex()],
+                                        json('[]')
+                            )]"
                     },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
@@ -289,70 +859,6 @@
                 }
             }
         }
-        /*
-        {
-            /*
-                Intent: Fan out Subscription Deployment for Policy/PolicySet/Role Definition and Assignment.
-
-                Required Parameters (of PolicyDefinitions[] Object):
-
-                    1. Name
-                    2. "ResourceType": "Microsoft.Management/managementGroups",
-                    3. Properties Object with following optional Properties
-                        3.1  "policySetDefinitions": []
-                        3.2  "policyDefinitions": []
-                        3.3  "policyAssignments": []
-                        3.4  "roleDefinitions": []
-                        3.5  "roleAssignments": []
-
-                Scope: Management Group
-
-                Condition: Type property set to  "/providers/Microsoft.Management/managementGroups"
-
-                Details: Trigger Nested Deployment at MG scope
-
-                Change Log:
-                    1. Initial Definition
-
-            "condition": "[contains(tolower(variables('effectiveResourceType')),toLower('/subscriptions'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "location": "[deployment().location]",
-            "name": "[concat('NorthStar-Sub-', variables('input').Name)]",
-            "dependsOn": [
-            ],
-            "Properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "outer"
-                },
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('nestedTemplatesLocation').tenantTemplate]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "input": {
-                        "value": "[variables('input')]"
-                    },
-                    "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-                    },
-                    "_artifactsLocationSasToken": {
-                        "value": "[parameters('_artifactsLocationSasToken')]"
-                    },
-                    "roleAssignmentEnabledForPolicy": {
-                        "value": "[variables('roleAssignmentEnabledForPolicy')]"
-                    },
-                    "deploymentEnabledForPolicy": {
-                        "value": "[variables('deploymentEnabledForPolicy')]"
-                    },
-                    "remediationEnabledForPolicy": {
-                        "value": "[variables('remediationEnabledForPolicy')]"
-                    }
-                }
-            }
-        },
-        */
     ],
     "outputs": {
         "hobo": {
@@ -368,17 +874,16 @@
         "apiversion": {
             "condition": "[variables('debug')]",
             "type": "string",
-            "value": "[if(empty(variables('effectiveResourceType')),variables('apiVersionLookup')[''], variables('apiVersionLookup')[variables('effectiveResourceType')])]"
+            "value": "[if(
+                            empty(variables('effectiveResourceType')),
+                            variables('apiVersionLookup')[''],
+                            variables('apiVersionLookup')[variables('effectiveResourceType')]
+                    )]"
         },
-        "tenantTemplate": {
+        "templateLocation": {
             "condition": "[variables('debug')]",
             "type": "string",
-            "value": "[variables('nestedTemplatesLocation').tenantTemplate]"
-        },
-        "resourceTemplate": {
-            "condition": "[variables('debug')]",
-            "type": "string",
-            "value": "[variables('nestedTemplatesLocation').resourceTemplate]"
+            "value": "[uri(parameters('_artifactsLocation'), concat('template.json', parameters('_artifactsLocationSasToken')))]"
         }
     }
 }

@@ -149,6 +149,8 @@ function Initialize-AzOpsGlobalVariables {
         if ($global:AzOpsInvalidateCache -eq 1 -or -not(Get-Variable -Scope Global -Name AzOpsAzManagementGroup -ValueOnly -ErrorAction SilentlyContinue) -or -not(Get-Variable -Scope Global -Name AzOpsSubscriptions -ValueOnly -ErrorAction SilentlyContinue)) {
             #Get current tenant id
             $TenantId = (Get-AzContext).Tenant.Id
+            #Check if tenant root permissions exist for the principal used
+            $Global:AzOpsTenantRootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId (Get-AzContext).Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
             # Set root scope variable basd on tenantid to be able to validate tenant root access if partial discovery is not enabled
             $RootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
             # Initialize global variable for subscriptions - get all subscriptions in Tenant
@@ -171,12 +173,17 @@ function Initialize-AzOpsGlobalVariables {
                         # Add for recursive discovery
                         $ManagementGroups += [pscustomobject]@{ Name = $_ }
                         # Add user provided root to partial root variable to know where discovery should start
-                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Recurse -Expand -WarningAction SilentlyContinue
+                        $global:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $_ -Expand -WarningAction SilentlyContinue
                     }
                 }
-                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Group: $(($managementGroups | Measure-Object).Count)"
+                # If permissions exist at tenant root management group, filter out directly assigned permissions further down in the hierarchy to improve performance
+                if (1 -ne $global:AzOpsSupportPartialMgDiscovery -and -not $AzOpsTenantRootPermissions) {
+                    $managementGroups = $managementGroups | Where-Object -FilterScript { $_.Id -eq $RootScope }
+                }
+                Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Total Count of Management Groups from Management Group API: $(($managementGroups | Measure-Object).Count)"
+
                 foreach ($mgmtGroup in $managementGroups) {
-                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Expanding Management Group : $($mgmtGroup.Name)"
+                    Write-AzOpsLog -Level Verbose -Topic "Initialize-AzOpsGlobalVariables" -Message "Expanding Management Group: $($mgmtGroup.Name)"
                     $global:AzOpsAzManagementGroup += Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name
                 }
                 $global:AzOpsAzManagementGroup = $global:AzOpsAzManagementGroup | Sort-Object -Property Id -Unique

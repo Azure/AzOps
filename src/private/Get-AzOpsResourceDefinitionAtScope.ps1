@@ -337,23 +337,26 @@ function Get-AzOpsResourceDefinitionAtScope {
                         $serializedRoleAssignmentInAzure += ConvertTo-AzOpsState -Resource $roleAssignment -ReturnObject -ExportRawTemplate
                     }
                 }
+                #
+                # Disabling properties bag creation in <managementgroup>.json and <subscription>.json to avoid code duplication.
+                #
                 # For subscriptions and Management Groups, export all policy/policyset/policyassignments at scope in one file
-                if ($scope.Type -in 'subscriptions', 'managementgroups') {
-                    # Get statefile from scope
-                    $parametersJson = Get-Content -Path $scope.statepath | ConvertFrom-Json -Depth 100
-                    # Create property bag and add resources at scope
-                    $propertyBag = [ordered]@{
-                        'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
-                        'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-                        'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
-                        'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
-                        'roleAssignments'      = if ($global:AzOpsGeneralizeTemplates -eq 1) { , @() } else { , @($serializedRoleAssignmentInAzure) }
-                    }
-                    # Add property bag to parameters json
-                    $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
-                    # Export state file with properties at scope
-                    ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
-                }
+                # if ($scope.Type -in 'subscriptions', 'managementgroups') {
+                #     # Get statefile from scope
+                #     $parametersJson = Get-Content -Path $scope.statepath | ConvertFrom-Json -Depth 100
+                #     # Create property bag and add resources at scope
+                #     $propertyBag = [ordered]@{
+                #         'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
+                #         'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
+                #         'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
+                #         'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
+                #         'roleAssignments'      = if ($global:AzOpsGeneralizeTemplates -eq 1) { , @() } else { , @($serializedRoleAssignmentInAzure) }
+                #     }
+                #     # Add property bag to parameters json
+                #     $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
+                #     # Export state file with properties at scope
+                #     ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
+                # }
             }
             Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsResourceDefinitionAtScope" -Message "Finished Processing Scope [$($scope.scope)]"
         }

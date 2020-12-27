@@ -30,6 +30,7 @@ function Get-AzOpsAllManagementGroup {
     # https://github.com/powershell/psscriptanalyzer#suppressing-rules
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsPartialRoot')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsSupportPartialMgDiscovery')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:AzOpsTenantRootPermissions')]
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -40,13 +41,15 @@ function Get-AzOpsAllManagementGroup {
 
     }
     process {
-        $MG = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -Recurse -WarningAction SilentlyContinue
-        if (1 -eq $global:AzOpsSupportPartialMgDiscovery) {
+        $MG = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -WarningAction SilentlyContinue
+        if (1 -eq $global:AzOpsSupportPartialMgDiscovery -or -not ($Global:AzOpsTenantRootPermissions)) {
             if ($MG.ParentId -and -not(Get-AzManagementGroup -GroupId $MG.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $global:AzOpsPartialRoot += $MG
             }
+
             if ($MG.Children) {
                 $MG.Children | where-object { $_.Type -eq "/providers/Microsoft.Management/managementGroups" } | Foreach-Object -Process {
+                    Write-AzOpsLog -Level Verbose -Topic "Get-AzOpsAllManagementGroup" -Message "Expanding Management Group: $($_.Name)"
                     Get-AzOpsAllManagementGroup -ManagementGroup $_.Name
                 }
             }
