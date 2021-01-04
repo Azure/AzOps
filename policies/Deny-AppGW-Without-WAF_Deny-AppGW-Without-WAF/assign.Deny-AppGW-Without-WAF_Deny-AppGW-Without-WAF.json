@@ -1,0 +1,24 @@
+{
+ "sku": {
+  "name": "A0",
+  "tier": "Free"
+ },
+ "properties": {
+  "displayName": "Deny-AppGW-Without-WAF",
+  "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyDefinitions/Deny-AppGW-Without-WAF",
+  "scope": "/providers/Microsoft.Management/managementGroups/sjt",
+  "parameters": {},
+  "description": "Deny-AppGW-Without-WAF",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2020-11-12T14:55:28.6547082Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-01-04T14:05:50.4108705Z"
+  },
+  "enforcementMode": "Default"
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyAssignments/Deny-AppGW-Without-WAF",
+ "type": "Microsoft.Authorization/policyAssignments",
+ "name": "Deny-AppGW-Without-WAF",
+ "location": "australiaeast"
+}

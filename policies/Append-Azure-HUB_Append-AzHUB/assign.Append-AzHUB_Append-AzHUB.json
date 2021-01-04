@@ -1,0 +1,23 @@
+{
+ "sku": {
+  "name": "A0",
+  "tier": "Free"
+ },
+ "properties": {
+  "displayName": "Append-AzHUB",
+  "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyDefinitions/Append-AzHUB",
+  "scope": "/providers/Microsoft.Management/managementGroups/sjt",
+  "description": "Append-AzHUB",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2020-12-06T07:35:25.4250036Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-01-04T14:05:50.4478023Z"
+  },
+  "enforcementMode": "Default"
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyAssignments/Append-AzHUB",
+ "type": "Microsoft.Authorization/policyAssignments",
+ "name": "Append-AzHUB",
+ "location": "australiaeast"
+}

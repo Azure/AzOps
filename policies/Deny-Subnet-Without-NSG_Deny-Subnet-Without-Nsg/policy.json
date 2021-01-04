@@ -1,0 +1,34 @@
+{
+ "properties": {
+  "displayName": "Deny-Subnet-Without-NSG",
+  "policyType": "Custom",
+  "mode": "All",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2020-11-12T14:55:16.6647792Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-01-04T14:05:43.7849368Z"
+  },
+  "parameters": {},
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "equals": "Microsoft.Network/virtualNetworks/subnets"
+     },
+     {
+      "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
+      "exists": "false"
+     }
+    ]
+   },
+   "then": {
+    "effect": "deny"
+   }
+  }
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyDefinitions/Deny-Subnet-Without-Nsg",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "Deny-Subnet-Without-Nsg"
+}

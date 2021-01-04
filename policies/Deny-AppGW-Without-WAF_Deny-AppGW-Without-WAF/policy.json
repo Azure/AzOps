@@ -1,0 +1,34 @@
+{
+ "properties": {
+  "displayName": "Deny-AppGW-Without-WAF",
+  "policyType": "Custom",
+  "mode": "All",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2020-11-12T14:55:17.6261242Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-01-04T14:05:43.5961304Z"
+  },
+  "parameters": {},
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "equals": "Microsoft.Network/applicationGateways"
+     },
+     {
+      "field": "Microsoft.Network/applicationGateways/sku.name",
+      "notequals": "WAF_v2"
+     }
+    ]
+   },
+   "then": {
+    "effect": "Deny"
+   }
+  }
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyDefinitions/Deny-AppGW-Without-WAF",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "Deny-AppGW-Without-WAF"
+}

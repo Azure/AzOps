@@ -1,0 +1,70 @@
+{
+ "properties": {
+  "displayName": "Append-Azure-HUB",
+  "policyType": "Custom",
+  "mode": "All",
+  "description": "Append Azure Hybrid Use Benefits licensing to all Windows VMs",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2020-12-06T07:35:13.7227025Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-01-04T14:05:43.6565515Z"
+  },
+  "parameters": {},
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "in": [
+       "Microsoft.Compute/virtualMachines",
+       "Microsoft.Compute/VirtualMachineScaleSets"
+      ]
+     },
+     {
+      "field": "Microsoft.Compute/imagePublisher",
+      "equals": "MicrosoftWindowsServer"
+     },
+     {
+      "field": "Microsoft.Compute/imageOffer",
+      "equals": "WindowsServer"
+     },
+     {
+      "field": "Microsoft.Compute/imageSKU",
+      "in": [
+       "2008-R2-SP1",
+       "2008-R2-SP1-smalldisk",
+       "2012-Datacenter",
+       "2012-Datacenter-smalldisk",
+       "2012-R2-Datacenter",
+       "2012-R2-Datacenter-smalldisk",
+       "2016-Datacenter",
+       "2016-Datacenter-Server-Core",
+       "2016-Datacenter-Server-Core-smalldisk",
+       "2016-Datacenter-smalldisk",
+       "2016-Datacenter-with-Containers",
+       "2016-Datacenter-with-RDSH",
+       "2019-Datacenter"
+      ]
+     },
+     {
+      "field": "Microsoft.Compute/licenseType",
+      "notEquals": "Windows_Server"
+     }
+    ]
+   },
+   "then": {
+    "effect": "append",
+    "details": [
+     {
+      "field": "Microsoft.Compute/licenseType",
+      "value": "Windows_Server"
+     }
+    ]
+   }
+  }
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyDefinitions/Append-AzHUB",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "Append-AzHUB"
+}
