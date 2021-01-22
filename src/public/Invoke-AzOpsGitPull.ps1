@@ -33,7 +33,7 @@ function Invoke-AzOpsGitPull {
 
         Write-AzOpsLog -Level Information -Topic "git" -Message "Checking for branch (system)"
         $branch = Start-AzOpsNativeExecution {
-            git branch --remote | grep 'origin/system'
+            git branch --remote | Select-String 'origin/system'
         } -IgnoreExitcode
 
         if ($branch) {
