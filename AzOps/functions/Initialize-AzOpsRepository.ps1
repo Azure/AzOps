@@ -28,41 +28,43 @@
 		Delete all .AzState folders inside AzOpsState directory.
 	
 	.PARAMETER Force
-		Delete $global:AzOpsState directory.
+		Delete $script:AzOpsState directory.
+	
+	.PARAMETER PartialMgDiscovery
+		A description of the PartialMgDiscovery parameter.
+	
+	.PARAMETER PartialMgDiscoveryRoot
+		A description of the PartialMgDiscoveryRoot parameter.
+	
+	.PARAMETER StatePath
+		The root folder under which to write the resource json.
 	
 	.EXAMPLE
 		PS C:\> Initialize-AzOpsRepository
 #>
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$SkipPolicy,
 		
 		[switch]
 		$SkipRole,
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$SkipResourceGroup,
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.General.InvalidateCache'),
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates'),
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.General.ExportRawTemplate'),
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$Rebuild,
 		
-		[Parameter(Mandatory = $false)]
 		[switch]
 		$Force,
 		
@@ -91,7 +93,7 @@
 			}
 		}
 		
-		$parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
+		$parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
 		Initialize-AzOpsEnvironment @parameters
 		
 		Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
@@ -140,13 +142,12 @@
 				continue
 			}
 			
-			#TODO: Implement
 			# Create AzOpsState Structure recursively
-			Save-ManagementGroupChildren -scope $Root
+			Save-ManagementGroupChildren -Scope $root -StatePath $StatePath
 			
-			#TODO: Implement
 			# Discover Resource at scope recursively
-			Get-AzOpsResourceDefinitionAtScope -scope $Root -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup
+			$parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
+			Get-ResourceDefinition -Scope $root @parameters
 		}
 		#endregion Root Scopes
 	}

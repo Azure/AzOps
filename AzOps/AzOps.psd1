@@ -26,7 +26,7 @@
 	# Modules that must be imported into the global environment prior to importing
 	# this module
 	RequiredModules = @(
-		@{ ModuleName='PSFramework'; ModuleVersion='1.4.150' }
+		@{ ModuleName='PSFramework'; ModuleVersion='1.5.170' }
 		@{ ModuleName = "Az.Accounts"; ModuleVersion = "1.9.3" }
         @{ ModuleName = "Az.Resources"; ModuleVersion = "2.5.0" }
 	)
@@ -41,16 +41,21 @@
 	# FormatsToProcess = @('xml\AzOps.Format.ps1xml')
 	
 	# Functions to export from this module
-	FunctionsToExport = ''
+	FunctionsToExport = @(
+		'Initialize-AzOpsEnvironment'
+		'Initialize-AzOpsRepository'
+		'Invoke-AzOpsGitPull'
+		'Invoke-AzOpsGitPush'
+	)
 	
 	# Cmdlets to export from this module
-	CmdletsToExport = ''
+	# CmdletsToExport = ''
 	
 	# Variables to export from this module
-	VariablesToExport = ''
+	# VariablesToExport = ''
 	
 	# Aliases to export from this module
-	AliasesToExport = ''
+	# AliasesToExport = ''
 	
 	# List of all modules packaged with this module
 	ModuleList = @()

@@ -20,8 +20,8 @@ $global:testroot = $PSScriptRoot
 $global:__pester_data = @{ }
 
 Remove-Module AzOps -ErrorAction Ignore
-Import-Module "$PSScriptRoot\..\AzOps.psd1"
-Import-Module "$PSScriptRoot\..\AzOps.psm1" -Force
+Import-Module "$PSScriptRoot\..\AzOps.psd1" -Scope Global
+Import-Module "$PSScriptRoot\..\AzOps.psm1" -Scope Global -Force
 
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester

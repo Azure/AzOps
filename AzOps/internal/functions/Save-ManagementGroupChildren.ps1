@@ -71,38 +71,15 @@
 		switch ($scopeObject.Type) {
 			managementGroups
 			{
-				
+				ConvertTo-AzOpsState -Resource $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup } -ExportPath $scopeObject.statepath -StatePath $StatePath
+				foreach ($child in $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup }.Children) {
+					Save-ManagementGroupChildren -Scope $child.Id -StatePath $StatePath
+				}
 			}
 			subscriptions
 			{
-				
+				ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup.children | Where-Object Name -eq $scopeObject.name) -ExportPath $scopeObject.statepath -StatePath $StatePath
 			}
-		}
-		
-		# Continue if scope exists (added since management group api returns disabled/inaccesible subscriptions)
-		if ($scopeObject) {
-			
-			
-			
-			# Ensure StatePathFile is always written with latest Config.Existence of file does not mean all information is up to date.
-			if ($scopeObject.type -eq 'managementGroups') {
-				ConvertTo-AzOpsState -Resource ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scopeObject.managementgroup }) -ExportPath $scopeObject.statepath
-				# Iterate through all child Management Groups recursively
-				$ChildOfManagementGroups = ($global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scopeObject.managementgroup }).Children
-				if ($ChildOfManagementGroups) {
-					$ChildOfManagementGroups | Foreach-Object {
-						$child = $_
-						Save-ManagementGroupChildren -scopeObject $child.id
-					}
-				}
-			}
-			elseif ($scopeObject.type -eq 'subscriptions') {
-				# Export subscriptions to AzOpsState
-				ConvertTo-AzOpsState -Resource (($global:AzOpsAzManagementGroup).children | Where-Object { $_ -ne $null -and $_.Name -eq $scopeObject.name }) -ExportPath $scopeObject.statepath
-			}
-		}
-		else {
-			Write-AzOpsLog -Level Verbose -Topic "Save-AzOpsManagementGroupChildren" -Message "Scope [$($PSBoundParameters['scopeObject'])] not found in Azure or it is excluded"
 		}
 	}
 }

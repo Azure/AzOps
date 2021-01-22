@@ -6,7 +6,7 @@
 	.DESCRIPTION
 		The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
 		It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-		$global:AzopsStateConfig with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
+		The state configuration file found at the location the 'AzOps.General.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
 	
 	.PARAMETER Resource
 		Object with resource as input
@@ -19,6 +19,9 @@
 	
 	.PARAMETER ExportRawTemplate
 		Used in cases you want to return the template without the custom parameters json schema
+	
+	.PARAMETER StatePath
+		The root path to where the entire state is being built in.
 	
 	.EXAMPLE
 		# Export custom policy definition to the AzOps StatePath
@@ -164,7 +167,7 @@
 				{ $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition] } {
 					Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyDefinition' -FunctionName 'ConvertTo-AzOpsState'
 					$result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-					$result.Resource = ConvertTo-AzOpsObject -InputObject $Resource
+					$result.Resource = ConvertTo-CustomObject -InputObject $Resource
 					$result.Configuration = $ResourceConfiguration.Values.policyDefinition
 					break
 				}
@@ -172,7 +175,7 @@
 				{ $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition] } {
 					Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicySetDefinition' -FunctionName 'ConvertTo-AzOpsState'
 					$result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-					$result.Resource = ConvertTo-AzOpsObject -InputObject $Resource
+					$result.Resource = ConvertTo-CustomObject -InputObject $Resource
 					$result.Configuration = $ResourceConfiguration.Values.policySetDefinition
 					break
 				}
@@ -180,7 +183,7 @@
 				{ $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment] } {
 					Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyAssignment' -FunctionName 'ConvertTo-AzOpsState'
 					$result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-					$result.Resource = ConvertTo-AzOpsObject -InputObject $Resource
+					$result.Resource = ConvertTo-CustomObject -InputObject $Resource
 					$result.Configuration = $ResourceConfiguration.Values.policyAssignment
 					break
 				}
@@ -247,7 +250,7 @@
 			return
 		}
 		Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.StatePath' -StringValues $resourceData.ObjectFilePath
-		$Object = $Resource
+		$object = $Resource
 		
 		
 		# Create target file object if it doesn't exist
@@ -262,7 +265,6 @@
 			# Only export original resource if generalize excluded properties exist
 			if ("excludedProperties" -in $resourceData.Configuration.Keys) {
 				# Set excludedproperties variable to generalize instead of default
-				$excludedProperties = ''
 				$excludedProperties = $resourceData.Configuration.excludedProperties.generalize
 				Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Generalized.ExcludedProperties' -StringValues ($excludedProperties.Keys -join ',')
 				# Export preserved file
@@ -276,80 +278,26 @@
 			}
 		}
 		
-		#TODO: Continue
-		# Iterate through all properties to exclude from object
-		foreach ($ExProperty in $excludedProperties.Keys) {
-			# Test if Object contains parent property first
-			if (Get-Member -InputObject $resourceData.Resource -Name $ExProperty) {
-				# Find child properties in exclusion hashtable
-				$ChildProperties = $excludedProperties.$ExProperty
-				# If subproperties exist, loop through and adjust properties accordingly
-				if ($ChildProperties -is [System.Collections.Hashtable]) {
-					$ChildProperties.Keys | ForEach-Object -Process {
-						$Value = $ChildProperties.$_
-						# Remove property if value is set to "Remove"
-						if ($value -eq "Remove") {
-							$TmpProperties = $object.$ExProperty | Select-Object -ExcludeProperty $_
-							$object.PsObject.Properties.Remove("$ExProperty")
-							Add-Member -InputObject $object -MemberType NoteProperty -Name $ExProperty -Value $TmpProperties -Force
-						}
-						else {
-							# If property exists on resource, update with new value
-							if ($object.$ExProperty.$_) {
-								$object.$ExProperty.$_ = $value
-							}
-						}
-					}
-				}
-				else {
-					# Remove property if value is set to "Remove"
-					if ($ChildProperties -eq "Remove") {
-						
-						if ($object.psobject.Properties.Item($ExProperty).IsSettable) {
-							$object.PsObject.Properties.Remove("$ExProperty")
-						}
-						else {
-							$object = $object | Select-Object -ExcludeProperty $ExProperty
-						}
-						
-					}
-					else {
-						# If property exists on resource, update with new value
-						if ($object.$ExProperty) {
-							$object.$ExProperty = $ChildProperties
-						}
-					}
-				}
-			}
+		if ($excludedProperties -is [hashtable]) {
+			# Iterate through all properties to exclude from object
+			$object = Convert-Object -Transform $excludedProperties -InputObject $object
 		}
 		
 		# Export resource
-		Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Exporting AzOpsState to $($resourceData.ObjectFilePath)"
-		if ('orderObject' -in $resourceConfig.Keys -and ($true -eq $resourceConfig.orderObject)) {
-			Write-AzOpsLog -Level Verbose -Topic "ConvertTo-AzOpsState" -Message "Ordering object"
-			$object = ConvertTo-AzOpsObject -InputObject $object -OrderObject
+		Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting' -StringValues $resourceData.ObjectFilePath
+		if ($resourceConfig.orderObject) {
+			Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Object.ReOrder'
+			$object = ConvertTo-CustomObject -InputObject $object -OrderObject
 		}
 		
-		if ($global:AzOpsExportRawTemplate -eq 1 -or $PSBoundParameters["ExportRawTemplate"]) {
-			if ($ReturnObject) {
-				# Return resource as object
-				Write-Output -InputObject $object
-			}
-			else {
-				# Export resource as raw json template
-				ConvertTo-Json -InputObject $object -Depth 100 | Out-File -FilePath ([WildcardPattern]::Escape($resourceData.ObjectFilePath)) -Encoding utf8 -Force
-			}
+		if ($ExportRawTemplate) {
+			if ($ReturnObject) { $object }
+			else { ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($resourceData.ObjectFilePath)) -Encoding UTF8 -Force }
 		}
 		else {
 			$parametersJson.parameters.input.value = $object
-			if ($ReturnObject) {
-				# Return resource as object
-				Write-Output -InputObject $parametersJson
-			}
-			else {
-				# Export resource as AzOpsState parameter json
-				ConvertTo-Json -InputObject $parametersJson -Depth 100 | Out-File -FilePath ([WildcardPattern]::Escape($resourceData.ObjectFilePath)) -Encoding utf8 -Force
-			}
+			if ($ReturnObject) { $parametersJson }
+			else { ConvertTo-Json -InputObject $parametersJson -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($resourceData.ObjectFilePath)) -Encoding UTF8 -Force }
 		}
 	}
 }

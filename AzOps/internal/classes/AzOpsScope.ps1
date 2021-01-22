@@ -73,7 +73,7 @@
 		
 		if ($Path.Extension -ne '.json') {
 			# Try to determine based on directory
-			$this.InitializeMemberVariablesFromPath($path.Directory)
+			$this.InitializeMemberVariablesFromPath($Path.Directory)
 			return
 		}
 		
@@ -111,12 +111,12 @@
 			}
 			else {
 				# Try to determine based on directory
-				$this.InitializeMemberVariablesFromPath($path.Directory)
+				$this.InitializeMemberVariablesFromPath($Path.Directory)
 			}
 		}
 		else {
 			# Try to determine based on directory
-			$this.InitializeMemberVariablesFromPath($path.Directory)
+			$this.InitializeMemberVariablesFromPath($Path.Directory)
 		}
 	}
 	#endregion Constructors
