@@ -209,7 +209,7 @@
 					# Define variables used by script
 					$resourceGroups = Invoke-ScriptBlock -ArgumentList $Context -ScriptBlock {
 						param ($Context)
-						Get-AzResourceGroup -DefaultProfile $Context -ErrorAction Stop | Where-Object { -not $_.ManagedBy }
+						Get-AzResourceGroup -DefaultProfile ($Context | Write-Output) -ErrorAction Stop | Where-Object { -not $_.ManagedBy }
 					} -RetryCount $maxRetryCount -RetryWait $backoffMultiplier -RetryType Exponential
 					if (-not $resourceGroups) {
 						Write-PSFMessage @common -String 'Get-ResourceDefinition.Subscription.NoResourceGroup' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -234,7 +234,7 @@
 						
 						$msgCommon = @{
 							FunctionName = 'Get-ResourceDefinition'
-							ModuleName = 'AzOps'
+							ModuleName   = 'AzOps'
 						}
 						
 						# region Importing module
@@ -321,7 +321,7 @@
 				foreach ($child in $childOfManagementGroups) {
 					Get-ResourceDefinition -Scope $child.Id @parameters
 				}
-				ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup ) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+				ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
 			}
 		}
 		#endregion Utility Functions
@@ -337,7 +337,7 @@
 		
 		if ($scopeObject.Subscription) {
 			Write-PSFMessage -String 'Get-ResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
-			$context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scope.subscription }
+			$context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scopeObject.Subscription }
 			$odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
 			Write-PSFMessage -Level Debug -String 'Get-ResourceDefinition.Subscription.OdataFilter' -StringValues $odataFilter
 		}

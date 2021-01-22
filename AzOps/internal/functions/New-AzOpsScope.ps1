@@ -71,7 +71,7 @@
 		switch ($PSCmdlet.ParameterSetName) {
 			scope
 			{
-				Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -Target $Scope -ScriptBlock {
+				Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
 					[AzOpsScope]::new($Scope, $StatePath)
 				} -EnableException $true -PSCmdlet $PSCmdlet
 			}

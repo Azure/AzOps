@@ -11,7 +11,7 @@
 		The $PSCmdlet variable of the calling command.
 	
 	.PARAMETER StatePath
-		Path to where 
+		Path to where the AzOps processing state / repository is located at.
 	
 	.EXAMPLE
 		PS C:\> Assert-AzOpsInitialization -Cmdlet $PSCmdlet -Statepath $StatePath
