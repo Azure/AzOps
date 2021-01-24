@@ -24,6 +24,7 @@ publish/*
 #Debug
 **.private**
 debug.ps1
+debug/*
 
 #DSStore
 .DS_Store
@@ -41,3 +42,4 @@ debug.ps1
 
 #Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/*
+
