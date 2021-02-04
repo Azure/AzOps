@@ -1,6 +1,7 @@
 ﻿
 # ignore the settings folder and files for VSCode and PSS
 .vscode/*
+*.code-workspace
 *.psproj
 *TempPoint*
 
@@ -32,14 +33,5 @@ debug/*
 #VS
 .vs
 
-#VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
 #Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/*
-
