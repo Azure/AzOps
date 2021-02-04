@@ -1,5 +1,4 @@
-﻿
-#VSCode
+﻿#VSCode
 .vscode/*
 *.code-workspace
 *.psproj
