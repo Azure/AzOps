@@ -1,5 +1,5 @@
 ﻿
-# ignore the settings folder and files for VSCode and PSS
+#VSCode
 .vscode/*
 *.code-workspace
 *.psproj
