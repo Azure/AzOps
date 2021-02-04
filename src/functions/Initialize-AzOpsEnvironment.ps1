@@ -1,5 +1,5 @@
 ﻿function Initialize-AzOpsEnvironment {
-<#
+	<#
 	.SYNOPSIS
 		Initializes the execution context of the module.
 	
@@ -38,8 +38,7 @@
 		PS C:\> Initialize-AzOpsEnvironment
 	
 		Initializes the default execution context of the module.
-#>
-	[Alias('Initialize-AzOpsGlobalVariables')]
+	#>
 	[CmdletBinding()]
 	param (
 		[switch]

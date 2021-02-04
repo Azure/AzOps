@@ -1,5 +1,5 @@
 ﻿function ConvertTo-AzOpsState {
-<#
+	<#
 	.SYNOPSIS
 		The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
 	
@@ -25,13 +25,13 @@
 	
 	.EXAMPLE
 		# Export custom policy definition to the AzOps StatePath
-		Initialize-AzOpsGlobalVariables
+		Initialize-AzOpsEnvironment
 		$policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
 		ConvertTo-AzOpsState -Resource $policy
 	
 	.EXAMPLE
 		# Serialize custom policy definition to the AzOps format, return object instead of export file
-		Initialize-AzOpsGlobalVariables
+		Initialize-AzOpsEnvironment
 		$policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
 		ConvertTo-AzOpsState -Resource $policy -ReturnObject
 		Name                           Value
@@ -87,9 +87,9 @@
 			)
 			
 			$result = [pscustomobject]@{
-				Configuration  = $null
-				ObjectFilePath = ''
-				Resource	   = $Resource
+				Configuration    = $null
+				ObjectFilePath   = ''
+				Resource         = $Resource
 				RequiresFilePath = $false
 			}
 			
@@ -212,9 +212,9 @@
 		#region Prepare Configuration Frame
 		# Construct base json
 		$parametersJson = [ordered]@{
-			'$schema'	     = 'http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#'
+			'$schema'        = 'http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#'
 			'contentVersion' = "1.0.0.0"
-			'parameters'	 = [ordered]@{
+			'parameters'     = [ordered]@{
 				'input' = [ordered]@{
 					'value' = $null
 				}
