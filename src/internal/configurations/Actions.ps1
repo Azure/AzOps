@@ -1,4 +1,5 @@
-﻿Set-PSFConfig -Module AzOps -Name Github.ApiUrl -Value '' -Initialize -Validation string -Description 'Built-in env var'
+# GitHub Actions
+Set-PSFConfig -Module AzOps -Name Github.ApiUrl -Value '' -Initialize -Validation string -Description 'Built-in env var'
 Set-PSFConfig -Module AzOps -Name Github.AutoMerge -Value $true -Initialize -Validation bool -Description 'Auto merge pull requests for pull workflow'
 Set-PSFConfig -Module AzOps -Name Github.BaseRef -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Github.Comments -Value '' -Initialize -Validation string -Description 'Built-in env var'

@@ -1,4 +1,6 @@
-﻿Set-PSFConfig -Module AzOps -Name General.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
+﻿# General
+
+Set-PSFConfig -Module AzOps -Name General.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
 Set-PSFConfig -Module AzOps -Name General.EnrollmentAccountPrincipalName -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name General.ExcludedSubOffer -Value 'AzurePass_2014-09-01', 'FreeTrial_2014-09-01', 'AAD_2015-09-01' -Initialize -Validation stringarray -Description 'Excluded QuotaID'
 Set-PSFConfig -Module AzOps -Name General.ExcludedSubState -Value 'Disabled', 'Deleted', 'Warned', 'Expired' -Initialize -Validation stringarray -Description 'Excluded subscription states'
@@ -17,3 +19,7 @@ Set-PSFConfig -Module AzOps -Name General.StateConfig -Value "$script:ModuleRoot
 Set-PSFConfig -Module AzOps -Name General.StrictMode -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name General.SupportPartialMgDiscovery -Value $false -Initialize -Validation bool -Description 'Enable partial discovery'
 Set-PSFConfig -Module AzOps -Name General.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
+
+# Source Control
+
+Set-PSFConfig -Module AzOps -Name SCM.Platform -Value 'GitHub' -Initialize -Validation string -Description '-'

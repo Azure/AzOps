@@ -1,4 +1,5 @@
-﻿Set-PSFConfig -Module AzOps -Name AzDevOps.ApiUrl -Value '' -Initialize -Validation string -Description '-'
+# Azure Pipelines
+Set-PSFConfig -Module AzOps -Name AzDevOps.ApiUrl -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name AzDevOps.AutoMerge -Value $true -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name AzDevOps.BaseRef -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name AzDevOps.Email -Value '' -Initialize -Validation string -Description '-'

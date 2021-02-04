@@ -1,1 +1,0 @@
-﻿Set-PSFConfig -Module AzOps -Name SCM.Platform -Value 'GitHub' -Initialize -Validation string -Description '-'
