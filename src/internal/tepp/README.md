@@ -12,12 +12,12 @@ The `PSFramework` offers a simplified way of offering just this, as the two exam
 
 Custom tab completion is defined in two steps:
 
- - Define a scriptblock that is run when the user hits `TAB` and provides the strings that are his options.
- - Assign that scriptblock to the parameter of a command. You can assign the same scriptblock multiple times.
+- Define a scriptblock that is run when the user hits `TAB` and provides the strings that are his options.
+- Assign that scriptblock to the parameter of a command. You can assign the same scriptblock multiple times.
 
 ## Structure
 
 Import order matters. In order to make things work with the default scaffold, follow those rules:
 
- - All scriptfiles _defining_ completion scriptblocks like this: `*.tepp.ps1`
- - Put all your completion assignments in `assignment.ps1`
+- All scriptfiles _defining_ completion scriptblocks like this: `*.tepp.ps1`
+- Put all your completion assignments in `assignment.ps1`
