@@ -2,7 +2,7 @@
 
 ## Welcome
 
-This repository is home to the PowerShell module AzOpsgst
+This repository is home to the PowerShell module AzOps
 
 ## Pipelines
 
