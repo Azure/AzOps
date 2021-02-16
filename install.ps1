@@ -37,7 +37,7 @@ param (
 
 #region Parameters
 # Name of the Module
-$ModuleName = "AzOps"
+$moduleName = "AzOps"
 
 # Base path of the Repository
 $BaseUrl = "https://github.com/Azure/AzOps"
@@ -2092,56 +2092,72 @@ function Write-LocalMessage {
 #endregion
 
 try {
+
+    # Set error preference
+    $ErrorActionPreferenceState = $ErrorActionPreference
+    $ErrorActionPreference = "Stop"
+
     [System.Net.ServicePointManager]::SecurityProtocol = "Tls12"
 
     Write-LocalMessage -Message "Downloading repository from '$($BaseUrl)/archive/$($Branch).zip'"
-    Invoke-WebRequest -Uri "$($BaseUrl)/archive/$($Branch).zip" -UseBasicParsing -OutFile "$($env:TEMP)\$($ModuleName).zip" -ErrorAction Stop
+    Invoke-WebRequest -Uri ($BaseUrl + "/archive/" + $Branch + ".zip") -UseBasicParsing -OutFile ($env:TEMP + "\" + $moduleName + ".zip")
+
+    Write-LocalMessage -Message ("Creating temporary project folder: " + $env:TEMP + "\" + $moduleName)
+    New-Item -Path $env:TEMP -Name $moduleName -ItemType Directory -Force | Out-Null
     
-    Write-LocalMessage -Message "Creating temporary project folder: '$($env:TEMP)\$($ModuleName)'"
-    $null = New-Item -Path $env:TEMP -Name $ModuleName -ItemType Directory -Force -ErrorAction Stop
-    
-    Write-LocalMessage -Message "Extracting archive to '$($env:TEMP)\$($ModuleName)'"
-    Expand-Archive -Path "$($env:TEMP)\$($ModuleName).zip" -DestinationPath "$($env:TEMP)\$($ModuleName)" -ErrorAction Stop
-    
-    $basePath = Get-ChildItem "$($env:TEMP)\$($ModuleName)\*" | Select-Object -First 1
-    if ($SubFolder) { $basePath = "$($basePath)\$($SubFolder)" }
-    
+    Write-LocalMessage -Message ("Extracting archive to " + $env:TEMP + "\" + $moduleName)
+    Expand-Archive -Path ($env:TEMP + "\" + $moduleName + ".zip") -DestinationPath ($env:TEMP + "\" + $moduleName)
+
+    $basePath = Get-ChildItem "$($env:TEMP)\$($moduleName)\*" | Select-Object -First 1
+    if ($subFolder) { 
+        $basePath = ($basePath + "\" + $subFolder)
+    }
+
     # Only needed for PS v5+ but doesn't hurt anyway
-    $manifest = "$($basePath)\$($ModuleName).psd1"
-    $manifestData = Invoke-Expression ([System.IO.File]::ReadAllText($manifest))
-    $moduleVersion = $manifestData.ModuleVersion
-    Write-LocalMessage -Message "Download concluded: $($ModuleName) | Branch $($Branch) | Version $($moduleVersion)"
-    
+    #$manifest = "$($basePath)\$($moduleName).psd1"
+    #$manifestData = Invoke-Expression ([System.IO.File]::ReadAllText($manifest))
+    #$moduleVersion = $manifestData.ModuleVersion
+    #Write-LocalMessage -Message "Download concluded: $($moduleName) | Branch $($Branch) | Version $($moduleVersion)"
+
     # Determine output path
-    $path = "$($env:ProgramFiles)\WindowsPowerShell\Modules\$($ModuleName)"
-    if ($doUserMode) { $path = "$(Split-Path $profile.CurrentUserAllHosts)\Modules\$($ModuleName)" }
-    if ($PSVersionTable.PSVersion.Major -ge 5) { $path += "\$moduleVersion" }
+    #$path = "$($env:ProgramFiles)\WindowsPowerShell\Modules\$($moduleName)"
+    #if ($doUserMode) { 
+    #    $path = "$(Split-Path $profile.CurrentUserAllHosts)\Modules\$($moduleName)" 
+    #}
+    #if ($PSVersionTable.PSVersion.Major -ge 5) { 
+    #    $path += "\$moduleVersion" 
+    #}
     
-    if ((Test-Path $path) -and (-not $Force)) {
-        Write-LocalMessage -Message "Module already installed, interrupting installation"
-        return
-    }
-    
-    Write-LocalMessage -Message "Creating folder: $($path)"
-    $null = New-Item -Path $path -ItemType Directory -Force -ErrorAction Stop
-    
-    Write-LocalMessage -Message "Copying files to $($path)"
-    foreach ($file in (Get-ChildItem -Path $basePath)) {
-        Move-Item -Path $file.FullName -Destination $path -ErrorAction Stop
-    }
-    
-    Write-LocalMessage -Message "Cleaning up temporary files"
-    Remove-Item -Path "$($env:TEMP)\$($ModuleName)" -Force -Recurse
-    Remove-Item -Path "$($env:TEMP)\$($ModuleName).zip" -Force
-    
-    Write-LocalMessage -Message "Installation of the module $($ModuleName), Branch $($Branch), Version $($moduleVersion) completed successfully!"
+    #if ((Test-Path $path) -and (-not $Force)) {
+    #    Write-LocalMessage -Message "Module already installed, interrupting installation"
+    #    return
+    #}
+
+    #Write-LocalMessage -Message "Creating folder: $($path)"
+    #$null = New-Item -Path $path -ItemType Directory -Force -ErrorAction Stop
+
+    #Write-LocalMessage -Message "Copying files to $($path)"
+    #foreach ($file in (Get-ChildItem -Path $basePath)) {
+    #   Move-Item -Path $file.FullName -Destination $path -ErrorAction Stop
+    #}
+
+    #Write-LocalMessage -Message "Cleaning up temporary files"
+    #Remove-Item -Path "$($env:TEMP)\$($moduleName).zip" -Force
+    #Remove-Item -Path "$($env:TEMP)\$($moduleName)" -Force -Recurse
+
+    Write-LocalMessage -Message "Installation of the module $($moduleName), Branch $($Branch), Version $($moduleVersion) completed successfully!"
+
+    # Revert error preference
+    $ErrorActionPreference = $ErrorActionPreferenceState
+
 }
 catch {
-    Write-LocalMessage -Message "Installation of the module $($ModuleName) failed!"
-    
+    Write-LocalMessage -Message "Installation of the module failed!"
+    Write-Error -Exception $_.Exception
+
     Write-LocalMessage -Message "Cleaning up temporary files"
-    Remove-Item -Path "$($env:TEMP)\$($ModuleName)" -Force -Recurse
-    Remove-Item -Path "$($env:TEMP)\$($ModuleName).zip" -Force
+    #Remove-Item -Path "$($env:TEMP)\$($moduleName)" -Force -Recurse
+    #Remove-Item -Path "$($env:TEMP)\$($moduleName).zip" -Force
     
     throw
 }
