@@ -1,56 +1,56 @@
 ﻿function Invoke-AzOpsGitPush {
-    
+
     [CmdletBinding()]
     param (
         [string]
         $StatePath = (Get-PSFConfigValue -FullName AzOps.General.State),
-        
+
         [string]
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
-        
+
         [string]
         $GithubHeadRef = (Get-PSFConfigValue -FullName AzOps.Github.HeadRef),
-        
+
         [string]
         $GithubComment = (Get-PSFConfigValue -FullName AzOps.Github.Comments),
-        
+
         [string]
         $GithubToken = (Get-PSFConfigValue -FullName AzOps.Github.Token),
-        
+
         [string]
         $AzDevOpsHeadRef = (Get-PSFConfigValue -FullName AzOps.AzDevOps.HeadRef),
-        
+
         [string]
         $AzDevOpsApiUrl = (Get-PSFConfigValue -FullName AzOps.AzDevOps.ApiUrl),
-        
+
         [string]
         $AzDevOpsProjectId = (Get-PSFConfigValue -FullName AzOps.AzDevOps.ProjectId),
-        
+
         [string]
         $AzDevOpsRepository = (Get-PSFConfigValue -FullName AzOps.AzDevOps.Repository),
-        
+
         [string]
         $AzDevOpsPullRequestId = (Get-PSFConfigValue -FullName AzOps.AzDevOps.PullRequestId),
-        
+
         [string]
         $AzDevOpsToken = (Get-PSFConfigValue -FullName AzOps.AzDevOps.Token),
-        
+
         [switch]
         $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.General.SkipResourceGroup),
-        
+
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName AzOps.General.SkipPolicy),
-        
+
         [switch]
         $SkipRole = (Get-PSFConfigValue -FullName AzOps.General.SkipRole),
-        
+
         [switch]
         $StrictMode = (Get-PSFConfigValue -FullName AzOps.General.StrictMode),
-        
+
         [string]
         $AzOpsMainTemplate = (Get-PSFConfigValue -FullName AzOps.General.MainTemplate)
     )
-    
+
     begin {
         if ($ScmPlatform -notin 'Github', 'AzDevOps') {
             Stop-PSFFunction -String 'Invoke-AzOpsGitPush.Invalid.Platform' -StringValues $ScmPlatform -EnableException $true -Cmdlet $PSCmdlet -Category InvalidArgument
@@ -59,53 +59,53 @@
             "GitHub" { $GithubHeadRef }
             "AzureDevOps" { $AzDevOpsHeadRef }
         }
-        
+
         Push-Location -Path $StatePath
-        
+
         # Skip AzDevOps Run
         $skipChange = $false
-        
+
         $common = @{
             Level = "Host"
             Tag   = 'git'
         }
-        
+
         # Ensure git on the host has info about origin
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Fetch'
         Invoke-NativeCommand -ScriptBlock { git fetch origin } | Out-Host
-        
+
         # If not in strict mode: quit begin and continue with process
         if (-not $StrictMode) { return }
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.StrictMode'
-        
+
         #region Checkout & Update local repository
         #TODO: Clarify redundancy
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Fetch'
         Invoke-NativeCommand -ScriptBlock { git fetch origin } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Checkout' -StringValues main
         Invoke-NativeCommand -ScriptBlock { git checkout origin/main } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Pull' -StringValues main
         Invoke-NativeCommand -ScriptBlock { git pull origin main } | Out-Host
-        
+
         Write-PSFMessage -Level Host -String 'Invoke-AzOpsGitPush.Repository.Initialize'
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipResourceGroup, SkipPolicy, SkipRole, StatePath
         Initialize-AzOpsRepository -InvalidateCache -Rebuild @parameters
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Add'
         Invoke-NativeCommand -ScriptBlock { git add --intent-to-add $StatePath } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Diff'
         $diff = Invoke-NativeCommand -ScriptBlock { git diff --ignore-space-at-eol --name-status }
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Reset'
         Invoke-NativeCommand -ScriptBlock { git reset --hard } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Branch' -StringValues $headRef
         $branch = Invoke-NativeCommand -ScriptBlock { git branch --list $headRef }
-        
+
         if ($branch) {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Checkout.Existing' -StringValues $headRef
             Invoke-NativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
@@ -115,19 +115,19 @@
             Invoke-NativeCommand -ScriptBlock { git checkout -b $headRef origin/$headRef } | Out-Host
         }
         #endregion Checkout & Update local repository
-        
+
         if (-not $diff) {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.IsConsistent'
             return
         }
-        
+
         #region Inconsistent State
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Changes'
         $output = foreach ($entry in $diff -join "," -split ",") {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Changes.Item' -StringValues $entry
             '`{0}`' -f $entry
         }
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Rest.PR.Comment'
         switch ($ScmPlatform) {
             "GitHub" {
@@ -168,7 +168,7 @@
         }
         #endregion Inconsistent State
     }
-    
+
     process {
         #region Change
         switch ($ScmPlatform) {
@@ -180,15 +180,15 @@
             "AzureDevOps" {
                 Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Branch.Switch'
                 Invoke-NativeCommand -ScriptBlock { git checkout $AzDevOpsHeadRef } | Out-Host
-                
+
                 $commitMessage = Invoke-NativeCommand -ScriptBlock { git log -1 --pretty=format:%s }
                 Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Commit.Message' -StringValues $commitMessage
-                
+
                 #TODO: Clarify whether this really should only be checked for Azure DevOps
                 if ($commitMessage -match "System push commit") {
                     $skipChange = $true
                 }
-                
+
                 if ($skipChange -eq $true) {
                     $changeSet = @()
                 }
@@ -208,40 +208,40 @@
         }
         #endregion Change
     }
-    
+
     end {
         if ($skipChange) {
             Pop-Location
             return
         }
-        
+
         #region Rebuild
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Checkout' -StringValues $headRef
         Invoke-NativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Pull' -StringValues $headRef
         Invoke-NativeCommand -ScriptBlock { git pull origin $headRef } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzOps.Initialize'
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy -SkipRole:$SkipRole -StatePath $StatePath
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Add'
         Invoke-NativeCommand -ScriptBlock { git add $StatePath } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Status'
         $status = Invoke-NativeCommand -ScriptBlock { git status --short }
         if (-not $status) {
             Pop-Location
             return
         }
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Commit'
         Invoke-NativeCommand -ScriptBlock { git commit -m 'System push commit' } | Out-Host
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Push' -StringValues $headRef
         Invoke-NativeCommand -ScriptBlock { git push origin $headRef } | Out-Host
         #endregion Rebuild
-        
+
         Pop-Location
     }
 }
