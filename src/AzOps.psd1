@@ -18,7 +18,7 @@
     Copyright = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'Enterprise Scale deployment module'
+    Description = 'AzOps state management module'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '7.0'
@@ -26,9 +26,9 @@
     # Modules that must be imported into the global environment prior to importing
     # this module
     RequiredModules = @(
-        @{ ModuleName='PSFramework'; ModuleVersion='1.5.170' }
-        @{ ModuleName = "Az.Accounts"; ModuleVersion = "1.9.3" }
-        @{ ModuleName = "Az.Resources"; ModuleVersion = "2.5.0" }
+        @{ ModuleName='PSFramework'; ModuleVersion='1.5.172' }
+        @{ ModuleName = "Az.Accounts"; ModuleVersion = "2.2.5" }
+        @{ ModuleName = "Az.Resources"; ModuleVersion = "3.2.1" }
     )
 
     # Assemblies that must be loaded prior to importing this module
