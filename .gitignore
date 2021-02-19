@@ -31,6 +31,3 @@ debug/*
 
 #VS
 .vs
-
-#Jupyter Notebook checkpoints
-**/.ipynb_checkpoints/*
