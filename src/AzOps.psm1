@@ -8,11 +8,11 @@ if ($AzOps_dotsourcemodule) {
 }
 
 <#
-Note on Resolve-Path:
-All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
-This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
-Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
-This is important when testing for paths.
+    Note on Resolve-Path:
+    All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
+    This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
+    Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
+    This is important when testing for paths.
 #>
 
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
@@ -28,33 +28,35 @@ if ("<was not compiled>" -eq '<was not compiled>') {
 }
 
 function Import-ModuleFile {
+
     <#
         .SYNOPSIS
             Loads files into the module on module import.
-
         .DESCRIPTION
             This helper function is used during module initialization.
             It should always be dotsourced itself, in order to proper function.
-
             This provides a central location to react to files being imported, if later desired
-
         .PARAMETER Path
             The path to the file to load
-
         .EXAMPLE
-            PS C:\> . Import-ModuleFile -File $function.FullName
-
+            > . Import-ModuleFile -File $function.FullName
             Imports the file stored in $function according to import policy
     #>
+
     [CmdletBinding()]
-    Param (
+    param (
         [string]
         $Path
     )
 
     $resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
-    if ($doDotSource) { . $resolvedPath }
-    else { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null) }
+    if ($doDotSource) {
+        . $resolvedPath
+    }
+    else {
+        $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null)
+    }
+
 }
 
 #region Load individual files

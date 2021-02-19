@@ -18,7 +18,7 @@
     Copyright = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'AzOps state management module'
+    Description = 'AzOps State Management Module'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '7.0'
