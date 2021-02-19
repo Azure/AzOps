@@ -1,9 +1,5 @@
 # AzOps
 
-## Welcome
-
-This repository is home to the PowerShell module AzOps
-
 ## Pipelines
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F129%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
