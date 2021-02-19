@@ -1,44 +1,37 @@
 ﻿function Initialize-AzOpsEnvironment {
+
     <#
     .SYNOPSIS
         Initializes the execution context of the module.
-    
     .DESCRIPTION
         Initializes the execution context of the module.
         This is used by all other commands.
         It prepares / caches tenant, subscription and management group data.
-    
     .PARAMETER IgnoreContextCheck
         Whether it should validate the azure contexts available or not.
-    
     .PARAMETER InvalidateCache
         If data was already cached from a previous execution, execute again anyway?
-    
     .PARAMETER ExcludedSubOffer
         Subscription filter.
         Subscriptions from the listed offerings will be ignored.
         Generally used to prevent using trial subscriptions, but can be adapted for other limitations.
-    
     .PARAMETER ExcludedSubState
         Subscription filter.
         Subscriptions in the listed states will be ignored.
         For example, by default, disabled subscriptions will not be processed.
-    
     .PARAMETER PartialMgDiscovery
         Enable partial management group discovery.
         Necessary if current user does not have root access.
         Must be used in combination with -PartialMgDiscoveryRoot
-    
     .PARAMETER PartialMgDiscoveryRoot
         Custom search roots under which to detect management groups.
         Used for partial management group discovery.
         Must be used in combination with -PartialMgDiscovery
-    
     .EXAMPLE
         PS C:\> Initialize-AzOpsEnvironment
-    
         Initializes the default execution context of the module.
     #>
+
     [CmdletBinding()]
     param (
         [switch]
@@ -72,6 +65,7 @@
             Stop-PSFFunction -String 'Initialize-AzOpsEnvironment.AzureContext.TooMany' -StringValues $azContextTenants.Count, ($azContextTenants -join ',') -EnableException $true -Cmdlet $PSCmdlet
         }
     }
+
     process {
         # If data exists and we don't want to rebuild the data cache, no point in continuing
         if (-not $InvalidateCache -and $script:AzOpsAzManagementGroup -and $script:AzOpsSubscriptions) {
@@ -123,4 +117,5 @@
         
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Processing.Completed'
     }
+
 }
