@@ -29,7 +29,7 @@
         .PARAMETER InputObject
             The object to transform
         .EXAMPLE
-            PS C:\> $data | Convert-Object -Transform $transform
+            > $data | Convert-Object -Transform $transform
             Applies the transformation rule defined in $transform to all objects in $data
             See the parameter help on -Transform for an example of how such a rule might look like.
     #>

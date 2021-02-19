@@ -13,7 +13,7 @@
         .PARAMETER Quiet
             Quiet mode disables printing error output of a native command.
         .EXAMPLE
-            PS C:\> Invoke-NativeCommand -Scriptblock { git config --system -l }
+            > Invoke-NativeCommand -Scriptblock { git config --system -l }
             Executes "git config --system -l"
     #>
 

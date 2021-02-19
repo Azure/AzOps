@@ -8,7 +8,7 @@
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policyset definitions for.
         .EXAMPLE
-            PS C:\> Get-PolicySetDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            > Get-PolicySetDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom policyset definitions deployed at Management Group scope
     #>
 

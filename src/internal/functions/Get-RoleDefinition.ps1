@@ -8,7 +8,7 @@
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve role definitions for.
         .EXAMPLE
-            PS C:\> Get-RoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            > Get-RoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom role definitions deployed at Management Group scope
     #>
 

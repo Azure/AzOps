@@ -10,7 +10,7 @@
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
-            PS C:\> Save-ManagementGroupChildren -Scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
+            > Save-ManagementGroupChildren -Scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
             Discover Management Group hierarchy from scope
         .INPUTS
             AzOpsScope

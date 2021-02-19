@@ -11,7 +11,7 @@
         .PARAMETER StatePath
             Path to where the AzOps processing state / repository is located at.
         .EXAMPLE
-            PS C:\> Assert-AzOpsInitialization -Cmdlet $PSCmdlet -Statepath $StatePath
+            > Assert-AzOpsInitialization -Cmdlet $PSCmdlet -Statepath $StatePath
             Asserts AzOps has been correctly prepare for execution.
     #>
 

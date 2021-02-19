@@ -22,11 +22,11 @@
             Linear (default): 2, 2, 2
             Exponential: 2, 4, 8
         .EXAMPLE
-            PS C:\> Invoke-ScriptBlock -ScriptBlock { 1 / 0 }
+            > Invoke-ScriptBlock -ScriptBlock { 1 / 0 }
             Will attempt once to divide by zero.
             Hint: This is unlikely to succeede. Ever.
         .EXAMPLE
-            PS C:\> Invoke-ScriptBlock -ScriptBlock { 1 / 0 } -RetryCount 3
+            > Invoke-ScriptBlock -ScriptBlock { 1 / 0 } -RetryCount 3
             Will attempt to divide by zero, retrying up to 3 additional times (for a total of 4 attempts).
             Hint: Trying to divide by zero more than once does not increase your chance of success.
     #>

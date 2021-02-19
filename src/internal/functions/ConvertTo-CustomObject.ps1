@@ -11,10 +11,10 @@
         .PARAMETER OrderObject
             Used if the object properties should be ordered in alphabetical order
         .EXAMPLE
-            PS C:\> Get-ChildItem | ConvertTo-CustomObject
+            > Get-ChildItem | ConvertTo-CustomObject
             Converts all FileSystemInformation objects to PSCustomObjects
         .EXAMPLE
-            PS C:\> Get-ChildItem | ConvertTo-CustomObject -OrderObject
+            > Get-ChildItem | ConvertTo-CustomObject -OrderObject
             Converts all FileSystemInformation objects to PSCustomObjects.
             Each object will have its properties sorted alphabeitcally.
     #>

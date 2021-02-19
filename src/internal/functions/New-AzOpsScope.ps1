@@ -12,7 +12,7 @@
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
-            PS C:\> New-AzOpsScope -Scope "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560"
+            > New-AzOpsScope -Scope "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560"
             Return AzOpsScope for a root Management Group scope scope in Azure:
             scope                      : /providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560
             type                       : managementGroups
@@ -27,7 +27,7 @@
             resourceprovider           :
             resource                   :
         .EXAMPLE
-            PS C:\> New-AzOpsScope -path  "C:\Users\jodahlbo\git\CET-NorthStar\azops\Tenant Root Group\Non-Production Subscriptions\Dalle MSDN MVP\365lab-dcs"
+            > New-AzOpsScope -path  "C:\Users\jodahlbo\git\CET-NorthStar\azops\Tenant Root Group\Non-Production Subscriptions\Dalle MSDN MVP\365lab-dcs"
             Return AzOpsScope for a filepath
         .INPUTS
             Scope

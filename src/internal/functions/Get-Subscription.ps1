@@ -16,7 +16,7 @@
         .PARAMETER ApiVersion
             What version of the AZ Api to communicate with.
         .EXAMPLE
-            PS C:\> Get-Subscription -TenantId $TenantId
+            > Get-Subscription -TenantId $TenantId
             Returns active, non-trial subscriptions of the specified tenant.
     #>
 
