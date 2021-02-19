@@ -28,7 +28,7 @@
         .PARAMETER StatePath
             The root folder under which to write the resource json.
         .EXAMPLE
-            PS C:\> Initialize-AzOpsRepository
+            > Initialize-AzOpsRepository
     #>
 
     [CmdletBinding()]

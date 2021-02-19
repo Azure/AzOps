@@ -34,7 +34,7 @@
         .PARAMETER SkipResourceGroup
             Skip discovery of resource groups resources for better performance.
         .EXAMPLE
-            PS C:\> Invoke-AzOpsGitPull
+            > Invoke-AzOpsGitPull
             Updates the AzOps ARM configuration in the connected repository.
             Settings are picked up from configuration.
     #>

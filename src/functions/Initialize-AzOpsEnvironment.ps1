@@ -28,7 +28,7 @@
             Used for partial management group discovery.
             Must be used in combination with -PartialMgDiscovery
         .EXAMPLE
-            PS C:\> Initialize-AzOpsEnvironment
+            > Initialize-AzOpsEnvironment
             Initializes the default execution context of the module.
     #>
 
