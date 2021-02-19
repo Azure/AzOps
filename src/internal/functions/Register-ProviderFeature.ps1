@@ -1,16 +1,17 @@
 ﻿function Register-ProviderFeature {
+
     [CmdletBinding()]
     param (
         [string]
         $FileName,
-        
+
         [AzOpsScope]
         $ScopeObject
     )
-    
+
     process {
         #TODO: Clarify original function design intent
-        
+
         # Get Subscription ID from scope (since Subscription ID is not available for Resource Groups and Resources)
         Write-PSFMessage -String 'Register-ProviderFeature.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
         $currentContext = Get-AzContext
@@ -24,7 +25,7 @@
                 throw "Couldn't switch context $_"
             }
         }
-        
+
         $providerFeatures = Get-Content  $FileName | ConvertFrom-Json
         foreach ($providerFeature in $providerFeatures) {
             if ($ProviderFeature.FeatureName -and $ProviderFeature.ProviderName) {
@@ -33,4 +34,5 @@
             }
         }
     }
+
 }

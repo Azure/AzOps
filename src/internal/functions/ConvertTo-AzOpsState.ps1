@@ -1,98 +1,90 @@
 ﻿function ConvertTo-AzOpsState {
+
     <#
-    .SYNOPSIS
-        The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
-    
-    .DESCRIPTION
-        The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
-        It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-        The state configuration file found at the location the 'AzOps.General.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
-    
-    .PARAMETER Resource
-        Object with resource as input
-    
-    .PARAMETER ExportPath
-        ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
-    
-    .PARAMETER ReturnObject
-        Used if to return object in pipeline instead of exporting file
-    
-    .PARAMETER ExportRawTemplate
-        Used in cases you want to return the template without the custom parameters json schema
-    
-    .PARAMETER StatePath
-        The root path to where the entire state is being built in.
-    
-    .EXAMPLE
-        # Export custom policy definition to the AzOps StatePath
-        Initialize-AzOpsEnvironment
-        $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
-        ConvertTo-AzOpsState -Resource $policy
-    
-    .EXAMPLE
-        # Serialize custom policy definition to the AzOps format, return object instead of export file
-        Initialize-AzOpsEnvironment
-        $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
-        ConvertTo-AzOpsState -Resource $policy -ReturnObject
-        Name                           Value
-        ----                           -----
-        $schema                        http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#
-        contentVersion                 1.0.0.0
-        parameters                     {input}
-    
-    .INPUTS
-        Resource
-    
-    .OUTPUTS
-        Resource in AzOpsState json format or object returned as [PSCustomObject] depending on parameters used
-#>
+        .SYNOPSIS
+            The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
+        .DESCRIPTION
+            The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
+            It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
+            The state configuration file found at the location the 'AzOps.General.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
+        .PARAMETER Resource
+            Object with resource as input
+        .PARAMETER ExportPath
+            ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
+        .PARAMETER ReturnObject
+            Used if to return object in pipeline instead of exporting file
+        .PARAMETER ExportRawTemplate
+            Used in cases you want to return the template without the custom parameters json schema
+        .PARAMETER StatePath
+            The root path to where the entire state is being built in.
+        .EXAMPLE
+            # Export custom policy definition to the AzOps StatePath
+            Initialize-AzOpsEnvironment
+            $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
+            ConvertTo-AzOpsState -Resource $policy
+        .EXAMPLE
+            # Serialize custom policy definition to the AzOps format, return object instead of export file
+            Initialize-AzOpsEnvironment
+            $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
+            ConvertTo-AzOpsState -Resource $policy -ReturnObject
+            Name                           Value
+            ----                           -----
+            $schema                        http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#
+            contentVersion                 1.0.0.0
+            parameters                     {input}
+        .INPUTS
+            Resource
+        .OUTPUTS
+            Resource in AzOpsState json format or object returned as [PSCustomObject] depending on parameters used
+    #>
+
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [Alias('MG', 'Role', 'Assignment', 'CustomObject', 'ResourceGroup')]
         $Resource,
-        
+
         [string]
         $ExportPath,
-        
+
         [switch]
         $ReturnObject,
-        
+
         [switch]
         $ExportRawTemplate,
-        
+
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.General.State')
     )
-    
+
     begin {
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Starting'
-        
+
         #region Utility Functions
         function Resolve-ResourceConfiguration {
             [CmdletBinding()]
             param (
                 $Resource,
-                
+
                 [AllowEmptyString()]
                 [string]
                 $ExportPath,
-                
+
                 [string]
                 $StatePath,
-                
+
                 [Hashtable]
                 $ResourceConfiguration
             )
-            
+
             $result = [pscustomobject]@{
                 Configuration    = $null
                 ObjectFilePath   = ''
                 Resource         = $Resource
                 RequiresFilePath = $false
             }
-            
+
             #region The Big Switch
             switch ($Resource) {
                 # Tenant
@@ -204,11 +196,11 @@
             if ($result.Configuration) {
                 $result.Configuration = $result.Configuration | ConvertTo-PSFHashtable
             }
-            
+
             $result
         }
         #endregion Utility Functions
-        
+
         #region Prepare Configuration Frame
         # Construct base json
         $parametersJson = [ordered]@{
@@ -221,7 +213,7 @@
             }
         }
         $excludedProperties = @{ }
-        
+
         # Fetch config json
         try {
             $resourceConfig = Get-Content -Path (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig') -ErrorAction Stop | ConvertFrom-Json -AsHashtable -ErrorAction Stop
@@ -236,10 +228,10 @@
         }
         #endregion Prepare Configuration Frame
     }
-    
+
     process {
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Processing' -StringValues $Resource
-        
+
         try { $resourceData = Resolve-ResourceConfiguration -Resource $Resource -ExportPath $ExportPath -StatePath $StatePath -ResourceConfiguration $resourceConfig }
         catch {
             Write-PSFMessage -String 'ConvertTo-AzOpsState.ResourceError' -StringValues $Resource -Target $Resource -EnableException $true -PSCmdlet $PSCmdlet -ErrorRecord $_
@@ -251,14 +243,14 @@
         }
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.StatePath' -StringValues $resourceData.ObjectFilePath
         $object = $Resource
-        
-        
+
+
         # Create target file object if it doesn't exist
         if ($resourceData.ObjectFilePath -and -not (Test-Path -Path $resourceData.ObjectFilePath)) {
             Write-PSFMessage -String 'ConvertTo-AzOpsState.File.Create' -StringValues $resourceData.ObjectFilePath
             $null = New-Item -Path $resourceData.ObjectFilePath -ItemType "file" -Force
         }
-        
+
         # Check if Resource has to be generalized
         if (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates') {
             # Preserve Original Template before manipulating anything
@@ -277,19 +269,19 @@
                 }
             }
         }
-        
+
         if ($excludedProperties -is [hashtable]) {
             # Iterate through all properties to exclude from object
             $object = Convert-Object -Transform $excludedProperties -InputObject $object
         }
-        
+
         # Export resource
         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting' -StringValues $resourceData.ObjectFilePath
         if ($resourceConfig.orderObject) {
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Object.ReOrder'
             $object = ConvertTo-CustomObject -InputObject $object -OrderObject
         }
-        
+
         if ($ExportRawTemplate) {
             if ($ReturnObject) { $object }
             else { ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($resourceData.ObjectFilePath)) -Encoding UTF8 -Force }

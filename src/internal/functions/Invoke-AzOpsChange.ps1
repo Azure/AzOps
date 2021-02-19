@@ -1,19 +1,20 @@
 ﻿function Invoke-AzOpsChange {
+
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]]
         $ChangeSet,
-        
+
         [Parameter(Mandatory = $true)]
         [string]
         $StatePath,
-        
+
         [Parameter(Mandatory = $true)]
         [string]
         $AzOpsMainTemplate
     )
-    
+
     begin {
         #region Utility Functions
         function Resolve-ArmFileAssociation {
@@ -21,14 +22,14 @@
             param (
                 [AzOpsScope]
                 $ScopeObject,
-                
+
                 [string]
                 $FilePath,
-                
+
                 [string]
                 $AzOpsMainTemplate
             )
-            
+
             #region Initialization Prep
             $common = @{
                 Level	     = 'Host'
@@ -36,7 +37,7 @@
                 FunctionName = 'Invoke-AzOpsChange'
                 Target	     = $ScopeObject
             }
-            
+
             $result = [PSCustomObject] @{
                 TemplateFilePath		  = $null
                 TemplateParameterFilePath = $null
@@ -44,36 +45,36 @@
                 ScopeObject			      = $ScopeObject
                 Scope					  = $ScopeObject.Scope
             }
-            
+
             $fileItem = Get-Item -Path $FilePath
             if ($fileItem.Extension -ne '.json') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsChange.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsChange' -Target $ScopeObject
                 return
             }
             #endregion Initialization Prep
-            
+
             #region Case: Parameters File
             if ($fileItem.Name -like '*.parameters.json') {
                 $result.TemplateParameterFilePath = $fileItem.FullName
                 $deploymentName = $fileItem.BaseName -replace '\.parameters$' -replace ' ', '_'
                 if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
                 $result.DeploymentName = "AzOps-$deploymentName"
-                
+
                 #region Directly Associated Templatefile exists
                 $templatePath = $fileItem.FullName -replace '\.parameters\.json$', '.json'
-                
+
                 if (Test-Path $templatePath) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                     $result.TemplateFilePath = $templatePath
                     return $result
                 }
                 #endregion Directly Associated Templatefile exists
-                
+
                 #region Check in the main template file for a match
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.NotFoundTemplate' -StringValues $FilePath, $templatePath
                 $mainTemplateItem = Get-Item $AzOpsMainTemplate
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FromMainTemplate' -StringValues $mainTemplateItem.FullName
-                
+
                 # Determine Resource Type in Parameter file
                 $templateParameterFileHashtable = Get-Content -Path $fileItem.FullName | ConvertFrom-Json -AsHashtable
                 $effectiveResourceType = $null
@@ -97,10 +98,10 @@
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsChange.Resolve.MainTemplate.NotSupported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsChange' -Target $ScopeObject
                 return
                 #endregion Check in the main template file for a match
-                # All Code paths end the command	
+                # All Code paths end the command
             }
             #endregion Case: Parameters File
-            
+
             #region Case: Template File
             $result.TemplateFilePath = $fileItem.FullName
             $parameterPath = $fileItem.FullName -replace '\.json$', '.parameters.json'
@@ -111,11 +112,11 @@
             else {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
             }
-            
+
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
             if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0,58) }
             $result.DeploymentName = "AzOps-$deploymentName"
-            
+
             $result
             #endregion Case: Template File
         }
@@ -125,9 +126,10 @@
             Tag   = 'git'
         }
     }
+
     process {
         if (-not $ChangeSet) { return }
-        
+
         #region Categorize Input
         Write-PSFMessage @common -String 'Invoke-AzOpsChange.Deployment.Required'
         $deleteSet = @()
@@ -142,7 +144,7 @@
         if ($deleteSet) { $deleteSet = $deleteSet | Sort-Object }
         if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
         #TODO: Clarify what happens with the deletes - not used after reporting them
-        
+
         Write-PSFMessage @common -String 'Invoke-AzOpsChange.Change.AddModify'
         foreach ($item in $addModifySet) {
             Write-PSFMessage @common -String 'Invoke-AzOpsChange.Change.AddModify.File' -StringValues $item
@@ -152,7 +154,7 @@
             Write-PSFMessage @common -String 'Invoke-AzOpsChange.Change.Delete.File' -StringValues $item
         }
         #endregion Categorize Input
-        
+
         #region Deploy State
         $common.Tag = 'pwsh'
         # Nested Pipeline allows economizing on New-StateDeployment having to run its "begin" block once only
@@ -175,7 +177,7 @@
         }
         $newStateDeploymentCmd.End()
         #endregion Deploy State
-        
+
         $azOpsDeploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
@@ -186,12 +188,13 @@
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.NotFound' -StringValues $addition, $StatePath -Target $addition
                 continue
             }
-            
+
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
         }
-        
+
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-Deployment
     }
+
 }

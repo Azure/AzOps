@@ -1,23 +1,23 @@
 ﻿function Get-Subscription {
 
     <#
-    .SYNOPSIS
-        Returns a list of applicable subscriptions.
-    .DESCRIPTION
-        Returns a list of applicable subscriptions.
-        "Applicable" generally refers to active, non-trial subscriptions.
-    .PARAMETER ExcludedOffers
-        Specific offers to exclude (e.g. specific trial offerings)
-    .PARAMETER ExcludedStates
-        Specific subscription states to ignore (e.g. expired subscriptions)
-    .PARAMETER TenantId
-        ID of the tenant to search in.
-        Must be a connected tenant.
-    .PARAMETER ApiVersion
-        What version of the AZ Api to communicate with.
-    .EXAMPLE
-        PS C:\> Get-Subscription -TenantId $TenantId
-        Returns active, non-trial subscriptions of the specified tenant.
+        .SYNOPSIS
+            Returns a list of applicable subscriptions.
+        .DESCRIPTION
+            Returns a list of applicable subscriptions.
+            "Applicable" generally refers to active, non-trial subscriptions.
+        .PARAMETER ExcludedOffers
+            Specific offers to exclude (e.g. specific trial offerings)
+        .PARAMETER ExcludedStates
+            Specific subscription states to ignore (e.g. expired subscriptions)
+        .PARAMETER TenantId
+            ID of the tenant to search in.
+            Must be a connected tenant.
+        .PARAMETER ApiVersion
+            What version of the AZ Api to communicate with.
+        .EXAMPLE
+            PS C:\> Get-Subscription -TenantId $TenantId
+            Returns active, non-trial subscriptions of the specified tenant.
     #>
 
     [Alias('Get-AzOpsAllSubscription')]

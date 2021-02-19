@@ -1,20 +1,17 @@
-﻿function Get-RoleDefinition
-{
-<#
-    .SYNOPSIS
-        Discover all custom Role Definition at the provided scope (Management Groups, subscriptions or resource groups)
-    
-    .DESCRIPTION
-        Discover all custom Role Definition at the provided scope (Management Groups, subscriptions or resource groups)
-    
-    .PARAMETER ScopeObject
-        The scope object representing the azure entity to retrieve role definitions for.
-    
-    .EXAMPLE
-        PS C:\> Get-RoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
-    
-        Discover all custom role definitions deployed at Management Group scope
-#>
+﻿function Get-RoleDefinition {
+
+    <#
+        .SYNOPSIS
+            Discover all custom Role Definition at the provided scope (Management Groups, subscriptions or resource groups)
+        .DESCRIPTION
+            Discover all custom Role Definition at the provided scope (Management Groups, subscriptions or resource groups)
+        .PARAMETER ScopeObject
+            The scope object representing the azure entity to retrieve role definitions for.
+        .EXAMPLE
+            PS C:\> Get-RoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            Discover all custom role definitions deployed at Management Group scope
+    #>
+
     [OutputType([AzOpsRoleDefinition])]
     [CmdletBinding()]
     param (
@@ -22,9 +19,8 @@
         [AzOpsScope]
         $ScopeObject
     )
-    
-    process
-    {
+
+    process {
         Write-PSFMessage -String 'Get-RoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
         foreach ($roleDefinition in Get-AzRoleDefinition -Custom -Scope $ScopeObject.Scope -WarningAction SilentlyContinue) {
             if ($roledefinition.AssignableScopes[0] -eq $ScopeObject.Scope) {
@@ -35,4 +31,5 @@
             }
         }
     }
+
 }

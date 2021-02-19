@@ -1,13 +1,14 @@
 ﻿function Register-ResourceProvider {
+
     [CmdletBinding()]
     param (
         [string]
         $FileName,
-        
+
         [AzOpsScope]
         $ScopeObject
     )
-    
+
     process {
         Write-PSFMessage -String 'Register-ResourceProvider.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
         $currentContext = Get-AzContext
@@ -21,14 +22,15 @@
                 throw "Couldn't switch context $_"
             }
         }
-        
+
         $resourceproviders = Get-Content  $FileName | ConvertFrom-Json
         foreach ($resourceprovider  in $resourceproviders | Where-Object RegistrationState -eq 'Registered') {
             if (-not $resourceprovider.ProviderNamespace) { continue }
-            
+
             Write-PSFMessage -String 'Register-ResourceProvider.Provider.Register' -StringValues $resourceprovider.ProviderNamespace
             Write-AzOpsLog -Level Verbose -Topic "Register-AzOpsResourceProvider" -Message "Registering Provider $($resourceprovider.ProviderNamespace)"
             Register-AzResourceProvider -Confirm:$false -Pre -ProviderNamespace $resourceprovider.ProviderNamespace
         }
     }
+
 }

@@ -1,27 +1,28 @@
 ﻿function New-Deployment {
+
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $DeploymentName = "azops-template-deployment",
-        
+
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $TemplateFilePath,
-        
+
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [AllowEmptyString()]
         [AllowNull()]
         [string]
         $TemplateParameterFilePath,
-        
+
         [string]
         $Mode = "Incremental",
-        
+
         [string]
         $StatePath
     )
-    
+
     process {
         Write-PSFMessage -String 'New-Deployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
         #region Resolve Scope
@@ -42,13 +43,13 @@
             return
         }
         #endregion Resolve Scope
-        
+
         #region Process Scope
         #region Resource Group
         if ($scopeObject.resourcegroup) {
             Write-PSFMessage -String 'New-Deployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
-            
+
             $parameters = @{
                 'TemplateFile'			      = $TemplateFilePath
                 'SkipTemplateParameterPrompt' = $true
@@ -63,7 +64,7 @@
                 Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            
+
             $parameters.Name = $DeploymentName
             if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
                 # Whatif Placeholder
@@ -79,7 +80,7 @@
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-Deployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
-            
+
             $parameters = @{
                 'TemplateFile'			      = $TemplateFilePath
                 'Location'				      = $defaultDeploymentRegion
@@ -94,7 +95,7 @@
                 Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            
+
             $parameters.Name = $DeploymentName
             if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
                 # Whatif Placeholder
@@ -109,7 +110,7 @@
         elseif ($scopeObject.managementGroup) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-Deployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-            
+
             $parameters = @{
                 'TemplateFile'	    = $TemplateFilePath
                 'location'		    = $defaultDeploymentRegion
@@ -125,7 +126,7 @@
                 Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            
+
             $parameters.Name = $DeploymentName
             if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
                 # Whatif Placeholder
@@ -140,7 +141,7 @@
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-Deployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-            
+
             $parameters = @{
                 'TemplateFile'			      = $TemplateFilePath
                 'location'				      = $defaultDeploymentRegion
@@ -155,7 +156,7 @@
                 Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            
+
             $parameters.Name = $DeploymentName
             if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
                 # Whatif Placeholder
@@ -173,4 +174,5 @@
         #endregion Unidentified
         #endregion Process Scope
     }
+
 }
