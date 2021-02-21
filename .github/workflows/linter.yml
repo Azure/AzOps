@@ -14,8 +14,7 @@ jobs:
       uses: docker://github/super-linter:v3.14.5
       env:
         VALIDATE_ALL_CODEBASE: true
-        VALIDATE_ARM: false
         DEFAULT_BRANCH: main
         DISABLE_ERRORS: false
-        FILTER_REGEX_EXCLUDE: .*.pipelines/.*
+        FILTER_REGEX_EXCLUDE: .*data/.* .*.pipelines/.*
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
