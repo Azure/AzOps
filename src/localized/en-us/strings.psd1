@@ -10,7 +10,7 @@
     'Assert-AzOpsWindowsLongPath.Failed'                                            = 'Windows not sufficiently configured for long paths! Follow instructions for "Enabling long paths on Windows" on https://aka.ms/es/quickstart.'
 
     'ConvertTo-AzOpsState.Starting'                                            = 'Starting conversion to AzOps State object' #
-    'ConvertTo-AzOpsState.StateConfig.Error'                                   = 'Cannot load {0}, is the json schema valid and does the file exist?' # Get-PSFConfigValue -FullName 'AzOps.General.StateConfig'
+    'ConvertTo-AzOpsState.StateConfig.Error'                                   = 'Cannot load {0}, is the json schema valid and does the file exist?' # Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig'
     'ConvertTo-AzOpsState.StatePath'                                           = 'Resolve path to resource state: {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.ExcludedProperties'                                  = 'Default excluded properties: [{0}]' # ($excludedProperties.Keys -join ', ')
     'ConvertTo-AzOpsState.ObjectType.Resolved'                                 = 'Found object type: {0}'
