@@ -1,4 +1,4 @@
-﻿function New-Deployment {
+﻿function New-AzOpsDeployment {
 
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
@@ -24,7 +24,7 @@
     )
 
     process {
-        Write-PSFMessage -String 'New-Deployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
+        Write-PSFMessage -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
         #region Resolve Scope
         try {
             if ($TemplateParameterFilePath) {
@@ -35,11 +35,11 @@
             }
         }
         catch {
-            Write-PSFMessage -Level Warning -String 'New-Deployment.Scope.Failed' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath -ErrorRecord $_
+            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Failed' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath -ErrorRecord $_
             return
         }
         if (-not $scopeObject) {
-            Write-PSFMessage -Level Warning -String 'New-Deployment.Scope.Empty' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath
+            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Empty' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath
             return
         }
         #endregion Resolve Scope
@@ -47,7 +47,7 @@
         #region Process Scope
         #region Resource Group
         if ($scopeObject.resourcegroup) {
-            Write-PSFMessage -String 'New-Deployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
+            Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
 
             $parameters = @{
@@ -61,7 +61,7 @@
             # Validate Template
             $results = Test-AzResourceGroupDeployment @parameters
             if ($results) {
-                Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
 
@@ -78,7 +78,7 @@
         #region Subscription
         elseif ($scopeObject.subscription) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-Deployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
 
             $parameters = @{
@@ -92,7 +92,7 @@
             # Validate Template
             $results = Test-AzSubscriptionDeployment @parameters
             if ($results) {
-                Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
 
@@ -109,7 +109,7 @@
         #region Management Group
         elseif ($scopeObject.managementGroup) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-Deployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'	    = $TemplateFilePath
@@ -123,7 +123,7 @@
             # Validate Template
             $results = Test-AzManagementGroupDeployment @parameters
             if ($results) {
-                Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
 
@@ -140,7 +140,7 @@
         #region Root
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-Deployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'			      = $TemplateFilePath
@@ -153,7 +153,7 @@
             # Validate Template
             $results = Test-AzTenantDeployment @parameters
             if ($results) {
-                Write-PSFMessage -Level Warning -String 'New-Deployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
 
@@ -169,7 +169,7 @@
         #endregion Root
         #region Unidentified
         else {
-            Write-PSFMessage -Level Warning -String 'New-Deployment.Scope.Unidentified' -Target $scopeObject -StringValues $scopeObject
+            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Unidentified' -Target $scopeObject -StringValues $scopeObject
         }
         #endregion Unidentified
         #endregion Process Scope

@@ -1,4 +1,4 @@
-﻿function Convert-Object {
+﻿function Convert-AzOpsObject {
 
     <#
         .SYNOPSIS
@@ -29,7 +29,7 @@
         .PARAMETER InputObject
             The object to transform
         .EXAMPLE
-            > $data | Convert-Object -Transform $transform
+            > $data | Convert-AzOpsObject -Transform $transform
             Applies the transformation rule defined in $transform to all objects in $data
             See the parameter help on -Transform for an example of how such a rule might look like.
     #>
@@ -60,7 +60,7 @@
                     continue
                 }
                 if ($Transform[$property.Name] -is [hashtable]) {
-                    $result[$property.Name] = Convert-Object -Transform $Transform [$property.Name] -InputObject $property.Value
+                    $result[$property.Name] = Convert-AzOpsObject -Transform $Transform [$property.Name] -InputObject $property.Value
                     continue
                 }
 

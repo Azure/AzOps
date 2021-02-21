@@ -1,4 +1,4 @@
-﻿function Register-ResourceProvider {
+﻿function Register-AzOpsResourceProvider {
 
     [CmdletBinding()]
     param (
@@ -10,15 +10,15 @@
     )
 
     process {
-        Write-PSFMessage -String 'Register-ResourceProvider.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
+        Write-PSFMessage -String 'Register-AzOpsResourceProvider.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
         $currentContext = Get-AzContext
         if ($ScopeObject.Subscription -and $currentContext.Subscription.Id -ne $ScopeObject.Subscription) {
-            Write-PSFMessage -String 'Register-ResourceProvider.Context.Switching' -StringValues $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name -Target $ScopeObject
+            Write-PSFMessage -String 'Register-AzOpsResourceProvider.Context.Switching' -StringValues $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name -Target $ScopeObject
             try {
                 $null = Set-AzContext -SubscriptionId $ScopeObject.Subscription -ErrorAction Stop
             }
             catch {
-                Stop-PSFFunction -String 'Register-ResourceProvider.Context.Failed' -StringValues $ScopeObject.SubscriptionDisplayName -ErrorRecord $_ -EnableException $true -Cmdlet $PSCmdlet -Target $ScopeObject
+                Stop-PSFFunction -String 'Register-AzOpsResourceProvider.Context.Failed' -StringValues $ScopeObject.SubscriptionDisplayName -ErrorRecord $_ -EnableException $true -Cmdlet $PSCmdlet -Target $ScopeObject
                 throw "Couldn't switch context $_"
             }
         }
@@ -27,7 +27,7 @@
         foreach ($resourceprovider  in $resourceproviders | Where-Object RegistrationState -eq 'Registered') {
             if (-not $resourceprovider.ProviderNamespace) { continue }
 
-            Write-PSFMessage -String 'Register-ResourceProvider.Provider.Register' -StringValues $resourceprovider.ProviderNamespace
+            Write-PSFMessage -String 'Register-AzOpsResourceProvider.Provider.Register' -StringValues $resourceprovider.ProviderNamespace
             Write-AzOpsLog -Level Verbose -Topic "Register-AzOpsResourceProvider" -Message "Registering Provider $($resourceprovider.ProviderNamespace)"
             Register-AzResourceProvider -Confirm:$false -Pre -ProviderNamespace $resourceprovider.ProviderNamespace
         }

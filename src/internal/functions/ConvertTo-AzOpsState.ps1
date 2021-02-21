@@ -159,7 +159,7 @@
                 { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition] } {
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyDefinition' -FunctionName 'ConvertTo-AzOpsState'
                     $result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-                    $result.Resource = ConvertTo-CustomObject -InputObject $Resource
+                    $result.Resource = ConvertTo-AzOpsCustomObject -InputObject $Resource
                     $result.Configuration = $ResourceConfiguration.Values.policyDefinition
                     break
                 }
@@ -167,7 +167,7 @@
                 { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition] } {
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicySetDefinition' -FunctionName 'ConvertTo-AzOpsState'
                     $result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-                    $result.Resource = ConvertTo-CustomObject -InputObject $Resource
+                    $result.Resource = ConvertTo-AzOpsCustomObject -InputObject $Resource
                     $result.Configuration = $ResourceConfiguration.Values.policySetDefinition
                     break
                 }
@@ -175,7 +175,7 @@
                 { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment] } {
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyAssignment' -FunctionName 'ConvertTo-AzOpsState'
                     $result.ObjectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
-                    $result.Resource = ConvertTo-CustomObject -InputObject $Resource
+                    $result.Resource = ConvertTo-AzOpsCustomObject -InputObject $Resource
                     $result.Configuration = $ResourceConfiguration.Values.policyAssignment
                     break
                 }
@@ -272,14 +272,14 @@
 
         if ($excludedProperties -is [hashtable]) {
             # Iterate through all properties to exclude from object
-            $object = Convert-Object -Transform $excludedProperties -InputObject $object
+            $object = Convert-AzOpsObject -Transform $excludedProperties -InputObject $object
         }
 
         # Export resource
         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting' -StringValues $resourceData.ObjectFilePath
         if ($resourceConfig.orderObject) {
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Object.ReOrder'
-            $object = ConvertTo-CustomObject -InputObject $object -OrderObject
+            $object = ConvertTo-AzOpsCustomObject -InputObject $object -OrderObject
         }
 
         if ($ExportRawTemplate) {

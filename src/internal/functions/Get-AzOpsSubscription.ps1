@@ -1,4 +1,4 @@
-﻿function Get-Subscription {
+﻿function Get-AzOpsSubscription {
 
     <#
         .SYNOPSIS
@@ -16,7 +16,7 @@
         .PARAMETER ApiVersion
             What version of the AZ Api to communicate with.
         .EXAMPLE
-            > Get-Subscription -TenantId $TenantId
+            > Get-AzOpsSubscription -TenantId $TenantId
             Returns active, non-trial subscriptions of the specified tenant.
     #>
 
@@ -39,8 +39,8 @@
     )
 
     process {
-        Write-PSFMessage -String 'Get-Subscription.Excluded.States' -StringValues ($ExcludedStates -join ',')
-        Write-PSFMessage -String 'Get-Subscription.Excluded.Offers' -StringValues ($ExcludedOffers -join ',')
+        Write-PSFMessage -String 'Get-AzOpsSubscription.Excluded.States' -StringValues ($ExcludedStates -join ',')
+        Write-PSFMessage -String 'Get-AzOpsSubscription.Excluded.Offers' -StringValues ($ExcludedOffers -join ',')
 
         $nextLink = "/subscriptions?api-version=$ApiVersion"
         $allSubscriptionsResults = do {
@@ -55,19 +55,19 @@
             $_.subscriptionPolicies.quotaId -notin $ExcludedOffers
         }
         if (-not $includedSubscriptions) {
-            Write-PSFMessage -Level Warning -String 'Get-Subscription.NoSubscriptions' -Tag failed
+            Write-PSFMessage -Level Warning -String 'Get-AzOpsSubscription.NoSubscriptions' -Tag failed
             return
         }
 
-        Write-PSFMessage -String 'Get-Subscription.Subscriptions.Found' -StringValues $allSubscriptionsResults.Count
+        Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Found' -StringValues $allSubscriptionsResults.Count
         if ($allSubscriptionsResults.Count -gt $includedSubscriptions.Count) {
-            Write-PSFMessage -String 'Get-Subscription.Subscriptions.Excluded' -StringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
+            Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Excluded' -StringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
         }
 
         if ($includedSubscriptions | Where-Object State -EQ PastDue) {
-            Write-PSFMessage -String 'Get-Subscription.Subscriptions.PastDue' -StringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
+            Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.PastDue' -StringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
         }
-        Write-PSFMessage -String 'Get-Subscription.Subscriptions.Included' -StringValues $includedSubscriptions.Count
+        Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Included' -StringValues $includedSubscriptions.Count
         $includedSubscriptions
     }
 

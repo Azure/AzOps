@@ -1,4 +1,4 @@
-﻿function Get-RoleDefinition {
+﻿function Get-AzOpsRoleDefinition {
 
     <#
         .SYNOPSIS
@@ -8,7 +8,7 @@
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve role definitions for.
         .EXAMPLE
-            > Get-RoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            > Get-AzOpsRoleDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom role definitions deployed at Management Group scope
     #>
 
@@ -21,13 +21,13 @@
     )
 
     process {
-        Write-PSFMessage -String 'Get-RoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
+        Write-PSFMessage -String 'Get-AzOpsRoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
         foreach ($roleDefinition in Get-AzRoleDefinition -Custom -Scope $ScopeObject.Scope -WarningAction SilentlyContinue) {
             if ($roledefinition.AssignableScopes[0] -eq $ScopeObject.Scope) {
                 [AzOpsRoleDefinition]::new($roleDefinition)
             }
             else {
-                Write-PSFMessage -String 'Get-RoleDefinition.NonAuthorative' -StringValues $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsRoleDefinition.NonAuthorative' -StringValues $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
             }
         }
     }

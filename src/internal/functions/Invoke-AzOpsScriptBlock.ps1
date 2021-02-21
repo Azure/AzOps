@@ -1,4 +1,4 @@
-﻿function Invoke-ScriptBlock {
+﻿function Invoke-AzOpsScriptBlock {
 
     <#
         .SYNOPSIS
@@ -22,11 +22,11 @@
             Linear (default): 2, 2, 2
             Exponential: 2, 4, 8
         .EXAMPLE
-            > Invoke-ScriptBlock -ScriptBlock { 1 / 0 }
+            > Invoke-AzOpsScriptBlock -ScriptBlock { 1 / 0 }
             Will attempt once to divide by zero.
             Hint: This is unlikely to succeede. Ever.
         .EXAMPLE
-            > Invoke-ScriptBlock -ScriptBlock { 1 / 0 } -RetryCount 3
+            > Invoke-AzOpsScriptBlock -ScriptBlock { 1 / 0 } -RetryCount 3
             Will attempt to divide by zero, retrying up to 3 additional times (for a total of 4 attempts).
             Hint: Trying to divide by zero more than once does not increase your chance of success.
     #>
@@ -64,7 +64,7 @@
             }
             catch {
                 if ($count -lt $RetryCount) {
-                    Write-PSFMessage -Level Debug -String 'Invoke-ScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_
+                    Write-PSFMessage -Level Debug -String 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_
                     $count++
                     switch ($RetryType) {
                         Linear { Start-Sleep -Seconds $RetryWait }
@@ -72,7 +72,7 @@
                     }
                     continue
                 }
-                Write-PSFMessage -Level Warning -String 'Invoke-ScriptBlock.Failed.GivingUp' -StringValues $count, $RetryCount -ErrorRecord $_
+                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsScriptBlock.Failed.GivingUp' -StringValues $count, $RetryCount -ErrorRecord $_
                 throw
             }
         }

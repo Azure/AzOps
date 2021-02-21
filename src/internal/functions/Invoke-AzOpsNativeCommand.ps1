@@ -1,4 +1,4 @@
-﻿function Invoke-NativeCommand {
+﻿function Invoke-AzOpsNativeCommand {
 
     <#
         .SYNOPSIS
@@ -13,7 +13,7 @@
         .PARAMETER Quiet
             Quiet mode disables printing error output of a native command.
         .EXAMPLE
-            > Invoke-NativeCommand -Scriptblock { git config --system -l }
+            > Invoke-AzOpsNativeCommand -Scriptblock { git config --system -l }
             Executes "git config --system -l"
     #>
 
@@ -44,9 +44,9 @@
 
         $caller = Get-PSCallStack -ErrorAction SilentlyContinue
         if ($caller) {
-            Stop-PSFFunction -String 'Invoke-NativeCommand.Failed.WithCallstack' -StringValues $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
+            Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.WithCallstack' -StringValues $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
         }
-        Stop-PSFFunction -String 'Invoke-NativeCommand.Failed.NoCallstack' -StringValues $ScriptBlock, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
+        Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.NoCallstack' -StringValues $ScriptBlock, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
     }
     elseif ($output) { $output }
 }

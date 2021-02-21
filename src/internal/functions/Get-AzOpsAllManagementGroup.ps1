@@ -1,4 +1,4 @@
-﻿function Get-AllManagementGroup {
+﻿function Get-AzOpsAllManagementGroup {
 
     <#
         .SYNOPSIS
@@ -47,7 +47,7 @@
             }
             if ($groupObject.Children) {
                 $groupObject.Children | Where-Object Type -eq "/providers/Microsoft.Management/managementGroups" | Foreach-Object -Process {
-                    Get-AllManagementGroup -ManagementGroup $_.Name
+                    Get-AzOpsAllManagementGroup -ManagementGroup $_.Name
                 }
             }
         }

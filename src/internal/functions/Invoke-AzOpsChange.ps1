@@ -157,8 +157,8 @@
 
         #region Deploy State
         $common.Tag = 'pwsh'
-        # Nested Pipeline allows economizing on New-StateDeployment having to run its "begin" block once only
-        $newStateDeploymentCmd = { New-StateDeployment -StatePath $StatePath }.GetSteppablePipeline()
+        # Nested Pipeline allows economizing on New-AzOpsStateDeployment having to run its "begin" block once only
+        $newStateDeploymentCmd = { New-AzOpsStateDeployment -StatePath $StatePath }.GetSteppablePipeline()
         $newStateDeploymentCmd.Begin($true)
         foreach ($addition in $addModifySet) {
             if ($addition -notmatch '/*.subscription.json$') { continue }
@@ -194,7 +194,7 @@
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-Deployment
+        $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment
     }
 
 }

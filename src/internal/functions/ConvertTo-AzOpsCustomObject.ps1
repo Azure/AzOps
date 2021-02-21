@@ -1,4 +1,4 @@
-﻿function ConvertTo-CustomObject {
+﻿function ConvertTo-AzOpsCustomObject {
 
     <#
         .SYNOPSIS
@@ -11,10 +11,10 @@
         .PARAMETER OrderObject
             Used if the object properties should be ordered in alphabetical order
         .EXAMPLE
-            > Get-ChildItem | ConvertTo-CustomObject
+            > Get-ChildItem | ConvertTo-AzOpsCustomObject
             Converts all FileSystemInformation objects to PSCustomObjects
         .EXAMPLE
-            > Get-ChildItem | ConvertTo-CustomObject -OrderObject
+            > Get-ChildItem | ConvertTo-AzOpsCustomObject -OrderObject
             Converts all FileSystemInformation objects to PSCustomObjects.
             Each object will have its properties sorted alphabeitcally.
     #>
@@ -49,7 +49,7 @@
             $hash = [ordered]@{ }
 
             foreach ($key in $InputObject.Keys | Sort-Object) {
-                $hash[$key] = ConvertTo-CustomObject -InputObject $InputObject[$key] -OrderObject
+                $hash[$key] = ConvertTo-AzOpsCustomObject -InputObject $InputObject[$key] -OrderObject
             }
 
             $hash
@@ -69,7 +69,7 @@
             $object = [ordered]@{ }
 
             foreach ($property in $InputObject.PSObject.Properties | Sort-Object -Property Name) {
-                $object[$property.Name] = ConvertTo-CustomObject -InputObject $property.Value -OrderObject
+                $object[$property.Name] = ConvertTo-AzOpsCustomObject -InputObject $property.Value -OrderObject
             }
 
             [PSCustomObject]$object

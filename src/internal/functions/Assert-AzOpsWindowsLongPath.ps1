@@ -25,7 +25,7 @@
 
         Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsWindowsLongPath.Validating'
         $hasRegKey = 1 -eq (Get-ItemPropertyValue -Path HKLM:SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled)
-        $hasGitConfig = (Invoke-NativeCommand -ScriptBlock { git config --system -l } -IgnoreExitcode | Select-String 'core.longpaths=true') -as [bool]
+        $hasGitConfig = (Invoke-AzOpsNativeCommand -ScriptBlock { git config --system -l } -IgnoreExitcode | Select-String 'core.longpaths=true') -as [bool]
 
         if ($hasGitConfig -and $hasRegKey) {
             return

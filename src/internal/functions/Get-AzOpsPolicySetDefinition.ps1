@@ -1,4 +1,4 @@
-﻿function Get-PolicySetDefinition {
+﻿function Get-AzOpsPolicySetDefinition {
 
     <#
         .SYNOPSIS
@@ -8,7 +8,7 @@
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policyset definitions for.
         .EXAMPLE
-            > Get-PolicySetDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            > Get-AzOpsPolicySetDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom policyset definitions deployed at Management Group scope
     #>
 
@@ -29,11 +29,11 @@
 
         switch ($ScopeObject.Type) {
             managementGroups {
-                Write-PSFMessage -String 'Get-PolicySetDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsPolicySetDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
                 Get-AzPolicySetDefinition -Custom -ManagementGroupName $ScopeObject.Name | Where-Object ResourceId -match $ScopeObject.Scope
             }
             subscriptions {
-                Write-PSFMessage -String 'Get-PolicySetDefinition.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsPolicySetDefinition.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
                 Get-AzPolicySetDefinition -Custom -SubscriptionId $ScopeObject.Scope.Split('/')[2] | Where-Object SubscriptionId -eq $ScopeObject.Name
             }
         }

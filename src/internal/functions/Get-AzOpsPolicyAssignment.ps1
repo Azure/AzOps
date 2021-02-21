@@ -1,4 +1,4 @@
-﻿function Get-PolicyAssignment {
+﻿function Get-AzOpsPolicyAssignment {
 
     <#
         .SYNOPSIS
@@ -8,7 +8,7 @@
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policyset definitions for.
         .EXAMPLE
-            > Get-PolicyAssignment -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
+            > Get-AzOpsPolicyAssignment -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom policy assignments deployed at Management Group scope
     #>
 
@@ -29,13 +29,13 @@
 
         switch ($ScopeObject.Type) {
             managementGroups {
-                Write-PSFMessage -String 'Get-PolicyAssignment.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsPolicyAssignment.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
             }
             subscriptions {
-                Write-PSFMessage -String 'Get-PolicyAssignment.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsPolicyAssignment.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
             }
             resourcegroups {
-                Write-PSFMessage -String 'Get-PolicyAssignment.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                Write-PSFMessage -String 'Get-AzOpsPolicyAssignment.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
         Get-AzPolicyAssignment -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object PolicyAssignmentId -match $ScopeObject.scope
