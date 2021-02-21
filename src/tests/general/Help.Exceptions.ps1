@@ -1,6 +1,6 @@
 ﻿# List of functions that should be ignored
 $global:FunctionHelpTestExceptions = @(
-    
+
 )
 
 <#
@@ -10,7 +10,7 @@ $global:FunctionHelpTestExceptions = @(
   "Sqlcollaborative.Dbatools.Connection.ManagementConnectionType[]"
 #>
 $global:HelpTestEnumeratedArrays = @(
-  
+
 )
 
 <#
@@ -22,5 +22,5 @@ $global:HelpTestEnumeratedArrays = @(
   "Get-DbaCmObject"       = @("DoNotUse")
 #>
 $global:HelpTestSkipParameterType = @{
-    
+
 }
