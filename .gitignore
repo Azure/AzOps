@@ -23,7 +23,6 @@ publish/*
 
 #Debug
 **.private**
-debug.ps1
 debug/*
 
 #DSStore
