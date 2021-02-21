@@ -24,49 +24,49 @@
     'ConvertTo-AzOpsState.Exporting'                                           = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Object.ReOrder'                                      = 'Updating state object content order' #
 
-    'Get-PolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-PolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
-    'Get-PolicyAssignment.Subscription'                                        = 'Retrieving Policy Assignment for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
+    'Get-AzOpsPolicyAssignment.Subscription'                                        = 'Retrieving Policy Assignment for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
-    'Get-PolicyDefinition.ManagementGroup'                                     = 'Retrieving custom policy definitions for Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-PolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyDefinition.ManagementGroup'                                     = 'Retrieving custom policy definitions for Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsPolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
-    'Get-PolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-PolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsPolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
-    'Get-ResourceDefinition.Processing'                                        = 'Processing scope: [{0}]' # $Scope
-    'Get-ResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
-    'Get-ResourceDefinition.Subscription.Found'                                = 'Found Subscription: {0} ({1})' # $scopeObject.subscriptionDisplayName, $scopeObject.subscription
-    'Get-ResourceDefinition.Subscription.OdataFilter'                          = 'Setting Odatafilter: {0}' # $odataFilter
-    'Get-ResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.resource, $ScopeObject.resourcegroup
-    'Get-ResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.resource, $ScopeObject.resourcegroup
-    'Get-ResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-ResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-ResourceDefinition.ResourceGroup.Processing.Owned'                    = 'Skipping {0} as it is managed by {1}' # $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
-    'Get-ResourceDefinition.Subscription.Processing'                           = 'Processing Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-ResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
-    'Get-ResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed Resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-ResourceDefinition.SubScription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-ResourceDefinition.SubScription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-ResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-ResourceDefinition.SubScription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-ResourceDefinition.ManagementGroup.Processing'                        = 'Processing Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-ResourceDefinition.Finished'                                          = 'Finished processing scope [{0}]' # $scopeObject.Scope
-    'Get-ResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
+    'Get-AzOpsResourceDefinition.Processing'                                        = 'Processing scope: [{0}]' # $Scope
+    'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
+    'Get-AzOpsResourceDefinition.Subscription.Found'                                = 'Found Subscription: {0} ({1})' # $scopeObject.subscriptionDisplayName, $scopeObject.subscription
+    'Get-AzOpsResourceDefinition.Subscription.OdataFilter'                          = 'Setting Odatafilter: {0}' # $odataFilter
+    'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.resource, $ScopeObject.resourcegroup
+    'Get-AzOpsResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.resource, $ScopeObject.resourcegroup
+    'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned'                    = 'Skipping {0} as it is managed by {1}' # $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
+    'Get-AzOpsResourceDefinition.Subscription.Processing'                           = 'Processing Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
+    'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed Resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.SubScription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.ManagementGroup.Processing'                        = 'Processing Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsResourceDefinition.Finished'                                          = 'Finished processing scope [{0}]' # $scopeObject.Scope
+    'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
 
-    'Get-RoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
-    'Get-RoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
+    'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
+    'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
 
-    'Get-RoleDefinition.Processing'                                            = 'Processing {0}' # $ScopeObject
-    'Get-RoleDefinition.NonAuthorative'                                        = 'Role Definition {0} exists at {1} however it is not authoritative. Current authoritative scope is {2}' # $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0]
+    'Get-AzOpsRoleDefinition.Processing'                                            = 'Processing {0}' # $ScopeObject
+    'Get-AzOpsRoleDefinition.NonAuthorative'                                        = 'Role Definition {0} exists at {1} however it is not authoritative. Current authoritative scope is {2}' # $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0]
 
-    'Get-Subscription.Excluded.Offers'                                         = 'Excluded subscription offers: {0}' # ($ExcludedOffers -join ',')
-    'Get-Subscription.Excluded.States'                                         = 'Excluded subscription states: {0}' # ($ExcludedStates -join ',')
-    'Get-Subscription.NoSubscriptions'                                         = 'No relevant subscriptions found!' #
-    'Get-Subscription.Subscriptions.Excluded'                                  = 'Number of subscriptions excluded: {0}' # ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
-    'Get-Subscription.Subscriptions.Found'                                     = 'Number of subscriptions found: {0}' # $allSubscriptionsResults.Count
-    'Get-Subscription.Subscriptions.Included'                                  = 'Number of subscriptions included: {0}' # $includedSubscriptions.Count
-    'Get-Subscription.Subscriptions.PastDue'                                   = 'Number of included subscriptions in the state "PastDue": {0}' # ($includedSubscriptions | Where-Object State -EQ PastDue).Count
+    'Get-AzOpsSubscription.Excluded.Offers'                                         = 'Excluded subscription offers: {0}' # ($ExcludedOffers -join ',')
+    'Get-AzOpsSubscription.Excluded.States'                                         = 'Excluded subscription states: {0}' # ($ExcludedStates -join ',')
+    'Get-AzOpsSubscription.NoSubscriptions'                                         = 'No relevant subscriptions found!' #
+    'Get-AzOpsSubscription.Subscriptions.Excluded'                                  = 'Number of subscriptions excluded: {0}' # ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
+    'Get-AzOpsSubscription.Subscriptions.Found'                                     = 'Number of subscriptions found: {0}' # $allSubscriptionsResults.Count
+    'Get-AzOpsSubscription.Subscriptions.Included'                                  = 'Number of subscriptions included: {0}' # $includedSubscriptions.Count
+    'Get-AzOpsSubscription.Subscriptions.PastDue'                                   = 'Number of included subscriptions in the state "PastDue": {0}' # ($includedSubscriptions | Where-Object State -EQ PastDue).Count
 
     'Initialize-AzOpsEnvironment.AzureContext.No'                              = 'No context available in Az PowerShell. Please use Connect-AzAccount and connect before using the command'
     'Initialize-AzOpsEnvironment.AzureContext.TooMany'                         = 'Unsupported number of tenants in context: {0} TenantIDs TenantIDs: {1} Please reconnect with Connect-AzAccount using an account/service principal that only have access to one tenant' # $azContextTenants.Count, ($azContextTenants -join ',')
@@ -116,11 +116,11 @@
     'Invoke-AzOpsGitPull.CheckingOut.New'                                      = 'Checking out new branch (system)' #
     'Invoke-AzOpsGitPull.Initialize.Repository'                                = 'Executing repository initialization'
 
-    'Invoke-NativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}'
-    'Invoke-NativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}'
+    'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}'
+    'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}'
 
-    'Invoke-ScriptBlock.Failed.GivingUp'                                       = 'Tried unsuccessfully {0} out of {1} times, giving up.' # $count, $RetryCount
-    'Invoke-ScriptBlock.Failed.WillRetry'                                      = 'Tried unsuccessfully {0} out of {1} times, keeping up the fight!' # $count, $RetryCount
+    'Invoke-AzOpsScriptBlock.Failed.GivingUp'                                       = 'Tried unsuccessfully {0} out of {1} times, giving up.' # $count, $RetryCount
+    'Invoke-AzOpsScriptBlock.Failed.WillRetry'                                      = 'Tried unsuccessfully {0} out of {1} times, keeping up the fight!' # $count, $RetryCount
 
     'New-AzOpsScope.Starting'                                                  = 'Starting creation of new scope object' #
     'New-AzOpsScope.Creating.FromScope'                                        = 'Creating new AzOpsScope object using scope [{0}]' # $Scope
@@ -128,50 +128,50 @@
     'New-AzOpsScope.Path.InvalidRoot'                                          = 'Path "{0}" must be a path under "{1}" !' # $Path, $StatePath
     'New-AzOpsScope.Creating.FromFile'                                         = 'Creating a new scope from a path' #
 
-    'New-Deployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
-    'New-Deployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
-    'New-Deployment.Scope.Empty'                                               = 'Unable to determine the scope of template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
-    'New-Deployment.ResourceGroup.Processing'                                  = 'Attempting [Resource Group] deployment for {0}' #  $scopeObject
-    'New-Deployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
-    'New-Deployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
-    'New-Deployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
-    'New-Deployment.Root.Processing'                                           = 'Attempting [Tenant Scope] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
+    'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
+    'New-AzOpsDeployment.Scope.Empty'                                               = 'Unable to determine the scope of template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
+    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [Resource Group] deployment for {0}' #  $scopeObject
+    'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
+    'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.Root.Processing'                                           = 'Attempting [Tenant Scope] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
 
-    'New-Deployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
+    'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
 
-    'New-StateDeployment.Processing'                                           = 'Processing new state deployment for {0}' # $FileName
-    'New-StateDeployment.InvalidScope'                                         = 'Unable to determine scope type for {0}, skipping' # $FileName
-    'New-StateDeployment.Subscription'                                         = 'Upserting subscriptions for {0}' # $FileName
-    'New-StateDeployment.Subscription.New'                                     = 'Creating new subscription for {0}' # $FileName
-    'New-StateDeployment.NoEnrollmentAccount'                                  = 'No Azure Enrollment account found for current Azure context' #
-    'New-StateDeployment.NoEnrollmentAccount.Solution'                         = 'Create new Azure role assignment for service principal used for pipeline: New-AzRoleAssignment -ObjectId <application-Id> -RoleDefinitionName Owner -Scope /providers/Microsoft.Billing/enrollmentAccounts/<object-Id>' #
-    'New-StateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $AzOpsEnrollmentAccountPrincipalName
-    'New-StateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
-    'New-StateDeployment.Subscription.Creating'                                = 'Creating new subscription: {0}' # $scopeObject.Name
-    'New-StateDeployment.Subscription.AssignManagementGroup'                   = 'Assigning subscription {0} to management group {1}' # $subscription.Name, $scopeObject.ManagementGroupDisplayName
-    'New-StateDeployment.Subscription.Exists'                                  = 'Existing subscription found: {0} ({1})' # $subscription.Name, $subscription.Id
+    'New-AzOpsStateDeployment.Processing'                                           = 'Processing new state deployment for {0}' # $FileName
+    'New-AzOpsStateDeployment.InvalidScope'                                         = 'Unable to determine scope type for {0}, skipping' # $FileName
+    'New-AzOpsStateDeployment.Subscription'                                         = 'Upserting subscriptions for {0}' # $FileName
+    'New-AzOpsStateDeployment.Subscription.New'                                     = 'Creating new subscription for {0}' # $FileName
+    'New-AzOpsStateDeployment.NoEnrollmentAccount'                                  = 'No Azure Enrollment account found for current Azure context' #
+    'New-AzOpsStateDeployment.NoEnrollmentAccount.Solution'                         = 'Create new Azure role assignment for service principal used for pipeline: New-AzRoleAssignment -ObjectId <application-Id> -RoleDefinitionName Owner -Scope /providers/Microsoft.Billing/enrollmentAccounts/<object-Id>' #
+    'New-AzOpsStateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $AzOpsEnrollmentAccountPrincipalName
+    'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
+    'New-AzOpsStateDeployment.Subscription.Creating'                                = 'Creating new subscription: {0}' # $scopeObject.Name
+    'New-AzOpsStateDeployment.Subscription.AssignManagementGroup'                   = 'Assigning subscription {0} to management group {1}' # $subscription.Name, $scopeObject.ManagementGroupDisplayName
+    'New-AzOpsStateDeployment.Subscription.Exists'                                  = 'Existing subscription found: {0} ({1})' # $subscription.Name, $subscription.Id
 
-    'Register-ProviderFeature.Processing'                                      = 'Processing provider feature {0} from {1}' # $ScopeObject, $FileName
-    'Register-ProviderFeature.Context.Switching'                               = 'Switching Subscription context from {0}/{1} to {2}/{3}' # $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name
-    'Register-ProviderFeature.Context.Failed'                                  = 'Failed to switch content to subscription {0}' # $ScopeObject.SubscriptionDisplayName
-    'Register-ProviderFeature.Provider.Feature'                                = 'Registering Feature {0} in Provider {1} namespace' # $ProviderFeature.FeatureName, $ProviderFeature.ProviderName
+    'Register-AzOpsProviderFeature.Processing'                                      = 'Processing provider feature {0} from {1}' # $ScopeObject, $FileName
+    'Register-AzOpsProviderFeature.Context.Switching'                               = 'Switching Subscription context from {0}/{1} to {2}/{3}' # $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name
+    'Register-AzOpsProviderFeature.Context.Failed'                                  = 'Failed to switch content to subscription {0}' # $ScopeObject.SubscriptionDisplayName
+    'Register-AzOpsProviderFeature.Provider.Feature'                                = 'Registering Feature {0} in Provider {1} namespace' # $ProviderFeature.FeatureName, $ProviderFeature.ProviderName
 
-    'Register-ResourceProvider.Processing'                                     = 'Processing resource provider {0} from {1}' # $ScopeObject, $FileName
-    'Register-ResourceProvider.Context.Switching'                              = 'Switching Subscription context from {0}/{1} to {2}/{3}' # $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name
-    'Register-ResourceProvider.Context.Failed'                                 = 'Failed to switch content to subscription {0}' # $ScopeObject.SubscriptionDisplayName
-    'Register-ResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
+    'Register-AzOpsResourceProvider.Processing'                                     = 'Processing resource provider {0} from {1}' # $ScopeObject, $FileName
+    'Register-AzOpsResourceProvider.Context.Switching'                              = 'Switching Subscription context from {0}/{1} to {2}/{3}' # $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name
+    'Register-AzOpsResourceProvider.Context.Failed'                                 = 'Failed to switch content to subscription {0}' # $ScopeObject.SubscriptionDisplayName
+    'Register-AzOpsResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
 
-    'Save-ManagementGroupChildren.Starting'                                    = 'Starting execution' #
-    'Save-ManagementGroupChildren.Processing'                                  = 'Processing Scope: {0}' # $scopeObject.scope
-    'Save-ManagementGroupChildren.New.File'                                    = 'Creating new state file: {0}' # $statepathFileName
-    'Save-ManagementGroupChildren.Moving.Source'                               = 'Found existing state file in directory: {0}' # $exisitingScopePath
-    'Save-ManagementGroupChildren.Moving.Destination'                          = 'Moved existing state file to: {0}' # $statepathScopeDirectoryParent
-    'Save-ManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
-    'Save-ManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
-    'Save-ManagementGroupChildren.Data.FileName'                               = 'Resolved state path filename: {0}' # $statepathFileName
-    'Save-ManagementGroupChildren.Data.ScopeDirectory'                         = 'Resolved state path scope directory: {0}' # $statepathScopeDirectory
-    'Save-ManagementGroupChildren.Data.ScopeDirectoryParent'                   = 'Resolved state path scope directory parent: {0}' # $statepathScopeDirectoryParent
-    'Save-ManagementGroupChildren.Data.StatePath'                              = 'Resolved state path: {0}' # $scopeStatepath
+    'Save-AzOpsManagementGroupChildren.Starting'                                    = 'Starting execution' #
+    'Save-AzOpsManagementGroupChildren.Processing'                                  = 'Processing Scope: {0}' # $scopeObject.scope
+    'Save-AzOpsManagementGroupChildren.New.File'                                    = 'Creating new state file: {0}' # $statepathFileName
+    'Save-AzOpsManagementGroupChildren.Moving.Source'                               = 'Found existing state file in directory: {0}' # $exisitingScopePath
+    'Save-AzOpsManagementGroupChildren.Moving.Destination'                          = 'Moved existing state file to: {0}' # $statepathScopeDirectoryParent
+    'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
+    'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
+    'Save-AzOpsManagementGroupChildren.Data.FileName'                               = 'Resolved state path filename: {0}' # $statepathFileName
+    'Save-AzOpsManagementGroupChildren.Data.ScopeDirectory'                         = 'Resolved state path scope directory: {0}' # $statepathScopeDirectory
+    'Save-AzOpsManagementGroupChildren.Data.ScopeDirectoryParent'                   = 'Resolved state path scope directory parent: {0}' # $statepathScopeDirectoryParent
+    'Save-AzOpsManagementGroupChildren.Data.StatePath'                              = 'Resolved state path: {0}' # $scopeStatepath
 
     'Set-AzOpsContext.Change'                                                  = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
