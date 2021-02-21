@@ -3,9 +3,6 @@ $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\
 
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = Get-PSFConfigValue -FullName AzOps.Import.DoDotSource -Fallback $false
-if ($AzOps_dotsourcemodule) {
-    $script:doDotSource = $true
-}
 
 <#
     Note on Resolve-Path:
@@ -17,9 +14,6 @@ if ($AzOps_dotsourcemodule) {
 
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
 $importIndividualFiles = Get-PSFConfigValue -FullName AzOps.Import.IndividualFiles -Fallback $false
-if ($AzOps_importIndividualFiles) {
-    $importIndividualFiles = $true
-}
 if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) {
     $importIndividualFiles = $true
 }
