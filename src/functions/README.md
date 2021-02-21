@@ -1,4 +1,4 @@
-﻿# Functions
+﻿# functions/
 
 This is the folder where the functions go.
 

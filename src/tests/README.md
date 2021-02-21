@@ -1,4 +1,4 @@
-﻿# Description
+﻿# tests/
 
 This is the folder, where all the tests go.
 
