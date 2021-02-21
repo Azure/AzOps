@@ -9,8 +9,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v2
-    - name: publish
-        run: |
-          Publish-Module -Path './src/' -NuGetApiKey ${{ secrets.PS_GALLERY_KEY }}
+    - name: Publish
+      run: |
+        Publish-Module -Path './src/' -NuGetApiKey ''
