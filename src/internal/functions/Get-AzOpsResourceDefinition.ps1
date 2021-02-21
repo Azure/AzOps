@@ -35,7 +35,6 @@
             Discover a single resource
     #>
 
-    [Alias('Get-AzOpsResourceDefinitionAtScope')]
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]

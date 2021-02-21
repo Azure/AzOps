@@ -20,7 +20,6 @@
             Returns active, non-trial subscriptions of the specified tenant.
     #>
 
-    [Alias('Get-AzOpsAllSubscription')]
     [CmdletBinding()]
     param (
         [string[]]

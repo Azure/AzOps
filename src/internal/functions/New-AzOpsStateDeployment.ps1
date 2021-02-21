@@ -1,6 +1,5 @@
 ﻿function New-AzOpsStateDeployment {
 
-    [Alias('New-AzOpsStateDeployment')]
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]

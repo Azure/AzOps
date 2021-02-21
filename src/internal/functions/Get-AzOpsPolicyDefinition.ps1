@@ -12,7 +12,6 @@
             Discover all custom policy definitions deployed at Management Group scope
     #>
 
-    [Alias('Get-AzOpsPolicyDefinitionAtScope')]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition])]
     [CmdletBinding()]
     param (

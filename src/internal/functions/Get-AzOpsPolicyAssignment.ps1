@@ -12,7 +12,6 @@
             Discover all custom policy assignments deployed at Management Group scope
     #>
 
-    [Alias('Get-AzOpsPolicyAssignmentAtScope')]
     [OutputType([Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment])]
     [CmdletBinding()]
     param (

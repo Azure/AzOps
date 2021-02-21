@@ -18,7 +18,6 @@
             Management Group hierarchy in file system
     #>
 
-    [Alias('Save-AzOpsManagementGroupChildren')]
     [CmdletBinding(SupportsShouldProcess = $true)]
     [OutputType()]
     param (

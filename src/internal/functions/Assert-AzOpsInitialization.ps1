@@ -15,7 +15,6 @@
             Asserts AzOps has been correctly prepare for execution.
     #>
 
-    [Alias('Test-AzOpsVariables')]
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]

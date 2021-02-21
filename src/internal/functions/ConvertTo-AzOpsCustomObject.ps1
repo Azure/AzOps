@@ -19,7 +19,6 @@
             Each object will have its properties sorted alphabeitcally.
     #>
 
-    [Alias('ConvertTo-AzOpsObject')]
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline = $true)]
