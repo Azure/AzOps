@@ -4,10 +4,10 @@
     'Assert-AzOpsInitialization.NoCache'                                       = 'The cache of existing Management Groups and subscriptions has not yet been built! Run Initialize-AzOpsEnvironment to build it.' #
     'Assert-AzOpsInitialization.StateError'                                    = 'The state path offered contains invalid characters and cannot be used in the current filesystem' #
 
-    'Assert-WindowsLongPath.Validating'                                        = 'Validating Windows environment for LongPath support'
-    'Assert-WindowsLongPath.No.GitCfg'                                         = 'Git has not been configured for long path support' #
-    'Assert-WindowsLongPath.No.Registry'                                       = 'Windows has not yet been configured for long path support' #
-    'Assert-WindowsLongPath.Failed'                                            = 'Windows not sufficiently configured for long paths! Follow instructions for "Enabling long paths on Windows" on https://aka.ms/es/quickstart.'
+    'Assert-AzOpsWindowsLongPath.Validating'                                        = 'Validating Windows environment for LongPath support'
+    'Assert-AzOpsWindowsLongPath.No.GitCfg'                                         = 'Git has not been configured for long path support' #
+    'Assert-AzOpsWindowsLongPath.No.Registry'                                       = 'Windows has not yet been configured for long path support' #
+    'Assert-AzOpsWindowsLongPath.Failed'                                            = 'Windows not sufficiently configured for long paths! Follow instructions for "Enabling long paths on Windows" on https://aka.ms/es/quickstart.'
 
     'ConvertTo-AzOpsState.Starting'                                            = 'Starting conversion to AzOps State object' #
     'ConvertTo-AzOpsState.StateConfig.Error'                                   = 'Cannot load {0}, is the json schema valid and does the file exist?' # Get-PSFConfigValue -FullName 'AzOps.General.StateConfig'
