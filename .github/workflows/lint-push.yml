@@ -1,4 +1,4 @@
-name: 'Code linter'
+name: 'Linter'
 
 on:
   push:
@@ -16,3 +16,4 @@ jobs:
         VALIDATE_ALL_CODEBASE: false
         DEFAULT_BRANCH: main
         DISABLE_ERRORS: false
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
