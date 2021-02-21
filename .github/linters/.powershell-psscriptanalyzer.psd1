@@ -6,11 +6,10 @@
     #    'Error'
     #    'Warning'
     #)
-    #IncludeDefaultRules=${true}
-    #ExcludeRules = @(
-    #    'PSAvoidUsingWriteHost',
-    #    'MyCustomRuleName'
-    #)
+    # IncludeDefaultRules=${true}
+    # ExcludeRules = @(
+    #    'PSAvoidUsingWriteHost'
+    # )
     #IncludeRules = @(
     #    'PSAvoidUsingWriteHost',
     #    'MyCustomRuleName'

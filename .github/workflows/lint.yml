@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: 'Linter'
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -18,5 +19,5 @@ jobs:
         VALIDATE_ALL_CODEBASE: true
         DEFAULT_BRANCH: main
         DISABLE_ERRORS: false
-        FILTER_REGEX_EXCLUDE: .*data/.* .*.pipelines/.*
+        FILTER_REGEX_EXCLUDE: .*data/.*
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
