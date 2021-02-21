@@ -38,7 +38,7 @@ param (
 #
 # Tasks
 # - Push AzOps module to PowerShellGallery
-# - Support install from GitHub / PowerShellGallery 
+# - Support install from GitHub / PowerShellGallery
 #
 
 #region Parameters
@@ -60,14 +60,14 @@ $moduleArchiveFile = $tempPath + "\" + $moduleName + ".zip"
 $modulePath = $tempPath + "\" + $moduleName
 
 # $doUserMode = $false
-# if ($UserMode) { 
-#     $doUserMode = $true 
+# if ($UserMode) {
+#     $doUserMode = $true
 # }
-# if ($install_CurrentUser) { 
-#     $doUserMode = $true 
+# if ($install_CurrentUser) {
+#     $doUserMode = $true
 # }
 # if ($Scope -eq 'CurrentUser') {
-#     $doUserMode = $true 
+#     $doUserMode = $true
 # }
 # if ($install_Branch) {
 #     $Branch = $install_Branch
@@ -121,6 +121,6 @@ catch {
     Write-PSFMessage -Level Important -Message "Cleaning up temporary files"
     #Remove-Item -Path "$($tempPath)\$($moduleName)" -Force -Recurse
     #Remove-Item -Path "$($tempPath)\$($moduleName).zip" -Force
-    
+
     throw
 }
