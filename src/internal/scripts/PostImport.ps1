@@ -20,10 +20,10 @@ $moduleRoot = Split-Path (Split-Path $PSScriptRoot)
 (Get-ChildItem "$moduleRoot\internal\tepp\*.tepp.ps1" -ErrorAction Ignore).FullName
 
 # Load Tab Expansion Assignment
-"$moduleRoot\internal\tepp\assignment.ps1"
+"$moduleRoot\internal\tepp\Assignment.ps1"
 
 # Load the module-wide variables
-"$moduleRoot\internal\scripts\variables.ps1"
+"$moduleRoot\internal\scripts\Variables.ps1"
 
 # Load License
-"$moduleRoot\internal\scripts\license.ps1"
+"$moduleRoot\internal\scripts\License.ps1"
