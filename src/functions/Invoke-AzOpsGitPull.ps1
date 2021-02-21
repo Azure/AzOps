@@ -73,7 +73,7 @@
         $AzDevOpsAutoMerge = (Get-PSFConfigValue -FullName AzOps.Pipelines.AutoMerge),
 
         [string]
-        $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
+        $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.Core.SourceControl),
 
         [switch]
         $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.Core.SkipResourceGroup),

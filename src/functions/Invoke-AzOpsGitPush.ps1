@@ -6,7 +6,7 @@
         $StatePath = (Get-PSFConfigValue -FullName AzOps.Core.State),
 
         [string]
-        $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
+        $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.Core.SourceControl),
 
         [string]
         $GithubHeadRef = (Get-PSFConfigValue -FullName AzOps.Actions.HeadRef),
