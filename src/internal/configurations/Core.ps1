@@ -1,6 +1,4 @@
-﻿# General
-
-Set-PSFConfig -Module AzOps -Name Core.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
+﻿Set-PSFConfig -Module AzOps -Name Core.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
 Set-PSFConfig -Module AzOps -Name Core.EnrollmentAccountPrincipalName -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubOffer -Value 'AzurePass_2014-09-01', 'FreeTrial_2014-09-01', 'AAD_2015-09-01' -Initialize -Validation stringarray -Description 'Excluded QuotaID'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubState -Value 'Disabled', 'Deleted', 'Warned', 'Expired' -Initialize -Validation stringarray -Description 'Excluded subscription states'
@@ -11,6 +9,7 @@ Set-PSFConfig -Module AzOps -Name Core.InvalidateCache -Value $true -Initialize 
 Set-PSFConfig -Module AzOps -Name Core.MainTemplate -Value "$script:ModuleRoot\data\template\template.json" -Initialize -Validation string -Description 'Main template json'
 Set-PSFConfig -Module AzOps -Name Core.OfferType -Value 'MS-AZR-0017P' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.PartialMgDiscoveryRoot -Value @() -Initialize -Validation stringarray -Description 'Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value: "Contoso","Tailspin","Management"'
+Set-PSFConfig -Module AzOps -Name Core.SourceControl -Value 'GitHub' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipPolicy -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $true -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Validation bool -Description '-'
@@ -19,7 +18,3 @@ Set-PSFConfig -Module AzOps -Name Core.StateConfig -Value "$script:ModuleRoot\da
 Set-PSFConfig -Module AzOps -Name Core.StrictMode -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SupportPartialMgDiscovery -Value $false -Initialize -Validation bool -Description 'Enable partial discovery'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
-
-# Source Control
-
-Set-PSFConfig -Module AzOps -Name SCM.Platform -Value 'GitHub' -Initialize -Validation string -Description '-'

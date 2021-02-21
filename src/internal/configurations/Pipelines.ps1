@@ -1,4 +1,3 @@
-# Azure Pipelines
 Set-PSFConfig -Module AzOps -Name Pipelines.ApiUrl -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Pipelines.AutoMerge -Value $true -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Pipelines.BaseRef -Value '' -Initialize -Validation string -Description '-'
