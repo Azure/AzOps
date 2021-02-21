@@ -81,8 +81,8 @@
 
     'Initialize-AzOpsRepository.Deleting.State'                                = 'Removing state in {0}' # $StatePath
     'Initialize-AzOpsRepository.Duration'                                      = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
-    'Initialize-AzOpsRepository.Initialization.Completed'                      = 'Completed preparations for the AzOps repository setup' #
     'Initialize-AzOpsRepository.Initialization.Starting'                       = 'Starting preparations for the AzOps repository setup' #
+    'Initialize-AzOpsRepository.Initialization.Completed'                      = 'Completed preparations for the AzOps repository setup' #
     'Initialize-AzOpsRepository.ManagementGroup.AccessError'                   = 'Cannot access root management group {0} - verify that principal {1} has access' # $root, (Get-AzContext).Account.Id
     'Initialize-AzOpsRepository.Migration.Required'                            = 'Migration from previous repository state IS required' #
     'Initialize-AzOpsRepository.Rebuilding.State'                              = 'Rebuilding state in {0}' # $StatePath
