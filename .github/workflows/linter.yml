@@ -4,11 +4,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-    - 'src/**'
+      - 'src/**'
 
 jobs:
   build:
-    name: Linter
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
