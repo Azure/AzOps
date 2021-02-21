@@ -3,7 +3,6 @@
 ## Status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
-[![GitHub Super-Linter](https://github.com/ljtill/AzOps/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
