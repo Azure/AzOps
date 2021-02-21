@@ -1,32 +1,32 @@
 ﻿@{
     # Script module or binary module file associated with this manifest
-    RootModule = 'AzOps.psm1'
+    RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.0'
+    ModuleVersion     = '1.0.0'
 
     # ID used to uniquely identify this module
-    GUID = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
+    GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
 
     # Author of this module
-    Author = 'Customer Architecture and Engineering'
+    Author            = 'Customer Architecture and Engineering'
 
     # Company or vendor of this module
-    CompanyName = 'Microsoft'
+    CompanyName       = 'Microsoft'
 
     # Copyright statement for this module
-    Copyright = '(c) Microsoft. All rights reserved.'
+    Copyright         = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'AzOps State Management Module'
+    Description       = 'Azure State Management Module'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '7.0'
 
     # Modules that must be imported into the global environment prior to importing
     # this module
-    RequiredModules = @(
-        @{ ModuleName='PSFramework'; ModuleVersion='1.5.172' }
+    RequiredModules   = @(
+        @{ ModuleName = 'PSFramework'; ModuleVersion = '1.5.172' }
         @{ ModuleName = "Az.Accounts"; ModuleVersion = "2.2.5" }
         @{ ModuleName = "Az.Resources"; ModuleVersion = "3.2.1" }
     )
@@ -58,13 +58,13 @@
     # AliasesToExport = ''
 
     # List of all modules packaged with this module
-    ModuleList = @()
+    ModuleList        = @()
 
     # List of all files packaged with this module
-    FileList = @()
+    FileList          = @()
 
     # Private data to pass to the module specified in ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-    PrivateData = @{
+    PrivateData       = @{
 
         #Support for PowerShellGet galleries.
         PSData = @{
