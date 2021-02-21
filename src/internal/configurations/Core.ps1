@@ -15,7 +15,7 @@ Set-PSFConfig -Module AzOps -Name General.SkipPolicy -Value $false -Initialize -
 Set-PSFConfig -Module AzOps -Name General.SkipResourceGroup -Value $true -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name General.SkipRole -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name General.State -Value (Join-Path $pwd -ChildPath "azops") -Initialize -Validation string -Description 'Folder to store AzOpsState artefact'
-Set-PSFConfig -Module AzOps -Name General.StateConfig -Value "$script:ModuleRoot\data\AzOpsStateConfig.json" -Initialize -Validation string -Description 'Configuration file for resource serialization'
+Set-PSFConfig -Module AzOps -Name General.StateConfig -Value "$script:ModuleRoot\data\stateconfig.json" -Initialize -Validation string -Description 'Configuration file for resource serialization'
 Set-PSFConfig -Module AzOps -Name General.StrictMode -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name General.SupportPartialMgDiscovery -Value $false -Initialize -Validation bool -Description 'Enable partial discovery'
 Set-PSFConfig -Module AzOps -Name General.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
