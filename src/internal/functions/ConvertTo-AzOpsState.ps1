@@ -6,7 +6,7 @@
         .DESCRIPTION
             The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
             It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-            The state configuration file found at the location the 'AzOps.General.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
+            The state configuration file found at the location the 'AzOps.Core.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
         .PARAMETER Resource
             Object with resource as input
         .PARAMETER ExportPath
@@ -55,7 +55,7 @@
         $ExportRawTemplate,
 
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.General.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     begin {
@@ -216,10 +216,10 @@
 
         # Fetch config json
         try {
-            $resourceConfig = Get-Content -Path (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig') -ErrorAction Stop | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+            $resourceConfig = Get-Content -Path (Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig') -ErrorAction Stop | ConvertFrom-Json -AsHashtable -ErrorAction Stop
         }
         catch {
-            Stop-PSFFunction -String 'ConvertTo-AzOpsState.StateConfig.Error' -StringValues (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig') -EnableException $true -Cmdlet $PSCmdlet -ErrorRecord $_
+            Stop-PSFFunction -String 'ConvertTo-AzOpsState.StateConfig.Error' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig') -EnableException $true -Cmdlet $PSCmdlet -ErrorRecord $_
         }
         # Load default properties to exclude if defined
         if ("excludedProperties" -in $resourceConfig.Keys) {
@@ -252,7 +252,7 @@
         }
 
         # Check if Resource has to be generalized
-        if (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates') {
+        if (Get-PSFConfigValue -FullName 'AzOps.Core.GeneralizeTemplates') {
             # Preserve Original Template before manipulating anything
             # Only export original resource if generalize excluded properties exist
             if ("excludedProperties" -in $resourceData.Configuration.Keys) {

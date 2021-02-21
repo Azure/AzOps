@@ -77,7 +77,7 @@
         #endregion Resource Group
         #region Subscription
         elseif ($scopeObject.subscription) {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
+            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
 
@@ -108,7 +108,7 @@
         #endregion Subscription
         #region Management Group
         elseif ($scopeObject.managementGroup) {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
+            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
@@ -139,7 +139,7 @@
         #endregion Management Group
         #region Root
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.General.DefaultDeploymentRegion'
+            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{

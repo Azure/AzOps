@@ -212,7 +212,7 @@
                     #endregion Prepare Input Data for parallel processing
 
                     #region Discover all resource groups in parallel
-                    $resourceGroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.General.ThrottleLimit') -Parallel {
+                    $resourceGroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
                         $resourceGroup = $_
                         $runspaceData = $using:runspaceData
 
@@ -396,7 +396,7 @@
             'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
             'policyAssignments' = @($serializedPolicyAssignmentsInAzure)
             'roleDefinitions'   = @($serializedRoleDefinitionsInAzure)
-            'roleAssignments'   = if (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates') {
+            'roleAssignments'   = if (Get-PSFConfigValue -FullName 'AzOps.Core.GeneralizeTemplates') {
                  , @()
             } else {
                  , @($serializedRoleAssignmentInAzure)

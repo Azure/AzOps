@@ -49,7 +49,7 @@
         $Path,
 
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.General.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     begin {

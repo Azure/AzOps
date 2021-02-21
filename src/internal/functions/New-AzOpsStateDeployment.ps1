@@ -41,7 +41,7 @@
                     return
                 }
 
-                if ($cfgEnrollmentAccount = Get-PSFConfigValue -FullName 'AzOps.General.EnrollmentAccountPrincipalName') {
+                if ($cfgEnrollmentAccount = Get-PSFConfigValue -FullName 'AzOps.Core.EnrollmentAccountPrincipalName') {
                     Write-PSFMessage -String 'New-AzOpsStateDeployment.EnrollmentAccount.Selected' -StringValues $cfgEnrollmentAccount
                     $enrollmentAccountObjectId = ($enrollmentAccounts | Where-Object PrincipalName -eq $cfgEnrollmentAccount).ObjectId
                 }
@@ -51,7 +51,7 @@
                 }
 
                 Invoke-PSFProtectedCommand -ActionString 'New-AzOpsStateDeployment.Subscription.Creating' -ActionStringValues $scopeObject.Name -ScriptBlock {
-                    $subscription = New-AzSubscription -Name $scopeObject.Name -OfferType (Get-PSFConfigValue -FullName 'AzOps.General.OfferType') -EnrollmentAccountObjectId $enrollmentAccountObjectId -ErrorAction Stop
+                    $subscription = New-AzSubscription -Name $scopeObject.Name -OfferType (Get-PSFConfigValue -FullName 'AzOps.Core.OfferType') -EnrollmentAccountObjectId $enrollmentAccountObjectId -ErrorAction Stop
                     $subscriptions = @($subscriptions) + @($subscription)
                 } -Target $scopeObject -EnableException $true -PSCmdlet $PSCmdlet
 
