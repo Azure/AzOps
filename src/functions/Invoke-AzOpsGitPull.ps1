@@ -42,7 +42,7 @@
     [CmdletBinding(DefaultParameterSetName = 'Github')]
     param (
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName AzOps.General.State),
+        $StatePath = (Get-PSFConfigValue -FullName AzOps.Core.State),
 
         [Parameter(ParameterSetName = 'Github')]
         [string]
@@ -76,13 +76,13 @@
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
 
         [switch]
-        $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.General.SkipResourceGroup),
+        $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.Core.SkipResourceGroup),
 
         [switch]
-        $SkipPolicy = (Get-PSFConfigValue -FullName AzOps.General.SkipPolicy),
+        $SkipPolicy = (Get-PSFConfigValue -FullName AzOps.Core.SkipPolicy),
 
         [switch]
-        $SkipRole = (Get-PSFConfigValue -FullName AzOps.General.SkipRole)
+        $SkipRole = (Get-PSFConfigValue -FullName AzOps.Core.SkipRole)
     )
 
     begin {

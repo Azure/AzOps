@@ -35,22 +35,22 @@
     [CmdletBinding()]
     param (
         [switch]
-        $IgnoreContextCheck = (Get-PSFConfigValue -FullName 'AzOps.General.IgnoreContextCheck'),
+        $IgnoreContextCheck = (Get-PSFConfigValue -FullName 'AzOps.Core.IgnoreContextCheck'),
 
         [switch]
-        $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.General.InvalidateCache'),
+        $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
 
         [string[]]
-        $ExcludedSubOffer = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubOffer'),
+        $ExcludedSubOffer = (Get-PSFConfigValue -FullName 'AzOps.Core.ExcludedSubOffer'),
 
         [string[]]
-        $ExcludedSubState = (Get-PSFConfigValue -FullName 'AzOps.General.ExcludedSubState'),
+        $ExcludedSubState = (Get-PSFConfigValue -FullName 'AzOps.Core.ExcludedSubState'),
 
         [switch]
-        $PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
+        $PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot'),
 
         [string[]]
-        $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot')
+        $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot')
     )
 
     begin {
@@ -79,8 +79,8 @@
         $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
 
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Initializing'
-        if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.General.State'))) {
-            $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.General.State') -Force -ItemType directory
+        if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.State'))) {
+            $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
         $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
         $script:AzOpsAzManagementGroup = @()

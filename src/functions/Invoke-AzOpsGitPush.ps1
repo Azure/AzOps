@@ -3,7 +3,7 @@
     [CmdletBinding()]
     param (
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName AzOps.General.State),
+        $StatePath = (Get-PSFConfigValue -FullName AzOps.Core.State),
 
         [string]
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
@@ -36,19 +36,19 @@
         $AzDevOpsToken = (Get-PSFConfigValue -FullName AzOps.AzDevOps.Token),
 
         [switch]
-        $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.General.SkipResourceGroup),
+        $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.Core.SkipResourceGroup),
 
         [switch]
-        $SkipPolicy = (Get-PSFConfigValue -FullName AzOps.General.SkipPolicy),
+        $SkipPolicy = (Get-PSFConfigValue -FullName AzOps.Core.SkipPolicy),
 
         [switch]
-        $SkipRole = (Get-PSFConfigValue -FullName AzOps.General.SkipRole),
+        $SkipRole = (Get-PSFConfigValue -FullName AzOps.Core.SkipRole),
 
         [switch]
-        $StrictMode = (Get-PSFConfigValue -FullName AzOps.General.StrictMode),
+        $StrictMode = (Get-PSFConfigValue -FullName AzOps.Core.StrictMode),
 
         [string]
-        $AzOpsMainTemplate = (Get-PSFConfigValue -FullName AzOps.General.MainTemplate)
+        $AzOpsMainTemplate = (Get-PSFConfigValue -FullName AzOps.Core.MainTemplate)
     )
 
     begin {

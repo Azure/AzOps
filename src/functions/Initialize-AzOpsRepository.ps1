@@ -43,13 +43,13 @@
         $SkipResourceGroup,
 
         [switch]
-        $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.General.InvalidateCache'),
+        $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
 
         [switch]
-        $GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.General.GeneralizeTemplates'),
+        $GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.Core.GeneralizeTemplates'),
 
         [switch]
-        $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.General.ExportRawTemplate'),
+        $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
 
         [switch]
         $Rebuild,
@@ -58,13 +58,13 @@
         $Force,
 
         [switch]
-        $PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
+        $PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot'),
 
         [string[]]
-        $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.General.PartialMgDiscoveryRoot'),
+        $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot'),
 
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.General.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     begin {
