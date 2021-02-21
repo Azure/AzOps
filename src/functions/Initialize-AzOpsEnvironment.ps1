@@ -54,7 +54,7 @@
     )
 
     begin {
-        Assert-WindowsLongPath -Cmdlet $PSCmdlet
+        Assert-AzOpsWindowsLongPath -Cmdlet $PSCmdlet
 
         $allAzContext = Get-AzContext -ListAvailable
         if (-not $allAzContext) {
