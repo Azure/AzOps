@@ -9,31 +9,31 @@
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
 
         [string]
-        $GithubHeadRef = (Get-PSFConfigValue -FullName AzOps.Github.HeadRef),
+        $GithubHeadRef = (Get-PSFConfigValue -FullName AzOps.Actions.HeadRef),
 
         [string]
-        $GithubComment = (Get-PSFConfigValue -FullName AzOps.Github.Comments),
+        $GithubComment = (Get-PSFConfigValue -FullName AzOps.Actions.Comments),
 
         [string]
-        $GithubToken = (Get-PSFConfigValue -FullName AzOps.Github.Token),
+        $GithubToken = (Get-PSFConfigValue -FullName AzOps.Actions.Token),
 
         [string]
-        $AzDevOpsHeadRef = (Get-PSFConfigValue -FullName AzOps.AzDevOps.HeadRef),
+        $AzDevOpsHeadRef = (Get-PSFConfigValue -FullName AzOps.Pipelines.HeadRef),
 
         [string]
-        $AzDevOpsApiUrl = (Get-PSFConfigValue -FullName AzOps.AzDevOps.ApiUrl),
+        $AzDevOpsApiUrl = (Get-PSFConfigValue -FullName AzOps.Pipelines.ApiUrl),
 
         [string]
-        $AzDevOpsProjectId = (Get-PSFConfigValue -FullName AzOps.AzDevOps.ProjectId),
+        $AzDevOpsProjectId = (Get-PSFConfigValue -FullName AzOps.Pipelines.ProjectId),
 
         [string]
-        $AzDevOpsRepository = (Get-PSFConfigValue -FullName AzOps.AzDevOps.Repository),
+        $AzDevOpsRepository = (Get-PSFConfigValue -FullName AzOps.Pipelines.Repository),
 
         [string]
-        $AzDevOpsPullRequestId = (Get-PSFConfigValue -FullName AzOps.AzDevOps.PullRequestId),
+        $AzDevOpsPullRequestId = (Get-PSFConfigValue -FullName AzOps.Pipelines.PullRequestId),
 
         [string]
-        $AzDevOpsToken = (Get-PSFConfigValue -FullName AzOps.AzDevOps.Token),
+        $AzDevOpsToken = (Get-PSFConfigValue -FullName AzOps.Pipelines.Token),
 
         [switch]
         $SkipResourceGroup = (Get-PSFConfigValue -FullName AzOps.Core.SkipResourceGroup),
@@ -131,7 +131,7 @@
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Rest.PR.Comment'
         switch ($ScmPlatform) {
             "GitHub" {
-                Write-PSFMessage -String 'Invoke-AzOpsGitPush.Github.Uri' -StringValues $GithubComment
+                Write-PSFMessage -String 'Invoke-AzOpsGitPush.Actions.Uri' -StringValues $GithubComment
                 $params = @{
                     Headers = @{
                         "Authorization" = "Bearer $GithubToken"
@@ -178,11 +178,11 @@
                 }
             }
             "AzureDevOps" {
-                Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Branch.Switch'
+                Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Pipelines.Branch.Switch'
                 Invoke-AzOpsNativeCommand -ScriptBlock { git checkout $AzDevOpsHeadRef } | Out-Host
 
                 $commitMessage = Invoke-AzOpsNativeCommand -ScriptBlock { git log -1 --pretty=format:%s }
-                Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Commit.Message' -StringValues $commitMessage
+                Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Pipelines.Commit.Message' -StringValues $commitMessage
 
                 #TODO: Clarify whether this really should only be checked for Azure DevOps
                 if ($commitMessage -match "System push commit") {

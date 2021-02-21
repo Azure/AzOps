@@ -46,31 +46,31 @@
 
         [Parameter(ParameterSetName = 'Github')]
         [string]
-        $GithubApiUrl = (Get-PSFConfigValue -FullName AzOps.Github.ApiUrl),
+        $GithubApiUrl = (Get-PSFConfigValue -FullName AzOps.Actions.ApiUrl),
 
         [Parameter(ParameterSetName = 'Github')]
         [string]
-        $GithubRepository = (Get-PSFConfigValue -FullName AzOps.Github.Repository),
+        $GithubRepository = (Get-PSFConfigValue -FullName AzOps.Actions.Repository),
 
         [Parameter(ParameterSetName = 'Github')]
         [string]
-        $GithubToken = (Get-PSFConfigValue -FullName AzOps.Github.Token),
+        $GithubToken = (Get-PSFConfigValue -FullName AzOps.Actions.Token),
 
         [Parameter(ParameterSetName = 'Github')]
         [string]
-        $GithubPullRequest = (Get-PSFConfigValue -FullName AzOps.Github.PullRequest),
+        $GithubPullRequest = (Get-PSFConfigValue -FullName AzOps.Actions.PullRequest),
 
         [Parameter(ParameterSetName = 'Github')]
         [switch]
-        $GithubAutoMerge = (Get-PSFConfigValue -FullName AzOps.Github.AutoMerge),
+        $GithubAutoMerge = (Get-PSFConfigValue -FullName AzOps.Actions.AutoMerge),
 
         [Parameter(ParameterSetName = 'AzDevOps')]
         [string]
-        $AzDevOpsPullRequest = (Get-PSFConfigValue -FullName AzOps.AzDevOps.PullRequest),
+        $AzDevOpsPullRequest = (Get-PSFConfigValue -FullName AzOps.Pipelines.PullRequest),
 
         [Parameter(ParameterSetName = 'AzDevOps')]
         [switch]
-        $AzDevOpsAutoMerge = (Get-PSFConfigValue -FullName AzOps.AzDevOps.AutoMerge),
+        $AzDevOpsAutoMerge = (Get-PSFConfigValue -FullName AzOps.Pipelines.AutoMerge),
 
         [string]
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.SCM.Platform),
@@ -149,7 +149,7 @@
             #region Github
             "GitHub" {
                 #region Github - Labels
-                Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.Labels.Get'
+                Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.Labels.Get'
                 #TODO: Replace REST call when GH CLI paging support is available
                 $params = @{
                     Uri     = "$GithubApiUrl/repos/$GithubRepository/labels"
@@ -160,7 +160,7 @@
                 $response = Invoke-RestMethod -Method "Get" @params | Where-Object name -like "system"
 
                 if (-not $response) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.Labels.Create'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.Labels.Create'
                     #TODO: Replace REST call when GH CLI paging support is available
                     $params = @{
                         Uri     = "$GithubApiUrl/repos/$GithubRepository/labels"
@@ -179,7 +179,7 @@
                 #endregion Github - Labels
 
                 # GitHub PUll Request - List
-                Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Check'
+                Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.Check'
                 #TODO: Replace REST call when GH CLI paging support is available
                 $params = @{
                     Uri     = "$GithubApiUrl/repos/$GithubRepository/pulls?state=open&head=$($GithubRepository):system"
@@ -191,13 +191,13 @@
 
                 # GitHub Pull Request - Create
                 if (-not $response) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Create'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.Create'
                     Invoke-AzOpsNativeCommand -ScriptBlock {
                         gh pr create --title $GithubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $GithubRepository
                     } | Out-Host
                 }
                 else {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.NoOp'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.NoOp'
                 }
 
                 # GitHub Pull Request - Wait
@@ -205,7 +205,7 @@
 
                 # GitHub Pull Request - Merge (Best Effort)
                 if ($GithubAutoMerge) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Get'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.Get'
                     $params = @{
                         Uri     = "$GithubApiUrl/repos/$GithubRepository/pulls?state=open&head=$($GithubRepository):system"
                         Headers = @{
@@ -214,13 +214,13 @@
                     }
                     $response = Invoke-RestMethod -Method "Get" @params
 
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Merge'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.Merge'
                     Invoke-AzOpsNativeCommand -ScriptBlock {
                         gh pr merge @($response)[0].number --squash --delete-branch -R $GithubRepository
                     } -IgnoreExitcode | Out-Host
                 }
                 else {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.NoMerge'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Actions.PR.NoMerge'
                 }
             }
             #endregion Github

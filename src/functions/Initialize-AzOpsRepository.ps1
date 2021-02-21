@@ -73,7 +73,7 @@
         if ($SkipRole) {
             try {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole'
-                $null = Get-AzADUser -First 1 -ErrorAction Stop
+                Get-AzADUser -First 1 -ErrorAction Stop
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole.Success'
             }
             catch {
@@ -82,16 +82,15 @@
             }
         }
 
-        $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
+        $Parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
         Initialize-AzOpsEnvironment @parameters
 
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
 
-        $tenantId = (Get-AzContext).Tenant.Id
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $tenantId
+        $TenantId = (Get-AzContext).Tenant.Id
+        Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $TenantId
 
         Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Completed'
-
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
         #endregion Initialize & Prepare
     }
@@ -99,14 +98,14 @@
     process {
         #region Existing Content
         if (Test-Path $StatePath) {
-            $migrationRequired = (Get-ChildItem -Recurse -Force -Path $StatePath -File | Where-Object {
+            $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $StatePath -File | Where-Object {
                     $_.Name -like "Microsoft.Management_managementGroups-$tenantId.parameters.json"
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
-            if ($migrationRequired) {
+            if ($MigrationRequired) {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Migration.Required'
             }
 
-            if ($Force -or $migrationRequired) {
+            if ($Force -or $MigrationRequired) {
                 Invoke-PSFProtectedCommand -ActionString 'Initialize-AzOpsRepository.Deleting.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
                     Remove-Item -Path $StatePath -Recurse -Force -Confirm:$false -ErrorAction Stop
                 } -EnableException $true -PSCmdlet $PSCmdlet
@@ -120,7 +119,7 @@
         #endregion Existing Content
 
         #region Root Scopes
-        $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
+        $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
         if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
             $rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
         }
