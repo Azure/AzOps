@@ -133,11 +133,11 @@
             }
 
             # Create AzOpsState Structure recursively
-            Save-ManagementGroupChildren -Scope $root -StatePath $StatePath
+            Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
             # Discover Resource at scope recursively
             $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
-            Get-ResourceDefinition -Scope $root @parameters
+            Get-AzOpsResourceDefinition -Scope $root @parameters
         }
         #endregion Root Scopes
     }

@@ -82,7 +82,7 @@
         if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.General.State'))) {
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.General.State') -Force -ItemType directory
         }
-        $script:AzOpsSubscriptions = Get-Subscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
+        $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
         #endregion Initialize & Prepare
@@ -109,7 +109,7 @@
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -StringValues $managementGroups.Count
         $tempResolved = foreach ($mgmtGroup in $managementGroups) {
             Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
-            Get-AllManagementGroup -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
+            Get-AzOpsAllManagementGroup -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution

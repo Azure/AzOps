@@ -72,7 +72,7 @@
 
         # Ensure git on the host has info about origin
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Fetch'
-        Invoke-NativeCommand -ScriptBlock { git fetch origin } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git fetch origin } | Out-Host
 
         # If not in strict mode: quit begin and continue with process
         if (-not $StrictMode) { return }
@@ -82,37 +82,37 @@
         #region Checkout & Update local repository
         #TODO: Clarify redundancy
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Fetch'
-        Invoke-NativeCommand -ScriptBlock { git fetch origin } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git fetch origin } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Checkout' -StringValues main
-        Invoke-NativeCommand -ScriptBlock { git checkout origin/main } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git checkout origin/main } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Pull' -StringValues main
-        Invoke-NativeCommand -ScriptBlock { git pull origin main } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git pull origin main } | Out-Host
 
         Write-PSFMessage -Level Host -String 'Invoke-AzOpsGitPush.Repository.Initialize'
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipResourceGroup, SkipPolicy, SkipRole, StatePath
         Initialize-AzOpsRepository -InvalidateCache -Rebuild @parameters
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Add'
-        Invoke-NativeCommand -ScriptBlock { git add --intent-to-add $StatePath } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git add --intent-to-add $StatePath } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Diff'
-        $diff = Invoke-NativeCommand -ScriptBlock { git diff --ignore-space-at-eol --name-status }
+        $diff = Invoke-AzOpsNativeCommand -ScriptBlock { git diff --ignore-space-at-eol --name-status }
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Reset'
-        Invoke-NativeCommand -ScriptBlock { git reset --hard } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git reset --hard } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Branch' -StringValues $headRef
-        $branch = Invoke-NativeCommand -ScriptBlock { git branch --list $headRef }
+        $branch = Invoke-AzOpsNativeCommand -ScriptBlock { git branch --list $headRef }
 
         if ($branch) {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Checkout.Existing' -StringValues $headRef
-            Invoke-NativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
+            Invoke-AzOpsNativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
         }
         else {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Checkout.New' -StringValues $headRef
-            Invoke-NativeCommand -ScriptBlock { git checkout -b $headRef origin/$headRef } | Out-Host
+            Invoke-AzOpsNativeCommand -ScriptBlock { git checkout -b $headRef origin/$headRef } | Out-Host
         }
         #endregion Checkout & Update local repository
 
@@ -173,15 +173,15 @@
         #region Change
         switch ($ScmPlatform) {
             "GitHub" {
-                $changeSet = Invoke-NativeCommand -ScriptBlock {
+                $changeSet = Invoke-AzOpsNativeCommand -ScriptBlock {
                     git diff origin/main --ignore-space-at-eol --name-status
                 }
             }
             "AzureDevOps" {
                 Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Branch.Switch'
-                Invoke-NativeCommand -ScriptBlock { git checkout $AzDevOpsHeadRef } | Out-Host
+                Invoke-AzOpsNativeCommand -ScriptBlock { git checkout $AzDevOpsHeadRef } | Out-Host
 
-                $commitMessage = Invoke-NativeCommand -ScriptBlock { git log -1 --pretty=format:%s }
+                $commitMessage = Invoke-AzOpsNativeCommand -ScriptBlock { git log -1 --pretty=format:%s }
                 Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzDevOps.Commit.Message' -StringValues $commitMessage
 
                 #TODO: Clarify whether this really should only be checked for Azure DevOps
@@ -193,7 +193,7 @@
                     $changeSet = @()
                 }
                 else {
-                    $changeSet = Invoke-NativeCommand -ScriptBlock {
+                    $changeSet = Invoke-AzOpsNativeCommand -ScriptBlock {
                         git diff origin/main --ignore-space-at-eol --name-status
                     }
                 }
@@ -217,29 +217,29 @@
 
         #region Rebuild
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Checkout' -StringValues $headRef
-        Invoke-NativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git checkout $headRef } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Pull' -StringValues $headRef
-        Invoke-NativeCommand -ScriptBlock { git pull origin $headRef } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git pull origin $headRef } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.AzOps.Initialize'
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$skipResourceGroup -SkipPolicy:$skipPolicy -SkipRole:$SkipRole -StatePath $StatePath
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Add'
-        Invoke-NativeCommand -ScriptBlock { git add $StatePath } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git add $StatePath } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Status'
-        $status = Invoke-NativeCommand -ScriptBlock { git status --short }
+        $status = Invoke-AzOpsNativeCommand -ScriptBlock { git status --short }
         if (-not $status) {
             Pop-Location
             return
         }
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Commit'
-        Invoke-NativeCommand -ScriptBlock { git commit -m 'System push commit' } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git commit -m 'System push commit' } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Git.Change.Push' -StringValues $headRef
-        Invoke-NativeCommand -ScriptBlock { git push origin $headRef } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git push origin $headRef } | Out-Host
         #endregion Rebuild
 
         Pop-Location

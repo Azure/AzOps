@@ -97,21 +97,21 @@
     process {
         #region Fetching & Checking Out
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Fetching'
-        Invoke-NativeCommand -ScriptBlock { git fetch } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git fetch } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.CheckingOut'
-        $branch = Invoke-NativeCommand -ScriptBlock { git branch --remote | grep 'origin/system' } -IgnoreExitcode
+        $branch = Invoke-AzOpsNativeCommand -ScriptBlock { git branch --remote | grep 'origin/system' } -IgnoreExitcode
 
         if ($branch) {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.CheckingOut.Exists'
-            Invoke-NativeCommand -ScriptBlock {
+            Invoke-AzOpsNativeCommand -ScriptBlock {
                 git checkout system
                 git reset --hard origin/main
             } | Out-Host
         }
         else {
             Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.CheckingOut.New'
-            Invoke-NativeCommand -ScriptBlock { git checkout -b system } | Out-Host
+            Invoke-AzOpsNativeCommand -ScriptBlock { git checkout -b system } | Out-Host
         }
         #endregion Fetching & Checking Out
 
@@ -120,10 +120,10 @@
         Initialize-AzOpsRepository -InvalidateCache -Rebuild -SkipResourceGroup:$SkipResourceGroup -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -StatePath $StatePath
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Git.Add'
-        Invoke-NativeCommand -ScriptBlock { git add $StatePath } | Out-Host
+        Invoke-AzOpsNativeCommand -ScriptBlock { git add $StatePath } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Git.Status'
-        $status = Invoke-NativeCommand -ScriptBlock { git status --short }
+        $status = Invoke-AzOpsNativeCommand -ScriptBlock { git status --short }
         #endregion Updating and checking for delta
 
         # If nothing changed, nothing to do, so quit
@@ -135,12 +135,12 @@
         }
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Git.Commit'
-        Invoke-NativeCommand -ScriptBlock {
+        Invoke-AzOpsNativeCommand -ScriptBlock {
             git commit -m 'System pull commit'
         } | Out-Host
 
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Git.Push'
-        Invoke-NativeCommand -ScriptBlock {
+        Invoke-AzOpsNativeCommand -ScriptBlock {
             git push origin system -f
         } | Out-Null
         #endregion Commit & Push
@@ -192,7 +192,7 @@
                 # GitHub Pull Request - Create
                 if (-not $response) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Create'
-                    Invoke-NativeCommand -ScriptBlock {
+                    Invoke-AzOpsNativeCommand -ScriptBlock {
                         gh pr create --title $GithubPullRequest --body "Auto-generated PR triggered by Azure Resource Manager" --label "system" --repo $GithubRepository
                     } | Out-Host
                 }
@@ -215,7 +215,7 @@
                     $response = Invoke-RestMethod -Method "Get" @params
 
                     Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.Github.PR.Merge'
-                    Invoke-NativeCommand -ScriptBlock {
+                    Invoke-AzOpsNativeCommand -ScriptBlock {
                         gh pr merge @($response)[0].number --squash --delete-branch -R $GithubRepository
                     } -IgnoreExitcode | Out-Host
                 }
@@ -227,14 +227,14 @@
             #region Azure DevOps
             "AzureDevOps" {
                 Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.AzDev.PR.Check'
-                $response = Invoke-NativeCommand -ScriptBlock {
+                $response = Invoke-AzOpsNativeCommand -ScriptBlock {
                     az repos pr list --status active --output json
                 } | ConvertFrom-Json | ForEach-Object { $_ | Where-Object sourceRefName -eq "refs/heads/system" }
 
                 # Azure DevOps Pull Request - Create
                 if (-not $response) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.AzDev.PR.Create'
-                    Invoke-NativeCommand -ScriptBlock {
+                    Invoke-AzOpsNativeCommand -ScriptBlock {
                         az repos pr create --source-branch "refs/heads/system" --target-branch "refs/heads/main" --title $AzDevOpsPullRequest --description "Auto-generated PR triggered by Azure Resource Manager `nNew or modified resources discovered in Azure"
                     } | Out-Host
                 }
@@ -248,12 +248,12 @@
                 # Azure DevOps Pull Request - Merge (Best Effort)
                 if ($AzDevOpsAutoMerge) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.AzDev.PR.Get'
-                    $response = Invoke-NativeCommand -ScriptBlock {
+                    $response = Invoke-AzOpsNativeCommand -ScriptBlock {
                         az repos pr list --status active --source-branch "refs/heads/system" --target-branch "refs/heads/main" --output json
                     } | ConvertFrom-Json
 
                     Write-PSFMessage @common -String 'Invoke-AzOpsGitPull.AzDev.PR.Merge'
-                    Invoke-NativeCommand -ScriptBlock {
+                    Invoke-AzOpsNativeCommand -ScriptBlock {
                         az repos pr update --id $response.pullRequestId --auto-complete --delete-source-branch --status completed --squash true
                     } -IgnoreExitcode | Out-Host
                 }
