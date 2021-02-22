@@ -70,7 +70,7 @@
     begin {
         #region Initialize & Prepare
         Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Starting'
-        if ($SkipRole) {
+        if (-not $SkipRole) {
             try {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole'
                 Get-AzADUser -First 1 -ErrorAction Stop
