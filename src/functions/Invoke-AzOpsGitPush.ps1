@@ -9,13 +9,13 @@
         $ScmPlatform = (Get-PSFConfigValue -FullName AzOps.Core.SourceControl),
 
         [string]
-        $GithubHeadRef = (Get-PSFConfigValue -FullName AzOps.Actions.HeadRef),
+        $GitHubHeadRef = (Get-PSFConfigValue -FullName AzOps.Actions.HeadRef),
 
         [string]
-        $GithubComment = (Get-PSFConfigValue -FullName AzOps.Actions.Comments),
+        $GitHubComment = (Get-PSFConfigValue -FullName AzOps.Actions.Comments),
 
         [string]
-        $GithubToken = (Get-PSFConfigValue -FullName AzOps.Actions.Token),
+        $GitHubToken = (Get-PSFConfigValue -FullName AzOps.Actions.Token),
 
         [string]
         $AzDevOpsHeadRef = (Get-PSFConfigValue -FullName AzOps.Pipelines.HeadRef),
@@ -52,11 +52,11 @@
     )
 
     begin {
-        if ($ScmPlatform -notin 'Github', 'AzDevOps') {
+        if ($ScmPlatform -notin 'GitHub', 'AzDevOps') {
             Stop-PSFFunction -String 'Invoke-AzOpsGitPush.Invalid.Platform' -StringValues $ScmPlatform -EnableException $true -Cmdlet $PSCmdlet -Category InvalidArgument
         }
         $headRef = switch ($ScmPlatform) {
-            "GitHub" { $GithubHeadRef }
+            "GitHub" { $GitHubHeadRef }
             "AzureDevOps" { $AzDevOpsHeadRef }
         }
 
@@ -131,15 +131,15 @@
         Write-PSFMessage @common -String 'Invoke-AzOpsGitPush.Rest.PR.Comment'
         switch ($ScmPlatform) {
             "GitHub" {
-                Write-PSFMessage -String 'Invoke-AzOpsGitPush.Actions.Uri' -StringValues $GithubComment
+                Write-PSFMessage -String 'Invoke-AzOpsGitPush.Actions.Uri' -StringValues $GitHubComment
                 $params = @{
                     Headers = @{
-                        "Authorization" = "Bearer $GithubToken"
+                        "Authorization" = "Bearer $GitHubToken"
                         "Content-Type"  = "application/json"
                     }
                     Body    = @{ body = "$(Get-Content -Path "$script:ModuleRoot/data/auxiliary/guidance/strict/github/README.md" -Raw) `n Changes: `n`n$($output -join "`n`n")" } | ConvertTo-Json
                 }
-                $null = Invoke-RestMethod -Method "Post" -Uri $GithubComment @params
+                $null = Invoke-RestMethod -Method "Post" -Uri $GitHubComment @params
                 #TODO: Clarify Intent
                 exit 1
             }
