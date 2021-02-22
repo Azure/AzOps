@@ -44,9 +44,6 @@
         [switch]
         $SkipRole = (Get-PSFConfigValue -FullName AzOps.Core.SkipRole),
 
-        [switch]
-        $StrictMode = (Get-PSFConfigValue -FullName AzOps.Core.StrictMode),
-
         [string]
         $AzOpsMainTemplate = (Get-PSFConfigValue -FullName AzOps.Core.MainTemplate)
     )
