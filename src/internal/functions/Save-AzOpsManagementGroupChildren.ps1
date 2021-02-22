@@ -67,7 +67,7 @@
             {
                 ConvertTo-AzOpsState -Resource $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup } -ExportPath $scopeObject.statepath -StatePath $StatePath
                 foreach ($child in $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup }.Children) {
-                    Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath
+                    Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath -ErrorAction SilentlyContinue
                 }
             }
             subscriptions
