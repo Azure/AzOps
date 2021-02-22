@@ -50,7 +50,7 @@
         Write-PSFMessage -Level Debug -String 'Save-AzOpsManagementGroupChildren.Data.ScopeDirectory' -StringValues $statepathScopeDirectory
         Write-PSFMessage -Level Debug -String 'Save-AzOpsManagementGroupChildren.Data.ScopeDirectoryParent' -StringValues $statepathScopeDirectoryParent
 
-        if (-not (Get-ChildItem -Path $scopeStatepath -File -Recurse -Force -ErrorAction SilentlyContinue | Where-Object Name -eq $statepathFileName)) {
+        if (-not (Get-ChildItem -Path $scopeStatepath -File -Recurse -Force | Where-Object Name -eq $statepathFileName)) {
             # If StatePathFilename do not exists inside AzOpsState, create one
             Write-PSFMessage -String 'Save-AzOpsManagementGroupChildren.New.File' -StringValues $statepathFileName
         }
@@ -67,7 +67,7 @@
             {
                 ConvertTo-AzOpsState -Resource $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup } -ExportPath $scopeObject.statepath -StatePath $StatePath
                 foreach ($child in $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup }.Children) {
-                    Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath -ErrorAction SilentlyContinue
+                    Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath
                 }
             }
             subscriptions
