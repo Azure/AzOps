@@ -23,4 +23,4 @@ Project maintainers will aim to respond within 3 business days to get a meaningf
 
 This project uses GitHub Issues to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates.  For new issues, file your bug or feature request as a new Issue.
 
-For help and questions about using this project, please submit a Github issue with corresponding [Issue Labels found here](https://github.com/Azure/AzOps/labels).
+For help and questions about using this project, please submit a GitHub issue with corresponding [Issue Labels found here](https://github.com/Azure/AzOps/labels).
