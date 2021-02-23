@@ -47,10 +47,18 @@ Param (
 if ($SkipTest) { return }
 . $ExceptionsFile
 
-$includedNames = (Get-ChildItem $CommandPath -Recurse -File | Where-Object Name -like "*.ps1").BaseName
+# For some reason, the default value may not exist / be cleared
+if (-not $CommandPath) {
+	$CommandPath = @("$global:testroot\..\functions", "$global:testroot\..\internal\functions")
+}
+$moduleObject = Get-Module $ModuleName
+
+$includedNames = foreach ($path in $CommandPath) {
+	(Get-ChildItem $path -Recurse -File | Where-Object Name -like "*.ps1").BaseName
+}
 $commandTypes = @('Cmdlet', 'Function')
 if ($PSVersionTable.PSEdition -eq 'Desktop' ) { $commandTypes += 'Workflow' }
-$commands = Get-Command -Module (Get-Module $ModuleName) -CommandType $commandTypes | Where-Object Name -In $includedNames
+$commands = Get-Command -Module $moduleObject -CommandType $commandTypes | Where-Object Name -In $includedNames
 
 ## When testing help, remember that help is cached at the beginning of each session.
 ## To test, restart session.
@@ -63,7 +71,7 @@ foreach ($command in $commands) {
     if ($global:FunctionHelpTestExceptions -contains $commandName) { continue }
     
     # The module-qualified command fails on Microsoft.PowerShell.Archive cmdlets
-    $Help = Get-Help $commandName -ErrorAction SilentlyContinue
+    $Help = & $moduleObject { Get-Help $args[0] -ErrorAction SilentlyContinue } $commandName
 	
 	Describe "Test help for $commandName" {
         
