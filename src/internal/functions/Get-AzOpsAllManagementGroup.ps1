@@ -31,7 +31,7 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateScript({ Get-AzManagementGroup -GroupId $_ -WarningAction SilentlyContinue })]
+        [ValidateScript( { Get-AzManagementGroup -GroupId $_ -WarningAction SilentlyContinue })]
         $ManagementGroup,
 
         [switch]
@@ -40,7 +40,8 @@
 
     process {
         $groupObject = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -Recurse -WarningAction SilentlyContinue
-        if ($PartialDiscovery) {
+        $script:AzOpsRootPermissions
+        if ($PartialDiscover -or -not $script:AzOpsRootPermissions) {
             if ($groupObject.ParentId -and -not (Get-AzManagementGroup -GroupId $groupObject.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $script:AzOpsPartialRoot += $groupObject
             }

@@ -83,6 +83,7 @@
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
         $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
+        $script:AzOpsRootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId (Get-AzContext).Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
         #endregion Initialize & Prepare
@@ -111,6 +112,7 @@
             Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
             Get-AzOpsManagementGroups -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
+
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution
         #endregion Management Group Processing
