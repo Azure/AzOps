@@ -50,7 +50,7 @@
         Write-PSFMessage -Level Debug -String 'Save-AzOpsManagementGroupChildren.Data.ScopeDirectory' -StringValues $statepathScopeDirectory
         Write-PSFMessage -Level Debug -String 'Save-AzOpsManagementGroupChildren.Data.ScopeDirectoryParent' -StringValues $statepathScopeDirectoryParent
 
-        if (-not (Get-ChildItem -Path $scopeStatepath -File -Recurse -Force | Where-Object Name -eq $statepathFileName)) {
+        if (-not (Get-ChildItem -Path $Statepath -File -Recurse -Force | Where-Object Name -eq $statepathFileName)) {
             # If StatePathFilename do not exists inside AzOpsState, create one
             Write-PSFMessage -String 'Save-AzOpsManagementGroupChildren.New.File' -StringValues $statepathFileName
         }
