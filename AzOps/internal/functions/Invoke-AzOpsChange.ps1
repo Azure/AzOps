@@ -1,4 +1,25 @@
 ﻿function Invoke-AzOpsChange {
+<#
+	.SYNOPSIS
+		Applies a change to Azure from the AzOps configuration.
+	
+	.DESCRIPTION
+		Applies a change to Azure from the AzOps configuration.
+	
+	.PARAMETER ChangeSet
+		Set of changes from the last execution that need to be applied.
+	
+	.PARAMETER StatePath
+		The root path to where the entire state is being built in.
+	
+	.PARAMETER AzOpsMainTemplate
+		Path to the main template used by AzOps
+	
+	.EXAMPLE
+		PS C:\> Invoke-AzOpsChange -ChangeSet changeSet -StatePath $StatePath -AzOpsMainTemplate $templatePath
+	
+		Applies a change to Azure from the AzOps configuration.
+#>
 	[CmdletBinding()]
 	param (
 		[Parameter(Mandatory = $true, ValueFromPipeline = $true)]

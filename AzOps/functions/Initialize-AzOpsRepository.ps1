@@ -1,10 +1,10 @@
 ﻿function Initialize-AzOpsRepository {
 <#
 	.SYNOPSIS
-		A brief description of the Initialize-AzOpsRepository function.
+		Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
 	
 	.DESCRIPTION
-		A detailed description of the Initialize-AzOpsRepository function.
+		Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
 	
 	.PARAMETER SkipPolicy
 		Skip discovery of policies for better performance.
@@ -31,16 +31,20 @@
 		Delete $script:AzOpsState directory.
 	
 	.PARAMETER PartialMgDiscovery
-		A description of the PartialMgDiscovery parameter.
+		Accept working with only a subset of management groups in the entire hierarchy.
+		Needed when lacking root access.
 	
 	.PARAMETER PartialMgDiscoveryRoot
-		A description of the PartialMgDiscoveryRoot parameter.
+		The subset of management groups in the entire hierarchy with which to work.
+		Needed when lacking root access.
 	
 	.PARAMETER StatePath
 		The root folder under which to write the resource json.
 	
 	.EXAMPLE
 		PS C:\> Initialize-AzOpsRepository
+	
+		Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
 #>
 	[CmdletBinding()]
 	param (
