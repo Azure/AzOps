@@ -1,23 +1,32 @@
+﻿#VSCode
+.vscode/*
+*.code-workspace
+*.psproj
+*TempPoint*
+
+# Ignore staging info from Visual Studio
+library/AzOps/.vs/*
+library/AzOps/AzOps/bin/*
+library/AzOps/AzOps/obj/*
+
+# ignore PowerShell Studio MetaData
+AzOps/AzOps.psproj
+AzOps/AzOps.psproj.bak
+AzOps/AzOps.psprojs
+AzOps/AzOps.psproj
+
+# ignore the TestResults
+TestResults/*
+
+# ignore the publishing Directory
+publish/*
+
 #Debug
 **.private**
-debug.ps1
+debug/*
 
 #DSStore
 .DS_Store
 
 #VS
 .vs
-
-#VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-#Jupyter Notebook checkpoints
-**/.ipynb_checkpoints/*
-
-#AzOps
-azops/*

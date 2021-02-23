@@ -1,0 +1,23 @@
+name: 'Lint'
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: 'Linter'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Lint
+      uses: docker://github/super-linter:v3.14.5
+      env:
+        VALIDATE_ALL_CODEBASE: true
+        VALIDATE_POWERSHELL: true
+        DEFAULT_BRANCH: main
+        DISABLE_ERRORS: false
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
