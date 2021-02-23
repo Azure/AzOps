@@ -123,7 +123,6 @@
 
         #region Root Scopes
         $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
-        $script:AzOpsPartialRoot.id
         if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
             $rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
         }
