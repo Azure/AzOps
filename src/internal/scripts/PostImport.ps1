@@ -26,7 +26,7 @@ $moduleRoot = Split-Path (Split-Path $PSScriptRoot)
 "$moduleRoot\internal\scripts\Variables.ps1"
 
 # Run startup script
-"$moduleRoot\internal\scripts\initialize.ps1"
+"$moduleRoot\internal\scripts\Initialize.ps1"
 
 # Load License
 "$moduleRoot\internal\scripts\License.ps1"
