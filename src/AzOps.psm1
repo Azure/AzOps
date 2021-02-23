@@ -50,7 +50,7 @@ function Import-ModuleFile
 if ($importIndividualFiles)
 {
     # Execute Preimport actions
-    foreach ($path in (& "$ModuleRoot\internal\scripts\preimport.ps1")) {
+    foreach ($path in (& "$ModuleRoot\internal\scripts\PreImport.ps1")) {
         . Import-ModuleFile -Path $path
     }
 
@@ -67,7 +67,7 @@ if ($importIndividualFiles)
     }
 
     # Execute Postimport actions
-    foreach ($path in (& "$ModuleRoot\internal\scripts\postimport.ps1")) {
+    foreach ($path in (& "$ModuleRoot\internal\scripts\PostImport.ps1")) {
         . Import-ModuleFile -Path $path
     }
 
