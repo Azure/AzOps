@@ -1,34 +1,37 @@
 ﻿function Initialize-AzOpsRepository {
 
     <#
-        .SYNOPSIS
-            A brief description of the Initialize-AzOpsRepository function.
-        .DESCRIPTION
-            A detailed description of the Initialize-AzOpsRepository function.
-        .PARAMETER SkipPolicy
-            Skip discovery of policies for better performance.
-        .PARAMETER SkipRole
-            Skip discovery of role.
-        .PARAMETER SkipResourceGroup
-            Skip discovery of resource groups resources for better performance
-        .PARAMETER InvalidateCache
-            Invalidate cached subscriptions and Management Groups and do a full discovery.
-        .PARAMETER GeneralizeTemplates
-            Will generalize json templates (only used when generating azopsreference).
-        .PARAMETER ExportRawTemplate
-            Export generic templates without embedding them in the parameter block.
-        .PARAMETER Rebuild
-            Delete all .AzState folders inside AzOpsState directory.
-        .PARAMETER Force
-            Delete $script:AzOpsState directory.
-        .PARAMETER PartialMgDiscovery
-            A description of the PartialMgDiscovery parameter.
-        .PARAMETER PartialMgDiscoveryRoot
-            A description of the PartialMgDiscoveryRoot parameter.
-        .PARAMETER StatePath
-            The root folder under which to write the resource json.
-        .EXAMPLE
-            > Initialize-AzOpsRepository
+    .SYNOPSIS
+        Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
+    .DESCRIPTION
+        Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
+    .PARAMETER SkipPolicy
+        Skip discovery of policies for better performance.
+    .PARAMETER SkipRole
+        Skip discovery of role.
+    .PARAMETER SkipResourceGroup
+        Skip discovery of resource groups resources for better performance
+    .PARAMETER InvalidateCache
+        Invalidate cached subscriptions and Management Groups and do a full discovery.
+    .PARAMETER GeneralizeTemplates
+        Will generalize json templates (only used when generating azopsreference).
+    .PARAMETER ExportRawTemplate
+        Export generic templates without embedding them in the parameter block.
+    .PARAMETER Rebuild
+        Delete all .AzState folders inside AzOpsState directory.
+    .PARAMETER Force
+        Delete $script:AzOpsState directory.
+    .PARAMETER PartialMgDiscovery
+        Accept working with only a subset of management groups in the entire hierarchy.
+        Needed when lacking root access.
+    .PARAMETER PartialMgDiscoveryRoot
+        The subset of management groups in the entire hierarchy with which to work.
+        Needed when lacking root access.
+    .PARAMETER StatePath
+        The root folder under which to write the resource json.
+    .EXAMPLE
+        > Initialize-AzOpsRepository
+        Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
     #>
 
     [CmdletBinding()]
