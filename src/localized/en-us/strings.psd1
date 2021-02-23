@@ -90,6 +90,7 @@ Please reconnect with Connect-AzAccount using an account/service principal that 
 	'Initialize-AzOpsEnvironment.Initializing'								   = 'Starting AzOps environment initialization' #
 	'Initialize-AzOpsEnvironment.ManagementGroup.Expanding'				       = 'Expanding management groups under {0}' # $mgmtGroup.Name
 	'Initialize-AzOpsEnvironment.ManagementGroup.NotFound'					   = 'Root path {0} not found with account {1}. Ensure you have root access or use partial discovery.' # $rootScope, (Get-AzContext).Account.Id
+	'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions'            = 'Principal {0} does not have permissions under / in tenant, enabling partial discovery' # $currentAzContext.Account.Id
 	'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'			   = 'Executing partial discovery' #
 	'Initialize-AzOpsEnvironment.ManagementGroup.Resolution'				   = 'Resolving {0} management groups' # $managementGroups.Count
 	'Initialize-AzOpsEnvironment.Processing'								   = 'Processing AzOps environment' #
