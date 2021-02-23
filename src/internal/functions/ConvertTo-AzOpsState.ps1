@@ -18,12 +18,11 @@
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
-            # Export custom policy definition to the AzOps StatePath
             Initialize-AzOpsEnvironment
             $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
             ConvertTo-AzOpsState -Resource $policy
+            Export custom policy definition to the AzOps StatePath
         .EXAMPLE
-            # Serialize custom policy definition to the AzOps format, return object instead of export file
             Initialize-AzOpsEnvironment
             $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
             ConvertTo-AzOpsState -Resource $policy -ReturnObject
@@ -32,6 +31,7 @@
             $schema                        http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#
             contentVersion                 1.0.0.0
             parameters                     {input}
+            Serialize custom policy definition to the AzOps format, return object instead of export file
         .INPUTS
             Resource
         .OUTPUTS

@@ -1,5 +1,19 @@
 ﻿function Register-AzOpsProviderFeature {
 
+    <#
+    .SYNOPSIS
+        Registers a provider feature from ARM.
+    .DESCRIPTION
+        Registers a provider feature from ARM.
+    .PARAMETER FileName
+        Path to the ARM template file representing a provider feature.
+    .PARAMETER ScopeObject
+        The current AzOps scope.
+    .EXAMPLE
+        PS C:\> Register-ProviderFeature -FileName $file -ScopeObject $scopeObject
+        Registers a provider feature from ARM.
+    #>
+
     [CmdletBinding()]
     param (
         [string]

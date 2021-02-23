@@ -9,6 +9,10 @@
             Scope to discover - assumes [AzOpsScope] object
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
+        .PARAMETER Confirm
+            If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        .PARAMETER WhatIf
+            If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
         .EXAMPLE
             > Save-AzOpsManagementGroupChildren -Scope (New-AzOpsScope -scope /providers/Microsoft.Management/managementGroups/contoso)
             Discover Management Group hierarchy from scope
