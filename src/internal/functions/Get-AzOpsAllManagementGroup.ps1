@@ -40,8 +40,7 @@
 
     process {
         $groupObject = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -Recurse -WarningAction SilentlyContinue
-        $script:AzOpsRootPermissions
-        if ($PartialDiscover -or -not $script:AzOpsRootPermissions) {
+        if ($PartialDiscover) {
             if ($groupObject.ParentId -and -not (Get-AzManagementGroup -GroupId $groupObject.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $script:AzOpsPartialRoot += $groupObject
             }
