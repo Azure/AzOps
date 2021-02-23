@@ -1,4 +1,68 @@
 ﻿function Invoke-AzOpsGitPush {
+<#
+	.SYNOPSIS
+		Applies the current configuration from git to Azure.
+	
+	.DESCRIPTION
+		Applies the current configuration from git to Azure.
+		This command supports working with Azure DevOps Services or Github.
+	
+		It will fetch the current state, then detect changes and apply them if necessary.
+		All parameters are optional and can have their values provided by configuration (but that configuration must then also exist in a complete set).
+	
+	.PARAMETER StatePath
+		The path to where the git repository exists.
+	
+	.PARAMETER ScmPlatform
+		A description of the ScmPlatform parameter.
+	
+	.PARAMETER GithubHeadRef
+		TODO: Add content
+	
+	.PARAMETER GithubComment
+		TODO: Add content
+	
+	.PARAMETER GithubToken
+		The PAT with which to authenticate to github.
+	
+	.PARAMETER AzDevOpsHeadRef
+		TODO: Add content
+	
+	.PARAMETER AzDevOpsApiUrl
+		TODO: Add content
+	
+	.PARAMETER AzDevOpsProjectId
+		TODO: Add content
+	
+	.PARAMETER AzDevOpsRepository
+		TODO: Add content
+	
+	.PARAMETER AzDevOpsPullRequestId
+		TODO: Add content
+	
+	.PARAMETER AzDevOpsToken
+		The PAT with which to authenticate to Azure DevOps.
+	
+	.PARAMETER SkipPolicy
+		Skip discovery of policies for better performance.
+	
+	.PARAMETER SkipRole
+		Skip discovery of role.
+	
+	.PARAMETER SkipResourceGroup
+		Skip discovery of resource groups resources for better performance.
+	
+	.PARAMETER StrictMode
+		TODO: Add content
+	
+	.PARAMETER AzOpsMainTemplate
+		TODO: Add content
+	
+	.EXAMPLE
+		PS C:\> Invoke-AzOpsGitPush
+	
+		Applies the current configuration from git to Azure.
+#>
 	
 	[CmdletBinding()]
 	param (
@@ -52,7 +116,7 @@
 	)
 	
 	begin {
-		if ($ScmPlatform -notin 'Github', 'AzDevOps') {
+		if ($ScmPlatform -notin 'Github', 'AzureDevOps') {
 			Stop-PSFFunction -String 'Invoke-AzOpsGitPush.Invalid.Platform' -StringValues $ScmPlatform -EnableException $true -Cmdlet $PSCmdlet -Category InvalidArgument
 		}
 		$headRef = switch ($ScmPlatform) {

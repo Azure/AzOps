@@ -1,4 +1,23 @@
 ﻿function Register-ResourceProvider {
+<#
+	.SYNOPSIS
+		Registers an azure resource provider.
+	
+	.DESCRIPTION
+		Registers an azure resource provider.
+		Assumes an ARM definition of a resource provider as input.
+	
+	.PARAMETER FileName
+		The path to the file containing an ARM template defining a resource provider.
+	
+	.PARAMETER ScopeObject
+		The current AzOps scope.
+	
+	.EXAMPLE
+		PS C:\> Register-ResourceProvider -FileName $fileName -ScopeObject $scopeObject
+	
+		Registers an azure resource provider.
+#>
 	[CmdletBinding()]
 	param (
 		[string]

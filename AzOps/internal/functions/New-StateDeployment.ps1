@@ -1,4 +1,25 @@
 ﻿function New-StateDeployment {
+<#
+	.SYNOPSIS
+		Deploys a set of ARM templates into Azure.
+	
+	.DESCRIPTION
+		Deploys a set of ARM templates into Azure.
+		Define the state using Initialize-AzOpsRepository and maintain it via:
+		- Invoke-AzOpsGitPull
+		- Invoke-AzOpsGitPush
+	
+	.PARAMETER FileName
+		Root path from which to deploy.
+	
+	.PARAMETER StatePath
+		The overall path of the state to deploy.
+	
+	.EXAMPLE
+		PS C:\> New-StateDeployment -FileName $fileName -StatePath $StatePath
+	
+		Deploys the specified set of ARM templates into Azure.
+#>
 	[Alias('New-AzOpsStateDeployment')]
 	[CmdletBinding()]
 	param (
@@ -6,6 +27,7 @@
 		[ValidateScript({ Test-Path $_ })]
 		$FileName,
 		
+		[Parameter(Mandatory = $true)]
 		[string]
 		$StatePath
 	)

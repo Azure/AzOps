@@ -176,7 +176,7 @@ Please reconnect with Connect-AzAccount using an account/service principal that 
 	'Invoke-AzOpsGitPush.Git.Pull'											   = 'Pulling origin branch ({0}) changes' # main
 	'Invoke-AzOpsGitPush.Git.Reset'										       = 'Resetting local main branch' # 
 	'Invoke-AzOpsGitPush.Github.Uri'										   = 'Uri: {0}' # $GithubComment
-	'Invoke-AzOpsGitPush.Invalid.Platform'									   = 'Invalid SCM platform: {0}. Specify either Github or AzDevOps!' # $ScmPlatform
+	'Invoke-AzOpsGitPush.Invalid.Platform'									   = 'Invalid SCM platform: {0}. Specify either Github or AzureDevOps!' # $ScmPlatform
 	'Invoke-AzOpsGitPush.Repository.Initialize'							       = 'Executing repository initialization' # 
 	'Invoke-AzOpsGitPush.Rest.PR.Comment'									   = 'Writing comment to pull request' # 
 	'Invoke-AzOpsGitPush.StrictMode'										   = 'Strict mode is enabled, verifying pull before pushing' # 

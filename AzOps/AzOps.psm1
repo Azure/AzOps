@@ -3,6 +3,7 @@ $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\
 
 # Detect whether at some level dotsourcing was enforced
 $script:doDotSource = Get-PSFConfigValue -FullName AzOps.Import.DoDotSource -Fallback $false
+if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) { $script:doDotSource = $true }
 if ($AzOps_dotsourcemodule) { $script:doDotSource = $true }
 
 <#

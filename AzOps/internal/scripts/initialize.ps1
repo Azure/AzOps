@@ -1,0 +1,1 @@
+﻿Set-PSFFeature -Name PSFramework.Stop-PSFFunction.ShowWarning -Value $true -ModuleName AzOps
