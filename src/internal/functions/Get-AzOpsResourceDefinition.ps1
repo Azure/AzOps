@@ -163,9 +163,7 @@
                 $SkipResourceGroup,
 
                 [string]
-                $ODataFilter
-            )
-
+                $ODataFilter )
             begin {
                 # Set variables for retry with exponential backoff
                 $backoffMultiplier = 2
@@ -224,7 +222,7 @@
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
                         # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
-                        Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)\psframework.psd1"
+                        Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
                         $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
                         # endregion Importing module
 
@@ -237,15 +235,19 @@
 
                         Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                         $resources = & $azOps {
-                            Invoke-AzOpsScriptBlock -ArgumentList $Context, $resourceGroup, $runspaceData.ODataFilter -ScriptBlock {
+                            $parameters = @{
+                                DefaultProfile = $Context | Select-Object -First 1
+                                ODataQuery = $runspaceData.ODataFilter
+                            }
+                            if ($resourceGroup.ResourceGroupName) {
+                                $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                            }
+                            Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
                                 param (
-                                    $Context,
-
-                                    $ResourceGroup,
-
-                                    $ODataFilter
+                                    $Parameters
                                 )
-                                Get-AzResource -DefaultProfile $Context -ResourceGroupName $ResourceGroup.ResourceGroupName -ODataQuery $ODataFilter -ExpandProperties -ErrorAction Stop
+                                $param = $Parameters | Write-Output
+                                Get-AzResource @param -ExpandProperties -ErrorAction Stop
                             } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                         }
                         if (-not $resources) {

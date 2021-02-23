@@ -56,6 +56,10 @@
     }
 
     process {
+        $data = @{
+            ScriptBlock = $ScriptBlock
+            ArgumentList = $ArgumentList
+        }
         while ($count -le $RetryCount) {
             try {
                 if (Test-PSFParameterBinding -ParameterName ArgumentList) { & $ScriptBlock $ArgumentList }
@@ -64,7 +68,7 @@
             }
             catch {
                 if ($count -lt $RetryCount) {
-                    Write-PSFMessage -Level Debug -String 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_
+                    Write-PSFMessage -Level Debug -String 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_ -Data $data
                     $count++
                     switch ($RetryType) {
                         Linear { Start-Sleep -Seconds $RetryWait }
@@ -72,7 +76,7 @@
                     }
                     continue
                 }
-                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsScriptBlock.Failed.GivingUp' -StringValues $count, $RetryCount -ErrorRecord $_
+                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsScriptBlock.Failed.GivingUp' -StringValues $count, $RetryCount -ErrorRecord $_ -Data $data
                 throw
             }
         }
