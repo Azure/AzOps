@@ -273,8 +273,9 @@
 			}
 			#endregion Azure DevOps
 			default {
-				Write-PSFMessage -Level Warning -String 'Invoke-AzOpsGitPull.SCM.Unknown'
-				Write-Error "Could not determine SCM platform. Current value is $ScmPlatform"
+				Write-PSFMessage -Level Warning -String 'Invoke-AzOpsGitPull.SCM.Unknown' -StringValues $ScmPlatform
+				Pop-Location
+				throw "Could not determine SCM platform. Current value is $ScmPlatform"
 			}
 		}
 	}

@@ -30,8 +30,8 @@ $global:MayContainCommand = @{
 	"Write-Host"  = @()
 	"Write-Verbose" = @()
 	"Write-Warning" = @()
-	"Write-Error"  = @()
-	"Write-Output" = @()
+	"Write-Error"  = @('Initialize-AzOpsRepository.ps1')
+	"Write-Output" = @('Get-ResourceDefinition.ps1')
 	"Write-Information" = @()
 	"Write-Debug" = @()
 }

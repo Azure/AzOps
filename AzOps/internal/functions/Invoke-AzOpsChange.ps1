@@ -97,7 +97,7 @@
 				Write-PSFMessage -Level Warning -String 'Invoke-AzOpsChange.Resolve.MainTemplate.NotSupported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsChange' -Target $ScopeObject
 				return
 				#endregion Check in the main template file for a match
-				# All Code paths end the command	
+				# All Code paths end the command
 			}
 			#endregion Case: Parameters File
 			
