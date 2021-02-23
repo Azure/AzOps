@@ -75,7 +75,8 @@
 
         #region Initialize & Prepare
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Processing'
-        $tenantId = (Get-AzContext).Tenant.Id
+        $currentAzContext = Get-AzContext
+        $tenantId = $currentAzContext.Tenant.Id
         $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
 
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Initializing'
@@ -83,7 +84,6 @@
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
         $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
-        #$script:AzOpsRootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId (Get-AzContext).Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
         #endregion Initialize & Prepare
@@ -94,6 +94,19 @@
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NotFound' -StringValues $rootScope, (Get-AzContext).Account.Id -Tag Error
             return
         }
+
+        #region Validate root '/' permissions
+        if ($currentAzContext.Account.Type -eq "User") {
+            $rootPermissions = Get-AzRoleAssignment -UserPrincipalName $currentAzContext.Account.Id -Scope "/" -ErrorAction SilentlyContinue
+        }
+        else {
+            $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
+        }
+        if (-not $rootPermissions) {
+            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
+            $PartialMgDiscovery = $true
+        }
+        #endregion Validate root '/' permissions
 
         #region Partial Discovery
         if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
