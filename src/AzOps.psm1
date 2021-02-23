@@ -2,27 +2,26 @@
 $script:ModuleVersion = (Import-PowerShellDataFile -Path "$($script:ModuleRoot)\AzOps.psd1").ModuleVersion
 
 # Detect whether at some level dotsourcing was enforced
-$script:DoDotSource = Get-PSFConfigValue -FullName AzOps.Import.DoDotSource -Fallback $false
+$script:doDotSource = Get-PSFConfigValue -FullName AzOps.Import.DoDotSource -Fallback $false
+if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) { $script:doDotSource = $true }
+if ($AzOps_dotsourcemodule) { $script:doDotSource = $true }
 
 <#
-    Note on Resolve-Path:
-    All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
-    This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
-    Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
-    This is important when testing for paths.
+Note on Resolve-Path:
+All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
+This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
+Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
+This is important when testing for paths.
 #>
 
 # Detect whether at some level loading individual module files, rather than the compiled module was enforced
-$ImportIndividualFiles = Get-PSFConfigValue -FullName AzOps.Import.IndividualFiles -Fallback $false
-if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) {
-    $ImportIndividualFiles = $true
-}
-if ("<was not compiled>" -eq '<was not compiled>') {
-    $ImportIndividualFiles = $true
-}
+$importIndividualFiles = Get-PSFConfigValue -FullName AzOps.Import.IndividualFiles -Fallback $false
+if ($AzOps_importIndividualFiles) { $importIndividualFiles = $true }
+if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem -NewChild)) { $importIndividualFiles = $true }
+if ("<was not compiled>" -eq '<was not compiled>') { $importIndividualFiles = $true }
 
-function Import-AzOpsModuleFile {
-
+function Import-ModuleFile
+{
     <#
         .SYNOPSIS
             Loads files into the module on module import.
@@ -33,49 +32,50 @@ function Import-AzOpsModuleFile {
         .PARAMETER Path
             The path to the file to load
         .EXAMPLE
-            > . Import-AzOpsModuleFile -File $function.FullName
+            > . Import-ModuleFile -File $function.FullName
             Imports the file stored in $function according to import policy
     #>
-
     [CmdletBinding()]
-    param (
+    Param (
         [string]
         $Path
     )
 
-    $ResolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
-    if ($DoDotSource) {
-        . $ResolvedPath
-    }
-    else {
-        $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($ResolvedPath))), $null, $null)
-    }
-
+    $resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
+    if ($doDotSource) { . $resolvedPath }
+    else { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null) }
 }
 
 #region Load individual files
-if ($ImportIndividualFiles) {
+if ($importIndividualFiles)
+{
     # Execute Preimport actions
-    foreach ($Path in (& "$ModuleRoot\internal\scripts\PreImport.ps1")) {
-        . Import-AzOpsModuleFile -Path $Path
+    foreach ($path in (& "$ModuleRoot\internal\scripts\preimport.ps1")) {
+        . Import-ModuleFile -Path $path
     }
 
     # Import all internal functions
-    foreach ($Function in (Get-ChildItem "$ModuleRoot\internal\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
-        . Import-AzOpsModuleFile -Path $Function.FullName
+    foreach ($function in (Get-ChildItem "$ModuleRoot\internal\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore))
+    {
+        . Import-ModuleFile -Path $function.FullName
     }
 
     # Import all public functions
-    foreach ($Function in (Get-ChildItem "$ModuleRoot\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
-        . Import-AzOpsModuleFile -Path $Function.FullName
+    foreach ($function in (Get-ChildItem "$ModuleRoot\functions" -Filter "*.ps1" -Recurse -ErrorAction Ignore))
+    {
+        . Import-ModuleFile -Path $function.FullName
     }
 
     # Execute Postimport actions
-    foreach ($Path in (& "$ModuleRoot\internal\scripts\PostImport.ps1")) {
-        . Import-AzOpsModuleFile -Path $Path
+    foreach ($path in (& "$ModuleRoot\internal\scripts\postimport.ps1")) {
+        . Import-ModuleFile -Path $path
     }
 
     # End it here, do not load compiled code below
     return
 }
 #endregion Load individual files
+
+#region Load compiled code
+"<compile code into here>"
+#endregion Load compiled code
