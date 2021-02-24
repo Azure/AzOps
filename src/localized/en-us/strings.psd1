@@ -103,6 +103,7 @@
     'Initialize-AzOpsRepository.Migration.Required'                                 = 'Migration from previous repository state IS required' #
     'Initialize-AzOpsRepository.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
     'Initialize-AzOpsRepository.Tenant'                                             = 'Connected to tenant {0}' # $tenantId
+    'Initialize-AzOpsRepository.TemplateParameterFileSuffix'                        = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
     'Initialize-AzOpsRepository.Validating.UserRole'                                = 'Asserting fundamental azure access' #
     'Initialize-AzOpsRepository.Validating.UserRole.Failed'                         = 'Insufficient access to azure user data!' #
     'Initialize-AzOpsRepository.Validating.UserRole.Success'                        = 'Azure Access validated' #

@@ -263,7 +263,7 @@
                 if ($resourceData.ObjectFilePath) {
                     $parametersJson.parameters.input.value = $resourceData.Resource
                     # ExportPath for the original state file
-                    $originalFilePath = $resourceData.ObjectFilePath -replace ".parameters.json", ".parameters.json.origin"
+                    $originalFilePath = $resourceData.ObjectFilePath -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), "$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix').origin"
                     Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Generalized.Exporting' -StringValues $originalFilePath
                     ConvertTo-Json -InputObject $parametersJson -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($originalFilePath)) -Encoding utf8 -Force
                 }

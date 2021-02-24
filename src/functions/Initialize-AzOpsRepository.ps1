@@ -67,7 +67,10 @@
         $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot'),
 
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
+
+        [string]
+        $TemplateParameterFileSuffix = (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
     )
 
     begin {
@@ -92,6 +95,7 @@
 
         $TenantId = (Get-AzContext).Tenant.Id
         Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $TenantId
+        Write-PSFMessage -String 'Initialize-AzOpsRepository.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
         Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Completed'
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -102,7 +106,7 @@
         #region Existing Content
         if (Test-Path $StatePath) {
             $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $StatePath -File | Where-Object {
-                    $_.Name -like "Microsoft.Management_managementGroups-$tenantId.parameters.json"
+                    $_.Name -like $("Microsoft.Management_managementGroups-" + $tenantId + $TemplateParameterFileSuffix)
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
             if ($MigrationRequired) {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Migration.Required'
