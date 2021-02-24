@@ -21,6 +21,9 @@ TestResults/*
 # ignore the publishing Directory
 publish/*
 
+# ignore the local state
+azops/*
+
 #Debug
 **.private**
 debug/*
