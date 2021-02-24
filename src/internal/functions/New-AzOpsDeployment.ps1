@@ -1,29 +1,29 @@
 ﻿function New-AzOpsDeployment {
 
     <#
-    .SYNOPSIS
-        Deploys a full state into azure.
-    .DESCRIPTION
-        Deploys a full state into azure.
-    .PARAMETER DeploymentName
-        Name under which to deploy the state.
-    .PARAMETER TemplateFilePath
-        Path where the ARM templates can be found.
-    .PARAMETER TemplateParameterFilePath
-        Path where the parameters of the ARM templates can be found.
-    .PARAMETER Mode
-        Mode in which to process the templates.
-        Defaults to incremental.
-        TODO: Clarify use
-    .PARAMETER StatePath
-        The root folder under which to find the resource json.
-    .PARAMETER Confirm
-        If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
-    .PARAMETER WhatIf
-        If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
-    .EXAMPLE
-        > $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-Deployment
-        Deploy all unique deployments provided from $AzOpsDeploymentList
+        .SYNOPSIS
+            Deploys a full state into azure.
+        .DESCRIPTION
+            Deploys a full state into azure.
+        .PARAMETER DeploymentName
+            Name under which to deploy the state.
+        .PARAMETER TemplateFilePath
+            Path where the ARM templates can be found.
+        .PARAMETER TemplateParameterFilePath
+            Path where the parameters of the ARM templates can be found.
+        .PARAMETER Mode
+            Mode in which to process the templates.
+            Defaults to incremental.
+            TODO: Clarify use
+        .PARAMETER StatePath
+            The root folder under which to find the resource json.
+        .PARAMETER Confirm
+            If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        .PARAMETER WhatIf
+            If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
+        .EXAMPLE
+            > $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-Deployment
+            Deploy all unique deployments provided from $AzOpsDeploymentList
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
