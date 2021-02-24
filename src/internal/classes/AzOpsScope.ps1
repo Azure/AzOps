@@ -134,9 +134,9 @@
         if ($Path.FullName -notlike '*.azstate') {
             $Path = Join-Path $Path -ChildPath '.AzState'
         }
-        $managementGroupFileName = "Microsoft.Management_managementGroups-*.parameters.json"
-        $subscriptionFileName = "Microsoft.Subscription_subscriptions-*.parameters.json"
-        $resourceGroupFileName = "Microsoft.Resources_resourceGroups-*.parameters.json"
+        $managementGroupFileName = "Microsoft.Management_managementGroups-*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')"
+        $subscriptionFileName = "Microsoft.Subscription_subscriptions-*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')"
+        $resourceGroupFileName = "Microsoft.Resources_resourceGroups-*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')"
 
         if ($children = Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $managementGroupFileName) {
             $managementGroupConfig = Get-Content -Path $children.FullName | ConvertFrom-Json
@@ -190,7 +190,7 @@
                 $this.StatePath = $this.GetAzOpsResourcePath() + ".json"
             }
             else {
-                $this.StatePath = $this.GetAzOpsResourcePath() + ".parameters.json"
+                $this.StatePath = ($this.GetAzOpsResourcePath() + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             }
         }
         elseif ($this.IsResourceGroup()) {
@@ -205,7 +205,7 @@
                 $this.StatePath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources_resourceGroups-$($this.ResourceGroup).json")
             }
             else {
-                $this.StatePath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath ".AzState\Microsoft.Resources_resourceGroups-$($this.ResourceGroup).parameters.json")
+                $this.StatePath = (join-path $this.GetAzOpsResourceGroupPath() -ChildPath (".AzState\Microsoft.Resources_resourceGroups-$($this.ResourceGroup)" + $(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')))
             }
         }
         elseif ($this.IsSubscription()) {
@@ -219,7 +219,7 @@
                 $this.StatePath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription_subscriptions-$($this.Subscription).json")
             }
             else {
-                $this.StatePath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath ".AzState\Microsoft.Subscription_subscriptions-$($this.Subscription).parameters.json")
+                $this.StatePath = (join-path $this.GetAzOpsSubscriptionPath() -ChildPath (".AzState\Microsoft.Subscription_subscriptions-$($this.Subscription)" + $(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')))
             }
 
         }
@@ -232,7 +232,7 @@
                 $this.StatePath = (join-path $this.GetAzOpsManagementGroupPath($this.ManagementGroup) -ChildPath ".AzState\Microsoft.Management_managementGroups-$($this.ManagementGroup).json")
             }
             else {
-                $this.StatePath = (join-path $this.GetAzOpsManagementGroupPath($this.ManagementGroup) -ChildPath ".AzState\Microsoft.Management_managementGroups-$($this.ManagementGroup).parameters.json")
+                $this.StatePath = (join-path $this.GetAzOpsManagementGroupPath($this.ManagementGroup) -ChildPath (".AzState\Microsoft.Management_managementGroups-$($this.ManagementGroup)" + $(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')))
             }
         }
         elseif ($this.IsRoot()) {

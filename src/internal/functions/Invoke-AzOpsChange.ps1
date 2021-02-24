@@ -70,7 +70,7 @@
             #endregion Initialization Prep
 
             #region Case: Parameters File
-            if ($fileItem.Name -like '*.parameters.json') {
+            if ($fileItem.Name -like "*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')") {
                 $result.TemplateParameterFilePath = $fileItem.FullName
                 $deploymentName = $fileItem.BaseName -replace '\.parameters$' -replace ' ', '_'
                 if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
@@ -120,7 +120,7 @@
 
             #region Case: Template File
             $result.TemplateFilePath = $fileItem.FullName
-            $parameterPath = $fileItem.FullName -replace '\.json$', '.parameters.json'
+            $parameterPath = $fileItem.FullName -replace '\.json$', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
             if (Test-Path -Path $parameterPath) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath

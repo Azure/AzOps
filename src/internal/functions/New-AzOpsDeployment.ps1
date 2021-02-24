@@ -34,7 +34,7 @@
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
-        $TemplateFilePath,
+        $TemplateFilePath = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [AllowEmptyString()]
@@ -46,7 +46,7 @@
         $Mode = "Incremental",
 
         [string]
-        $StatePath
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     process {
