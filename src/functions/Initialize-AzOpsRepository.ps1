@@ -88,13 +88,13 @@
             }
         }
 
-        $Parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
+        $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
         Initialize-AzOpsEnvironment @parameters
 
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
 
-        $TenantId = (Get-AzContext).Tenant.Id
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $TenantId
+        $tenantId = (Get-AzContext).Tenant.Id
+        Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $tenantId
         Write-PSFMessage -String 'Initialize-AzOpsRepository.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
         Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Completed'
@@ -105,14 +105,14 @@
     process {
         #region Existing Content
         if (Test-Path $StatePath) {
-            $MigrationRequired = (Get-ChildItem -Recurse -Force -Path $StatePath -File | Where-Object {
+            $migrationRequired = (Get-ChildItem -Recurse -Force -Path $StatePath -File | Where-Object {
                     $_.Name -like $("Microsoft.Management_managementGroups-" + $tenantId + $TemplateParameterFileSuffix)
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
-            if ($MigrationRequired) {
+            if ($migrationRequired) {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Migration.Required'
             }
 
-            if ($Force -or $MigrationRequired) {
+            if ($Force -or $migrationRequired) {
                 Invoke-PSFProtectedCommand -ActionString 'Initialize-AzOpsRepository.Deleting.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
                     Remove-Item -Path $StatePath -Recurse -Force -Confirm:$false -ErrorAction Stop
                 } -EnableException $true -PSCmdlet $PSCmdlet
@@ -126,7 +126,7 @@
         #endregion Existing Content
 
         #region Root Scopes
-        $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $TenantId
+        $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
         if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
             $rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
         }

@@ -46,7 +46,7 @@
             }
             if ($groupObject.Children) {
                 $groupObject.Children | Where-Object Type -eq "/providers/Microsoft.Management/managementGroups" | Foreach-Object -Process {
-                    Get-AzOpsManagementGroups -ManagementGroup $_.Name
+                    Get-AzOpsManagementGroups -ManagementGroup $_.Name -PartialDiscovery:$PartialDiscovery
                 }
             }
         }
