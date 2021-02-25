@@ -28,6 +28,7 @@
     RequiredModules   = @(
         @{ ModuleName = 'PSFramework'; ModuleVersion = '1.5.172' }
         @{ ModuleName = "Az.Accounts"; ModuleVersion = "2.2.5" }
+        @{ ModuleName = "Az.Billing"; ModuleVersion = "" }
         @{ ModuleName = "Az.Resources"; ModuleVersion = "3.2.1" }
     )
 
