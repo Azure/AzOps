@@ -37,13 +37,13 @@
     [CmdletBinding()]
     param (
         [switch]
-        $SkipPolicy,
+        $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
 
         [switch]
-        $SkipRole,
+        $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
 
         [switch]
-        $SkipResourceGroup,
+        $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
 
         [switch]
         $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
