@@ -24,7 +24,7 @@
         $FileName,
 
         [string]
-        $StatePath
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     begin {
