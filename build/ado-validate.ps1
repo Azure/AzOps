@@ -4,4 +4,4 @@
 # Needs to ensure things are Done Right and only legal commits to master get built
 
 # Run internal pester tests
-& "$PSScriptRoot\..\AzOps\tests\pester.ps1"
+& "$PSScriptRoot\..\src\tests\pester.ps1"
