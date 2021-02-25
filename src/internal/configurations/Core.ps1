@@ -18,3 +18,4 @@ Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "
 Set-PSFConfig -Module AzOps -Name Core.StateConfig -Value "$script:ModuleRoot\data\stateconfig.json" -Initialize -Validation string -Description 'Configuration file for resource serialization'
 Set-PSFConfig -Module AzOps -Name Core.SupportPartialMgDiscovery -Value $false -Initialize -Validation bool -Description 'Enable partial discovery'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
+Set-PSFConfig -Module AzOps -Name Core.AutoInitialize -Value $false -Initialize -Validation bool -Description '-'
