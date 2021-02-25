@@ -60,7 +60,7 @@
                     continue
                 }
                 if ($Transform[$property.Name] -is [hashtable]) {
-                    $result[$property.Name] = Convert-AzOpsObject -Transform $Transform [$property.Name] -InputObject $property.Value
+                    $result[$property.Name] = Convert-AzOpsObject -Transform $Transform[$property.Name] -InputObject $property.Value
                     continue
                 }
 

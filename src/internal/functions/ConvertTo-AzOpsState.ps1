@@ -221,11 +221,7 @@
         catch {
             Stop-PSFFunction -String 'ConvertTo-AzOpsState.StateConfig.Error' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig') -EnableException $true -Cmdlet $PSCmdlet -ErrorRecord $_
         }
-        # Load default properties to exclude if defined
-        if ("excludedProperties" -in $resourceConfig.Keys) {
-            $excludedProperties = $resourceConfig.excludedProperties.default
-            Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.ExcludedProperties' -StringValues ($excludedProperties.Keys -join ',')
-        }
+
         #endregion Prepare Configuration Frame
     }
 
@@ -244,6 +240,11 @@
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.StatePath' -StringValues $resourceData.ObjectFilePath
         $object = $Resource
 
+        # Load default properties to exclude if defined
+        if ("excludedProperties" -in $resourceData.Configuration.Keys) {
+            $excludedProperties = $resourceData.Configuration.excludedProperties.default
+            Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.ExcludedProperties' -StringValues ($excludedProperties.Keys -join ',')
+        }
 
         # Create target file object if it doesn't exist
         if ($resourceData.ObjectFilePath -and -not (Test-Path -Path $resourceData.ObjectFilePath)) {
@@ -277,7 +278,7 @@
 
         # Export resource
         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting' -StringValues $resourceData.ObjectFilePath
-        if ($resourceConfig.orderObject) {
+        if ($resourceData.Configuration.orderObject) {
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Object.ReOrder'
             $object = ConvertTo-AzOpsCustomObject -InputObject $object -OrderObject
         }
