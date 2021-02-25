@@ -333,7 +333,7 @@
             $parentObject = $script:AzOpsAzManagementGroup | Where-Object Name -eq $parentMgName
             if ($groupObject.parentId -and $parentObject) {
                 $parentPath = $this.GetAzOpsManagementGroupPath($parentMgName)
-                $childpath = "{0} ({1})" -f $groupObject.DisplayName, $parentObject.Name
+                $childPath = "{0} ({1})" -f $groupObject.DisplayName, $groupObject.Name
                 return (join-path $parentPath -ChildPath $childPath)
             }
             else {
