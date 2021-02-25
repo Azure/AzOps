@@ -1,4 +1,5 @@
-﻿Set-PSFConfig -Module AzOps -Name Core.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
+﻿Set-PSFConfig -Module AzOps -Name Core.AutoInitialize -Value $false -Initialize -Validation bool -Description '-'
+Set-PSFConfig -Module AzOps -Name Core.DefaultDeploymentRegion -Value northeurope -Initialize -Validation string -Description 'Default deployment region for state deployments (ARM region, not region where a resource is deployed)'
 Set-PSFConfig -Module AzOps -Name Core.EnrollmentAccountPrincipalName -Value '' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubOffer -Value 'AzurePass_2014-09-01', 'FreeTrial_2014-09-01', 'AAD_2015-09-01' -Initialize -Validation stringarray -Description 'Excluded QuotaID'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubState -Value 'Disabled', 'Deleted', 'Warned', 'Expired' -Initialize -Validation stringarray -Description 'Excluded subscription states'

@@ -28,6 +28,7 @@
     RequiredModules   = @(
         @{ ModuleName = 'PSFramework'; ModuleVersion = '1.5.172' }
         @{ ModuleName = "Az.Accounts"; ModuleVersion = "2.2.5" }
+        @{ ModuleName = "Az.Billing"; ModuleVersion = "2.0.0" }
         @{ ModuleName = "Az.Resources"; ModuleVersion = "3.2.1" }
     )
 
@@ -44,8 +45,6 @@
     FunctionsToExport = @(
         'Initialize-AzOpsEnvironment'
         'Initialize-AzOpsRepository'
-        'Invoke-AzOpsGitPull'
-        'Invoke-AzOpsGitPush'
     )
 
     # Cmdlets to export from this module
