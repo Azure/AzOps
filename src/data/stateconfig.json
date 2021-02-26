@@ -78,7 +78,7 @@
             }
         },
         "subscription": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                 },
@@ -87,7 +87,7 @@
             }
         },
         "managementGroup": {
-            "orderObject": true,
+            "orderObject": false,
             "excludedProperties": {
                 "default": {
                 },
