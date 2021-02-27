@@ -11,7 +11,6 @@ Set-PSFConfig -Module AzOps -Name Core.MainTemplate -Value "$script:ModuleRoot\d
 Set-PSFConfig -Module AzOps -Name Core.TemplateParameterFileSuffix -Value '.parameters.json' -Initialize -Validation string -Description 'parameter file suffix to look for'
 Set-PSFConfig -Module AzOps -Name Core.OfferType -Value 'MS-AZR-0017P' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.PartialMgDiscoveryRoot -Value @() -Initialize -Validation stringarray -Description 'Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value: "Contoso","Tailspin","Management"'
-Set-PSFConfig -Module AzOps -Name Core.SourceControl -Value 'GitHub' -Initialize -Validation string -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipPolicy -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $true -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Validation bool -Description '-'
