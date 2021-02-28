@@ -248,17 +248,72 @@
                 $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
                 break
             }
+            # Subscription from ManagementGroup Children
+            { ($_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo] -and $_.Type -eq '/subscriptions') } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'Subscription' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                break
+            }
             # Subscriptions
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] } {
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'Subscription' -FunctionName 'ConvertTo-AzOpsState'
                 $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
-                $objectFilePath = (New-AzOpsScope -scope "/subscriptions/$($Resource.id)" -StatePath $StatePath).statepath
+                $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                break
+            }
+            # AzOpsRoleDefinition
+            { $_ -is [AzOpsRoleDefinition] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'Role Definition' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.Id -StatePath $StatePath).statepath
+                break
+            }
+            # AzOpsRoleAssignment
+            { $_ -is [AzOpsRoleAssignment] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'Role Assignment' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.Id -StatePath $StatePath).statepath
+                break
+            }
+            # Resources
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'Resource' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
+                break
+            }
+            # Resource Groups
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'ResourceGroup' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
+                break
+            }
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyDefinition' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
+                break
+            }
+            # PsPolicySetDefinition
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicySetDefinition' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
+                break
+            }
+            # PsPolicyAssignment
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues 'PsPolicyAssignment' -FunctionName 'ConvertTo-AzOpsState'
+                $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq | ConvertFrom-Json
+                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
                 break
             }
             default {
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.Generic' -FunctionName 'ConvertTo-AzOpsState'
                 $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[($_).GetType().ToString()].jq
-                $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
+                $objectFilePath = $ExportPath
                 break
             }
         }
@@ -319,7 +374,7 @@
         #     $object = ConvertTo-AzOpsCustomObject -InputObject $object -OrderObject
         # }
 
-        if (-not $objectFilePath) {
+        if ($null -ne $objectFilePath) {
             # Create target file object if it doesn't exist
             if ($objectFilePath -and -not (Test-Path -Path $objectFilePath)) {
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.File.Create' -StringValues $objectFilePath

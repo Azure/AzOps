@@ -1,36 +1,39 @@
 {
     "resourceTypes": {
-        "policyDefinition": {
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition": {
             "jq": "del(.Properties.Metadata, .Properties.PolicyType)"
         },
-        "policySetDefinition": {
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition": {
             "jq": "del(.Properties.Metadata, .Properties.PolicyType)"
         },
-        "policyAssignment": {
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment": {
             "jq": "del(.Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription": {
             "jq": "."
         },
+        "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo": {
+            "jq": "."
+        },
         "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup": {
             "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |.Children|=sort_by(.Name)"
         },
-        "tenant": {
+        "Microsoft.Azure.Commands.Profile.Models.PSAzureTenant": {
             "jq": "."
         },
-        "resourceGroup": {
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup": {
             "jq": "del(.TagsTable)"
         },
-        "resource": {
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource": {
             "jq": "del(.TagsTable)"
         },
-        "roleDefinition": {
+        "AzOpsRoleAssignment": {
             "jq": "."
         },
-        "roleAssignment": {
+        "AzOpsRoleDefinition": {
             "jq": "."
         },
-        "PSCustomObject": {
+        "System.Management.Automation.PSCustomObject": {
             "jq": "."
         }
     }
