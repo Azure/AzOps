@@ -1,10 +1,10 @@
 {
     "resourceTypes": {
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition": {
-            "jq": "del(.Properties.Metadata, .Properties.PolicyType)"
+            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition": {
-            "jq": "del(.Properties.Metadata, .Properties.PolicyType)"
+            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment": {
             "jq": "del(.Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
@@ -16,7 +16,7 @@
             "jq": "."
         },
         "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup": {
-            "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |select(.Children!=null)|=sort_by(.Name)"
+            "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |.|=if (.Children !=null) then .Children|=sort_by(.Name) else . end"
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureTenant": {
             "jq": "."

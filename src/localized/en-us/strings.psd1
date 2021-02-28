@@ -38,6 +38,7 @@
     'ConvertTo-AzOpsState.Starting'                                                 = 'Starting conversion to AzOps State object' #
     'ConvertTo-AzOpsState.StateConfig.Error'                                        = 'Cannot load {0}, is the json schema valid and does the file exist?' # (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig')
     'ConvertTo-AzOpsState.StatePath'                                                = 'Resolve path to resource state: {0}' # $resourceData.ObjectFilePath
+    'ConvertTo-AzOpsState.File.JQError'                                             = 'JQ Filter error: {0}' # $Resource.ObjectFilePath
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
