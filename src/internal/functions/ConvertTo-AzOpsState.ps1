@@ -374,7 +374,7 @@
         #     $object = ConvertTo-AzOpsCustomObject -InputObject $object -OrderObject
         # }
 
-        if ($null -ne $objectFilePath) {
+        if ($null -ne $object) {
             # Create target file object if it doesn't exist
             if ($objectFilePath -and -not (Test-Path -Path $objectFilePath)) {
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.File.Create' -StringValues $objectFilePath

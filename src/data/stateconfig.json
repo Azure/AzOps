@@ -16,7 +16,7 @@
             "jq": "."
         },
         "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup": {
-            "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |.Children|=sort_by(.Name)"
+            "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |select(.Children!=null)|=sort_by(.Name)"
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureTenant": {
             "jq": "."
