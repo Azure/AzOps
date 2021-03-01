@@ -13,16 +13,17 @@
 
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
+        $Cmdlet
     )
 
     process {
 
         Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJQDepedency.Validating'
 
-        $result = Invoke-AzOpsScriptBlock -ScriptBlock {jq -n} -RetryCount:0 -ErrorAction:SilentlyContinue
+        $result = (Invoke-AzOpsNativeCommand -ScriptBlock { jq --version } -IgnoreExitcode) -as [bool]
 
-        if($result)
-        {
+        if ($result) {
             Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJQDepedency.Success'
             return
         }

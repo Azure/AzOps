@@ -55,7 +55,7 @@
 
     begin {
         Assert-AzOpsWindowsLongPath -Cmdlet $PSCmdlet
-        Assert-AzOpsJQDepedency
+        Assert-AzOpsJQDepedency -Cmdlet $PSCmdlet
 
         $allAzContext = Get-AzContext -ListAvailable
         if (-not $allAzContext) {
