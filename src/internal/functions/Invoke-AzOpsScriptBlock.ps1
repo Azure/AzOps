@@ -61,6 +61,7 @@
             ArgumentList = $ArgumentList
         }
         while ($count -le $RetryCount) {
+            $count++
             try {
                 if (Test-PSFParameterBinding -ParameterName ArgumentList) { & $ScriptBlock $ArgumentList }
                 else { & $ScriptBlock }
@@ -69,7 +70,6 @@
             catch {
                 if ($count -lt $RetryCount) {
                     Write-PSFMessage -Level Debug -String 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_ -Data $data
-                    $count++
                     switch ($RetryType) {
                         Linear { Start-Sleep -Seconds $RetryWait }
                         Exponential { Start-Sleep -Seconds ([math]::Pow($RetryWait, $count)) }
