@@ -398,11 +398,7 @@
             'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
             'policyAssignments' = @($serializedPolicyAssignmentsInAzure)
             'roleDefinitions'   = @($serializedRoleDefinitionsInAzure)
-            'roleAssignments'   = if (Get-PSFConfigValue -FullName 'AzOps.Core.GeneralizeTemplates') {
-                 , @()
-            } else {
-                 , @($serializedRoleAssignmentInAzure)
-            }
+            'roleAssignments'   = @($serializedRoleAssignmentInAzure)
         }
         # Add property bag to parameters json
         $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force

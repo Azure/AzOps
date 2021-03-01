@@ -30,23 +30,27 @@
         $Quiet
     )
 
-    if (-not $Quiet) {
-        $output = & $ScriptBlock 2>&1
-    }
-    else { $output = & $ScriptBlock }
+    try {
+        if ($Quiet) {
+            $output = & $ScriptBlock 2>&1
+        }
+        else { $output = & $ScriptBlock }
 
-    if ($LASTEXITCODE -ne 0 -and -not $IgnoreExitcode) {
         if (-not $Quiet -and $output) {
             $output | Out-String | ForEach-Object {
-                Write-PSFMessage -Level Warning -Message $_
+                Write-PSFMessage -Level Debug -Message $_
             }
+            $output
         }
-
-        $caller = Get-PSCallStack -ErrorAction SilentlyContinue
-        if ($caller) {
-            Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.WithCallstack' -StringValues $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
-        }
-        Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.NoCallstack' -StringValues $ScriptBlock, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
     }
-    elseif ($output) { $output }
+    catch {
+        if (-not $IgnoreExitcode) {
+            $caller = Get-PSCallStack -ErrorAction SilentlyContinue
+            if ($caller) {
+                Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.WithCallstack' -StringValues $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
+            }
+            Stop-PSFFunction -String 'Invoke-AzOpsNativeCommand.Failed.NoCallstack' -StringValues $ScriptBlock, $LASTEXITCODE -Cmdlet $PSCmdlet -EnableException $true
+        }
+        $output
+    }
 }

@@ -3,7 +3,7 @@
     [string]$Name
     [string]$Id
     [hashtable]$Properties
-    
+
     AzOpsRoleAssignment($Properties) {
         $this.Properties = [ordered]@{
             DisplayName = $Properties.DisplayName
