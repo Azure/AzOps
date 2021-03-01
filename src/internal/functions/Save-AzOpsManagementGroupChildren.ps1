@@ -69,7 +69,7 @@
         switch ($scopeObject.Type) {
             managementGroups
             {
-                ConvertTo-AzOpsState -Resource $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup } -ExportPath $scopeObject.statepath -StatePath $StatePath
+                ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scopeObject.managementgroup }) -ExportPath $scopeObject.statepath -StatePath $StatePath
                 foreach ($child in $script:AzOpsAzManagementGroup.Where{ $_.Name -eq $scopeObject.managementgroup }.Children) {
                     Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath
                 }

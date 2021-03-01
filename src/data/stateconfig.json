@@ -1,156 +1,40 @@
 {
     "resourceTypes": {
-        "policyDefinition": {
-            "orderObject": false,
-            "excludedProperties": {
-                "default": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "PolicyType": "Remove"
-                    }
-                },
-                "generalize": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "PolicyType": "Remove"
-                    },
-                    "Sku": "Remove",
-                    "ResourceId": "Remove",
-                    "ResourceName": "Remove",
-                    "ExtensionResourceName": "Remove",
-                    "PolicyDefinitionId": "Remove"
-                }
-            }
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition": {
+            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
-        "policySetDefinition": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "PolicyType": "Remove"
-                    }
-                },
-                "generalize": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "PolicyType": "Remove"
-                    },
-                    "Sku": "Remove",
-                    "ResourceId": "Remove",
-                    "ResourceName": "Remove",
-                    "ExtensionResourceName": "Remove",
-                    "PolicySetDefinitionId": "Remove",
-                    "SubscriptionId": "Remove"
-                }
-            }
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition": {
+            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
-        "policyAssignment": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "EnforcementMode": "Remove"
-                    },
-                    "ResourceGroupName": "Remove",
-                    "SubscriptionId": "Remove"
-                },
-                "generalize": {
-                    "Properties": {
-                        "Metadata": "Remove",
-                        "EnforcementMode": "Remove",
-                        "PolicyDefinitionId": "<replace-me>",
-                        "Scope": "<replace-me>"
-                    },
-                    "Sku": "Remove",
-                    "Identity": {
-                        "principalId": "Remove",
-                        "tenantId": "Remove"
-                    },
-                    "ResourceId": "Remove",
-                    "ResourceName": "Remove",
-                    "ExtensionResourceName": "Remove",
-                    "PolicyAssignmentId": "Remove",
-                    "ResourceGroupName": "Remove",
-                    "SubscriptionId": "Remove"
-                }
-            }
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment": {
+            "jq": "del(.Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
         },
-        "subscription": {
-            "orderObject": false,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                }
-            }
+        "Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription": {
+            "jq": "."
         },
-        "managementGroup": {
-            "orderObject": false,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                }
-            }
+        "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo": {
+            "jq": "."
         },
-        "tenant": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                }
-            }
+        "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup": {
+            "jq": "del(.Id,.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |.|=if (.Children !=null) then .Children|=sort_by(.Name) else . end"
         },
-        "resourceGroup": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                    "TagsTable": "Remove"
-                },
-                "generalize": {
-                }
-            }
+        "Microsoft.Azure.Commands.Profile.Models.PSAzureTenant": {
+            "jq": "."
         },
-        "resource": {
-            "orderObject": false,
-            "excludedProperties": {
-                "default": {
-                    "TagsTable": "Remove"
-                },
-                "generalize": {
-                }
-            }
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup": {
+            "jq": "del(.TagsTable)"
         },
-        "roleDefinition": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                    "Id": "Remove"
-                }
-            }
+        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource": {
+            "jq": "del(.TagsTable)"
         },
-        "roleAssignment": {
-            "orderObject": true,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                }
-            }
+        "AzOpsRoleAssignment": {
+            "jq": "."
         },
-        "PSCustomObject": {
-            "orderObject": false,
-            "excludedProperties": {
-                "default": {
-                },
-                "generalize": {
-                }
-            }
+        "AzOpsRoleDefinition": {
+            "jq": "."
+        },
+        "System.Management.Automation.PSCustomObject": {
+            "jq": "."
         }
     }
 }
