@@ -1,12 +1,31 @@
 # AzOps
 
+This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the [Starter](https://github.com/azure/azops-starter) repository.
+
+## Getting started
+
+For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter) template repository.
+
+## Dependencies
+
+- [Az.Accounts](https://github.com/azure/azure-powershell)
+- [Az.Billing](https://github.com/azure/azure-powershell)
+- [Az.Resources](https://github.com/azure/azure-powershell)
+- [PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
+
+## Need help?
+
+For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)
+For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)
+For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter)
+File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)
+
 ## Status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
-
 
 ## Contributing
 
