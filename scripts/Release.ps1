@@ -32,17 +32,18 @@ if (-not $WorkingDirectory) {
 if (-not $WorkingDirectory) { $WorkingDirectory = Split-Path $PSScriptRoot }
 #endregion Handle Working Directory Defaults
 
-# Prepare publish folder
+#region Prepare publish folder
 Write-PSFMessage -Level Important -Message "Creating and populating publishing directory"
 $publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
-Copy-Item -Path "$($WorkingDirectory)\src" -Destination $publishDir.FullName -Recurse -Force
+Copy-Item -Path "$($WorkingDirectory)/src/" -Destination "$($publishDir.FullName)/AzOps/" -Recurse -Force
+#endregion Prepare publish folder
 
 #region Gather text data to compile
 $text = @()
 $processed = @()
 
 # Gather Stuff to run before
-foreach ($filePath in (& "$($PSScriptRoot)\..\src\internal\scripts\preimport.ps1")) {
+foreach ($filePath in (& "$($PSScriptRoot)/../src/internal/scripts/PreImport.ps1")) {
     if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
 
     $item = Get-Item $filePath
@@ -53,15 +54,15 @@ foreach ($filePath in (& "$($PSScriptRoot)\..\src\internal\scripts\preimport.ps1
 }
 
 # Gather commands
-Get-ChildItem -Path "$($publishDir.FullName)\src\internal\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$($publishDir.FullName)/AzOps/internal/functions/" -Recurse -File -Filter "*.ps1" | ForEach-Object {
     $text += [System.IO.File]::ReadAllText($_.FullName)
 }
-Get-ChildItem -Path "$($publishDir.FullName)\src\functions\" -Recurse -File -Filter "*.ps1" | ForEach-Object {
+Get-ChildItem -Path "$($publishDir.FullName)/AzOps/functions/" -Recurse -File -Filter "*.ps1" | ForEach-Object {
     $text += [System.IO.File]::ReadAllText($_.FullName)
 }
 
 # Gather stuff to run afterwards
-foreach ($filePath in (& "$($PSScriptRoot)\..\src\internal\scripts\postimport.ps1")) {
+foreach ($filePath in (& "$($PSScriptRoot)/../src/internal/scripts/PostImport.ps1")) {
     if ([string]::IsNullOrWhiteSpace($filePath)) { continue }
 
     $item = Get-Item $filePath
@@ -73,10 +74,10 @@ foreach ($filePath in (& "$($PSScriptRoot)\..\src\internal\scripts\postimport.ps
 #endregion Gather text data to compile
 
 #region Update the psm1 file
-$fileData = Get-Content -Path "$($publishDir.FullName)\src\AzOps.psm1" -Raw
+$fileData = Get-Content -Path "$($publishDir.FullName)/AzOps/AzOps.psm1" -Raw
 $fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
-[System.IO.File]::WriteAllText("$($publishDir.FullName)\src\AzOps.psm1", $fileData, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText("$($publishDir.FullName)/AzOps/AzOps.psm1", $fileData, [System.Text.Encoding]::UTF8)
 #endregion Update the psm1 file
 
 #region Updating the Module Version
@@ -90,8 +91,8 @@ if ($AutoVersion) {
         Stop-PSFFunction -Message "Couldn't find AzOps on repository $($Repository)" -EnableException $true
     }
     $newBuildNumber = $remoteVersion.Build + 1
-    [version]$localVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)\src\AzOps.psd1").ModuleVersion
-    Update-ModuleManifest -Path "$($publishDir.FullName)\src\AzOps.psd1" -ModuleVersion "$($localVersion.Major).$($localVersion.Minor).$($newBuildNumber)"
+    [version]$localVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)/AzOps/AzOps.psd1").ModuleVersion
+    Update-ModuleManifest -Path "$($publishDir.FullName)/AzOps/AzOps.psd1" -ModuleVersion "$($localVersion.Major).$($localVersion.Minor).$($newBuildNumber)"
 }
 #endregion Updating the Module Version
 
@@ -102,11 +103,11 @@ if ($LocalRepo) {
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: PSFramework"
     New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath .
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: AzOps"
-    New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)\src" -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)/AzOps/" -PackagePath .
 }
 else {
     # Publish to Gallery
     Write-PSFMessage -Level Important -Message "Publishing the AzOps module to $($Repository)"
-    Publish-Module -Path "$($publishDir.FullName)\src" -NuGetApiKey $ApiKey -Force -Repository $Repository
+    Publish-Module -Path "$($publishDir.FullName)/AzOps/" -NuGetApiKey $ApiKey -Force -Repository $Repository
 }
 #endregion Publish
