@@ -1,6 +1,6 @@
 # AzOps
 
-This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the Starter repository.
+This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the [Starter](https://github.com/azure/azops-starter) repository.
 
 ## Getting started
 
