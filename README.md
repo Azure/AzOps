@@ -1,6 +1,6 @@
 # AzOps
 
-This repository contains the AzOps PowerShell cmdlets for developers and administrators to develop, deploy and manage Azure environments.
+This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the Starter repository.
 
 ## Getting started
 
