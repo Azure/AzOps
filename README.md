@@ -1,5 +1,11 @@
 # AzOps
 
+This repository contains the AzOps PowerShell cmdlets for developers and administrators to develop, deploy and manage Azure environments.
+
+## Usage
+
+Navigate to the following [template repository](https://github.com/azure/azops-starter) to get started.
+
 ## Status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
@@ -7,6 +13,12 @@
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
 
+## Dependencies
+
+[Az.Accounts](https://github.com/azure/azure-powershell)
+[Az.Billing](https://github.com/azure/azure-powershell)
+[Az.Resources](https://github.com/azure/azure-powershell)
+[PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
 
 ## Contributing
 
