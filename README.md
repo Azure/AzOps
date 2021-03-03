@@ -13,6 +13,10 @@ For tutorials, samples and quick starts, go to [AzOps Starter](https://github.co
 - [Az.Resources](https://github.com/azure/azure-powershell)
 - [PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
 
+## Need help?
+
+For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale).
+
 ## Status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
