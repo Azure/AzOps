@@ -15,10 +15,10 @@ For tutorials, samples and quick starts, go to [AzOps Starter](https://github.co
 
 ## Need help?
 
-- For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)
-- For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)
-- For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter)
-- File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)
+For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki) 
+For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale) 
+For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter) 
+File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose) 
 
 ## Status
 
