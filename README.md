@@ -15,10 +15,10 @@ Navigate to the following [template repository](https://github.com/azure/azops-s
 
 ## Dependencies
 
-[Az.Accounts](https://github.com/azure/azure-powershell)
-[Az.Billing](https://github.com/azure/azure-powershell)
-[Az.Resources](https://github.com/azure/azure-powershell)
-[PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
+- [Az.Accounts](https://github.com/azure/azure-powershell)
+- [Az.Billing](https://github.com/azure/azure-powershell)
+- [Az.Resources](https://github.com/azure/azure-powershell)
+- [PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
 
 ## Contributing
 
