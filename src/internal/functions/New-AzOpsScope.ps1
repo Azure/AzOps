@@ -21,8 +21,7 @@
             scope                      : /providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560
             type                       : managementGroups
             name                       : 3fc1081d-6105-4e19-b60c-1ec1252cf560
-            statepath                  : C:\git\cet-northstar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\.AzState\Microsoft.Management_managementGroups-3fc1081d-6105-4e19-b60c-1ec1252cf560.parame
-            ters.json
+            statepath                  : C:\git\cet-northstar\azops\3fc1081d-6105-4e19-b60c-1ec1252cf560\.AzState\Microsoft.Management_managementGroups-3fc1081d-6105-4e19-b60c-1ec1252cf560.parameters.json
             managementgroup            : 3fc1081d-6105-4e19-b60c-1ec1252cf560
             managementgroupDisplayName : 3fc1081d-6105-4e19-b60c-1ec1252cf560
             subscription               :
