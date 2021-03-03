@@ -4,7 +4,7 @@ This repository contains the AzOps PowerShell cmdlets for developers and adminis
 
 ## Getting started
 
-For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter)
+For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter) template repository.
 
 ## Dependencies
 
