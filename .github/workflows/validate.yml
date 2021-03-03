@@ -1,0 +1,17 @@
+---
+name: "Validate"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: "Validate"
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Validate'
+        run: .\scripts\Validate.ps1
+        shell: pwsh
