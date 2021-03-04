@@ -1,10 +1,10 @@
 # AzOps
 
-This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the [Starter](https://github.com/azure/azops-starter) repository.
+This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the [Accelerator](https://github.com/azure/azops-accelerator) repository.
 
 ## Getting started
 
-For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter) template repository.
+For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
 
 ## Dependencies
 
@@ -17,13 +17,16 @@ For tutorials, samples and quick starts, go to [AzOps Starter](https://github.co
 
 For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
 For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
-For tutorials, samples and quick starts, go to [AzOps Starter](https://github.com/azure/azops-starter)  
+For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/AzOps/blob/dev/CONTRIBUTING.md)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
-## Status
+## Build Status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
+
+## Issues
+
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
