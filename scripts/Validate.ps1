@@ -4,4 +4,4 @@
 # Needs to ensure things are Done Right and only ethical commits to main get built
 
 # Run internal pester tests
-& "$PSScriptRoot\..\src\tests\pester.ps1"
+& "$PSScriptRoot\..\src\tests\Pester.ps1"
