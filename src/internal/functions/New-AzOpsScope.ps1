@@ -39,12 +39,11 @@
         .OUTPUTS
             [AzOpsScope]
     #>
-
-    [OutputType([AzOpsScope])]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(ParameterSetName = "scope")]
         [string]
+        [ValidateScript( { $null -ne $script:AzOpsAzManagementGroup})]
         $Scope,
 
         [Parameter(ParameterSetName = "pathfile", ValueFromPipeline = $true)]

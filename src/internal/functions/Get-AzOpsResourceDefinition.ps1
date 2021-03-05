@@ -76,7 +76,7 @@
             process {
                 $common = @{
                     FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target	     = $ScopeObject
+                    Target       = $ScopeObject
                 }
 
                 Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Resource.Processing' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup
@@ -112,7 +112,7 @@
             process {
                 $common = @{
                     FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target	     = $ScopeObject
+                    Target       = $ScopeObject
                 }
 
                 Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -135,7 +135,7 @@
                 $paramGetAzResource = @{
                     DefaultProfile    = $Context
                     ResourceGroupName = $resourceGroup.ResourceGroupName
-                    ODataQuery	      = $OdataFilter
+                    ODataQuery        = $OdataFilter
                     ExpandProperties  = $true
                 }
                 Get-AzResource @paramGetAzResource | ForEach-Object {
@@ -173,7 +173,7 @@
             process {
                 $common = @{
                     FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target	     = $ScopeObject
+                    Target       = $ScopeObject
                 }
 
                 Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -199,11 +199,11 @@
 
                     #region Prepare Input Data for parallel processing
                     $runspaceData = @{
-                        AzOpsPath = "$($script:ModuleRoot)\AzOps.psd1"
-                        StatePath = $StatePath
-                        ScopeObject = $ScopeObject
-                        ODataFilter = $ODataFilter
-                        MaxRetryCount = $maxRetryCount
+                        AzOpsPath         = "$($script:ModuleRoot)\AzOps.psd1"
+                        StatePath         = $StatePath
+                        ScopeObject       = $ScopeObject
+                        ODataFilter       = $ODataFilter
+                        MaxRetryCount     = $maxRetryCount
                         BackoffMultiplier = $backoffMultiplier
                         ExportRawTemplate = $ExportRawTemplate
                     }
@@ -237,7 +237,7 @@
                         $resources = & $azOps {
                             $parameters = @{
                                 DefaultProfile = $Context | Select-Object -First 1
-                                ODataQuery = $runspaceData.ODataFilter
+                                ODataQuery     = $runspaceData.ODataFilter
                             }
                             if ($resourceGroup.ResourceGroupName) {
                                 $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
@@ -297,7 +297,7 @@
             process {
                 $common = @{
                     FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target	     = $ScopeObject
+                    Target       = $ScopeObject
                 }
 
                 Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Processing' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
@@ -389,22 +389,24 @@
             return
         }
 
-        #region Add accumulated policy and role data
-        # Get statefile from scope
-        $parametersJson = Get-Content -Path $scopeObject.StatePath | ConvertFrom-Json -Depth 100
-        # Create property bag and add resources at scope
-        $propertyBag = [ordered]@{
-            'policyDefinitions' = @($serializedPolicyDefinitionsInAzure)
-            'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-            'policyAssignments' = @($serializedPolicyAssignmentsInAzure)
-            'roleDefinitions'   = @($serializedRoleDefinitionsInAzure)
-            'roleAssignments'   = @($serializedRoleAssignmentInAzure)
+        if (Get-PSFConfigValue -FullName 'AzOps.Core.AllInOneTemplate') {
+            #region Add accumulated policy and role data
+            # Get statefile from scope
+            $parametersJson = Get-Content -Path $scopeObject.StatePath | ConvertFrom-Json -Depth 100
+            # Create property bag and add resources at scope
+            $propertyBag = [ordered]@{
+                'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
+                'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
+                'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
+                'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
+                'roleAssignments'      = @($serializedRoleAssignmentInAzure)
+            }
+            # Add property bag to parameters json
+            $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force
+            # Export state file with properties at scope
+            ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -ExportRawTemplate -StatePath $StatePath
+            #endregion Add accumulated policy and role data
         }
-        # Add property bag to parameters json
-        $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force
-        # Export state file with properties at scope
-        ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -ExportRawTemplate -StatePath $StatePath
-        #endregion Add accumulated policy and role data
 
         Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
     }
