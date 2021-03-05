@@ -36,7 +36,7 @@
 
     #region Constructors
     AzOpsScope ([string]$Scope, [string]$StateRoot) {
-    <#
+        <#
         .SYNOPSIS
             Creates an AzOpsScope based on the specified resource ID
 
@@ -85,21 +85,6 @@
             $resourcepath.Keys -contains 'parameters' -and
             $resourcepath.parameters.Keys -contains 'input'
         ) {
-            #region Schema Example
-                    <#
-                        {
-                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-                            "contentVersion": "1.0.0.0",
-                            "parameters": {
-                                "input": {
-                                    "value": {
-                                        "Id": "/providers/Microsoft.Management/managementGroups/contoso"
-                                    }
-                                }
-                            }
-                        }
-                    #>
-            #endregion Schema Example
 
             if ($resourcepath.parameters.input.value.Keys -contains "ResourceId") {
                 # Resource
@@ -144,8 +129,15 @@
                 $this.InitializeMemberVariables($managementGroupConfig.parameters.input.value.Id)
             }
             else {
-                Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ManagementGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
-                throw "Invalid Management Group Data! Validate integrity of $($children.FullName -join ', ')"
+                if ($children.Name.Replace('Microsoft.Management_managementGroups-', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') ) {
+                    [string] $managementGroupID = $children.Name.Replace('Microsoft.Management_managementGroups-', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') 
+                    Write-PSFMessage -Level Warning -String 'AzOpsScope.Input.FromFileName.ManagementGroup' -StringValues $($children.Name) -FunctionName InitializeMemberVariablesFromPath -ModuleName AzOps
+                    $this.InitializeMemberVariables("/providers/Microsoft.Management/managementGroups/$managementGroupID")
+                }
+                else {
+                    Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ManagementGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
+                    throw "Invalid Management Group Data! Validate integrity of $($children.FullName -join ', ')"
+                }
             }
         }
         elseif ($children = Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $subscriptionFileName) {
@@ -154,8 +146,15 @@
                 $this.InitializeMemberVariables($subscriptionConfig.parameters.input.value.Id)
             }
             else {
-                Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.Subscription' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
-                throw "Invalid Subscription Data! Validate integrity of $($children.FullName -join ', ')"
+                if ($children.Name.Replace('Microsoft.Subscription_subscriptions-', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') ) {
+                    [string] $subscriptionID = $children.Name.Replace('Microsoft.Subscription_subscriptions-', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') 
+                    Write-PSFMessage -Level Warning -String 'AzOpsScope.Input.FromFileName.Subscription' -StringValues $($children.Name) -FunctionName InitializeMemberVariablesFromPath -ModuleName AzOps
+                    $this.InitializeMemberVariables("/subscriptions/$subscriptionID")
+                }
+                else {
+                    Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.Subscription' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
+                    throw "Invalid Subscription Data! Validate integrity of $($children.FullName -join ', ')"
+                }
             }
         }
         elseif ($children = Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $resourceGroupFileName) {

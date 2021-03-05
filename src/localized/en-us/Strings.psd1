@@ -10,8 +10,8 @@
     'Assert-AzOpsWindowsLongPath.No.Registry'                                       = 'Windows has not yet been configured for long path support' #
     'Assert-AzOpsWindowsLongPath.Validating'                                        = 'Validating Windows environment for LongPath support' #
 
-    'Assert-AzOpsJQDepedency.Validating'                                            = 'Validating if jq is in current path' #
-    'Assert-AzOpsJQDepedency.Success'                                               = 'jq is found in current path' #
+    'Assert-AzOpsJQDependency.Validating'                                            = 'Validating if jq is in current path' #
+    'Assert-AzOpsJQDependency.Success'                                               = 'jq is found in current path' #
 
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
@@ -22,6 +22,9 @@
     'AzOpsScope.GetSubscription.NotFound'                                           = 'SubscriptionId not found in Azure. Using directory name instead: {0}' # $subId
     'AzOpsScope.GetSubscriptionDisplayName.Found'                                   = 'Subscription DisplayName found in Azure: {0}' # $sub.displayName
     'AzOpsScope.GetSubscriptionDisplayName.NotFound'                                = 'Subscription DisplayName not found in Azure. Using directory name instead: {0}' # $subId
+    'AzOpsScope.Input.FromFileName.ManagementGroup'                                 = 'Extracting from file name {0}' # ($children.FullName -join ', ')
+    'AzOpsScope.Input.FromFileName.Subscription'                                    = 'Extracting from file name {0}' # ($children.FullName -join ', ')
+    'AzOpsScope.Input.FromFileName.ResourceGroup'                                   = 'Extracting from file name {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.ManagementGroup'                                      = '{0} does not contain .parameters.input.value.Id' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.ResourceGroup'                                        = 'Invalid Resource Group Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.Subscription'                                         = 'Invalid Subscription Data! Validate integrity of {0}' # ($children.FullName -join ', ')

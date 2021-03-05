@@ -1,22 +1,22 @@
 {
     "resourceTypes": {
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition": {
-            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
+            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition": {
-            "jq": "del(.ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
+            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
         },
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment": {
-            "jq": "del(.Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
+            "jq": "del(.ResourceId, .Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription": {
-            "jq": "."
+            "jq": "del(.Id)"
         },
         "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo": {
-            "jq": "."
+            "jq": "del(.Id)"
         },
         "Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup": {
-            "jq": "del(.ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Id, Name, DisplayName, ParentId, ParentName} + $in |.|=if (.Children !=null) then .Children|=sort_by(.Name) else . end"
+            "jq": "del(.Id, .ParentDisplayName, .UpdatedTime, .UpdatedBy, .TenantId) | . as $in | {Type, Name, DisplayName, ParentId, ParentName} + $in |.|=if (.Children !=null) then .Children|=sort_by(.Name) else . end"
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureTenant": {
             "jq": "."
@@ -28,10 +28,10 @@
             "jq": "del(.TagsTable)"
         },
         "AzOpsRoleAssignment": {
-            "jq": "."
+            "jq": "del(.Id)| .Properties |= {DisplayName, ObjectType, PrincipalId, RoleDefinitionId, RoleDefinitionName}"
         },
         "AzOpsRoleDefinition": {
-            "jq": "."
+            "jq": "del(.Id)| .Properties |= {AssignableScopes, Description, Permissions, RoleName}"
         },
         "System.Management.Automation.PSCustomObject": {
             "jq": "."
