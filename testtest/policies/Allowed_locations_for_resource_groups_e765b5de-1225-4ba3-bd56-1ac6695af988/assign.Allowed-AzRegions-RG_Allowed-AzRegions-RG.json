@@ -1,0 +1,31 @@
+{
+ "sku": {
+  "name": "A0",
+  "tier": "Free"
+ },
+ "properties": {
+  "displayName": "Allowed-AzRegions-RG",
+  "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e765b5de-1225-4ba3-bd56-1ac6695af988",
+  "scope": "/providers/Microsoft.Management/managementGroups/sjt",
+  "parameters": {
+   "listOfAllowedLocations": {
+    "value": [
+     "australiaeast",
+     "australiasoutheast"
+    ]
+   }
+  },
+  "description": "Allowed-AzRegions-RG",
+  "metadata": {
+   "createdBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "createdOn": "2021-02-03T07:40:43.5941006Z",
+   "updatedBy": "e5906c27-d401-4768-9c79-1dab42fd1a80",
+   "updatedOn": "2021-03-03T14:13:13.2488079Z"
+  },
+  "enforcementMode": "Default"
+ },
+ "id": "/providers/Microsoft.Management/managementGroups/sjt/providers/Microsoft.Authorization/policyAssignments/Allowed-AzRegions-RG",
+ "type": "Microsoft.Authorization/policyAssignments",
+ "name": "Allowed-AzRegions-RG",
+ "location": "australiaeast"
+}
