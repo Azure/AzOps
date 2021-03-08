@@ -39,6 +39,7 @@
         .OUTPUTS
             [AzOpsScope]
     #>
+    
     [OutputType([AzOpsScope])]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
