@@ -3,7 +3,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.7'
+    ModuleVersion     = '0.0.8'
 
     # ID used to uniquely identify this module
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
@@ -27,9 +27,9 @@
     # this module
     RequiredModules   = @(
         @{ ModuleName = 'PSFramework'; ModuleVersion = '1.5.172' }
-        @{ ModuleName = "Az.Accounts"; ModuleVersion = "2.2.5" }
-        @{ ModuleName = "Az.Billing"; ModuleVersion = "2.0.0" }
-        @{ ModuleName = "Az.Resources"; ModuleVersion = "3.2.1" }
+        @{ ModuleName = 'Az.Accounts'; ModuleVersion = '2.2.5' }
+        @{ ModuleName = 'Az.Billing'; ModuleVersion = '2.0.0' }
+        @{ ModuleName = 'Az.Resources'; ModuleVersion = '3.2.1' }
     )
 
     # Assemblies that must be loaded prior to importing this module
@@ -87,6 +87,8 @@
             Prerelease = '-alpha'
 
         } # End of PSData hashtable
+
+
 
     } # End of PrivateData hashtable
 }
