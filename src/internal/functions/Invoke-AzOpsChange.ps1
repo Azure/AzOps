@@ -61,7 +61,7 @@
             }
 
             $fileItem = Get-Item -Path $FilePath
-            if ($fileItem.Extension -ne '.json') {
+            if ($fileItem.Extension -notin '.json' , '.bicep') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsChange.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsChange' -Target $ScopeObject
                 return
             }
@@ -70,19 +70,27 @@
             #region Case: Parameters File
             if ($fileItem.Name -like "*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')") {
                 $result.TemplateParameterFilePath = $fileItem.FullName
-                $deploymentName = $fileItem.BaseName -replace '\.parameters$' -replace ' ', '_'
+                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), ''
                 if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
                 $result.DeploymentName = "AzOps-$deploymentName"
 
-                #region Directly Associated Templatefile exists
-                $templatePath = $fileItem.FullName -replace '\.parameters\.json$', '.json'
-
+                #region Directly Associated Template file exists
+                $templatePath = $fileItem.FullName -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '.json'
                 if (Test-Path $templatePath) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                     $result.TemplateFilePath = $templatePath
                     return $result
                 }
-                #endregion Directly Associated Templatefile exists
+                #endregion Directly Associated Template file exists
+
+                #region Directly Associated bicep template exists
+                $bicepTemplatePath = $fileItem.FullName -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '.bicep'
+                if (Test-Path $bicepTemplatePath) {
+                    Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
+                    $result.TemplateFilePath = $bicepTemplatePath
+                    return $result
+                }
+                #endregion Directly Associated bicep template exists
 
                 #region Check in the main template file for a match
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.NotFoundTemplate' -StringValues $FilePath, $templatePath
@@ -118,7 +126,7 @@
 
             #region Case: Template File
             $result.TemplateFilePath = $fileItem.FullName
-            $parameterPath = $fileItem.FullName -replace '\.json$', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+            $parameterPath =  Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath
