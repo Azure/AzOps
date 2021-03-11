@@ -39,7 +39,7 @@
         .OUTPUTS
             [AzOpsScope]
     #>
-    
+
     [OutputType([AzOpsScope])]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
@@ -55,11 +55,6 @@
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
-
-    begin {
-        [regex]$regex_findAzStateFileExtension = '(?i)(.AzState)(|\\|\/)$'
-    }
-
     process {
         Write-PSFMessage -Level Debug -String 'New-AzOpsScope.Starting'
 
@@ -72,19 +67,17 @@
             }
             pathfile
             {
-                $resolvedPath = $Path -replace $regex_findAzStateFileExtension, ''
-                if (-not (Test-Path $resolvedPath)) {
+                if (-not (Test-Path $Path)) {
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.NotFound' -StringValues $Path -EnableException $true -Cmdlet $PSCmdlet
                 }
-                $resolvedPath = Resolve-PSFPath -Path $resolvedPath -SingleItem -Provider FileSystem
-                if (-not $resolvedPath.StartsWith($StatePath)) {
+                $Path = Resolve-PSFPath -Path $Path -SingleItem -Provider FileSystem
+                if (-not $Path.StartsWith($StatePath)) {
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.InvalidRoot' -StringValues $Path, $StatePath -EnableException $true -Cmdlet $PSCmdlet
                 }
-                Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromFile' -Target $resolvedPath -ScriptBlock {
-                    [AzOpsScope]::new($(Get-Item -Path $resolvedPath), $StatePath)
+                Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromFile' -Target $Path -ScriptBlock {
+                    [AzOpsScope]::new($(Get-Item -Path $Path), $StatePath)
                 } -EnableException $true -PSCmdlet $PSCmdlet
             }
         }
     }
-
 }
