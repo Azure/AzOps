@@ -122,7 +122,6 @@
             Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
             Get-AzOpsManagementGroups -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
-        $script:AzOpsPartialRoot
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution
         #endregion Management Group Processing
