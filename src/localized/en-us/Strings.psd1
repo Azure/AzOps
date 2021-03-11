@@ -94,7 +94,6 @@
     'Initialize-AzOpsEnvironment.AzureContext.TooMany'                              = 'Unsupported number of tenants in context: {0} TenantIDs TenantIDs: {1} Please reconnect with Connect-AzAccount using an account/service principal that only have access to one tenant' # $azContextTenants.Count, ($azContextTenants -join ',')
     'Initialize-AzOpsEnvironment.Initializing'                                      = 'Starting AzOps environment initialization' #
     'Initialize-AzOpsEnvironment.ManagementGroup.Expanding'                         = 'Expanding management groups under {0}' # $mgmtGroup.Name
-    'Initialize-AzOpsEnvironment.ManagementGroup.NotFound'                          = 'Root path {0} not found with account {1}. Ensure you have root access or use partial discovery.' # $rootScope, (Get-AzContext).Account.Id
     'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions'                 = 'Principal {0} does not have permissions under / in tenant, enabling partial discovery' # $currentAzContext.Account.Id
     'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'                  = 'Executing partial discovery' #
     'Initialize-AzOpsEnvironment.ManagementGroup.Resolution'                        = 'Resolving {0} management groups' # $managementGroups.Count
@@ -106,7 +105,6 @@
     'Initialize-AzOpsRepository.Duration'                                           = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
     'Initialize-AzOpsRepository.Initialization.Completed'                           = 'Completed preparations for the AzOps repository setup' #
     'Initialize-AzOpsRepository.Initialization.Starting'                            = 'Starting preparations for the AzOps repository setup' #
-    'Initialize-AzOpsRepository.ManagementGroup.AccessError'                        = 'Cannot access root management group {0} - verify that principal {1} has access' # $root, (Get-AzContext).Account.Id
     'Initialize-AzOpsRepository.Migration.Required'                                 = 'Migration from previous repository state IS required' #
     'Initialize-AzOpsRepository.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
     'Initialize-AzOpsRepository.Tenant'                                             = 'Connected to tenant {0}' # $tenantId

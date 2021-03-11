@@ -127,17 +127,11 @@
 
         #region Root Scopes
         $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
-        if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
+        if ($script:AzOpsPartialRoot.id) {
             $rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
         }
 
         foreach ($root in $rootScope) {
-            if ($script:AzOpsAzManagementGroup.Id -notcontains $root -and -not $PartialMgDiscovery) {
-                Write-PSFMessage -Level Warning -String 'Initialize-AzOpsRepository.ManagementGroup.AccessError' -StringValues $root, (Get-AzContext).Account.Id
-                Write-Error "Cannot access root management group $root - verify that principal $((Get-AzContext).Account.Id) has access"
-                continue
-            }
-
             # Create AzOpsState Structure recursively
             Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
