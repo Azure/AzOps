@@ -3,7 +3,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.8'
+    ModuleVersion     = '0.0.9'
 
     # ID used to uniquely identify this module
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
@@ -18,7 +18,7 @@
     Copyright         = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'Opinionated CI/CD for Azure.'
+    Description       = 'Integrated CI/CD Solution for Microsoft Azure.'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '7.0'
