@@ -41,20 +41,20 @@
         $Scope,
 
         [switch]
-        $SkipPolicy,
+        $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
 
         [switch]
-        $SkipRole,
+        $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
 
         [switch]
-        $SkipResourceGroup,
+        $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
 
         [switch]
-        $ExportRawTemplate,
+        $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $StatePath
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
 
     begin {
@@ -139,7 +139,7 @@
                     ExpandProperties  = $true
                 }
                 Get-AzResource @paramGetAzResource | ForEach-Object {
-                    New-AzOpsScope -Scope $_ -StatePath $StatePath
+                    New-AzOpsScope -Scope $_.ResourceId
                 } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
             }
         }
@@ -199,13 +199,16 @@
 
                     #region Prepare Input Data for parallel processing
                     $runspaceData = @{
-                        AzOpsPath         = "$($script:ModuleRoot)\AzOps.psd1"
-                        StatePath         = $StatePath
-                        ScopeObject       = $ScopeObject
-                        ODataFilter       = $ODataFilter
-                        MaxRetryCount     = $maxRetryCount
-                        BackoffMultiplier = $backoffMultiplier
-                        ExportRawTemplate = $ExportRawTemplate
+                        AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                        StatePath                       = $StatePath
+                        ScopeObject                     = $ScopeObject
+                        ODataFilter                     = $ODataFilter
+                        MaxRetryCount                   = $maxRetryCount
+                        BackoffMultiplier               = $backoffMultiplier
+                        ExportRawTemplate               = $ExportRawTemplate
+                        runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                        runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                        runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
                     }
                     #endregion Prepare Input Data for parallel processing
 
@@ -225,6 +228,12 @@
                         Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
                         $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
                         # endregion Importing module
+
+                        & $azOps {
+                            $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                            $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                            $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                        }
 
                         $context = Get-AzContext -ListAvailable | Where-Object {
                             $_.Subscription.id -eq $runspaceData.ScopeObject.Subscription
