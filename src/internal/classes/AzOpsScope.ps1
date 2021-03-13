@@ -362,7 +362,7 @@
             if ($mgId) {
                 $mgDisplayName = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $mgId).DisplayName
                 if ($mgDisplayName) {
-                    Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
+                    #Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
                     return $mgDisplayName
                 }
                 else {

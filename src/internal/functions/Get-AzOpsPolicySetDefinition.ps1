@@ -22,7 +22,7 @@
 
     process {
         #TODO: Discuss dropping resourcegroups, as no action is taken ever
-        if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementgroups') {
+        if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
             return
         }
 
