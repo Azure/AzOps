@@ -189,88 +189,96 @@
                     # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
                     # Define variables used by script
-                    $resourceGroups = Invoke-AzOpsScriptBlock -ArgumentList $Context -ScriptBlock {
-                        param ($Context)
-                        Get-AzResourceGroup -DefaultProfile ($Context | Write-Output) -ErrorAction Stop | Where-Object { -not $_.ManagedBy }
-                    } -RetryCount $maxRetryCount -RetryWait $backoffMultiplier -RetryType Exponential
-                    if (-not $resourceGroups) {
-                        Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-                    }
-
-                    #region Prepare Input Data for parallel processing
-                    $runspaceData = @{
-                        AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
-                        StatePath                       = $StatePath
-                        ScopeObject                     = $ScopeObject
-                        ODataFilter                     = $ODataFilter
-                        MaxRetryCount                   = $maxRetryCount
-                        BackoffMultiplier               = $backoffMultiplier
-                        ExportRawTemplate               = $ExportRawTemplate
-                        runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
-                        runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
-                        runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
-                    }
-                    #endregion Prepare Input Data for parallel processing
-
-                    #region Discover all resource groups in parallel
-                    $resourceGroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
-                        $resourceGroup = $_
-                        $runspaceData = $using:runspaceData
-
-                        $msgCommon = @{
-                            FunctionName = 'Get-AzOpsResourceDefinition'
-                            ModuleName   = 'AzOps'
+                    if (
+                        (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.Subscription -like $_ }) -contains $true) -or
+                        (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.SubscriptionDisplayName -like $_ }) -contains $true)
+                    ) {
+                        $resourceGroups = Invoke-AzOpsScriptBlock -ArgumentList $Context -ScriptBlock {
+                            param ($Context)
+                            Get-AzResourceGroup -DefaultProfile ($Context | Write-Output) -ErrorAction Stop | Where-Object { -not $_.ManagedBy }
+                        } -RetryCount $maxRetryCount -RetryWait $backoffMultiplier -RetryType Exponential
+                        if (-not $resourceGroups) {
+                            Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
                         }
 
-                        # region Importing module
-                        # We need to import all required modules and declare variables again because of the parallel runspaces
-                        # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
-                        Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
-                        $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
-                        # endregion Importing module
-
-                        & $azOps {
-                            $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
-                            $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
-                            $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                        #region Prepare Input Data for parallel processing
+                        $runspaceData = @{
+                            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                            StatePath                       = $StatePath
+                            ScopeObject                     = $ScopeObject
+                            ODataFilter                     = $ODataFilter
+                            MaxRetryCount                   = $maxRetryCount
+                            BackoffMultiplier               = $backoffMultiplier
+                            ExportRawTemplate               = $ExportRawTemplate
+                            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
                         }
+                        #endregion Prepare Input Data for parallel processing
 
-                        $context = Get-AzContext -ListAvailable | Where-Object {
-                            $_.Subscription.id -eq $runspaceData.ScopeObject.Subscription
-                        }
+                        #region Discover all resource groups in parallel
+                        $resourceGroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
+                            $resourceGroup = $_
+                            $runspaceData = $using:runspaceData
 
-                        Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                        & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
-
-                        Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                        $resources = & $azOps {
-                            $parameters = @{
-                                DefaultProfile = $Context | Select-Object -First 1
-                                ODataQuery     = $runspaceData.ODataFilter
+                            $msgCommon = @{
+                                FunctionName = 'Get-AzOpsResourceDefinition'
+                                ModuleName   = 'AzOps'
                             }
-                            if ($resourceGroup.ResourceGroupName) {
-                                $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
-                            }
-                            Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
-                                param (
-                                    $Parameters
-                                )
-                                $param = $Parameters | Write-Output
-                                Get-AzResource @param -ExpandProperties -ErrorAction Stop
-                            } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
-                        }
-                        if (-not $resources) {
-                            Write-PSFMessage @msgCommon -Level Warning -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                        }
 
-                        # Loop through resources and convert them to AzOpsState
-                        foreach ($resource in $resources) {
-                            # Convert resources to AzOpsState
-                            Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
-                            & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                            # region Importing module
+                            # We need to import all required modules and declare variables again because of the parallel runspaces
+                            # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
+                            Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
+                            $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
+                            # endregion Importing module
+
+                            & $azOps {
+                                $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                                $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                                $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                            }
+
+                            $context = Get-AzContext -ListAvailable | Where-Object {
+                                $_.Subscription.id -eq $runspaceData.ScopeObject.Subscription
+                            }
+
+                            Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                            & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+
+                            Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                            $resources = & $azOps {
+                                $parameters = @{
+                                    DefaultProfile = $Context | Select-Object -First 1
+                                    ODataQuery     = $runspaceData.ODataFilter
+                                }
+                                if ($resourceGroup.ResourceGroupName) {
+                                    $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                                }
+                                Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                                    param (
+                                        $Parameters
+                                    )
+                                    $param = $Parameters | Write-Output
+                                    Get-AzResource @param -ExpandProperties -ErrorAction Stop
+                                } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
+                            }
+                            if (-not $resources) {
+                                Write-PSFMessage @msgCommon -Level Warning -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                            }
+
+                            # Loop through resources and convert them to AzOpsState
+                            foreach ($resource in $resources) {
+                                # Convert resources to AzOpsState
+                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
+                                & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                            }
                         }
+                        #endregion Discover all resource groups in parallel
                     }
-                    #endregion Discover all resource groups in parallel
+                    else {
+                        Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
+                    }
                 }
                 if ($subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name) {
                     ConvertTo-AzOpsState -Resource $subscriptionItem -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
@@ -345,7 +353,7 @@
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup }
         }
 
-        if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementgroups') {
+        if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
@@ -393,7 +401,7 @@
         }
         #endregion Process Roles
 
-        if ($scopeObject.Type -notin 'subscriptions', 'managementgroups') {
+        if ($scopeObject.Type -notin 'subscriptions', 'managementGroups') {
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }

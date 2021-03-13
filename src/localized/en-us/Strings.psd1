@@ -75,6 +75,7 @@
     'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
+    'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
 
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
