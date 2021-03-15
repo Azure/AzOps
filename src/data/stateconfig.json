@@ -1,13 +1,7 @@
 {
     "resourceTypes": {
-        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyDefinition": {
-            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
-        },
-        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition": {
-            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
-        },
-        "Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicyAssignment": {
-            "jq": "del(.ResourceId, .Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
+        "System.Management.Automation.PSCustomObject": {
+            "jq": "."
         },
         "Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription": {
             "jq": "del(.Id)"
@@ -27,14 +21,23 @@
         "Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource": {
             "jq": "del(.TagsTable)"
         },
-        "AzOpsRoleAssignment": {
+        "Microsoft.Authorization/policyDefinitions": {
+            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
+        },
+        "Microsoft.Authorization/policySetDefinitions": {
+            "jq": "del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)"
+        },
+        "Microsoft.Authorization/policyAssignments": {
+            "jq": "del(.ResourceId, .Properties.Metadata, .ResourceGroupName, .SubscriptionId)"
+        },
+        "Microsoft.Authorization/roleAssignments": {
             "jq": "del(.Id)| .Properties |= {DisplayName, ObjectType, PrincipalId, RoleDefinitionId, RoleDefinitionName}"
         },
-        "AzOpsRoleDefinition": {
+        "Microsoft.Authorization/roleDefinitions": {
             "jq": "del(.Id)| .Properties |= {AssignableScopes, Description, Permissions, RoleName}"
         },
-        "System.Management.Automation.PSCustomObject": {
-            "jq": "."
+        "Microsoft.Storage/storageAccounts": {
+            "jq": "del(.Id, .TagsTable, .ETag, .ResourceId, .ManagedBy, .ResourceName, .ExtensionResourceName, .ParentResource, .Plan, .Type, .ExtensionResourceType, .SubscriptionId, .CreatedTime, .ChangedTime, .ResourceGroupName)"
         }
     }
 }
