@@ -100,8 +100,17 @@ if ($AutoVersion) {
 if ($SkipPublish) { return }
 if ($LocalRepo) {
     # Dependencies must go first
+    # PSFramework
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: PSFramework"
     New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath .
+    # Az
+    Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Accounts"
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Accounts).ModuleBase -PackagePath .
+    Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Billing"
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Billing).ModuleBase -PackagePath .
+    Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Resources"
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Resources).ModuleBase -PackagePath .
+    # AzOps
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: AzOps"
     New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)/AzOps/" -PackagePath .
 }
