@@ -3,7 +3,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.14'
+    ModuleVersion     = '0.0.15'
 
     # ID used to uniquely identify this module
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
