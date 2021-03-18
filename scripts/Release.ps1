@@ -19,6 +19,9 @@ param (
     $SkipPublish,
 
     [switch]
+    $IgnoreDependencies,
+
+    [switch]
     $AutoVersion
 )
 
@@ -33,6 +36,12 @@ if (-not $WorkingDirectory) { $WorkingDirectory = Split-Path $PSScriptRoot }
 #endregion Handle Working Directory Defaults
 
 #region Prepare publish folder
+# Remove directory
+if (Get-ChildItem -Path $WorkingDirectory -Filter "publish") {
+    Write-PSFMessage -Level Important -Message "Removing publishing directory"
+    Remove-Item -Path "$($WorkingDirectory)/publish" -Recurse -Force
+}
+# Create directory
 Write-PSFMessage -Level Important -Message "Creating and populating publishing directory"
 $publishDir = New-Item -Path $WorkingDirectory -Name publish -ItemType Directory -Force
 Copy-Item -Path "$($WorkingDirectory)/src/" -Destination "$($publishDir.FullName)/AzOps/" -Recurse -Force
@@ -102,17 +111,21 @@ if ($LocalRepo) {
     # Dependencies must go first
     # PSFramework
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: PSFramework"
-    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name PSFramework).ModuleBase -PackagePath $publishDir.FullName
     # Az
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Accounts"
-    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Accounts).ModuleBase -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Accounts -ListAvailable | Select-Object -First 1).ModuleBase -PackagePath $publishDir.FullName
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Billing"
-    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Billing).ModuleBase -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Billing -ListAvailable  | Select-Object -First 1).ModuleBase -PackagePath $publishDir.FullName
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: Az.Resources"
-    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Resources).ModuleBase -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name Az.Resources -ListAvailable | Select-Object -First 1).ModuleBase -PackagePath $publishDir.FullName
     # AzOps
     Write-PSFMessage -Level Important -Message "Creating Nuget Package for module: AzOps"
-    New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)/AzOps/" -PackagePath .
+    New-PSMDModuleNugetPackage -ModulePath "$($publishDir.FullName)/AzOps/" -PackagePath $publishDir.FullName
+
+    if ($IgnoreDependencies) {
+        Get-ChildItem -Path . -Filter *.nupkg | Where-Object Name -notlike "AzOps*" | Remove-Item -Force
+    }
 }
 else {
     # Publish to Gallery
