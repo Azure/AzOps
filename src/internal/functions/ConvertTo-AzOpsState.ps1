@@ -6,7 +6,7 @@
         .DESCRIPTION
             The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
             It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-            Commandlet will look into jq filter is template directory for the specific one before using the generic one at the root of the module
+            Cmdlet will look into jq filter is template directory for the specific one before using the generic one at the root of the module
         .PARAMETER Resource
             Object with resource as input
         .PARAMETER ExportPath
