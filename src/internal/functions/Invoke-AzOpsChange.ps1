@@ -68,14 +68,14 @@
             #endregion Initialization Prep
 
             #region Case: Parameters File
-            if ($fileItem.Name -like "*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')") {
+            if ($fileItem.Name.EndsWith('.parameters.json')) {
                 $result.TemplateParameterFilePath = $fileItem.FullName
                 $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), ''
                 if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
                 $result.DeploymentName = "AzOps-$deploymentName"
 
                 #region Directly Associated Template file exists
-                $templatePath = $fileItem.FullName -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '.json'
+                $templatePath = $fileItem.FullName -replace '.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
                 if (Test-Path $templatePath) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                     $result.TemplateFilePath = $templatePath
@@ -84,7 +84,7 @@
                 #endregion Directly Associated Template file exists
 
                 #region Directly Associated bicep template exists
-                $bicepTemplatePath = $fileItem.FullName -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '.bicep'
+                $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
                 if (Test-Path $bicepTemplatePath) {
                     Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
                     $result.TemplateFilePath = $bicepTemplatePath
@@ -126,7 +126,7 @@
 
             #region Case: Template File
             $result.TemplateFilePath = $fileItem.FullName
-            $parameterPath =  Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
+            $parameterPath =  Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' +(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath

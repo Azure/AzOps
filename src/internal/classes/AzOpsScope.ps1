@@ -130,6 +130,10 @@
                 #look for resource ID first
                 $this.InitializeMemberVariables($managementGroupConfig.parameters.input.value.Id)
             }
+            elseif ($managementGroupConfig.Id) {
+                #look for resource ID first
+                $this.InitializeMemberVariables($managementGroupConfig.Id)
+            }
             elseif ($managementGroupConfig.parameters.input.value.Name) {
                 #look for name to construct resource ID
                 $this.InitializeMemberVariables("/providers/Microsoft.Management/managementGroups/$($managementGroupConfig.parameters.input.value.Name)")
@@ -150,7 +154,10 @@
             if ($subscriptionConfig.parameters.input.value.Id) {
                 $this.InitializeMemberVariables($subscriptionConfig.parameters.input.value.Id)
             }
-            if ($subscriptionConfig.parameters.input.value.Name) {
+            elseif ($subscriptionConfig.Id) {
+                $this.InitializeMemberVariables($subscriptionConfig.parameters.input.value.Id)
+            }
+            elseif ($subscriptionConfig.parameters.input.value.Name) {
                 $this.InitializeMemberVariables("/subscriptions/$($subscriptionConfig.parameters.input.value.Name)")
             }
             elseif ($children.Name.Replace('Microsoft.Subscription_subscriptions-', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') ) {
@@ -167,6 +174,13 @@
             $resourceGroupConfig = Get-Content -Path $children.FullName | ConvertFrom-Json
             if ($resourceGroupConfig.parameters.input.value.ResourceId) {
                 $this.InitializeMemberVariables($resourceGroupConfig.parameters.input.value.ResourceId)
+            }
+            elseif ($resourceGroupConfig.ResourceId) {
+                $this.InitializeMemberVariables($resourceGroupConfig.ResourceId)
+            }
+            elseif ((New-AzOpsScope -Path $children.Directory.Parent)) {
+                $parent = (New-AzOpsScope -Path $children.Directory.Parent).Subscription
+                $this.InitializeMemberVariables($("/subscriptions/{0}/resourceGroups/{1}" -f $parent, $children.Directory.Name))
             }
             else {
                 Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.ResourceGroup' -StringValues ($children.FullName -join ', ') -FunctionName AzOpsScope -ModuleName AzOps
