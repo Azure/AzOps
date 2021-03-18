@@ -85,6 +85,7 @@
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
         $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
+        $script:AzOpsResourceProvider = Get-AzResourceProvider
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
         #endregion Initialize & Prepare

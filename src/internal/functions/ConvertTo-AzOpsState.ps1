@@ -6,7 +6,7 @@
         .DESCRIPTION
             The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
             It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
-            The state configuration file found at the location the 'AzOps.Core.StateConfig'-config points at with custom json schema are used to determine what properties that should be excluded from different resource types as well as if the json documents should be ordered or not.
+            Commandlet will look into jq filter is template directory for the specific one before using the generic one at the root of the module
         .PARAMETER Resource
             Object with resource as input
         .PARAMETER ExportPath
@@ -54,33 +54,16 @@
         [switch]
         $ExportRawTemplate,
 
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
+        $StatePath,
+
+        [string]
+        $JqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.JqTemplatePath')
     )
 
     begin {
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Starting'
-
-        #region Prepare Configuration Frame
-        # Construct base json
-        $parametersJson = [ordered]@{
-            '$schema'        = 'http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#'
-            'contentVersion' = "1.0.0.0"
-            'parameters'     = [ordered]@{
-                'input' = [ordered]@{
-                    'value' = $null
-                }
-            }
-        }
-        # Fetch config json
-        try {
-            $resourceConfig = Get-Content -Path (Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig') -ErrorAction Stop | ConvertFrom-Json -AsHashtable -ErrorAction Stop
-        }
-        catch {
-            Stop-PSFFunction -String 'ConvertTo-AzOpsState.StateConfig.Error' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.StateConfig') -EnableException $true -Cmdlet $PSCmdlet -ErrorRecord $_
-        }
-
-        #endregion Prepare Configuration Frame
     }
 
     process {
@@ -100,43 +83,95 @@
         else {
             $objectFilePath = $ExportPath
         }
-
-        if ($Resource.ResourceType -and $resourceConfig.resourceTypes[$Resource.ResourceType]) {
-            #using ResourceType property to determine jq filter
-            Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues "$($Resource.ResourceType)" -FunctionName 'ConvertTo-AzOpsState'
-            $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[$Resource.ResourceType].jq | ConvertFrom-Json
-        }
-        elseif ($resourceConfig.resourceTypes[$Resource.GetType().ToString()]) {
-            #using PowerShell Object Type to determine jq filter
-            Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved' -StringValues "$($Resource.GetType().ToString())" -FunctionName 'ConvertTo-AzOpsState'
-            $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes[$Resource.GetType().ToString()].jq | ConvertFrom-Json
+        # Create folder structure if it doesn't exist
+        if (-not (Test-Path -Path $objectFilePath)) {
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.File.Create' -StringValues $objectFilePath
+            $null = New-Item -Path $objectFilePath -ItemType "file" -Force
         }
         else {
-            $object = $Resource | ConvertTo-Json -Depth 100 | jq -r $resourceConfig.resourceTypes['System.Management.Automation.PSCustomObject'].jq | ConvertFrom-Json
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.File.UseExisting' -StringValues $objectFilePath
         }
-        if (($null -ne $object) -and ($null -ne $objectFilePath)) {
-            # Create target file object if it doesn't exist
-            if (-not (Test-Path -Path $objectFilePath)) {
-                Write-PSFMessage -String 'ConvertTo-AzOpsState.File.Create' -StringValues $objectFilePath
-                $null = New-Item -Path $objectFilePath -ItemType "file" -Force
-            }
 
-            if ($ExportRawTemplate) {
-                if ($ReturnObject) { $object }
-                else { ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force }
+        # if the export file path ends with parameter
+        $generateTemplateParameter = $objectFilePath.EndsWith('.parameters.json') ? $true : $false
+        Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplateParameter' -StringValues "$generateTemplateParameter" -FunctionName 'ConvertTo-AzOpsState'
+
+        $resourceType = $null
+        switch ($Resource) {
+            { $_.ResourceType } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -StringValues "$($Resource.ResourceType)" -FunctionName 'ConvertTo-AzOpsState'
+                $resourceType = $_.ResourceType
+                break
             }
+            { $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup] -or
+                $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo] } {
+                # determine based on PowerShell Class
+                # To do change the serialization of subscription child object
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
+                $resourceType = 'Microsoft.Management/managementGroups'
+                break
+            }
+            #Controlled group for raw  objects
+            { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureTenant] -or
+                $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] -or
+                $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues  "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
+                break
+            }
+            Default {
+                Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'  -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
+                break
+            }
+        }
+        if ($resourceType) {
+            #If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
+            $object = (Test-Path "$JqTemplatePath/$resourceType.jq") ?
+            ($Resource | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.jq") | ConvertFrom-Json) :
+            ($Resource | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/generic.jq") | ConvertFrom-Json)
+            if ($ReturnObject) { return $object }
             else {
-                $parametersJson.parameters.input.value = $object
-                if ($ReturnObject) { $parametersJson }
-                else { ConvertTo-Json -InputObject $parametersJson -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force }
-            }
+                if ($generateTemplateParameter) {
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplateParameter' -FunctionName 'ConvertTo-AzOpsState'
+                    $object = (Test-Path "$JqTemplatePath/$resourceType.template.parameters.jq") ?
+                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.parameters.jq") | ConvertFrom-Json) :
+                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/template.parameters.jq") | ConvertFrom-Json)
+                }
+                else {
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate' -StringValues "$true"  -FunctionName 'ConvertTo-AzOpsState'
+                    $object = (Test-Path "$JqTemplatePath/$resourceType.template.jq") ?
+                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.template.jq") | ConvertFrom-Json) :
+                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/template.jq") | ConvertFrom-Json)
 
-            if ($ReturnObject) {
-                return $object
+                    $providerNamespace = ($resourceType -split '/' | Select-Object -First 1)
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace' -StringValues $providerNamespace -FunctionName 'ConvertTo-AzOpsState'
+
+                    $resourceTypeName = (($resourceType -split '/', 2) | Select-Object -Last 1)
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -StringValues $resourceTypeName -FunctionName 'ConvertTo-AzOpsState'
+                    #determine resource api version
+                    if (
+                        ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
+                        (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceTypeName })
+                    ) {
+                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceTypeName }).ApiVersions[0]
+                        Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
+
+                        $object.resources[0].apiVersion = $apiVersions
+                        $object.resources[0].type = $resourceType
+                    }
+                    else {
+                        Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
+                    }
+                }
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
+                ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
         else {
-            Write-PSFMessage -Level Error -String "ConvertTo-AzOpsState.File.JQError" -StringValues $Resource.GetType()
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting.Default' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
+            if ($ReturnObject) { return $Resource }
+            else {
+                ConvertTo-Json -InputObject $Resource -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
+            }
         }
     }
 }
