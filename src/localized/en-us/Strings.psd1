@@ -50,6 +50,8 @@
     'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type {0}' # $($_.GetType())
     'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject'                             = 'Determined object type based on PowerShell class {0}' # $($_.GetType())
     'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
+    'ConvertTo-AzOpsState.Jq.Remove'                                                = 'Using Jq Remove Template at path {0}'# jqRemoveTemplate
+    'ConvertTo-AzOpsState.Jq.Template'                                              = 'Using Jq Json Template at path {0}'# jqRemoveTemplate
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
