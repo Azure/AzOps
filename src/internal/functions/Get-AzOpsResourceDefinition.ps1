@@ -213,6 +213,7 @@
                             runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
                             runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
                             runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
+                            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
                         }
                         #endregion Prepare Input Data for parallel processing
 
@@ -237,6 +238,7 @@
                                 $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
                                 $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                                 $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                                $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
                             }
 
                             $context = Get-AzContext -ListAvailable | Where-Object {

@@ -30,21 +30,26 @@
     'AzOpsScope.Input.BadData.Subscription'                                         = 'Invalid Subscription Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.UnknownType'                                          = 'Invalid File Structure! Cannot find Management Group / Subscription / Resource Group files in {0}!' # $Path
 
-    'ConvertTo-AzOpsState.ExcludedProperties'                                       = 'Default excluded properties: [{0}]' # ($excludedProperties.Keys -join ',')
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
-    'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $resourceData.ObjectFilePath
-    'ConvertTo-AzOpsState.Generalized.ExcludedProperties'                           = 'GeneralizeTemplates used: Excluded properties: [{0}]' # ($excludedProperties.Keys -join ',')
-    'ConvertTo-AzOpsState.Generalized.Exporting'                                    = 'Exporting AzOpsState to: {0}' # $originalFilePath
+    'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
+    'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
+    'ConvertTo-AzOpsState.File.UseExisting'                                         = 'AzOpsState file is found. Using existing file: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.NoExportPath'                                             = 'No export path found for {0}. Ensure the original data type remains intact or specify an -ExportPath' # $Resource
-    'ConvertTo-AzOpsState.Object.ReOrder'                                           = 'Updating state object content order' #
-    'ConvertTo-AzOpsState.ObjectType.Resolved'                                      = 'Found object type: {0}' # 'Tenant'
-    'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Generic object detected, ExportPath expected' #
     'ConvertTo-AzOpsState.Processing'                                               = 'Processing input: {0}' # $Resource
     'ConvertTo-AzOpsState.ResourceError'                                            = 'Error processing resource: {0}' # $Resource
     'ConvertTo-AzOpsState.Starting'                                                 = 'Starting conversion to AzOps State object' #
     'ConvertTo-AzOpsState.StateConfig.Error'                                        = 'Cannot load {0}, is the json schema valid and does the file exist?' # (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig')
     'ConvertTo-AzOpsState.StatePath'                                                = 'Resolve path to resource state: {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.JQError'                                             = 'JQ Filter error: {0}' # $Resource.ObjectFilePath
+    'ConvertTo-AzOpsState.GenerateTemplateParameter'                                = 'Generating Template Parameter: {0}' # $generateTemplateParameter
+    'ConvertTo-AzOpsState.GenerateTemplate'                                         = 'Generating Template :{0}' # $generateTemplateParameter
+    'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace'                       = 'ProviderNamespace: {0}' # $providerNamespace
+    'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName'                        = 'ResourceTypeName: {0}' # $resourceTypeName
+    'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion'                              = 'Determined Api Version {1} for ResourceTypeName: {0}' # $resourceType, $apiVersions
+    'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion'                            = 'Unable to determine Api Version from ResourceTypeName: {0}' # $resourceTypeName
+    'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type {0}' # $($_.GetType())
+    'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject'                             = 'Determined object type based on PowerShell class {0}' # $($_.GetType())
+    'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
