@@ -8,7 +8,6 @@
             "type": .ResourceType,
             "name": .Name,
             "apiVersion": "0000-00-00",
-            "location": "[deployment().location]",
             "properties": .Properties
         }
     ],
