@@ -124,30 +124,46 @@
             }
         }
         if ($resourceType) {
+            $providerNamespace = ($resourceType -split '/' | Select-Object -First 1)
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace' -StringValues $providerNamespace -FunctionName 'ConvertTo-AzOpsState'
+
+            $resourceTypeName = (($resourceType -split '/', 2) | Select-Object -Last 1)
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -StringValues $resourceTypeName -FunctionName 'ConvertTo-AzOpsState'
+
+
+            $jqRemoveTemplate = (
+                (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq"))) ?
+                (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq")):
+                (Join-Path $JqTemplatePath -ChildPath "generic.jq")
+            )
+            Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Remove' -StringValues $jqRemoveTemplate -FunctionName 'ConvertTo-AzOpsState'
             #If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
-            $object = (Test-Path "$JqTemplatePath/$resourceType.jq") ?
-            ($Resource | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.jq") | ConvertFrom-Json) :
-            ($Resource | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/generic.jq") | ConvertFrom-Json)
-            if ($ReturnObject) { return $object }
+            $object = $Resource | ConvertTo-Json -Depth 100 | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
+
+            if ($ReturnObject) {
+                return $object
+            }
             else {
                 if ($generateTemplateParameter) {
+                    #Generating Template Parameter
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplateParameter' -FunctionName 'ConvertTo-AzOpsState'
-                    $object = (Test-Path "$JqTemplatePath/$resourceType.template.parameters.jq") ?
-                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.parameters.jq") | ConvertFrom-Json) :
-                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/template.parameters.jq") | ConvertFrom-Json)
+                    $jqJsonTemplate = (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq"))) ?
+                    (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq")):
+                    (Join-Path $JqTemplatePath -ChildPath "template.parameters.jq")
+
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
+                    $object = ($object | ConvertTo-Json -Depth 100 | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                 }
                 else {
+                    #Generating Template
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate' -StringValues "$true"  -FunctionName 'ConvertTo-AzOpsState'
-                    $object = (Test-Path "$JqTemplatePath/$resourceType.template.jq") ?
-                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/$resourceType.template.jq") | ConvertFrom-Json) :
-                    ($object | ConvertTo-Json -Depth 100 | jq -r -f ("$JqTemplatePath/template.jq") | ConvertFrom-Json)
+                    $jqJsonTemplate = (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq"))) ?
+                    (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq")):
+                    (Join-Path $JqTemplatePath -ChildPath "template.jq")
 
-                    $providerNamespace = ($resourceType -split '/' | Select-Object -First 1)
-                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace' -StringValues $providerNamespace -FunctionName 'ConvertTo-AzOpsState'
-
-                    $resourceTypeName = (($resourceType -split '/', 2) | Select-Object -Last 1)
-                    Write-PSFMessage -String 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -StringValues $resourceTypeName -FunctionName 'ConvertTo-AzOpsState'
-                    #determine resource api version
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
+                    $object = ($object | ConvertTo-Json -Depth 100 | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    #determine resource api version to replace it in type
                     if (
                         ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
                         (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceTypeName })
@@ -161,9 +177,10 @@
                     else {
                         Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
                     }
+
+                    Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
+                    ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
                 }
-                Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
-                ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
         else {
