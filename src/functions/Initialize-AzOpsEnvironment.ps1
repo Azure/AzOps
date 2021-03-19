@@ -91,7 +91,13 @@
         #endregion Initialize & Prepare
 
         #region Management Group Processing
-        $managementGroups = Get-AzManagementGroup -ErrorAction Stop
+        try {
+            $managementGroups = Get-AzManagementGroup -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
+            return
+        }
 
         #region Validate root '/' permissions
         if ($currentAzContext.Account.Type -eq "User") {
