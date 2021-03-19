@@ -95,6 +95,7 @@
         }
         catch {
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
+            return
         }
 
         #region Validate root '/' permissions
