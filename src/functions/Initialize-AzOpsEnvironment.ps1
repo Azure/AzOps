@@ -90,7 +90,16 @@
         #endregion Initialize & Prepare
 
         #region Management Group Processing
-        $managementGroups = Get-AzManagementGroup -ErrorAction Stop
+        try {
+            $managementGroups = Get-AzManagementGroup -ErrorAction Stop
+        }
+        catch {
+            #TODO: Add message
+        }
+        if ($rootScope -notin $managementGroups.Id -and -not $PartialMgDiscovery) {
+            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NotFound' -StringValues $rootScope, (Get-AzContext).Account.Id -Tag Error
+            return
+        }
 
         #region Validate root '/' permissions
         if ($currentAzContext.Account.Type -eq "User") {
@@ -122,6 +131,7 @@
             Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
             Get-AzOpsManagementGroups -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
+
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution
         #endregion Management Group Processing

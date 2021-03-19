@@ -131,13 +131,23 @@
             $rootScope = $script:AzOpsPartialRoot.id | Sort-Object -Unique
         }
 
-        foreach ($root in $rootScope) {
-            # Create AzOpsState Structure recursively
-            Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
+        if ($rootScope -and $script:AzOpsAzManagementGroup) {
+            foreach ($root in $rootScope) {
+                # Create AzOpsState Structure recursively
+                Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
-            # Discover Resource at scope recursively
-            $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
-            Get-AzOpsResourceDefinition -Scope $root @parameters
+                # Discover Resource at scope recursively
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
+                Get-AzOpsResourceDefinition -Scope $root @parameters
+            }
+        }
+        else {
+            # If no management groups are found, iterate through each subscription
+            foreach ($subscription in $script:AzOpsSubscriptions) {
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
+                Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
+            }
+
         }
         #endregion Root Scopes
     }
