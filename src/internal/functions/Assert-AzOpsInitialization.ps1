@@ -37,7 +37,7 @@
             $exception = [System.InvalidOperationException]::new($strings.'Assert-AzOpsInitialization.StateError')
             $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "BadData", 'InvalidData', $null)
         }
-        $cacheBuilt = $script:AzOpsSubscriptions -and $script:AzOpsAzManagementGroup
+        $cacheBuilt = $script:AzOpsSubscriptions -or $script:AzOpsAzManagementGroup
         if (-not $cacheBuilt) {
             Write-PSFMessage -Level Warning -String 'Assert-AzOpsInitialization.NoCache' -Tag error
             $exception = [System.InvalidOperationException]::new($strings.'Assert-AzOpsInitialization.NoCache')

@@ -45,7 +45,7 @@
     param (
         [Parameter(ParameterSetName = "scope")]
         [string]
-        [ValidateScript( { $null -ne $script:AzOpsAzManagementGroup})]
+        [ValidateScript( { $null -ne $script:AzOpsAzManagementGroup -or $script:AzOpsSubscription })]
         $Scope,
 
         [Parameter(ParameterSetName = "pathfile", ValueFromPipeline = $true)]
@@ -59,14 +59,12 @@
         Write-PSFMessage -Level Debug -String 'New-AzOpsScope.Starting'
 
         switch ($PSCmdlet.ParameterSetName) {
-            scope
-            {
+            scope {
                 Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
                     [AzOpsScope]::new($Scope, $StatePath)
                 } -EnableException $true -PSCmdlet $PSCmdlet
             }
-            pathfile
-            {
+            pathfile {
                 if (-not (Test-Path $Path)) {
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.NotFound' -StringValues $Path -EnableException $true -Cmdlet $PSCmdlet
                 }

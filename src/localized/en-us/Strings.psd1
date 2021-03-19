@@ -105,6 +105,7 @@
     'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions'                 = 'Principal {0} does not have permissions under / in tenant, enabling partial discovery' # $currentAzContext.Account.Id
     'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'                  = 'Executing partial discovery' #
     'Initialize-AzOpsEnvironment.ManagementGroup.Resolution'                        = 'Resolving {0} management groups' # $managementGroups.Count
+    'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'           = 'No management group access, discovery will happen from subscription scope(s)'
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.UsingCache'                                        = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions' #
