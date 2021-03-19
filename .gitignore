@@ -1,35 +1,34 @@
-﻿#VSCode
+# System
+.DS_Store
+
+# VSCode
 .vscode/*
 *.code-workspace
 *.psproj
 *TempPoint*
+.devcontainer/*
 
-# Ignore staging info from Visual Studio
+# Visual Studio
 library/AzOps/.vs/*
 library/AzOps/AzOps/bin/*
 library/AzOps/AzOps/obj/*
+.vs/*
 
-# ignore PowerShell Studio MetaData
+# PowerShell Studio MetaData
 AzOps/AzOps.psproj
 AzOps/AzOps.psproj.bak
 AzOps/AzOps.psprojs
 AzOps/AzOps.psproj
 
-# ignore the TestResults
+# TestResults
 TestResults/*
 
-# ignore the publishing Directory
+# Publishing
 publish/*
 
-# ignore the local state
+# Generated
 azops/*
 
-#Debug
+# Debug
 **.private**
 debug/*
-
-#DSStore
-.DS_Store
-
-#VS
-.vs
