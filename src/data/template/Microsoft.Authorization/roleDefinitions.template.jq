@@ -12,4 +12,5 @@
         }
     ],
     "outputs": {}
-}
+} |
+.resources[].properties |= . as $in | {RoleName, Description, AssignableScopes, Permissions} + $in
