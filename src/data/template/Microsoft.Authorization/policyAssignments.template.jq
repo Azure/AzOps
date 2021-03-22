@@ -9,8 +9,10 @@
             "name": .Name,
             "apiVersion": "0000-00-00",
             "location": "[deployment().location]",
+            "identity": .Identity,
             "properties": .Properties
         }
     ],
     "outputs": {}
-}
+} |
+.resources[] |= if .identity==null then del(.identity) else . end
