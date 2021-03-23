@@ -138,7 +138,7 @@
             )
             Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Remove' -StringValues $jqRemoveTemplate -FunctionName 'ConvertTo-AzOpsState'
             #If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
-            $object = $Resource | ConvertTo-Json -Depth 100 | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
+            $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
 
             if ($ReturnObject) {
                 return $object
@@ -152,7 +152,7 @@
                     (Join-Path $JqTemplatePath -ChildPath "template.parameters.jq")
 
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
-                    $object = ($object | ConvertTo-Json -Depth 100 | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                 }
                 else {
                     #Generating Template
@@ -162,7 +162,7 @@
                     (Join-Path $JqTemplatePath -ChildPath "template.jq")
 
                     Write-PSFMessage -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
-                    $object = ($object | ConvertTo-Json -Depth 100 | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #determine resource api version to replace it in type
                     if (
                         ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
@@ -179,14 +179,14 @@
                     }
                 }
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
-                ConvertTo-Json -InputObject $object -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
+                ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
         else {
             Write-PSFMessage -String 'ConvertTo-AzOpsState.Exporting.Default' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
             if ($ReturnObject) { return $Resource }
             else {
-                ConvertTo-Json -InputObject $Resource -Depth 100 | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
+                ConvertTo-Json -InputObject $Resource -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
     }
