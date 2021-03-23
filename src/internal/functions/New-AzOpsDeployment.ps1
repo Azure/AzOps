@@ -85,7 +85,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
             # Validate Template
-            $results = Test-AzResourceGroupDeployment @parameters
+            $results = Get-AzDeploymentWhatIfResult @parameters
             if ($results) {
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
@@ -116,7 +116,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
             # Validate Template
-            $results = Test-AzSubscriptionDeployment @parameters
+            $results = Get-AzDeploymentWhatIfResult @parameters
             if ($results) {
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
@@ -147,7 +147,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
             # Validate Template
-            $results = Test-AzManagementGroupDeployment @parameters
+            $results = Get-AzDeploymentWhatIfResult @parameters
             if ($results) {
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
@@ -177,7 +177,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
             # Validate Template
-            $results = Test-AzTenantDeployment @parameters
+            $results = Get-AzDeploymentWhatIfResult @parameters
             if ($results) {
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
