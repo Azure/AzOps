@@ -10,8 +10,8 @@
     'Assert-AzOpsWindowsLongPath.No.Registry'                                       = 'Windows has not yet been configured for long path support' #
     'Assert-AzOpsWindowsLongPath.Validating'                                        = 'Validating Windows environment for LongPath support' #
 
-    'Assert-AzOpsJQDependency.Validating'                                            = 'Validating if jq is in current path' #
-    'Assert-AzOpsJQDependency.Success'                                               = 'jq is found in current path' #
+    'Assert-AzOpsJQDependency.Validating'                                           = 'Validating if jq is in current path' #
+    'Assert-AzOpsJQDependency.Success'                                              = 'jq is found in current path' #
 
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
@@ -39,15 +39,17 @@
     'ConvertTo-AzOpsState.ResourceError'                                            = 'Error processing resource: {0}' # $Resource
     'ConvertTo-AzOpsState.Starting'                                                 = 'Starting conversion to AzOps State object' #
     'ConvertTo-AzOpsState.StateConfig.Error'                                        = 'Cannot load {0}, is the json schema valid and does the file exist?' # (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig')
-    'ConvertTo-AzOpsState.StatePath'                                                = 'Resolve path to resource state: {0}' # $resourceData.ObjectFilePath
-    'ConvertTo-AzOpsState.File.JQError'                                             = 'JQ Filter error: {0}' # $Resource.ObjectFilePath
-    'ConvertTo-AzOpsState.GenerateTemplateParameter'                                = 'Generating Template Parameter: {0}' # $generateTemplateParameter
-    'ConvertTo-AzOpsState.GenerateTemplate'                                         = 'Generating Template :{0}' # $generateTemplateParameter
-    'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace'                       = 'ProviderNamespace: {0}' # $providerNamespace
-    'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName'                        = 'ResourceTypeName: {0}' # $resourceTypeName
-    'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion'                              = 'Determined Api Version {1} for ResourceTypeName: {0}' # $resourceType, $apiVersions
-    'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion'                            = 'Unable to determine Api Version from ResourceTypeName: {0}' # $resourceTypeName
-    'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type {0}' # $($_.GetType())
+    'ConvertTo-AzOpsState.StatePath'                                                = 'Resolve path to resource state {0}' # $resourceData.ObjectFilePath
+    'ConvertTo-AzOpsState.File.JQError'                                             = 'Jq filter error {0}' # $Resource.ObjectFilePath
+    'ConvertTo-AzOpsState.GenerateTemplateParameter'                                = 'Generating template parameter: {0}' # $generateTemplateParameter
+    'ConvertTo-AzOpsState.GenerateTemplate'                                         = 'Generating template: {0}' # $generateTemplateParameter
+    'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace'                       = 'Provider namespace: {0}' # $providerNamespace
+    'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName'                        = 'Resource type: {0}' # $resourceTypeName
+    'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName'                     = 'Resource api type: {0}' # $resourceApiTypeName
+    'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion'                              = 'Determined api version: {1} for resource type name: {0}' # $resourceType, $apiVersions
+    'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion'                            = 'Unable to determine api version from resource type name: {0}' # $resourceTypeName
+    'ConvertTo-AzOpsState.GenerateTemplate.ChildResource'                           = 'Appending child resource name: {0}' # $resourceName
+    'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type: {0}' # $($_.GetType())
     'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject'                             = 'Determined object type based on PowerShell class {0}' # $($_.GetType())
     'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
     'ConvertTo-AzOpsState.Jq.Remove'                                                = 'Using Jq Remove Template at path {0}'# jqRemoveTemplate
@@ -118,9 +120,9 @@
     'Initialize-AzOpsRepository.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
     'Initialize-AzOpsRepository.Tenant'                                             = 'Connected to tenant {0}' # $tenantId
     'Initialize-AzOpsRepository.TemplateParameterFileSuffix'                        = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
-    'Initialize-AzOpsRepository.Validating.UserRole'                                = 'Asserting fundamental azure access' #
-    'Initialize-AzOpsRepository.Validating.UserRole.Failed'                         = 'Insufficient access to azure user data!' #
-    'Initialize-AzOpsRepository.Validating.UserRole.Success'                        = 'Azure Access validated' #
+    'Initialize-AzOpsRepository.Validating.UserRole'                                = 'Asserting fundamental Azure access' #
+    'Initialize-AzOpsRepository.Validating.UserRole.Failed'                         = 'Insufficient access to Azure user data' #
+    'Initialize-AzOpsRepository.Validating.UserRole.Success'                        = 'Azure access validated' #
 
     'Invoke-AzOpsChange.Change.AddModify'                                           = 'Adding or modifying:' #
     'Invoke-AzOpsChange.Change.AddModify.File'                                      = '  {0}' # $item
