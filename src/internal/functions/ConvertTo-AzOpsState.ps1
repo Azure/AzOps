@@ -103,6 +103,7 @@
                 $resourceType = $_.ResourceType
                 break
             }
+            # Management Groups
             { $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup] -or
                 $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo] } {
                 # determine based on PowerShell Class
@@ -111,10 +112,24 @@
                 $resourceType = 'Microsoft.Management/managementGroups'
                 break
             }
-            #Controlled group for raw  objects
-            { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureTenant] -or
-                $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] -or
-                $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
+            # Subscriptions
+            { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] } {
+                # determine based on PowerShell Class
+                # To do change the serialization of subscription child object
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
+                $resourceType = 'Microsoft.Subscription/subscriptions'
+                break
+            }
+            # Resource Groups
+            { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
+                # determine based on PowerShell Class
+                # To do change the serialization of subscription child object
+                Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
+                $resourceType = 'Microsoft.Resources/resourceGroups'
+                break
+            }
+            # Resources - Controlled group for raw  objects
+            { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureTenant] } {
                 Write-PSFMessage -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues  "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 break
             }

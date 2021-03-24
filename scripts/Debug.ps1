@@ -24,7 +24,7 @@ Import-Module ./src/AzOps.psd1 -Force
 # Initialize
 #
 
-Initialize-AzOpsRepository
+Initialize-AzOpsRepository -Rebuild
 
 #
 # Internal
