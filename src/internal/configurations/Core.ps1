@@ -16,6 +16,7 @@ Set-PSFConfig -Module AzOps -Name Core.OfferType -Value 'MS-AZR-0017P' -Initiali
 Set-PSFConfig -Module AzOps -Name Core.PartialMgDiscoveryRoot -Value @() -Initialize -Validation stringarray -Description 'Used in combination with AZOPS_SUPPORT_PARTIAL_MG_DISCOVERY, example value: "Contoso","Tailspin","Management"'
 Set-PSFConfig -Module AzOps -Name Core.SkipPolicy -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $false -Initialize -Validation bool -Description 'Global flag to indicate whether resource group should be discovered or not'
+Set-PSFConfig -Module AzOps -Name Core.SkipResource -Value $false -Initialize -Validation bool -Description 'Global flag to indicate whether resource should be discovered or not. Requires SkipResourceGroup to be false.'
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeResourceGroups -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup to be false. Subscription ID or Display Name that matches the filter. Powershell filter that matches with like operator is supported.'
 Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "azops") -Initialize -Description 'Folder to store AzOpsState artefact'
