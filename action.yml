@@ -1,0 +1,13 @@
+name: "AzOps"
+description: "-"
+author: "Microsoft"
+inputs:
+  mode:
+    description: "AzOps Mode"
+    required: true
+runs:
+  using: "docker"
+  image: "docker://mscet/azops:main"
+branding:
+  icon: "sunrise"
+  color: "green"
