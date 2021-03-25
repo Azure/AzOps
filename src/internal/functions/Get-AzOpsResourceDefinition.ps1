@@ -12,7 +12,9 @@
         .PARAMETER SkipRole
             Skip discovery of roles for better performance.
         .PARAMETER SkipResourceGroup
-            Skip discovery of resource groups and resources for better performance.
+            Skip discovery of resource groups.
+        .PARAMETER SkipResource
+            Skip discovery of resources inside resource groups.
         .PARAMETER ExportRawTemplate
             Export generic templates without embedding them in the parameter block.
         .PARAMETER StatePath
@@ -48,6 +50,9 @@
 
         [switch]
         $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
+
+        [switch]
+        $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
 
         [switch]
         $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
@@ -96,6 +101,9 @@
                 [Parameter(ValueFromPipeline = $true)]
                 [AzOpsScope]
                 $ScopeObject,
+
+                [switch]
+                $SkipResource,
 
                 [string]
                 $StatePath,
@@ -162,6 +170,9 @@
                 [switch]
                 $SkipResourceGroup,
 
+                [switch]
+                $SkipResource,
+
                 [string]
                 $ODataFilter )
             begin {
@@ -185,7 +196,7 @@
                 }
                 else {
                     # Get all Resource Groups in Subscription
-                    # Retry loop with exponential backoff implemented to catch errors
+                    # Retry loop with exponential back off implemented to catch errors
                     # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
                     # Define variables used by script
@@ -207,6 +218,7 @@
                             StatePath                       = $StatePath
                             ScopeObject                     = $ScopeObject
                             ODataFilter                     = $ODataFilter
+                            SkipResource                    = $SkipResource
                             MaxRetryCount                   = $maxRetryCount
                             BackoffMultiplier               = $backoffMultiplier
                             ExportRawTemplate               = $ExportRawTemplate
@@ -248,32 +260,37 @@
                             Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
-                            Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                            $resources = & $azOps {
-                                $parameters = @{
-                                    DefaultProfile = $Context | Select-Object -First 1
-                                    ODataQuery     = $runspaceData.ODataFilter
+                            if (-not $using:SkipResource) {
+                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                                $resources = & $azOps {
+                                    $parameters = @{
+                                        DefaultProfile = $Context | Select-Object -First 1
+                                        ODataQuery     = $runspaceData.ODataFilter
+                                    }
+                                    if ($resourceGroup.ResourceGroupName) {
+                                        $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                                    }
+                                    Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                                        param (
+                                            $Parameters
+                                        )
+                                        $param = $Parameters | Write-Output
+                                        Get-AzResource @param -ExpandProperties -ErrorAction Stop
+                                    } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                 }
-                                if ($resourceGroup.ResourceGroupName) {
-                                    $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                                if (-not $resources) {
+                                    Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                                 }
-                                Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
-                                    param (
-                                        $Parameters
-                                    )
-                                    $param = $Parameters | Write-Output
-                                    Get-AzResource @param -ExpandProperties -ErrorAction Stop
-                                } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
-                            }
-                            if (-not $resources) {
-                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                            }
 
-                            # Loop through resources and convert them to AzOpsState
-                            foreach ($resource in $resources) {
-                                # Convert resources to AzOpsState
-                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
-                                & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                                # Loop through resources and convert them to AzOpsState
+                                foreach ($resource in $resources) {
+                                    # Convert resources to AzOpsState
+                                    Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
+                                    & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                                }
+                            }
+                            else {
+                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
                             }
                         }
                         #endregion Discover all resource groups in parallel
@@ -303,6 +320,9 @@
 
                 [switch]
                 $SkipResourceGroup,
+
+                [switch]
+                $SkipResource,
 
                 [switch]
                 $ExportRawTemplate,
@@ -350,9 +370,9 @@
 
         switch ($scopeObject.Type) {
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
-            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -OdataFilter $odataFilter }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -ODataFilter $odataFilter }
-            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup }
+            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
+            subscriptions {  ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
+            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
         if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {

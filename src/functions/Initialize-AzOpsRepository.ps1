@@ -10,7 +10,9 @@
         .PARAMETER SkipRole
             Skip discovery of role.
         .PARAMETER SkipResourceGroup
-            Skip discovery of resource groups resources for better performance
+            Skip discovery of resource groups
+        .PARAMETER SkipResource
+            Skip discovery of resources inside resource groups.
         .PARAMETER InvalidateCache
             Invalidate cached subscriptions and Management Groups and do a full discovery.
         .PARAMETER GeneralizeTemplates
@@ -44,6 +46,9 @@
 
         [switch]
         $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
+
+        [switch]
+        $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
 
         [switch]
         $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
@@ -137,14 +142,14 @@
                 Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
                 # Discover Resource at scope recursively
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipResource, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $root @parameters
             }
         }
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipResource, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
 
