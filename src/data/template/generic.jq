@@ -7,7 +7,7 @@ def matches:
    )
 )");
 
-del(.Id, .Properties.provisioningState, .Properties.state) |
+del(.Id, .Properties.provisioningState, .Properties.state, .Properties.resourceGuid) |
     walk(if type=="object"
      then with_entries(if .value|matches then empty else . end)
      else . end)

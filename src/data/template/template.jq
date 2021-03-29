@@ -8,7 +8,7 @@
             "type": .ResourceType,
             "name": .Name,
             "apiVersion": "0000-00-00",
-            "location": "[resourceGroup().location]",
+            "location": .Location,
             "tags": .Tags,
             "properties": .Properties
         }
