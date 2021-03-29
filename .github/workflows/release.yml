@@ -2,7 +2,6 @@
 name: "Release"
 
 on:
-  workflow_dispatch:
   release:
 
 jobs:
@@ -13,6 +12,6 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v2
 
-      - name: 'Prerequisites'
-        run: .\scripts\Prerequisites.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
+      - name: 'Release'
+        run: .\scripts\Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
         shell: pwsh
