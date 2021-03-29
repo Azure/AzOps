@@ -3,7 +3,6 @@ name: "Tests"
 
 on:
   pull_request:
-  workflow_dispatch:
 
 jobs:
   release:
@@ -13,6 +12,9 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v2
 
+      - name: 'Dependency'
+        run: ./scripts/Dependency.ps1
+
       - name: 'Tests'
-        run: .\scripts\Tests.ps1
+        run: ./scripts/Tests.ps1
         shell: pwsh
