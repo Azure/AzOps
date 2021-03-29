@@ -6,7 +6,7 @@ on:
 
 jobs:
   release:
-    name: "Tests"
+    name: "Unit Tests"
     runs-on: ubuntu-20.04
     steps:
       - name: 'Checkout'
