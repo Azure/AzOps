@@ -8,10 +8,11 @@
             "type": .ResourceType,
             "name": .Name,
             "apiVersion": "0000-00-00",
-            "location": "[resourceGroup().location]",
+            "location": .Location,
             "tags": .Tags,
             "properties": .Properties
         }
     ],
     "outputs": {}
-}
+} |
+.resources[].tags |= if . != null then to_entries | sort_by(.key) | from_entries else . end
