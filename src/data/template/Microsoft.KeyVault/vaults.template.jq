@@ -8,7 +8,7 @@
             "type": "Microsoft.KeyVault/vaults",
             "name": .Name,
             "apiVersion": "2019-09-01",
-            "location": "[resourceGroup().location]",
+            "location": .Location,
             "properties": .Properties
         }
     ],
