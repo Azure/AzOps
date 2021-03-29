@@ -76,28 +76,66 @@
             Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
 
-            $parameters = @{
-                'TemplateFile'			      = $TemplateFilePath
-                'SkipTemplateParameterPrompt' = $true
-                'ResourceGroupName'		      = $scopeObject.resourcegroup
-            }
-            if ($TemplateParameterFilePath) {
-                $parameters.TemplateParameterFile = $TemplateParameterFilePath
-            }
-            # Validate Template
-            $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters
-            if ($results.Error) {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
+            if ($scopeObject.ResourceProvider -eq 'Microsoft.Resources' -and
+                $scopeObject.Resource -eq 'resourceGroups') {
+                # Since this is a deployment for resource group, it must be invoked at subscription scope
+                $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
+                Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
-            $parameters.Name = $DeploymentName
-            if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
-                # Whatif Placeholder
-                New-AzResourceGroupDeployment @parameters -WhatIf -WhatIfResultFormat FullResourcePayloads
+                $parameters = @{
+                    'TemplateFile'                = $TemplateFilePath
+                    'Location'                    = $defaultDeploymentRegion
+                    'SkipTemplateParameterPrompt' = $true
+                }
+                if ($TemplateParameterFilePath) {
+                    $parameters.TemplateParameterFile = $TemplateParameterFilePath
+                }
+
+                if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
+                    Set-AzOpsContext -ScopeObject $scopeObject
+                }
+
+                # Validate Template
+                $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters
+                if ($results.Error) {
+                    Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                    return
+                }
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+
+                $parameters.Name = $DeploymentName
+                if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
+                    New-AzSubscriptionDeployment @parameters
+                }
+                else {
+                    # Exit deployment
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                }
             }
             else {
-                New-AzResourceGroupDeployment @parameters
+                $parameters = @{
+                    'TemplateFile'                = $TemplateFilePath
+                    'SkipTemplateParameterPrompt' = $true
+                    'ResourceGroupName'           = $scopeObject.resourcegroup
+                }
+                if ($TemplateParameterFilePath) {
+                    $parameters.TemplateParameterFile = $TemplateParameterFilePath
+                }
+                # Validate Template
+                $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters
+                if ($results.Error) {
+                    Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                    return
+                }
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+                $parameters.Name = $DeploymentName
+                if ($PSCmdlet.ShouldProcess("Start ResourceGroup Deployment?")) {
+                    New-AzResourceGroupDeployment @parameters
+                }
+                else {
+                    # Exit deployment
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                }
             }
         }
         #endregion Resource Group
@@ -105,11 +143,14 @@
         elseif ($scopeObject.subscription) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-            Set-AzOpsContext -ScopeObject $scopeObject
+
+            if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
+                Set-AzOpsContext -ScopeObject $scopeObject
+            }
 
             $parameters = @{
-                'TemplateFile'			      = $TemplateFilePath
-                'Location'				      = $defaultDeploymentRegion
+                'TemplateFile'                = $TemplateFilePath
+                'Location'                    = $defaultDeploymentRegion
                 'SkipTemplateParameterPrompt' = $true
             }
             if ($TemplateParameterFilePath) {
@@ -121,14 +162,14 @@
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
             $parameters.Name = $DeploymentName
-            if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
-                # Whatif Placeholder
-                New-AzSubscriptionDeployment @parameters -WhatIf -WhatIfResultFormat FullResourcePayloads
+            if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
+                New-AzSubscriptionDeployment @parameters
             }
             else {
-                New-AzSubscriptionDeployment @parameters
+                # Exit deployment
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #endregion Subscription
@@ -138,9 +179,9 @@
             Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
-                'TemplateFile'	    = $TemplateFilePath
-                'location'		    = $defaultDeploymentRegion
-                'ManagementGroupId' = $scopeObject.managementgroup
+                'TemplateFile'                = $TemplateFilePath
+                'location'                    = $defaultDeploymentRegion
+                'ManagementGroupId'           = $scopeObject.managementgroup
                 'SkipTemplateParameterPrompt' = $true
             }
             if ($TemplateParameterFilePath) {
@@ -152,14 +193,14 @@
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
             $parameters.Name = $DeploymentName
-            if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
-                # Whatif Placeholder
-                New-AzManagementGroupDeployment @parameters -WhatIf
+            if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
+                New-AzManagementGroupDeployment @parameters
             }
             else {
-                New-AzManagementGroupDeployment @parameters
+                # Exit deployment
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #endregion Management Group
@@ -169,8 +210,8 @@
             Write-PSFMessage -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
-                'TemplateFile'			      = $TemplateFilePath
-                'location'				      = $defaultDeploymentRegion
+                'TemplateFile'                = $TemplateFilePath
+                'location'                    = $defaultDeploymentRegion
                 'SkipTemplateParameterPrompt' = $true
             }
             if ($TemplateParameterFilePath) {
@@ -182,14 +223,15 @@
                 Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
             $parameters.Name = $DeploymentName
-            if (-not ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?"))) {
+            if ($PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
                 # Whatif Placeholder
-                New-AzTenantDeployment @parameters -WhatIf
+                New-AzTenantDeployment @parameters
             }
             else {
-                New-AzTenantDeployment @parameters
+                # Exit deployment
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #endregion Root
@@ -200,5 +242,4 @@
         #endregion Unidentified
         #endregion Process Scope
     }
-
 }
