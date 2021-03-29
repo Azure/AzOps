@@ -196,9 +196,9 @@
                 }
                 Default {
                     #Error
-                    Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.Input.BadData.UnknownType' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                    Write-PSFMessage -Level Warning  -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
                     $this.InitializeMemberVariablesFromDirectory($Path.Directory)
-                    #throw "Unable to determine resource Type from filename: $Path!"
                 }
             }
         }
