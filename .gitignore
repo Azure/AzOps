@@ -28,6 +28,7 @@ publish/*
 
 # Generated
 azops/*
+root/*
 
 # Debug
 **.private**
