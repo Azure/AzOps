@@ -1,23 +1,35 @@
-#Debug
-**.private**
-debug.ps1
-
-#DSStore
+# System
 .DS_Store
 
-#VS
-.vs
-
-#VSCode
+# VSCode
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 *.code-workspace
+*.psproj
+*TempPoint*
+.devcontainer/*
 
-#Jupyter Notebook checkpoints
-**/.ipynb_checkpoints/*
+# Visual Studio
+library/AzOps/.vs/*
+library/AzOps/AzOps/bin/*
+library/AzOps/AzOps/obj/*
+.vs/*
 
-#AzOps
+# PowerShell Studio MetaData
+AzOps/AzOps.psproj
+AzOps/AzOps.psproj.bak
+AzOps/AzOps.psprojs
+AzOps/AzOps.psproj
+
+# TestResults
+TestResults/*
+
+# Publishing
+publish/*
+
+# Generated
 azops/*
+root/*
+
+# Debug
+**.private**
+debug/*

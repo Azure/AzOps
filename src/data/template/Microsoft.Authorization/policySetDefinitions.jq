@@ -1,0 +1,1 @@
+del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)
