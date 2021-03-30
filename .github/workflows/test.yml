@@ -5,6 +5,11 @@ on:
   pull_request:
     paths:
       - 'src/**'
+    paths-ignore:
+      - '.github/**'
+      - '.pipelines/**'
+      - 'scripts/**'
+      - '**.md'
 
 jobs:
   release:
