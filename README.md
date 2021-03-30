@@ -15,7 +15,7 @@ For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://g
 
 ## Need help?
 
-For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
+For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops-accelerator/wiki)  
 For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
 For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/AzOps/blob/dev/CONTRIBUTING.md)  
