@@ -10,10 +10,6 @@ trigger: none
 pool:
   vmImage: "ubuntu-20.04"
 
-variables:
-
-  feedName: ''
-
 jobs:
 
   - job: release
@@ -68,6 +64,6 @@ jobs:
       displayName: 'Push'
       inputs:
         command: push
-        publishVstsFeed: '$(System.TeamProject)/$(feedName)'
+        publishVstsFeed: '$(System.TeamProject)/$(FEED_NAME)'
         allowPackageConflicts: false
         packagesToPush: 'publish/AzOps.*.nupkg'
