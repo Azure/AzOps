@@ -24,57 +24,46 @@ pool:
 
 jobs:
 
-  - job: release
-    displayName: 'Release'
+  - job: sync
+    displayName: 'Sync'
     steps:
 
       #
-      # Install
-      # Retrieve modules from PSGallery
+      # Checkout
+      # Checks-out the repository
       #
 
-    - task: PowerShell@2
-      displayName: 'Install'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Install-Module -Name "AzOps" -AllowPrerelease -Force
-          Install-Module -Name @("PSFramework", "PSModuleDevelopment", "Az.Accounts", "Az.Billing", "Az.Resources") -Force
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: true
 
       #
-      # Package
-      # Prepare the modules for upload
+      # Configure
+      # Set global options
       #
 
-    - task: PowerShell@2
-      displayName: 'Package'
-      inputs:
-        targetType: 'inline'
-        script: |
-          $publish = New-Item -Path "./" -Name publish -ItemType Directory -Force
-          $modules = "PSFramework", "Az.Accounts", "Az.Billing", "Az.Resources", "AzOps"
-          $modules | ForEach-Object {
-            Import-Module -Name $_
-            New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name $_).ModuleBase -PackagePath $publish.FullName
-          }
-          Get-ChildItem -Path . -Filter *.nupkg | Where-Object Name -notlike "AzOps*" | Remove-Item -Force
+      - task: Bash@3
+        displayName: "Configure"
+        inputs:
+          targetType: "inline"
+          script: |
+            git config user.name "Azure DevOps"
+            git config user.email "azuredevops@microsoft.com"
 
       #
-      # Authenticate
+      # Sync
+      # Fetch upstream changes
       #
 
-    - task: NuGetAuthenticate@0
-      displayName: 'Authenticate'
-
-      #
-      # Push
-      # Upload the packages to Azure Artifacts
-      #
-
-    - task: NuGetCommand@2
-      displayName: 'Push'
-      inputs:
-        command: push
-        publishVstsFeed: '$(System.TeamProject)/Internal'
-        allowPackageConflicts: true
-        packagesToPush: 'publish/AzOps.*.nupkg'
+      - task: Bash@3
+        displayName: "Sync"
+        inputs:
+          targetType: "inline"
+          script: |
+            git remote -v
+            git remote remove origin
+            git remote add origin $(Build.Repository.Uri)
+            git remote add upstream https://github.com/Azure/AzOps.git
+            git fetch upstream
+            git merge upstream/dev --no-edit
+            git push origin HEAD:dev
