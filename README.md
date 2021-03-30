@@ -1,10 +1,10 @@
 # AzOps
 
-This repository is for active development of the AzOps PowerShell cmdlets. For consumers of the module we recommend visiting the [Accelerator](https://github.com/azure/azops-accelerator) repository.
+This repository is for active development of the AzOps PowerShell cmdlets.
 
 ## Getting started
 
-For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
+For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
 
 ## Dependencies
 
