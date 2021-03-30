@@ -1,0 +1,1 @@
+del(.. | .Id?, .id?, .resourceGuid?, .ResourceId?, .Identity?, .Kind?, .ResourceName?, .ExtensionResourceName?, .ParentResource?, .Plan?, .etag? , .provisioningState?)
