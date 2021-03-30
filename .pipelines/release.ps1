@@ -69,5 +69,5 @@ jobs:
       inputs:
         command: push
         publishVstsFeed: '$(System.TeamProject)/$(feedName)'
-        allowPackageConflicts: true
+        allowPackageConflicts: false
         packagesToPush: 'publish/AzOps.*.nupkg'
