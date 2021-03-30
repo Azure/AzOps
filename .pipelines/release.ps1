@@ -27,7 +27,6 @@ jobs:
 
     - checkout: self
       fetchDepth: 0
-      persistCredentials: true
 
       #
       # Dependencies
