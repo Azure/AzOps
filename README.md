@@ -29,7 +29,6 @@ File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choo
 
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/feature%20:bulb:?label=feature%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
-![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:rocket:?label=enhancement%20issues)
 
 ## Contributing
 
