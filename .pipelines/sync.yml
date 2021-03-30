@@ -1,0 +1,80 @@
+---
+name: 'AzOps - Sync'
+
+#
+# Triggers
+#
+
+trigger: none
+
+#
+# Schedule
+# Adjust frequency based on your organization need
+#
+
+schedules:
+  - cron: "0 0 * * *"
+    branches:
+      include:
+        - main
+    always: true
+
+pool:
+  vmImage: "ubuntu-20.04"
+
+jobs:
+
+  - job: release
+    displayName: 'Release'
+    steps:
+
+      #
+      # Install
+      # Retrieve modules from PSGallery
+      #
+
+    - task: PowerShell@2
+      displayName: 'Install'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Install-Module -Name "AzOps" -AllowPrerelease -Force
+          Install-Module -Name @("PSFramework", "PSModuleDevelopment", "Az.Accounts", "Az.Billing", "Az.Resources") -Force
+
+      #
+      # Package
+      # Prepare the modules for upload
+      #
+
+    - task: PowerShell@2
+      displayName: 'Package'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $publish = New-Item -Path "./" -Name publish -ItemType Directory -Force
+          $modules = "PSFramework", "Az.Accounts", "Az.Billing", "Az.Resources", "AzOps"
+          $modules | ForEach-Object {
+            Import-Module -Name $_
+            New-PSMDModuleNugetPackage -ModulePath (Get-Module -Name $_).ModuleBase -PackagePath $publish.FullName
+          }
+          Get-ChildItem -Path . -Filter *.nupkg | Where-Object Name -notlike "AzOps*" | Remove-Item -Force
+
+      #
+      # Authenticate
+      #
+
+    - task: NuGetAuthenticate@0
+      displayName: 'Authenticate'
+
+      #
+      # Push
+      # Upload the packages to Azure Artifacts
+      #
+
+    - task: NuGetCommand@2
+      displayName: 'Push'
+      inputs:
+        command: push
+        publishVstsFeed: '$(System.TeamProject)/Internal'
+        allowPackageConflicts: true
+        packagesToPush: 'publish/AzOps.*.nupkg'
