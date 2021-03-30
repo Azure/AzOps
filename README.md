@@ -18,12 +18,9 @@ For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://g
 For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops-accelerator/wiki)  
 For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
 For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
-For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/AzOps/blob/dev/CONTRIBUTING.md)  
+For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/azops/blob/CONTRIBUTING.md)  
+For information on migrating to the new versions, visit the [Migration Guide](https://github.com/azure/azops-accelerator/wiki/migration)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
-
-## Build status
-
-[![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
 
 ## Issues
 
