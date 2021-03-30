@@ -3,7 +3,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '0.0.41'
+    ModuleVersion     = '1.0.0'
 
     # ID used to uniquely identify this module
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
@@ -84,7 +84,7 @@
             # ReleaseNotes = ''
 
             # Prerelease tag applied to this module.
-            Prerelease = '-alpha'
+            # Prerelease = '-alpha'
 
         } # End of PSData hashtable
 
