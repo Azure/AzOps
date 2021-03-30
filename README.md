@@ -21,7 +21,7 @@ For tutorials, samples and quick starts, go to [AzOps Accelerator](https://githu
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/AzOps/blob/dev/CONTRIBUTING.md)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
-## Build Status
+## Build status
 
 [![Build Status](https://dev.azure.com/mscet/CET-AzOps/_apis/build/status/Organizations/Azure/AzOps?branchName=refs%2Fpull%2F158%2Fmerge)](https://dev.azure.com/mscet/CET-AzOps)
 
