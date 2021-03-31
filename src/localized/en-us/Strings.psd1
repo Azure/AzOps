@@ -86,6 +86,7 @@
 
     'Get-AzOpsResourceDefinition.Finished'                                          = 'Finished processing scope [{0}]' # $scopeObject.Scope
     'Get-AzOpsResourceDefinition.ManagementGroup.Processing'                        = 'Processing Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound'             = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
     'Get-AzOpsResourceDefinition.Processing'                                        = 'Processing scope: [{0}]' # $Scope
     'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
     'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
@@ -186,7 +187,7 @@
     'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfResults'                                             = 'What If Results: {0}' # $TemplateFilePath
-    'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to What If' # 
+    'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to What If' #
 
     'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
     'New-AzOpsStateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $cfgEnrollmentAccount
@@ -221,6 +222,7 @@
     'Save-AzOpsManagementGroupChildren.New.File'                                    = 'Creating new state file: {0}' # $statepathFileName
     'Save-AzOpsManagementGroupChildren.Processing'                                  = 'Processing Scope: {0}' # $scopeObject.Scope
     'Save-AzOpsManagementGroupChildren.Starting'                                    = 'Starting execution' #
+    'Save-AzOpsManagementGroupChildren.Subscription.NotFound'                       = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Set-AzOpsContext.Change'                                                       = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 }

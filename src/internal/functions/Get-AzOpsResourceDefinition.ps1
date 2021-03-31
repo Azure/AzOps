@@ -344,7 +344,16 @@
                 $childOfManagementGroups = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup).Children
 
                 foreach ($child in $childOfManagementGroups) {
-                    Get-AzOpsResourceDefinition -Scope $child.Id @parameters
+
+                    if ($child.Type -eq '/subscriptions') {
+                        if ($script:AzOpsSubscriptions.id -contains $child.Id) {
+                            Get-AzOpsResourceDefinition -Scope $child.Id @parameters
+                        } else {
+                            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound' -StringValues $child.Name
+                        }
+                    } else {
+                        Get-AzOpsResourceDefinition -Scope $child.Id @parameters
+                    }
                 }
                 ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             }
@@ -407,6 +416,7 @@
             $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
         }
         #endregion Process Policies
+
         #region Process Roles
         if (-not $SkipRole) {
             # Process role definitions
