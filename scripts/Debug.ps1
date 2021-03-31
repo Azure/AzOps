@@ -2,8 +2,9 @@
 # Preferences
 #
 
-#$DebugPreference = "Continue"
+$ErrorActionPreference = "Stop"
 #$VerbosePreference = "Continue"
+#$DebugPreference = "Continue"
 
 #
 # Config
