@@ -20,7 +20,7 @@ For reference documentation visit the [Enterprise-Scale](https://github.com/azur
 For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/azops/blob/CONTRIBUTING.md)  
 For information on migrating to the new version, visit the [Migration Guide](https://github.com/azure/azops-accelerator/wiki/migration)  
-For information on debugging locally visit [Debugging Locally](DEBUGLOCALLY.md)
+For information on debugging locally visit [Debugging Locally](DEBUGLOCALLY.md)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
 ### Issues
