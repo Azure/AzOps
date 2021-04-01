@@ -40,7 +40,7 @@
             [AzOpsScope]
     #>
 
-    [OutputType([AzOpsScope])]
+    #[OutputType([AzOpsScope])]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(ParameterSetName = "scope")]
@@ -69,7 +69,8 @@
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.NotFound' -StringValues $Path -EnableException $true -Cmdlet $PSCmdlet
                 }
                 $Path = Resolve-PSFPath -Path $Path -SingleItem -Provider FileSystem
-                if (-not $Path.StartsWith($StatePath)) {
+                $StatePathValidator = Resolve-PSFPath -Path $StatePath -SingleItem -Provider FileSystem
+                if (-not $Path.StartsWith($StatePathValidator)) {
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.InvalidRoot' -StringValues $Path, $StatePath -EnableException $true -Cmdlet $PSCmdlet
                 }
                 Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromFile' -Target $Path -ScriptBlock {
