@@ -29,7 +29,7 @@
     'AzOpsScope.Input.BadData.ResourceGroup'                                        = 'Invalid Resource Group Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.Subscription'                                         = 'Invalid Subscription Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.UnknownType'                                          = 'Invalid File Structure! Cannot find Management Group / Subscription / Resource Group files in {0}!' # $Path
-    'AzOpsScope.Input.BadData.TemplateParameterFile'                                = 'Unable to determine type from Template of Parameter file: {0}' # filename
+    'AzOpsScope.Input.BadData.TemplateParameterFile'                                = 'Unable to determine type from Template or Template Parameter file: {0}' # filename
     'AzOpsScope.Constructor'                                                        = 'Calling Constructor with value {0}' # scope
     'AzOpsScope.InitializeMemberVariables'                                          = 'Calling InitializeMemberVariablesFromDirectory with value {0}' # scope
     'AzOpsScope.InitializeMemberVariables.Start'                                    = 'Calling InitializeMemberVariables with scope {0}' # Scope
