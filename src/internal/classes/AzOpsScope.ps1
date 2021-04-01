@@ -133,73 +133,79 @@
         }
         else {
             $resourcePath = Get-Content $Path | ConvertFrom-Json -AsHashtable
+            if ($resourcePath) {
+                switch ($resourcePath) {
+                    { $_.parameters.input.value.Keys -contains "ResourceId" } {
+                        # Parameter Files - resource from parameters file
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.ResourceId' -StringValues $($resourcePath.parameters.input.value.ResourceId) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $this.InitializeMemberVariables($resourcePath.parameters.input.value.ResourceId)
+                        break
+                    }
+                    { $_.parameters.input.value.Keys -contains "Id" } {
+                        # Parameter Files - ManagementGroup and Subscription
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.Id' -StringValues $($resourcePath.parameters.input.value.Id) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $this.InitializeMemberVariables($resourcePath.parameters.input.value.Id)
+                        break
+                    }
+                    { $_.parameters.input.value.Keys -contains "Type" } {
+                        # Parameter Files - Determine Resource Type and Name (Management group)
+                        # Management group resource id do contain '/provider'
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.Type' -StringValues ("$($resourcePath.parameters.input.value.Type)/$($resourcePath.parameters.input.value.Name)") -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $this.InitializeMemberVariables("$($resourcePath.parameters.input.value.Type)/$($resourcePath.parameters.input.value.Name)")
+                        break
+                    }
+                    { $_.parameters.input.value.Keys -contains "ResourceType" } {
+                        # Parameter Files - Determine Resource Type and Name (Any ResourceType except management group)
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.ResourceType' -StringValues ($resourcePath.parameters.input.value.ResourceType) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $currentScope = New-AzOpsScope -Path ($Path.Directory)
 
-            switch ($resourcePath) {
-                { $_.parameters.input.value.Keys -contains "ResourceId" } {
-                    # Parameter Files - resource from parameters file
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.ResourceId' -StringValues $($resourcePath.parameters.input.value.ResourceId) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables($resourcePath.parameters.input.value.ResourceId)
-                    break
-                }
-                { $_.parameters.input.value.Keys -contains "Id" } {
-                    # Parameter Files - ManagementGroup and Subscription
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.Id' -StringValues $($resourcePath.parameters.input.value.Id) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables($resourcePath.parameters.input.value.Id)
-                    break
-                }
-                { $_.parameters.input.value.Keys -contains "Type" } {
-                    # Parameter Files - Determine Resource Type and Name (Management group)
-                    # Management group resource id do contain '/provider'
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.Type' -StringValues ("$($resourcePath.parameters.input.value.Type)/$($resourcePath.parameters.input.value.Name)") -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables("$($resourcePath.parameters.input.value.Type)/$($resourcePath.parameters.input.value.Name)")
-                    break
-                }
-                { $_.parameters.input.value.Keys -contains "ResourceType" } {
-                    # Parameter Files - Determine Resource Type and Name (Any ResourceType except management group)
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.ResourceType' -StringValues ($resourcePath.parameters.input.value.ResourceType) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                        # Creating Resource Id based on current scope, resource Type and Name of the resource
+                        $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($resourcePath.parameters.input.value.ResourceType)/$($resourcePath.parameters.input.value.Name)")
+                        break
+                    }
+                    { $_.resources -and
+                        $_.resources[0].type -eq 'Microsoft.Management/managementGroups' } {
+                        # Template - Management Group
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.managementgroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $this.InitializeMemberVariables("/providers/Microsoft.Management/managementgroups/{0}" -f ($_.resources[0].name) )
+                        break
+                    }
+                    { $_.resources -and
+                        $_.resources[0].type -eq 'Microsoft.Management/managementGroups/subscriptions' } {
+                        # Template - Subscription
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $this.InitializeMemberVariables("/subscriptions/{0}" -f ($_.resources[0].name -split '/' | Select-Object -Last 1) )
+                        break
+                    }
+                    { $_.resources -and
+                        $_.resources[0].type -eq 'Microsoft.Resources/resourceGroups' } {
+                        Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resourceGroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        #Get the name of subscription from parent scope
+                        $currentScope = New-AzOpsScope -Path ($Path.Directory.Parent)
 
-                    # Creating Resource Id based on current scope, resource Type and Name of the resource
-                    $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($resourcePath.parameters.input.value.ResourceType)/$($resourcePath.parameters.input.value.Name)")
-                    break
+                        #Initialize resource group
+                        $this.InitializeMemberVariables("$($currentScope.scope)/resourceGroups/{0}" -f $_.resources[0].name )
+                        break
+                    }
+                    { $_.resources } {
+                        # Template - 1st resource
+                        Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resource' -StringValues ($_.resources[0].type), ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                        $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                        $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($_.resources[0].type)/$($_.resources[0].name)")
+                        break
+                    }
+                    Default {
+                        Write-PSFMessage -Level Warning  -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                        Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                        $this.InitializeMemberVariablesFromDirectory($Path.Directory)
+                    }
                 }
-                { $_.resources -and
-                    $_.resources[0].type -eq 'Microsoft.Management/managementGroups' } {
-                    # Template - Management Group
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.managementgroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables("/providers/Microsoft.Management/managementgroups/{0}" -f ($_.resources[0].name) )
-                    break
-                }
-                { $_.resources -and
-                    $_.resources[0].type -eq 'Microsoft.Management/managementGroups/subscriptions' } {
-                    # Template - Subscription
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables("/subscriptions/{0}" -f ($_.resources[0].name -split '/' | Select-Object -Last 1) )
-                    break
-                }
-                { $_.resources -and
-                    $_.resources[0].type -eq 'Microsoft.Resources/resourceGroups' } {
-                    Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resourceGroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    #Get the name of subscription from parent scope
-                    $currentScope = New-AzOpsScope -Path ($Path.Directory.Parent)
-
-                    #Initialize resource group
-                    $this.InitializeMemberVariables("$($currentScope.scope)/resourceGroups/{0}" -f $_.resources[0].name )
-                    break
-                }
-                { $_.resources } {
-                    # Template - 1st resource
-                    Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resource' -StringValues ($_.resources[0].type), ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
-                    $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($_.resources[0].type)/$($_.resources[0].name)")
-                    break
-                }
-                Default {
-                    #Error
-                    Write-PSFMessage -Level Warning  -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
-                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
-                    $this.InitializeMemberVariablesFromDirectory($Path.Directory)
-                }
+            }
+            else {
+                # if input Json is not valid resource template or parameter file
+                Write-PSFMessage -Level Warning  -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                $this.InitializeMemberVariablesFromDirectory($Path.Directory)
             }
         }
     }
