@@ -174,23 +174,22 @@
                     $_.resources[0].type -eq 'Microsoft.Management/managementGroups' } {
                     # Template - Management Group
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.managementgroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables("/providers/Microsoft.Management/managementgroups/{0}" -f ($_.resources[0].name) )
+                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                    $this.InitializeMemberVariables("$($currentScope.scope)")
                     break
                 }
                 { $_.resources -and
                     $_.resources[0].type -eq 'Microsoft.Management/managementGroups/subscriptions' } {
                     # Template - Subscription
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $this.InitializeMemberVariables("/subscriptions/{0}" -f ($_.resources[0].name -split '/' | Select-Object -Last 1) )
+                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                    $this.InitializeMemberVariables("$($currentScope.scope)")
                     break
                 }
                 { $_.resources -and
                     $_.resources[0].type -eq 'Microsoft.Resources/resourceGroups' } {
-                    Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resourceGroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    #Get the name of subscription from parent scope
+                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.resourceGroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
                     $currentScope = New-AzOpsScope -Path ($Path.Directory.Parent)
-
-                    #Initialize resource group
                     $this.InitializeMemberVariables("$($currentScope.scope)/resourceGroups/{0}" -f $_.resources[0].name )
                     break
                 }
