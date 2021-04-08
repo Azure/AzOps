@@ -180,7 +180,7 @@
 
             $parameters = @{
                 'TemplateFile'                = $TemplateFilePath
-                'location'                    = $defaultDeploymentRegion
+                'Location'                    = $defaultDeploymentRegion
                 'ManagementGroupId'           = $scopeObject.managementgroup
                 'SkipTemplateParameterPrompt' = $true
             }
