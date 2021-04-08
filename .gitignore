@@ -1,7 +1,7 @@
 # System
 .DS_Store
 
-# VSCode
+# VS Code
 .vscode/*
 *.code-workspace
 *.psproj
@@ -14,14 +14,15 @@ library/AzOps/AzOps/bin/*
 library/AzOps/AzOps/obj/*
 .vs/*
 
-# PowerShell Studio MetaData
+# PowerShell Studio
 AzOps/AzOps.psproj
 AzOps/AzOps.psproj.bak
 AzOps/AzOps.psprojs
 AzOps/AzOps.psproj
 
-# TestResults
+# Results
 TestResults/*
+results/*
 
 # Publishing
 publish/*
