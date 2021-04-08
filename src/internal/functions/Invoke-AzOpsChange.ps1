@@ -46,18 +46,18 @@
 
             #region Initialization Prep
             $common = @{
-                Level	     = 'Host'
-                Tag		     = 'pwsh'
+                Level        = 'Host'
+                Tag          = 'pwsh'
                 FunctionName = 'Invoke-AzOpsChange'
-                Target	     = $ScopeObject
+                Target       = $ScopeObject
             }
 
             $result = [PSCustomObject] @{
-                TemplateFilePath		  = $null
+                TemplateFilePath          = $null
                 TemplateParameterFilePath = $null
-                DeploymentName		      = $null
-                ScopeObject			      = $ScopeObject
-                Scope					  = $ScopeObject.Scope
+                DeploymentName            = $null
+                ScopeObject               = $ScopeObject
+                Scope                     = $ScopeObject.Scope
             }
 
             $fileItem = Get-Item -Path $FilePath
@@ -126,7 +126,7 @@
 
             #region Case: Template File
             $result.TemplateFilePath = $fileItem.FullName
-            $parameterPath =  Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' +(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
+            $parameterPath = Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath
@@ -136,7 +136,7 @@
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
-            if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0,58) }
+            if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
             $result.DeploymentName = "AzOps-$deploymentName"
 
             $result
@@ -200,7 +200,7 @@
         $newStateDeploymentCmd.End()
         #endregion Deploy State
 
-        $azOpsDeploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
+        $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
@@ -216,7 +216,7 @@
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        $deploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
     }
 
 }
