@@ -182,15 +182,15 @@
                     $_.resources[0].type -eq 'Microsoft.Management/managementGroups/subscriptions' } {
                     # Template - Subscription
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                    $currentScope = New-AzOpsScope -Path ($Path.Directory.Parent)
                     $this.InitializeMemberVariables("$($currentScope.scope)")
                     break
                 }
                 { $_.resources -and
                     $_.resources[0].type -eq 'Microsoft.Resources/resourceGroups' } {
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.resourceGroups' -StringValues ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
-                    $currentScope = New-AzOpsScope -Path ($Path.Directory.Parent)
-                    $this.InitializeMemberVariables("$($currentScope.scope)/resourceGroups/{0}" -f $_.resources[0].name )
+                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+                    $this.InitializeMemberVariables("$($currentScope.scope)")
                     break
                 }
                 { $_.resources } {
