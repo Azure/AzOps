@@ -1,4 +1,4 @@
-function Save-AzOpsManagementGroupChildren {
+﻿function Save-AzOpsManagementGroupChildren {
 
     <#
         .SYNOPSIS
@@ -84,10 +84,12 @@ function Save-AzOpsManagementGroupChildren {
                     if ($child.Type -eq '/subscriptions') {
                         if ($script:AzOpsSubscriptions.id -contains $child.Id) {
                             Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath
-                        } else {
+                        }
+                        else {
                             Write-PSFMessage -String 'Save-AzOpsManagementGroupChildren.Subscription.NotFound' -StringValues $child.Name
                         }
-                    } else {
+                    }
+                    else {
                         Save-AzOpsManagementGroupChildren -Scope $child.Id -StatePath $StatePath
                     }
                 }
