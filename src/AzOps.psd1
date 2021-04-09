@@ -26,7 +26,7 @@
     # Modules that must be imported into the global environment prior to importing
     # this module
     RequiredModules   = @(
-        @{ ModuleName = 'PSFramework'; RequiredVersion = '1.6.181' }
+        @{ ModuleName = 'PSFramework'; RequiredVersion = '1.6.197' }
         @{ ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.7' }
         @{ ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0' }
         @{ ModuleName = 'Az.Resources'; RequiredVersion = '3.4.0' }
