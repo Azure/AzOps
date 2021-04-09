@@ -4,8 +4,8 @@
 
 # This script has been converted to tabs
 # when invoking the AzOpsChange cmdlet the
-# Git diff needs to include a tab otherwise
-# the expression won't detect the new file.
+# git diff needs to include a tab otherwise
+# the expression won't detect the file.
 
 #
 # Preferences
@@ -19,7 +19,6 @@ $ErrorActionPreference = "Stop"
 # Context
 #
 
-# Key Vault integrated
 
 #
 # Config
