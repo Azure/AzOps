@@ -27,11 +27,11 @@ $global:BannedCommands = @(
     "Write-Host"  = @('Write-PSFHostColor.ps1','Write-PSFMessage.ps1')
 #>
 $global:MayContainCommand = @{
-    "Write-Host"  = @()
-    "Write-Verbose" = @()
-    "Write-Warning" = @()
-    "Write-Error"  = @('Initialize-AzOpsRepository.ps1')
-    "Write-Output" = @('Get-ResourceDefinition.ps1')
+    "Write-Host"        = @()
+    "Write-Verbose"     = @()
+    "Write-Warning"     = @()
+    "Write-Error"       = @('Initialize-AzOpsRepository.ps1')
+    "Write-Output"      = @('Get-AzOpsResourceDefinition.ps1')
     "Write-Information" = @()
-    "Write-Debug" = @()
+    "Write-Debug"       = @()
 }
