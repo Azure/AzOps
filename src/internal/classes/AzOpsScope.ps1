@@ -98,7 +98,7 @@
         }
 
         if ($managementGroupScopeFile = (Get-ChildItem -Force -Path $Path -File | Where-Object Name -like $managementGroupFileName)) {
-            [string] $managementGroupID = $managementGroupScopeFile.Name.Replace('microsoft.management_managementgroups-', '').Replace('.parameters', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '') 
+            [string] $managementGroupID = $managementGroupScopeFile.Name.Replace('microsoft.management_managementgroups-', '').Replace('.parameters', '').Replace($(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '')
             Write-PSFMessage -Level Verbose -String 'AzOpsScope.Input.FromFileName.ManagementGroup' -StringValues $managementGroupID -FunctionName InitializeMemberVariablesFromDirectory -ModuleName AzOps
             $this.InitializeMemberVariables("/providers/Microsoft.Management/managementGroups/$managementGroupID")
         }
