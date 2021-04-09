@@ -1,10 +1,25 @@
 #
+# Notes
+#
+
+# This script has been converted to tabs
+# when invoking the AzOpsChange cmdlet the
+# Git diff needs to include a tab otherwise
+# the expression won't detect the new file.
+
+#
 # Preferences
 #
 
 $ErrorActionPreference = "Stop"
 #$VerbosePreference = "Continue"
 #$DebugPreference = "Continue"
+
+#
+# Context
+#
+
+# Key Vault integrated
 
 #
 # Config
@@ -25,10 +40,26 @@ Import-Module ./src/AzOps.psd1 -Force
 # Initialize
 #
 
+#Initialize-AzOpsEnvironment
 Initialize-AzOpsRepository -Rebuild
 
 #
 # Internal
 #
 
-& ( Get-Module -Name AzOps ) { $host.EnterNestedPrompt() }
+# & ( Get-Module -Name AzOps ) { $host.EnterNestedPrompt() }
+# $module = Get-Module -Name AzOps
+
+#
+# Deployment
+#
+
+# $tenantId = ""
+# $managementId = ""
+# $subscriptionId = ""
+
+# $change = "A	root/tenant root group ($tenantId)/azuredeploy.json"
+
+# $module.Invoke( {
+# 		Invoke-AzOpsChange -ChangeSet ""
+# 	})
