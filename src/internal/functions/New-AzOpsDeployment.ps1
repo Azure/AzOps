@@ -121,13 +121,19 @@
                 if ($TemplateParameterFilePath) {
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
                 }
-                # Validate Template
-                $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters
-                if ($results.Error) {
-                    Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+
+                $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+                if ($resultsError) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                }
+                elseif ($results.Error) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                     return
                 }
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+                else {
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                }
+
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start ResourceGroup Deployment?")) {
                     New-AzResourceGroupDeployment @parameters
@@ -156,13 +162,19 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            # Validate Template
-            $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters
-            if ($results.Error) {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+
+            $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            if ($resultsError) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+            }
+            elseif ($results.Error) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+            else {
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+            }
+
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
                 New-AzSubscriptionDeployment @parameters
@@ -187,13 +199,19 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            # Validate Template
-            $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters
-            if ($results.Error) {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+
+            $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            if ($resultsError) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+            }
+            elseif ($results.Error) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+            else {
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+            }
+
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
                 New-AzManagementGroupDeployment @parameters
@@ -217,13 +235,19 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            # Validate Template
-            $results = Get-AzTenantDeploymentWhatIfResult @parameters
-            if ($results.Error) {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+
+            $results = Get-AzTenantDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            if ($resultsError) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+            }
+            elseif ($results.Error) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+            else {
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+            }
+
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
                 # Whatif Placeholder
