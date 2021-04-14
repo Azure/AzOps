@@ -1,4 +1,5 @@
 $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+$script:tenantId = $env:ARM_TENANT_ID
 
 #
 # Repository.Tests.ps1
@@ -26,7 +27,6 @@ Describe "Repository" {
         #
 
         Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
-        $tenantId = "e42bc18f-3ab8-4bca-b643-24d2e0780b07"
         if ((Get-AzContext -ListAvailable).Tenant.Id -notcontains $tenantId) {
             Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
             # TODO: Replace with Service Principal
@@ -71,13 +71,10 @@ Describe "Repository" {
 
     Context "Test" {
 
+        #region Paths
         $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
         Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName Context
 
-        # Environment Variable
-        $tenantId = "e42bc18f-3ab8-4bca-b643-24d2e0780b07"
-
-        #region Paths
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($tenantId).json")
@@ -114,7 +111,6 @@ Describe "Repository" {
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
-
         #endregion Paths
 
         # Test Cases
