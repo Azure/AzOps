@@ -1,0 +1,243 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {
+        "apiVersion": "2020-05-01",
+        "tenantId": "e42bc18f-3ab8-4bca-b643-24d2e0780b07",
+        "subscriptionId": "1e045925-5a73-42d1-ae33-b3803bfb8ea9",
+        "displayName": "Test"
+    },
+    "resources": [
+        // Management Group - Test
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid(variables('displayName'))]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "[variables('displayName')]",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', variables('tenantId'))]"
+                    }
+                }
+            }
+        },
+        // Management Group - Test - Platform
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Platform')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Platform",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+            ]
+        },
+        // Management Group - Test - Platform - Connectivity
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Connectivity')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Connectivity",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+            ]
+        },
+        // Management Group - Test - Platform - Management
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Management')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Management",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+            ]
+        },
+        // Subscription - Test - Platform - Management - Subscription-0
+        {
+            "type": "Microsoft.Management/managementGroups/subscriptions",
+            "name": "[concat(guid('Management'), '/', variables('subscriptionId'))]",
+            "apiVersion": "2020-05-01",
+            "scope": "/",
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
+            ]
+        },
+        // Resource Group - Test - Platform - Management - Subscription-0 - Application
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "AzOps-Tests-Nested",
+            "subscriptionId": "[variables('subscriptionId')]",
+            "location": "northeurope",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2019-10-01",
+                            "name": "Application",
+                            "location": "northeurope"
+                        }
+                    ]
+                }
+            }
+        },
+        // Management Group - Test - Platform - Identity
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Identity')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Identity",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
+            ]
+        },
+        // Management Group - Test - Landing Zones
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Landing-Zones')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Landing-Zones",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+            ]
+        },
+        // Management Group - Test - Landing Zones - SAP
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('SAP')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "SAP",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+            ]
+        },
+        // Management Group - Test - Landing Zones - Online
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Online')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Online",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+            ]
+        },
+        // Management Group - Test - Landing Zones - Corp
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Corp')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Corp",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
+            ]
+        },
+        // Management Group - Test - Sandboxes
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Sandboxes')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Sandboxes",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+            ]
+        },
+        // Management Group - Test - Decomissioned
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Decomissioned')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Decomissioned",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+            ]
+        }
+    ],
+    "outputs": {}
+}
