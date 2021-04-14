@@ -1,36 +1,41 @@
 . | . as $input |
 
-[foreach .Children[] as $item ([[],[]];
-
-if $item.Type == "/providers/Microsoft.Management/managementGroups"
+[
+if $input.Children != null
 then
-{
-    "type": "Microsoft.Management/managementGroups",
-    "apiVersion": "2020-05-01",
-    "name": $item.Name,
-    "scope": "/",
-    "properties": {
-        "displayName": $item.DisplayName,
-        "details": {
-            "parent": {
-                "id": ($input.Type + "/" + $input.Name)
-            }
-        }
-    }
-}
-elif $item.Type == "/subscriptions"
-then
-{
-    "type": "Microsoft.Management/managementGroups/subscriptions",
-    "apiVersion": "2021-04-01",
-    "name": ($input.Name + "/" + $item.Name),
-    "scope": "/"
-}
+  foreach $input.Children[] as $item ([[],[]];
+    if $item.Type == "/providers/Microsoft.Management/managementGroups"
+    then
+      {
+          "type": "Microsoft.Management/managementGroups",
+          "apiVersion": "2020-05-01",
+          "name": $item.Name,
+          "scope": "/",
+          "properties": {
+              "displayName": $item.DisplayName,
+              "details": {
+                  "parent": {
+                      "id": ($input.Type + "/" + $input.Name)
+                  }
+              }
+          }
+      }
+    elif $item.Type == "/subscriptions"
+    then
+      {
+          "type": "Microsoft.Management/managementGroups/subscriptions",
+          "apiVersion": "2021-04-01",
+          "name": ($input.Name + "/" + $item.Name),
+          "scope": "/"
+      }
+    else
+      empty
+    end
+  )
 else
-empty
+  empty
 end
-
-)] as $resources |
+] as $resources |
 
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
