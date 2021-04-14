@@ -5,8 +5,8 @@
     "functions": [],
     "variables": {
         "apiVersion": "2020-05-01",
-        "tenantId": "e42bc18f-3ab8-4bca-b643-24d2e0780b07",
-        "subscriptionId": "1e045925-5a73-42d1-ae33-b3803bfb8ea9",
+        "tenantId": "",
+        "subscriptionId": "",
         "displayName": "Test"
     },
     "resources": [
