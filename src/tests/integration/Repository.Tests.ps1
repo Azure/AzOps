@@ -1,14 +1,4 @@
-$repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
-
-$script:rootPath = Join-Path -Path $repositoryRoot -ChildPath "root"
-
-# TODO: Inject with environment variables
-$script:tenantId = "e42bc18f-3ab8-4bca-b643-24d2e0780b07"
-$script:managementGroupDisplayName = "development"
-$script:managementGroupName = "61a389c4-561c-441e-8ff8-30abb9cf64f8"
-$script:subscriptionName = "subscription-0"
-$script:subscriptionId = "1e045925-5a73-42d1-ae33-b3803bfb8ea9"
-$script:resourceGroupName = "application-0"
+$script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
 
 #
 # Repository.Tests.ps1
@@ -27,7 +17,21 @@ Describe "Repository" {
 
     BeforeAll {
 
-        Write-PSFMessage -Level Important -Message "Initializing test environment"
+        Write-PSFMessage -Level Important -Message "Initializing test environment" -FunctionName "BeforeAll"
+
+        #
+        # Ensure PowerShell has an authenticate
+        # Azure Context which the tests can
+        # run within and generate data as needed
+        #
+
+        Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
+        $tenantId = "e42bc18f-3ab8-4bca-b643-24d2e0780b07"
+        if ((Get-AzContext -ListAvailable).Tenant.Id -notcontains $tenantId) {
+            Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
+            # TODO: Replace with Service Principal
+            Connect-AzAccount -UseDeviceAuthentication
+        }
 
         #
         # Deploy the Azure environment
@@ -36,31 +40,21 @@ Describe "Repository" {
         # file system hierachy
         #
 
+        Write-PSFMessage -Level Important -Message "Creating Management Group structure" -FunctionName "BeforeAll"
+        $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
+        New-AzTenantDeployment -Name "AzOps-Tests" -TemplateFile $templateFile -Location "uksouth"
+
         #
         # Ensure that the root directory
         # does not exist before running
         # tests.
         #
 
-        # TODO: Review this implementation
-
-        Write-PSFMessage -Level Important -Message "Testing for root directory existence"
-        if (Test-Path -Path $script:rootPath) {
-            Write-PSFMessage -Level Important -Message "Removing root directory"
-            Remove-Item -Path $script:rootPath -Recurse
-        }
-
-        #
-        # Ensure PowerShell has an authenticate
-        # Azure Context which the tests can
-        # run within and generate data as needed
-        #
-
-        # ?: Should this check for Management Groups
-        if ((Get-AzContext -ListAvailable).Tenant.Id -notcontains $script:tenantId) {
-            Write-PSFMessage -Level Important -Message "Unauthenticated PowerShell session"
-            # TODO: Replace with Service Principal
-            Connect-AzAccount -UseDeviceAuthentication
+        Write-PSFMessage -Level Important -Message "Testing for root directory existence" -FunctionName "BeforeAll"
+        $generatedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "root"
+        if (Test-Path -Path $generatedRoot) {
+            Write-PSFMessage -Level Important -Message "Removing root directory" -FunctionName "BeforeAll"
+            Remove-Item -Path $generatedRoot -Recurse
         }
 
         #
@@ -70,101 +64,240 @@ Describe "Repository" {
         # is correct.
         #
 
-        Write-PSFMessage -Level Important -Message "Generating test folder structure"
+        Write-PSFMessage -Level Important -Message "Generating folder structure" -FunctionName "BeforeAll"
         Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
 
     }
 
     Context "Test" {
 
+        $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
+        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName Context
+
+        # Environment Variable
+        $tenantId = "e42bc18f-3ab8-4bca-b643-24d2e0780b07"
+
         #region Paths
-        $script:tenantRootPath = (Join-Path -Path $script:rootPath -ChildPath "tenant root group ($script:tenantId)")
-        $script:managementGroupPath = (Join-Path -Path $script:tenantRootPath -ChildPath "$($script:managementGroupDisplayName) ($($script:managementGroupName))")
-        $script:subscriptionPath = (Join-Path -Path $script:managementGroupPath -ChildPath "$($script:subscriptionName) ($($script:subscriptionId))")
-        $script:resourceGroupPath = (Join-Path -Path $script:subscriptionPath -ChildPath "$($script:resourceGroupName)")
+        $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
+
+        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($tenantId).json")
+        $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
+        $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName Context
+
+        $script:testManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Test")
+        $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:testManagementGroup.Name).json")
+        $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
+        $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName Context
+
+        $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Platform")
+        $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:platformManagementGroup.Name).json")
+        $script:platformManagementGroupDirectory = ($script:platformManagementGroupPath).Directory
+        $script:platformManagementGroupFile = ($script:platformManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName Context
+
+        $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Management")
+        $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:managementManagementGroup.Name).json")
+        $script:managementManagementGroupDirectory = ($script:managementManagementGroupPath).Directory
+        $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName Context
+
+        $script:subscription = (Get-AzSubscription | Where-Object Name -eq "Subscription-0")
+        $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($script:subscription.Id).json")
+        $script:subscriptionDirectory = ($script:subscriptionPath).Directory
+        $script:subscriptionFile = ($script:subscriptionPath).FullName
+        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
+
+        $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
+        $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($script:resourceGroup.ResourceGroupName).json")
+        $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
+        $script:resourceGroupFile = ($script:resourceGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
+
         #endregion Paths
 
         # Test Cases
 
         #region
-        # Scope: Root (./root)
+        # Scope - Root (./root)
         It "Root directory should exist" {
-            Test-Path -Path $script:rootPath | Should -BeTrue
+            Test-Path -Path $script:generatedRootPath | Should -BeTrue
         }
         #endregion
 
-        #region
-        # Scope: Tenant Root Group (./root/tenant root group)
-        $filePath = (Join-Path -Path $script:tenantRootPath -ChildPath "microsoft.management_managementgroups-$($script:tenantId).parameters.json")
+        #region Scope - Tenant Root Group (./root/tenant root group)
         It "Tenant Root Group directory should exist" {
-            Test-Path -Path $script:tenantRootPath | Should -BeTrue
+            Test-Path -Path $script:tenantRootGroupDirectory | Should -BeTrue
         }
         It "Tenant Root Group file should exist" {
-            Test-Path -Path $filePath | Should -BeTrue
+            Test-Path -Path $script:tenantRootGroupFile | Should -BeTrue
         }
-        # It "Tenant Root Group resource type should match" {
-        #     $fileContents = Get-Content -Path $filePath -Raw | ConvertFrom-Json -Depth 5
-        #     $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
-        # }
-        # It "Tenant Root Group scope property should match" {
-        #     $fileContents = Get-Content -Path $filePath -Raw | ConvertFrom-Json -Depth 5
-        #     $fileContents.resources[0].scope | Should -Be "/"
-        # }
-        #endregion
-
-        #region
-        # Scope: Management Group (./root/tenant root group/development)
-        $script:filePath = (Join-Path -Path $script:managementGroupPath -ChildPath "microsoft.management_managementgroups-$($script:managementGroupName).parameters.json")
-        It "Management Group directory should exist" {
-            Test-Path -Path $script:managementGroupPath | Should -BeTrue
+        It "Tenant Root Group resource type should match" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
         }
-        It "Management Group file should exist" {
-            Test-Path -Path $script:filePath | Should -BeTrue
-        }
-        # It "Management Group resource type should match" {
-        #     $fileContents = Get-Content -Path $filePath -Raw | ConvertFrom-Json -Depth 5
-        #     $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
-        # }
-        # It "Management Group scope property should match" {
-        #     $fileContents = Get-Content -Path $filePath -Raw | ConvertFrom-Json -Depth 5
-        #     $fileContents.resources[0].scope | Should -Be "/"
-        # }
-        #endregion
-
-        #region
-        # Scope: Subscription (./root/tenant root group/development/subscription-0)
-        $script:filePath = (Join-Path -Path $script:subscriptionPath -ChildPath "microsoft.subscription_subscriptions-$($script:subscriptionId).json")
-        It "Subscription directory should exist" {
-            Test-Path -Path $script:subscriptionPath | Should -BeTrue
-        }
-        It "Subscription file should exist" {
-            $script:filePath = (Join-Path -Path $script:subscriptionPath -ChildPath "microsoft.subscription_subscriptions-$($script:subscriptionId).json")
-            Test-Path -Path $script:filePath | Should -BeTrue
-        }
-        It "Subscription resource type should match" {
-            $fileContents = Get-Content -Path $script:filePath -Raw | ConvertFrom-Json -Depth 5
-            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups/subscriptions"
-        }
-        It "Subscription scope should match" {
-            $fileContents = Get-Content -Path $script:filePath -Raw | ConvertFrom-Json -Depth 5
+        It "Tenant Root Group scope property should match" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].scope | Should -Be "/"
         }
         #endregion
 
-        #region
-        # Scope: Resource Group (./root/tenant root group/development/subscription-0/application-0)
-        $script:filePath = (Join-Path -Path $script:resourceGroupPath -ChildPath "microsoft.resources_resourcegroups-$($script:resourceGroupName).json")
+        #region Scope - Management Group (./root/tenant root group/test/)
+        It "Management Group directory should exist" {
+            Test-Path -Path $script:testManagementGroupDirectory | Should -BeTrue
+        }
+        It "Management Group file should exist" {
+            Test-Path -Path $script:testManagementGroupFile | Should -BeTrue
+        }
+        It "Management Group resource type should match" {
+            $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
+        }
+        It "Management Group scope property should match" {
+            $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].scope | Should -Be "/"
+        }
+        #endregion
+
+        #region Scope - Management Group (./root/tenant root group/test/platform/)
+        It "Management Group directory should exist" {
+            Test-Path -Path $script:platformManagementGroupDirectory | Should -BeTrue
+        }
+        It "Management Group file should exist" {
+            Test-Path -Path $script:platformManagementGroupFile | Should -BeTrue
+        }
+        It "Management Group resource type should match" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
+        }
+        It "Management Group scope property should match" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].scope | Should -Be "/"
+        }
+        #endregion
+
+        #region Scope = Management Group (./root/tenant root group/test/platform/management/)
+        It "Management Group directory should exist" {
+            Test-Path -Path $script:managementManagementGroupDirectory | Should -BeTrue
+        }
+        It "Management Group file should exist" {
+            Test-Path -Path $script:managementManagementGroupFile | Should -BeTrue
+        }
+        It "Management Group resource type should match" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
+        }
+        It "Management Group scope property should match" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].scope | Should -Be "/"
+        }
+        #endregion
+
+        #region Scope - Subscription (./root/tenant root group/test/platform/management/subscription-0)
+        It "Subscription directory should exist" {
+            Test-Path -Path $script:subscriptionDirectory | Should -BeTrue
+        }
+        It "Subscription file should exist" {
+            Test-Path -Path $script:subscriptionFile | Should -BeTrue
+        }
+        It "Subscription resource type should match" {
+            $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups/subscriptions"
+        }
+        It "Subscription scope should match" {
+            $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].scope | Should -Be "/"
+        }
+        #endregion
+
+        #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/application)
         It "Resource Group directory should exist" {
-            Test-Path -Path $script:resourceGroupPath | Should -BeTrue
+            Test-Path -Path $resourceGroupDirectory | Should -BeTrue
         }
         It "Resource Group file should exist" {
-            Test-Path -Path $script:filePath | Should -BeTrue
+            Test-Path -Path $resourceGroupFile | Should -BeTrue
         }
         It "Resource Group resource type should match" {
-            $fileContents = Get-Content -Path $script:filePath -Raw | ConvertFrom-Json -Depth 5
+            $fileContents = Get-Content -Path $resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Resources/resourceGroups"
         }
         #endregion
+
+    }
+
+    AfterAll {
+
+        function Remove-ManagementGroups {
+
+            param (
+                [Parameter()]
+                [string]
+                $DisplayName,
+
+                [Parameter()]
+                [string]
+                $Name,
+
+                [Parameter()]
+                [string]
+                $RootName
+            )
+
+            process {
+                # Retrieve list of children within the provided Management Group Id
+                $children = (Get-AzManagementGroup -GroupId $Name -Expand -Recurse -WarningAction SilentlyContinue).Children
+
+                if ($children) {
+                    $children | ForEach-Object {
+                        if ($_.Type -eq "/providers/Microsoft.Management/managementGroups") {
+                            # Invoke function again with Child resources
+                            Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
+                        }
+                        if ($_.Type -eq '/subscriptions') {
+                            Write-PSFMessage -Level Important -Message "Moving Subscription $($_.Name)" -FunctionName "AfterAll"
+                            # Move Subscription resource to Tenant Root Group
+                            New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
+                        }
+                    }
+                }
+
+                Write-PSFMessage -Level Important -Message "Removing Management Group $($DisplayName)" -FunctionName "AfterAll"
+                Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
+            }
+
+        }
+
+        function Remove-ResourceGroups {
+
+            param (
+                [Parameter()]
+                [string]
+                $SubscriptionName,
+
+                [Parameter()]
+                [string[]]
+                $ResourceGroupNames
+            )
+
+            process {
+                Write-PSFMessage -Level Important -Message "Setting context to Subscription $($SubscriptionName)" -FunctionName "AfterAll"
+                Set-AzContext -SubscriptionName $subscriptionName
+
+                $ResourceGroupNames | ForEach-Object {
+                    Write-PSFMessage -Level Important -Message "Removing Resource Group $($ResourceGroupName)" -FunctionName "AfterAll"
+                    Remove-AzResourceGroup -Name $_ -Force
+                }
+            }
+
+        }
+
+        Write-PSFMessage -Level Important -Message "Removing Management Group structure" -FunctionName "AfterAll"
+        $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
+        Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
+
+        Write-PSFMessage -Level Important -Message "Removing Resource Groups" -FunctionName "AfterAll"
+        Remove-ResourceGroups -SubscriptionName "Subscription-0" -ResourceGroupNames @("Application")
 
     }
 }
