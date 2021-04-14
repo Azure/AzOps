@@ -60,7 +60,7 @@ end
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "Microsoft.Management.Nested",
+      "name": "AzOps-microsoft.management_managementgroups-nested",
       "location": "northeurope",
       "properties": {
         "mode": "Incremental",
