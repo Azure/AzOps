@@ -3,7 +3,7 @@
     RootModule        = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.6'
+    ModuleVersion     = '1.1.0'
 
     # ID used to uniquely identify this module
     GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
@@ -26,7 +26,7 @@
     # Modules that must be imported into the global environment prior to importing
     # this module
     RequiredModules   = @(
-        @{ ModuleName = 'PSFramework'; RequiredVersion = '1.6.197' }
+        @{ ModuleName = 'PSFramework'; RequiredVersion = '1.6.198' }
         @{ ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.7' }
         @{ ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0' }
         @{ ModuleName = 'Az.Resources'; RequiredVersion = '3.4.0' }
