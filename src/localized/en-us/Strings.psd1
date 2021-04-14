@@ -186,6 +186,7 @@
     'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
     'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
+    'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError
     'New-AzOpsDeployment.WhatIfResults'                                             = 'What If Results: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to What If' #
 
