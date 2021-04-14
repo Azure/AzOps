@@ -2,6 +2,9 @@
 .DS_Store
 
 # VS Code
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
 *.code-workspace
 *.psproj
 *TempPoint*
