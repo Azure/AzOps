@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "linux": {
+        "options": {
+            "shell": {
+                "executable": "/usr/bin/pwsh",
+                "args": [
+                    "-NoProfile",
+                    "-Command"
+                ]
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "Install",
+            "group": "none",
+            "type": "shell",
+            "command": "./scripts/Dependency.ps1"
+        },
+        {
+            "label": "Pester: All",
+            "group": "test",
+            "type": "shell",
+            "command": "./scripts/Tests.ps1",
+            "problemMatcher": [
+                "$pester"
+            ],
+            "dependsOn": []
+        }
+    ]
+}
