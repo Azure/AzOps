@@ -28,7 +28,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ( -notcontains $tenantId) {
+        if ($tenant -notcontains $tenantId) {
             Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
             if ($env:USER -eq "vsts") {
                 # Pipeline
