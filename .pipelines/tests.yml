@@ -1,0 +1,17 @@
+---
+name: 'Tests'
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-20.04
+
+jobs:
+  - job: integration
+    displayName: 'Test (Integration)'
+    steps:
+      - task: PowerShell@2
+        displayName: 'Run Tests'
+        inputs:
+          targetType: filePath
+          filePath: ./scripts/Tests.ps1
