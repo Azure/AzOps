@@ -13,10 +13,10 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v2
 
-      - name: 'Dependency'
-        run: ./scripts/Dependency.ps1
+      - name: 'Dependencies'
+        run: ./scripts/Dependencies.ps1
         shell: pwsh
-        
+
       - name: 'Release'
         run: ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
         shell: pwsh

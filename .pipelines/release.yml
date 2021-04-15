@@ -34,7 +34,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          ./scripts/Dependency.ps1
+          ./scripts/Dependencies.ps1
 
       #
       # Package
