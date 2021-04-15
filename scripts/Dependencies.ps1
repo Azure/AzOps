@@ -3,10 +3,6 @@ param (
     $Repository = 'PSGallery'
 )
 
-
-# List Modules
-Get-Module -ListAvailable
-
 # Runtime Modules
 $data = Import-PowerShellDataFile -Path "$PSScriptRoot/../src/AzOps.psd1"
 foreach ($dependency in $data.RequiredModules) {
@@ -18,12 +14,8 @@ foreach ($dependency in $data.RequiredModules) {
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
 foreach ($module in $modules) {
     Write-Host "Installing module $module"
-    Install-Module $module -Repository $Repository -Force | Out-Null
-    Import-Module $module -Force -PassThru
+    Install-Module $module -Repository $Repository -Force
 }
-
-# List Modules
-Get-Module -ListAvailable
 
 # List Modules
 Get-InstalledModule | Select-Object Name, Version, Repository, InstalledDate | Sort-Object Name | Format-Table
