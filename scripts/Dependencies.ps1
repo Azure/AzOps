@@ -6,8 +6,8 @@ param (
 # Runtime Modules
 $data = Import-PowerShellDataFile -Path "$PSScriptRoot/../src/AzOps.psd1"
 foreach ($dependency in $data.RequiredModules) {
-    Write-Host "Installing module $($dependency.ModuleName)"
-    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force
+    Write-Host "Installing module $($dependency.ModuleName) $($dependency.RequiredVersion)"
+    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force | Out-Null
     Import-Module $dependency.ModuleName -Force -PassThru
 }
 
@@ -15,7 +15,7 @@ foreach ($dependency in $data.RequiredModules) {
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
 foreach ($module in $modules) {
     Write-Host "Installing module $module"
-    Install-Module $module -Repository $Repository -Force
+    Install-Module $module -Repository $Repository -Force | Out-Null
     Import-Module $module -Force -PassThru
 }
 
