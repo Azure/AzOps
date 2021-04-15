@@ -29,7 +29,7 @@
         @{ ModuleName = 'PSFramework'; RequiredVersion = '1.6.198' }
         @{ ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.8' }
         @{ ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0' }
-        @{ ModuleName = 'Az.Resources'; RequiredVersion = '3.4.0' }
+        @{ ModuleName = 'Az.Resources'; RequiredVersion = '3.4.1' }
     )
 
     # Assemblies that must be loaded prior to importing this module
