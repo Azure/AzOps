@@ -14,7 +14,7 @@ jobs:
         displayName: 'Install Dependencies'
         inputs:
           targetType: filePath
-          filePath: ./scripts/Dependency.ps1
+          filePath: ./scripts/Dependencies.ps1
       - task: PowerShell@2
         displayName: 'Run Tests'
         inputs:
