@@ -20,4 +20,7 @@ foreach ($module in $modules) {
 }
 
 # List Modules
+Get-Module -ListAvailable
+
+# List Modules
 Get-InstalledModule | Select-Object Name, Version, Repository, InstalledDate | Sort-Object Name | Format-Table
