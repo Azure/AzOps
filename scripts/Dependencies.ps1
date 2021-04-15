@@ -7,8 +7,7 @@ param (
 $data = Import-PowerShellDataFile -Path "$PSScriptRoot/../src/AzOps.psd1"
 foreach ($dependency in $data.RequiredModules) {
     Write-Host "Installing module $($dependency.ModuleName) $($dependency.RequiredVersion)"
-    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force | Out-Null
-    Import-Module $dependency.ModuleName -Force -PassThru
+    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force
 }
 
 # Development Modules
