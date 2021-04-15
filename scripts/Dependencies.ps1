@@ -3,6 +3,10 @@ param (
     $Repository = 'PSGallery'
 )
 
+
+# List Modules
+Get-Module -ListAvailable
+
 # Runtime Modules
 $data = Import-PowerShellDataFile -Path "$PSScriptRoot/../src/AzOps.psd1"
 foreach ($dependency in $data.RequiredModules) {
