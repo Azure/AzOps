@@ -11,6 +11,11 @@ jobs:
     displayName: 'Test (Integration)'
     steps:
       - task: PowerShell@2
+        displayName: 'Install Dependencies'
+        inputs:
+          targetType: filePath
+          filePath: ./scripts/Dependency.ps1
+      - task: PowerShell@2
         displayName: 'Run Tests'
         inputs:
           targetType: filePath
