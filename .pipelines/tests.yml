@@ -20,4 +20,5 @@ jobs:
         inputs:
           targetType: filePath
           filePath: ./scripts/Tests.ps1
+          errorActionPreference: stop
           failOnStderr: true
