@@ -20,7 +20,5 @@ jobs:
         inputs:
           targetType: filePath
           filePath: ./scripts/Tests.ps1
-          errorActionPreference: stop
-          failOnStderr: true
         env:
           ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)

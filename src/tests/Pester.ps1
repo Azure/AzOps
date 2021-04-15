@@ -6,8 +6,7 @@
     $TestFunctions = $false,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
-    [Alias('Show')]
-    $Output = "None",
+    $Output = "Detailed",
 
     $Include = "*",
 
@@ -37,30 +36,6 @@ $totalRun = 0
 $testresults = @()
 $config = [PesterConfiguration]::Default
 $config.TestResult.Enabled = $true
-
-#region Authenticate Session
-
-#
-# Ensure PowerShell has an authenticate
-# Azure Context which the tests can
-# run within and generate data as needed
-#
-
-Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
-$tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-if ($tenant -notcontains $env:ARM_TENANT_ID) {
-    Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
-    if ($env:USER -eq "vsts") {
-        # Pipeline
-        $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
-        Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
-    }
-    else {
-        # Local
-        Connect-AzAccount -UseDeviceAuthentication
-    }
-}
-#endregion
 
 #region Run Integration Tests
 if ($TestIntegration) {
