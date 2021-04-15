@@ -21,27 +21,6 @@ Describe "Repository" {
         Write-PSFMessage -Level Important -Message "Initializing test environment" -FunctionName "BeforeAll"
 
         #
-        # Ensure PowerShell has an authenticate
-        # Azure Context which the tests can
-        # run within and generate data as needed
-        #
-
-        Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
-        $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ($tenant -notcontains $tenantId) {
-            Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
-            if ($env:USER -eq "vsts") {
-                # Pipeline
-                $credential = New-Object PSCredential -ArgumentList $(ARM_CLIENT_ID), (ConvertTo-SecureString -String $(ARM_CLIENT_SECRET) -AsPlainText -Force)
-                Connect-AzAccount -TenantId $(ARM_TENANT_ID) -ServicePrincipal -Credential $credential -SubscriptionId $(ARM_SUBSCRIPTION_ID) -ErrorAction Stop
-            }
-            else {
-                # Local
-                Connect-AzAccount -UseDeviceAuthentication
-            }
-        }
-
-        #
         # Deploy the Azure environment
         # based upon prefined resource templates
         # which will generate a matching
