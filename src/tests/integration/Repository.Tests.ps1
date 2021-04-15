@@ -29,8 +29,14 @@ Describe "Repository" {
         Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
         if ((Get-AzContext -ListAvailable).Tenant.Id -notcontains $tenantId) {
             Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
-            # TODO: Replace with Service Principal
-            Connect-AzAccount -UseDeviceAuthentication
+            if ($env:USER -eq "vsts") {
+                # Pipeline
+                $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+                Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+            } else {
+                # Local
+                Connect-AzAccount -UseDeviceAuthentication
+            }
         }
 
         #
