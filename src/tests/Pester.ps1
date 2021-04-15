@@ -1,9 +1,9 @@
 ﻿param (
     $TestIntegration = $true,
 
-    $TestGeneral = $true,
+    $TestGeneral = $false,
 
-    $TestFunctions = $true,
+    $TestFunctions = $false,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     [Alias('Show')]
