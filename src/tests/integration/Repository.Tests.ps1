@@ -33,7 +33,7 @@ Describe "Repository" {
             if ($env:USER -eq "vsts") {
                 # Pipeline
                 $credential = New-Object PSCredential -ArgumentList $(ARM_CLIENT_ID), (ConvertTo-SecureString -String $(ARM_CLIENT_SECRET) -AsPlainText -Force)
-                Connect-AzAccount -TenantId $(ARM_TENANT_ID) -ServicePrincipal -Credential $credential -SubscriptionId $(ARM_SUBSCRIPTION_ID)
+                Connect-AzAccount -TenantId $(ARM_TENANT_ID) -ServicePrincipal -Credential $credential -SubscriptionId $(ARM_SUBSCRIPTION_ID) -ErrorAction Stop
             }
             else {
                 # Local
