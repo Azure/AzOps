@@ -52,8 +52,8 @@ if ($tenant -notcontains $env:ARM_TENANT_ID) {
     Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
     if ($env:USER -eq "vsts") {
         # Pipeline
-        $credential = New-Object PSCredential -ArgumentList $(ARM_CLIENT_ID), (ConvertTo-SecureString -String $(ARM_CLIENT_SECRET) -AsPlainText -Force)
-        Connect-AzAccount -TenantId $(ARM_TENANT_ID) -ServicePrincipal -Credential $credential -SubscriptionId $(ARM_SUBSCRIPTION_ID)
+        $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+        Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
     }
     else {
         # Local
