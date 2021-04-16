@@ -60,7 +60,7 @@ Describe "Repository" {
             "subscriptionId" = "$script:subscriptionId"
         }
         $params = @{
-            ManagementGroupId       = "$script:tenantRootGroupPath"
+            ManagementGroupId       = "$script:tenantId"
             Name                    = "AzOps-Tests"
             TemplateFile            = "$templateFile"
             TemplateParameterObject = $templateParameters
@@ -118,7 +118,7 @@ Describe "Repository" {
 
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
-        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($tenantId).json")
+        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:tenantId).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
         $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName Context
