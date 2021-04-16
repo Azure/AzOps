@@ -20,6 +20,9 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Initializing test environment" -FunctionName "BeforeAll"
 
+        $ErrorActionPreferenceState = $ErrorActionPreference
+        $ErrorActionPreference = "Stop"
+
         #
         # Ensure PowerShell has an authenticate
         # Azure Context which the tests can
@@ -28,16 +31,16 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ($tenant -notcontains $env:ARM_TENANT_ID) {
+        if ($tenant -inotcontains "$env:ARM_TENANT_ID") {
             Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
             if ($env:USER -eq "vsts") {
                 # Pipeline
                 $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
-                Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID | Out-Null
+                $null = Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
             }
             else {
                 # Local
-                Connect-AzAccount -UseDeviceAuthentication
+                throw
             }
         }
 
@@ -74,10 +77,6 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Generating folder structure" -FunctionName "BeforeAll"
         Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
-
-    }
-
-    Context "Test" {
 
         #region Paths
         $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
@@ -121,7 +120,11 @@ Describe "Repository" {
         Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
         #endregion Paths
 
-        # Test Cases
+
+        $ErrorActionPreference = $ErrorActionPreferenceState
+    }
+
+    Context "Test" {
 
         #region
         # Scope - Root (./root)
