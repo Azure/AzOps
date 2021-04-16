@@ -16,7 +16,7 @@
             "label": "Install",
             "group": "none",
             "type": "shell",
-            "command": "./scripts/Dependency.ps1"
+            "command": "./scripts/Dependencies.ps1"
         },
         {
             "label": "Pester: All",
