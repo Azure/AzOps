@@ -292,14 +292,14 @@ Describe "Repository" {
                             Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
                         }
                         if ($_.Type -eq '/subscriptions') {
-                            Write-PSFMessage -Level Important -Message "Moving Subscription $($_.Name)" -FunctionName "AfterAll"
+                            Write-PSFMessage -Level Important -Message "Moving Subscription - $($_.Name)" -FunctionName "AfterAll"
                             # Move Subscription resource to Tenant Root Group
                             New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
                         }
                     }
                 }
 
-                Write-PSFMessage -Level Important -Message "Removing Management Group $($DisplayName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Important -Message "Removing Management Group - $($DisplayName)" -FunctionName "AfterAll"
                 Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
             }
 
@@ -318,11 +318,11 @@ Describe "Repository" {
             )
 
             process {
-                Write-PSFMessage -Level Important -Message "Setting context to Subscription $($SubscriptionName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Important -Message "Setting Context - $($SubscriptionName)" -FunctionName "AfterAll"
                 Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Important -Message "Removing Resource Group $($ResourceGroupName)" -FunctionName "AfterAll"
+                    Write-PSFMessage -Level Important -Message "Removing Resource Group - $($ResourceGroupName)" -FunctionName "AfterAll"
                     Remove-AzResourceGroup -Name $_ -Force
                 }
             }
