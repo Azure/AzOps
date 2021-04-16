@@ -322,7 +322,7 @@ Describe "Repository" {
                 Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Important -Message "Removing Resource Group - $($ResourceGroupName)" -FunctionName "AfterAll"
+                    Write-PSFMessage -Level Important -Message "Removing Resource Group - $($_)" -FunctionName "AfterAll"
                     Remove-AzResourceGroup -Name $_ -Force
                 }
             }
