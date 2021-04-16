@@ -36,7 +36,7 @@ Describe "Repository" {
             if ($env:USER -eq "vsts") {
                 # Pipeline
                 $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
-                $null = Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+                $null = Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID -WarningAction SilentlyContinue
             }
             else {
                 # Local
@@ -53,7 +53,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Creating Management Group structure" -FunctionName "BeforeAll"
         $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
-        New-AzTenantDeployment -Name "AzOps-Tests" -TemplateFile $templateFile -Location "uksouth"
+        New-AzManagementGroupDeployment -ManagementGroupId "$env:ARM_TENANT_ID" -Name "AzOps-Tests" -TemplateFile $templateFile -Location "uksouth"
 
         #
         # Ensure that the root directory
@@ -301,7 +301,10 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Important -Message "Removing Management Group structure" -FunctionName "AfterAll"
         $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
-        Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
+        if ($managementGroup) {
+            Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
+        }
+
 
         Write-PSFMessage -Level Important -Message "Removing Resource Groups" -FunctionName "AfterAll"
         Remove-ResourceGroups -SubscriptionName "Subscription-0" -ResourceGroupNames @("Application")
