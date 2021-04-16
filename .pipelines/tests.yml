@@ -22,3 +22,8 @@ jobs:
           filePath: ./scripts/Tests.ps1
         env:
           ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      - task: PublishTestResults@2
+        displayName: 'Upload Results'
+        inputs:
+          testResultsFiles: './results/*.Tests.xml'
+          testResultsFormat: NUnit
