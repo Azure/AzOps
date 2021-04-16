@@ -28,7 +28,7 @@ Import-Module "$PSScriptRoot\..\AzOps.psm1" -Scope Global -Force
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester
 
-Write-PSFMessage -Level Important -Message "Creating test result folder"
+Write-PSFMessage -Level Important -Message "Creating test results folder"
 $null = New-Item -Path "$PSScriptRoot\..\.." -Name results -ItemType Directory -Force
 
 $totalFailed = 0
