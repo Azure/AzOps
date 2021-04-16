@@ -8,7 +8,7 @@ pool:
 
 jobs:
   - job: integration
-    displayName: 'Test (Integration)'
+    displayName: 'Tests (Integration)'
     steps:
       - task: PowerShell@2
         displayName: 'Install Dependencies'
