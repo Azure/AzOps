@@ -7,8 +7,8 @@ pool:
   vmImage: ubuntu-20.04
 
 jobs:
-  - job: integration
-    displayName: 'Tests (Integration)'
+  - job: tests
+    displayName: 'Tests'
     steps:
       - task: PowerShell@2
         displayName: 'Install Dependencies'
