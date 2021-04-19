@@ -244,5 +244,18 @@
             ]
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "testManagementGroup": {
+            "type": "string",
+            "value": "[guid(variables('displayName'))]"
+        },
+        "platformManagementGroup": {
+            "type": "string",
+            "value": "[guid('Platform')]"
+        },
+        "managementManagementGroup": {
+            "type": "string",
+            "value": "[guid('Management')]"
+        }
+    }
 }
