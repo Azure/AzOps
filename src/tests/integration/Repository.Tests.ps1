@@ -50,7 +50,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Verbose -Message "Validationg Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ($tenant -inotcontains "$env:ARM_TENANT_ID") {
+        if ($tenant -inotcontains "$script:tenantId") {
             Write-PSFMessage -Level Verbose -Message "Authenticating Azure session" -FunctionName "BeforeAll"
             if ($env:USER -eq "vsts") {
                 # Platform: Azure Pipelines
@@ -59,7 +59,7 @@ Describe "Repository" {
             }
         }
         else {
-            Set-AzContext -TenantId $env:ARM_TENANT_ID
+            Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
         }
 
         #
@@ -130,40 +130,40 @@ Describe "Repository" {
 
         #region Paths
         $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
-        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "BeforeAll"
 
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:tenantId).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
         $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName "BeforeAll"
 
         $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:testManagementGroup.Name).json")
         $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
         $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
 
         $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:platformManagementGroup.Name).json")
         $script:platformManagementGroupDirectory = ($script:platformManagementGroupPath).Directory
         $script:platformManagementGroupFile = ($script:platformManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName "BeforeAll"
 
         $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:managementManagementGroup.Name).json")
         $script:managementManagementGroupDirectory = ($script:managementManagementGroupPath).Directory
         $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "BeforeAll"
 
 
         $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($script:subscription.Id).json")
         $script:subscriptionDirectory = ($script:subscriptionPath).Directory
         $script:subscriptionFile = ($script:subscriptionPath).FullName
-        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "BeforeAll"
 
         $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($script:resourceGroup.ResourceGroupName).json")
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
+        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
         #endregion Paths
 
     }
