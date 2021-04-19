@@ -1,15 +1,20 @@
 {
     "name": "PowerShell",
     "dockerFile": "Dockerfile",
+    // Set *default* container specific settings.json values on container create.
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash"
     },
+    // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
         "ms-vscode.powershell",
         "msazurermtools.azurerm-vscode-tools"
     ],
+    // Uncomment the next line to run commands after the container is created. This gets run in bash which is why we call `pwsh`.
     "postCreateCommand": "pwsh -c './scripts/Dependencies.ps1'",
+    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "vscode",
+    // Add runtime environment variables
     "remoteEnv": {
         "ARM_TENANT_ID": "",
         "ARM_SUBSCRIPTION_ID": ""
