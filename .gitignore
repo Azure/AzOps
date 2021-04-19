@@ -3,12 +3,10 @@
 
 # VS Code
 .vscode/*
+*.code-workspace
 !.vscode/launch.json
 !.vscode/settings.json
-*.code-workspace
-*.psproj
-*TempPoint*
-.devcontainer/*
+!.devcontainer/*
 
 # Visual Studio
 library/AzOps/.vs/*
