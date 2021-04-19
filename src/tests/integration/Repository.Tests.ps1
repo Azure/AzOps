@@ -112,7 +112,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
-            Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
+            Initialize-AzOpsRepository
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
