@@ -184,6 +184,22 @@ Describe "Repository" {
         It "Tenant Root Group file should exist" {
             Test-Path -Path $script:tenantRootGroupFile | Should -BeTrue
         }
+        It "Tenant Root Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Tenant Root Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Tenant Root Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Tenant Root Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
         It "Tenant Root Group resource type should match" {
             $fileContents = Get-Content -Path $script:tenantRootGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
@@ -200,6 +216,18 @@ Describe "Repository" {
         }
         It "Management Group file should exist" {
             Test-Path -Path $script:testManagementGroupFile | Should -BeTrue
+        }
+        It "Management Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Management Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Management Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
         }
         It "Management Group resource type should match" {
             $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
@@ -218,6 +246,22 @@ Describe "Repository" {
         It "Management Group file should exist" {
             Test-Path -Path $script:platformManagementGroupFile | Should -BeTrue
         }
+        It "Management Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Management Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Management Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Management Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
         It "Management Group resource type should match" {
             $fileContents = Get-Content -Path $script:platformManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
@@ -234,6 +278,22 @@ Describe "Repository" {
         }
         It "Management Group file should exist" {
             Test-Path -Path $script:managementManagementGroupFile | Should -BeTrue
+        }
+        It "Management Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Management Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Management Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Management Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
         }
         It "Management Group resource type should match" {
             $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
@@ -252,6 +312,18 @@ Describe "Repository" {
         It "Subscription file should exist" {
             Test-Path -Path $script:subscriptionFile | Should -BeTrue
         }
+        It "Subscription resource type should exist" {
+            $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Subscription resource name should exist" {
+            $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Subscription resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
         It "Subscription resource type should match" {
             $fileContents = Get-Content -Path $script:subscriptionFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups/subscriptions"
@@ -264,13 +336,29 @@ Describe "Repository" {
 
         #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/application)
         It "Resource Group directory should exist" {
-            Test-Path -Path $resourceGroupDirectory | Should -BeTrue
+            Test-Path -Path $script:resourceGroupDirectory | Should -BeTrue
         }
         It "Resource Group file should exist" {
-            Test-Path -Path $resourceGroupFile | Should -BeTrue
+            Test-Path -Path $script:resourceGroupFile | Should -BeTrue
+        }
+        It "Resource Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Resource Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Resource Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Resource Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
         }
         It "Resource Group resource type should match" {
-            $fileContents = Get-Content -Path $resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Resources/resourceGroups"
         }
         #endregion
