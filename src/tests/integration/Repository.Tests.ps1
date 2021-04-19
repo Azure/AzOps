@@ -111,7 +111,13 @@ Describe "Repository" {
         #
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
-        Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
+        try {
+            Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
+            throw
+        }
 
         #
         # The following values match the Reosurce Template
