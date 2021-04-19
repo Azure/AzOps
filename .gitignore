@@ -4,9 +4,9 @@
 # VS Code
 .vscode/*
 *.code-workspace
-*.psproj
-*TempPoint*
-.devcontainer/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.devcontainer/*
 
 # Visual Studio
 library/AzOps/.vs/*

@@ -6,8 +6,6 @@
     It also checks, whether the language files have orphaned entries that need cleaning up.
 #>
 
-
-
 Describe "Testing localization strings" {
     $moduleRoot = (Get-Module AzOps).ModuleBase
     $stringsResults = Export-PSMDString -ModuleRoot $moduleRoot

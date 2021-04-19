@@ -1,0 +1,29 @@
+---
+name: 'Tests'
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-20.04
+
+jobs:
+  - job: tests
+    displayName: 'Tests'
+    steps:
+      - task: PowerShell@2
+        displayName: 'Install Dependencies'
+        inputs:
+          targetType: filePath
+          filePath: ./scripts/Dependencies.ps1
+      - task: PowerShell@2
+        displayName: 'Run Tests'
+        inputs:
+          targetType: filePath
+          filePath: ./scripts/Tests.ps1
+        env:
+          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      - task: PublishTestResults@2
+        displayName: 'Upload Results'
+        inputs:
+          testResultsFiles: '**/*.Tests.xml'
+          testResultsFormat: NUnit

@@ -1,10 +1,11 @@
 ﻿param (
     $TestGeneral = $true,
 
-    $TestFunctions = $true,
+    $TestFunctions = $false,
+
+    $TestIntegration = $true,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
-    [Alias('Show')]
     $Output = "None",
 
     $Include = "*",
@@ -20,13 +21,14 @@ $global:testroot = $PSScriptRoot
 $global:__pester_data = @{ }
 
 Remove-Module AzOps -ErrorAction Ignore
+
 Import-Module "$PSScriptRoot\..\AzOps.psd1" -Scope Global
 Import-Module "$PSScriptRoot\..\AzOps.psm1" -Scope Global -Force
 
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester
 
-Write-PSFMessage -Level Important -Message "Creating test result folder"
+Write-PSFMessage -Level Important -Message "Creating test results folder"
 $null = New-Item -Path "$PSScriptRoot\..\.." -Name results -ItemType Directory -Force
 
 $totalFailed = 0
@@ -38,7 +40,7 @@ $config.TestResult.Enabled = $true
 
 #region Run General Tests
 if ($TestGeneral) {
-    Write-PSFMessage -Level Important -Message "Modules imported, proceeding with general tests"
+    Write-PSFMessage -Level Important -Message "Proceeding with general tests"
     foreach ($file in (Get-ChildItem "$PSScriptRoot\general" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($file.Name -like $Exclude) { continue }
@@ -67,10 +69,10 @@ if ($TestGeneral) {
 
 $global:__pester_data.ScriptAnalyzer | Out-Host
 
-#region Test Commands
+#region Function Tests
 if ($TestFunctions) {
     Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($file.Name -like $Exclude) { continue }
 
@@ -94,7 +96,38 @@ if ($TestFunctions) {
         }
     }
 }
-#endregion Test Commands
+#region Function Tests
+
+$global:__pester_data.ScriptAnalyzer | Out-Host
+
+#region Run Integration Tests
+if ($TestIntegration) {
+    Write-PSFMessage -Level Important -Message "Proceeding with integration tests"
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\integration" | Where-Object Name -like "*.Tests.ps1")) {
+        if ($file.Name -notlike $Include) { continue }
+        if ($file.Name -like $Exclude) { continue }
+
+        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.Run.Path = $file.FullName
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = $Output
+        $results = Invoke-Pester -Configuration $config
+        foreach ($result in $results) {
+            $totalRun += $result.TotalCount
+            $totalFailed += $result.FailedCount
+            $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
+                $testresults += [pscustomobject]@{
+                    Block   = $_.Block
+                    Name    = "It $($_.Name)"
+                    Result  = $_.Result
+                    Message = $_.ErrorRecord.DisplayErrorMessage
+                }
+            }
+        }
+    }
+}
+#endregion Run Integration Tests
 
 $testresults | Sort-Object Describe, Context, Name, Result, Message | Format-List
 
