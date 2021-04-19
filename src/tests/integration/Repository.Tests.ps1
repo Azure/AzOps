@@ -1,6 +1,7 @@
-$script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+﻿$script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
 $script:tenantId = $env:ARM_TENANT_ID
 $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+
 #
 # Repository.Tests.ps1
 #
@@ -18,11 +19,28 @@ Describe "Repository" {
 
     BeforeAll {
 
-        Write-PSFMessage -Level Important -Message "Initializing test environment" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Initializing test environment" -FunctionName "BeforeAll"
 
-        # TODO: Temporary
-        $ErrorActionPreferenceState = $ErrorActionPreference
+        #
+        # Set the error preference
+        #
+
         $ErrorActionPreference = "Stop"
+
+        #
+        # Validate that the runtime variables
+        # are set as they are used to authenticate
+        # the Azure session.
+        #
+
+        if ($null -eq $script:tenantId) {
+            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
+            throw
+        }
+        if ($null -eq $script:subscriptionId) {
+            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_SUBSCRIPTION_ID"
+            throw
+        }
 
         #
         # Ensure PowerShell has an authenticate
@@ -30,20 +48,18 @@ Describe "Repository" {
         # run within and generate data as needed
         #
 
-        Write-PSFMessage -Level Important -Message "Validationg Azure context" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Validationg Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
         if ($tenant -inotcontains "$env:ARM_TENANT_ID") {
-            Write-PSFMessage -Level Important -Message "Authenticating Azure session" -FunctionName "BeforeAll"
+            Write-PSFMessage -Level Verbose -Message "Authenticating Azure session" -FunctionName "BeforeAll"
             if ($env:USER -eq "vsts") {
                 # Platform: Azure Pipelines
                 $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
                 $null = Connect-AzAccount -TenantId $script:tenantId -ServicePrincipal -Credential $credential -SubscriptionId $script:subscriptionId -WarningAction SilentlyContinue
             }
-            else {
-                # Platform: Local Machine
-                # TODO: Add logic for local auth prompt
-                throw
-            }
+        }
+        else {
+            Set-AzContext -TenantId $env:ARM_TENANT_ID
         }
 
         #
@@ -53,7 +69,7 @@ Describe "Repository" {
         # file system hierachy
         #
 
-        Write-PSFMessage -Level Important -Message "Creating Management Group structure" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Creating Management Group structure" -FunctionName "BeforeAll"
         $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
         $templateParameters = @{
             "tenantId"       = "$script:tenantId"
@@ -74,10 +90,10 @@ Describe "Repository" {
         # tests.
         #
 
-        Write-PSFMessage -Level Important -Message "Testing for root directory existence" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Testing for root directory existence" -FunctionName "BeforeAll"
         $generatedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "root"
         if (Test-Path -Path $generatedRoot) {
-            Write-PSFMessage -Level Important -Message "Removing root directory" -FunctionName "BeforeAll"
+            Write-PSFMessage -Level Verbose -Message "Removing root directory" -FunctionName "BeforeAll"
             Remove-Item -Path $generatedRoot -Recurse
         }
 
@@ -88,7 +104,7 @@ Describe "Repository" {
         # is correct.
         #
 
-        Write-PSFMessage -Level Important -Message "Generating folder structure" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
 
         #
@@ -150,8 +166,6 @@ Describe "Repository" {
         Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName Context
         #endregion Paths
 
-        # TODO: Temporary
-        $ErrorActionPreference = $ErrorActionPreferenceState
     }
 
     Context "Test" {
@@ -292,14 +306,14 @@ Describe "Repository" {
                             Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
                         }
                         if ($_.Type -eq '/subscriptions') {
-                            Write-PSFMessage -Level Important -Message "Moving Subscription - $($_.Name)" -FunctionName "AfterAll"
+                            Write-PSFMessage -Level Verbose -Message "Moving Subscription - $($_.Name)" -FunctionName "AfterAll"
                             # Move Subscription resource to Tenant Root Group
                             New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
                         }
                     }
                 }
 
-                Write-PSFMessage -Level Important -Message "Removing Management Group - $($DisplayName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Removing Management Group - $($DisplayName)" -FunctionName "AfterAll"
                 Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
             }
 
@@ -318,11 +332,11 @@ Describe "Repository" {
             )
 
             process {
-                Write-PSFMessage -Level Important -Message "Setting Context - $($SubscriptionName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Setting Context - $($SubscriptionName)" -FunctionName "AfterAll"
                 Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Important -Message "Removing Resource Group - $($_)" -FunctionName "AfterAll"
+                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group - $($_)" -FunctionName "AfterAll"
                     Remove-AzResourceGroup -Name $_ -Force
                 }
             }
@@ -331,13 +345,13 @@ Describe "Repository" {
 
         $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
         if ($managementGroup) {
-            Write-PSFMessage -Level Important -Message "Removing Management Group structure" -FunctionName "AfterAll"
+            Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
             Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
         }
 
         $resourceGroup = Get-AzResourceGroup -Name "Application"
         if ($resourceGroup) {
-            Write-PSFMessage -Level Important -Message "Removing Resource Groups" -FunctionName "AfterAll"
+            Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
             $subscription = Get-AzSubscription -SubscriptionId $script:subscriptionId
             Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
         }
