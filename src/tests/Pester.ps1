@@ -6,7 +6,7 @@
     $TestFunctions = $false,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
-    $Output = "Normal",
+    $Output = "None",
 
     $Include = "*",
 
