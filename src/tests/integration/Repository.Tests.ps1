@@ -82,7 +82,13 @@ Describe "Repository" {
             TemplateParameterObject = $templateParameters
             Location                = "northeurope"
         }
-        New-AzManagementGroupDeployment @params
+        try {
+            New-AzManagementGroupDeployment @params
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Deployment failed" -Exception $_.Exception
+            throw
+        }
 
         #
         # Ensure that the root directory
@@ -114,9 +120,10 @@ Describe "Repository" {
         # the filesystem are aligned.
         #
 
-        $script:testManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Test")
-        $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Platform")
-        $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object DisplayName -eq "Management")
+        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
+        $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
+        $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
+        $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
         $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
 
@@ -394,14 +401,14 @@ Describe "Repository" {
                             Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
                         }
                         if ($_.Type -eq '/subscriptions') {
-                            Write-PSFMessage -Level Verbose -Message "Moving Subscription - $($_.Name)" -FunctionName "AfterAll"
+                            Write-PSFMessage -Level Verbose -Message "Moving Subscription: $($_.Name)" -FunctionName "AfterAll"
                             # Move Subscription resource to Tenant Root Group
                             New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
                         }
                     }
                 }
 
-                Write-PSFMessage -Level Verbose -Message "Removing Management Group - $($DisplayName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Removing Management Group: $($DisplayName)" -FunctionName "AfterAll"
                 Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
             }
 
@@ -420,11 +427,11 @@ Describe "Repository" {
             )
 
             process {
-                Write-PSFMessage -Level Verbose -Message "Setting Context - $($SubscriptionName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Setting Context: $($SubscriptionName)" -FunctionName "AfterAll"
                 Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group - $($_)" -FunctionName "AfterAll"
+                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group: $($_)" -FunctionName "AfterAll"
                     Remove-AzResourceGroup -Name $_ -Force
                 }
             }
