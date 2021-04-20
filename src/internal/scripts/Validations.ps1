@@ -1,4 +1,4 @@
-Register-PSFConfigValidation -Name "stringorempty" -ScriptBlock {
+﻿Register-PSFConfigValidation -Name "stringorempty" -ScriptBlock {
 
     param (
         $Value
