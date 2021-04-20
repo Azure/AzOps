@@ -28,7 +28,7 @@ jobs:
 
       - name: "Dependencies"
         run: |
-          Install-Module -Name "PSFramework", "Az.Accounts", "Az.Billing", "Az.Resources" -Force
+          ./scripts/Dependencies.ps1
         shell: pwsh
 
       - name: "Manifest"
