@@ -31,12 +31,17 @@ jobs:
           ./scripts/Dependencies.ps1
         shell: pwsh
 
-      - name: "Manifest"
-        id: manifest
+      - name: "Version"
+        id: version
         run: |
-          ./scripts/Release.ps1 -Type "${{ github.event.inputs.type }}"
+          ./scripts/Version.ps1 -Type "${{ github.event.inputs.type }}"
           $Version = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
           Write-Host "::set-output name=version::$Version"
+        shell: pwsh
+      
+      - name: "Release"
+        run: |
+          ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
         shell: pwsh
 
       - name: "Add"
@@ -53,7 +58,7 @@ jobs:
 
       - name: "Merge"
         run: |
-          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.manifest.outputs.version }}' --body '' --label 'release :zap:'
+          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:'
           gh pr merge 'release' --squash --delete-branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
