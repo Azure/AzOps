@@ -34,7 +34,7 @@ jobs:
       - name: "Version"
         id: version
         run: |
-          ./scripts/Version.ps1 -Type "${{ github.event.inputs.type }}"
+          ./scripts/Version.ps1 -Type ${{ github.event.inputs.type }}
           $Version = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
           Write-Host "::set-output name=version::$Version"
         shell: pwsh
