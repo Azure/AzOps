@@ -107,11 +107,17 @@ Describe "Repository" {
         # Invoke the Initialize-AzOpsRepository
         # function to generate the scope data which
         # can be tested against to ensure structure
-        # is correct.
+        # is correct and data model hasn't changed.
         #
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
-        Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true
+        try {
+            Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
+            throw
+        }
 
         #
         # The following values match the Reosurce Template

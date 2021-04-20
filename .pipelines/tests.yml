@@ -27,3 +27,4 @@ jobs:
         inputs:
           testResultsFiles: '**/*.Tests.xml'
           testResultsFormat: NUnit
+        condition: always()
