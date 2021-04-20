@@ -9,7 +9,7 @@ param (
 )
 
 if ($Type) {
-    Write-PSFMessage -Level Important -Message "Updating module version numbers."
+    Write-PSFMessage -Level Important -Message "Updating module version"
 
     [Version]$currentVersion = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
     [Version]$releaseVersion = switch($Type) {
