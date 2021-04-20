@@ -21,8 +21,7 @@ param (
     [switch]
     $IgnoreDependencies,
 
-    [switch]
-    $AutoVersion
+    $Type
 )
 
 #region Handle Working Directory Defaults
@@ -90,18 +89,26 @@ $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n")
 #endregion Update the psm1 file
 
 #region Updating the Module Version
-if ($AutoVersion) {
+if ($Type) {
     Write-PSFMessage -Level Important -Message "Updating module version numbers."
-    try { [version]$remoteVersion = (Find-Module 'AzOps' -Repository $Repository -ErrorAction Stop).Version }
-    catch {
-        Stop-PSFFunction -Message "Failed to access $($Repository)" -EnableException $true -ErrorRecord $_
+
+    [Version]$currentVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)/AzOps/AzOps.psd1").ModuleVersion
+
+    [Version]$releaseVersion = switch($Type) {
+        "Major" {
+            [Version]::new($currentVersion.Major + 1, 0, 0)
+        }
+        "Minor" {
+            $Minor = if($currentVersion.Minor -le 0) { 1 } else { $currentVersion.Minor + 1 }
+            [Version]::new($currentVersion.Major, $Minor, 0)
+        }
+        "Patch" {
+            $Build = if($currentVersion.Build -le 0) { 1 } else { $currentVersion.Build + 1 }
+            [Version]::new($currentVersion.Major, $currentVersion.Minor, $Build)
+        }
     }
-    if (-not $remoteVersion) {
-        Stop-PSFFunction -Message "Couldn't find AzOps on repository $($Repository)" -EnableException $true
-    }
-    $newBuildNumber = $remoteVersion.Build + 1
-    [version]$localVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)/AzOps/AzOps.psd1").ModuleVersion
-    Update-ModuleManifest -Path "$($publishDir.FullName)/AzOps/AzOps.psd1" -ModuleVersion "$($localVersion.Major).$($localVersion.Minor).$($newBuildNumber)"
+
+    Update-ModuleManifest -Path "$($publishDir.FullName)/AzOps/AzOps.psd1" -ModuleVersion $releaseVersion
 }
 #endregion Updating the Module Version
 
