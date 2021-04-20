@@ -19,6 +19,5 @@ Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $false -Initiali
 Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "root") -Initialize -Validation string -Description 'Folder to store AzOpsState artefact'
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeResourceGroups -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup to be false. Subscription ID or Display Name that matches the filter. Powershell filter that matches with like operator is supported.'
-Set-PSFConfig -Module AzOps -Name Core.SupportPartialMgDiscovery -Value $false -Initialize -Validation bool -Description 'Enable partial discovery'
 Set-PSFConfig -Module AzOps -Name Core.TemplateParameterFileSuffix -Value '.json' -Initialize -Validation string -Description 'parameter file suffix to look for'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'

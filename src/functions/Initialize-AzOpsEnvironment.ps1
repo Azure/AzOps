@@ -19,10 +19,6 @@
             Subscription filter.
             Subscriptions in the listed states will be ignored.
             For example, by default, disabled subscriptions will not be processed.
-        .PARAMETER PartialMgDiscovery
-            Enable partial management group discovery.
-            Necessary if current user does not have root access.
-            Must be used in combination with -PartialMgDiscoveryRoot
         .PARAMETER PartialMgDiscoveryRoot
             Custom search roots under which to detect management groups.
             Used for partial management group discovery.
@@ -45,9 +41,6 @@
 
         [string[]]
         $ExcludedSubState = (Get-PSFConfigValue -FullName 'AzOps.Core.ExcludedSubState'),
-
-        [switch]
-        $PartialMgDiscovery = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot'),
 
         [string[]]
         $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot')
@@ -110,11 +103,15 @@
             Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
             $PartialMgDiscovery = $true
         }
+        else {
+            $PartialMgDiscovery = $false
+        }
         #endregion Validate root '/' permissions
 
         #region Partial Discovery
-        if ($PartialMgDiscovery -and $PartialMgDiscoveryRoot) {
+        if ($PartialMgDiscoveryRoot) {
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
+            $PartialMgDiscovery = $true
             $managementGroups = @()
             foreach ($managementRoot in $PartialMgDiscoveryRoot) {
                 $managementGroups += [pscustomobject]@{ Name = $managementRoot }
