@@ -81,7 +81,7 @@
             # IconUri = ''
 
             # ReleaseNotes of this module
-            # ReleaseNotes = ''
+            ReleaseNotes = 'https://github.com/Azure/AzOps/releases'
 
             # Prerelease tag applied to this module.
             # Prerelease = '-alpha'
