@@ -38,7 +38,7 @@ jobs:
           $Version = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
           Write-Host "::set-output name=version::$Version"
         shell: pwsh
-      
+
       - name: "Release"
         run: |
           ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
@@ -65,6 +65,6 @@ jobs:
 
       - name: "Release"
         run: |
-          gh release create ${{ steps.manifest.outputs.version }} --title 'v${{ steps.manifest.outputs.version }}' --target 'main' --notes 'Coming soon...'
+          gh release create ${{ steps.version.outputs.version }} --title 'v${{ steps.version.outputs.version }}' --target 'main' --notes 'Coming soon...'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
