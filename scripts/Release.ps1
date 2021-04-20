@@ -19,9 +19,7 @@ param (
     $SkipPublish,
 
     [switch]
-    $IgnoreDependencies,
-
-    $Type
+    $IgnoreDependencies
 )
 
 #region Handle Working Directory Defaults
@@ -87,30 +85,6 @@ $fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
 [System.IO.File]::WriteAllText("$($publishDir.FullName)/AzOps/AzOps.psm1", $fileData, [System.Text.Encoding]::UTF8)
 #endregion Update the psm1 file
-
-#region Updating the Module Version
-if ($Type) {
-    Write-PSFMessage -Level Important -Message "Updating module version numbers."
-
-    [Version]$currentVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)/AzOps/AzOps.psd1").ModuleVersion
-
-    [Version]$releaseVersion = switch($Type) {
-        "Major" {
-            [Version]::new($currentVersion.Major + 1, 0, 0)
-        }
-        "Minor" {
-            $Minor = if($currentVersion.Minor -le 0) { 1 } else { $currentVersion.Minor + 1 }
-            [Version]::new($currentVersion.Major, $Minor, 0)
-        }
-        "Patch" {
-            $Build = if($currentVersion.Build -le 0) { 1 } else { $currentVersion.Build + 1 }
-            [Version]::new($currentVersion.Major, $currentVersion.Minor, $Build)
-        }
-    }
-
-    Update-ModuleManifest -Path "$($publishDir.FullName)/AzOps/AzOps.psd1" -ModuleVersion $releaseVersion
-}
-#endregion Updating the Module Version
 
 #region Publish
 if ($SkipPublish) { return }
