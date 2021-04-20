@@ -8,12 +8,10 @@ param (
     $Type
 )
 
-#region Updating the Module Version
 if ($Type) {
     Write-PSFMessage -Level Important -Message "Updating module version numbers."
 
     [Version]$currentVersion = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
-
     [Version]$releaseVersion = switch($Type) {
         "Major" {
             [Version]::new($currentVersion.Major + 1, 0, 0)
@@ -30,4 +28,3 @@ if ($Type) {
 
     Update-ModuleManifest -Path "./src/AzOps.psd1" -ModuleVersion $releaseVersion
 }
-#endregion Updating the Module Version
