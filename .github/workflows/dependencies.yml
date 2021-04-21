@@ -43,9 +43,13 @@ jobs:
           if [ -f "$FILE" ]; then
             cat $FILE | jq -r '.[]|[.name, .version.current, .version.gallery] | @tsv' |
             while IFS=$'\t' read -r name current gallery; do
-              COUNT=$(gh api -X GET search/issues -F per_page=100 --paginate -f q="repo:Azure/AzOps is:issue is:open $name in:title" --jq ".total_count")
+              COUNT=$(gh api -X GET search/issues -F per_page=100 --paginate -f q="repo:$GITHUB_REPOSITORY is:issue is:open $name in:title" --jq ".total_count")
               if [ $COUNT -eq 0 ]; then
-                gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --label "dependencies :package:" --assignee "@azure/enterprisescale-vteam"
+                if [ "$GITHUB_REPOSITORY" == "Azure/AzOps" ]; then
+                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --label "dependencies :package:" --assignee "@azure/enterprisescale-vteam"
+                else
+                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery"
+                fi
               fi
             done
           fi
