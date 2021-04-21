@@ -1,0 +1,53 @@
+---
+name: "Dependencies"
+
+on:
+  schedule:
+    - cron:  '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  dependencies:
+    name: "Dependencies"
+    runs-on: ubuntu-20.04
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: "Updates"
+        run: |
+          $data = Import-PowerShellDataFile -Path "./src/AzOps.psd1"
+          $modules = @()
+          $data.RequiredModules | ForEach-Object {
+              $moduleVersion = $_.RequiredVersion
+              $galleryVersion = (Find-Module -Name $_.ModuleName).Version
+              if ($moduleVersion -lt $galleryVersion) {
+                  $modules += @{
+                      "name"     = $_.ModuleName
+                      "version" = @{
+                          "current" = $moduleVersion
+                          "gallery" = $galleryVersion
+                      }
+                  }
+              }
+          }
+          if ($modules) {
+              $filePath = Join-Path -Path "/tmp" -ChildPath "updates.json"
+              ConvertTo-Json $modules | Out-File -FilePath $filePath
+          }
+        shell: pwsh
+
+      - name: "Issues"
+        run: |
+          FILE=/tmp/updates.json
+          if [ -f "$FILE" ]; then
+            cat $FILE | jq -r '.[]|[.name, .version.current, .version.gallery] | @tsv' |
+            while IFS=$'\t' read -r name current gallery; do
+              COUNT=$(gh api -X GET search/issues -F per_page=100 --paginate -f q="repo:Azure/AzOps is:issue is:open $name in:title" --jq ".total_count")
+              if [ $COUNT -eq 0 ]; then
+                gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --label "dependencies" --assignee "@azure/enterprisescale-vteam"
+              fi
+            done
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
