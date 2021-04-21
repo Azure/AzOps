@@ -48,7 +48,7 @@ jobs:
                 if [ $GITHUB_REPOSITORY -eq "Azure/AzOps" ]; then
                   gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --label "dependencies :package:" --assignee "@azure/enterprisescale-vteam"
                 else
-                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --assignee ""
+                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery"
                 fi
               fi
             done
