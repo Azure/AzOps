@@ -15,8 +15,6 @@
             Skip discovery of resources inside resource groups.
         .PARAMETER InvalidateCache
             Invalidate cached subscriptions and Management Groups and do a full discovery.
-        .PARAMETER GeneralizeTemplates
-            Will generalize json templates (only used when generating azopsreference).
         .PARAMETER ExportRawTemplate
             Export generic templates without embedding them in the parameter block.
         .PARAMETER Rebuild
@@ -49,9 +47,6 @@
 
         [switch]
         $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
-
-        [switch]
-        $GeneralizeTemplates = (Get-PSFConfigValue -FullName 'AzOps.Core.GeneralizeTemplates'),
 
         [switch]
         $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
