@@ -19,10 +19,7 @@ param (
     $SkipPublish,
 
     [switch]
-    $IgnoreDependencies,
-
-    [switch]
-    $AutoVersion
+    $IgnoreDependencies
 )
 
 #region Handle Working Directory Defaults
@@ -88,22 +85,6 @@ $fileData = $fileData.Replace('"<was not compiled>"', '"<was compiled>"')
 $fileData = $fileData.Replace('"<compile code into here>"', ($text -join "`n`n"))
 [System.IO.File]::WriteAllText("$($publishDir.FullName)/AzOps/AzOps.psm1", $fileData, [System.Text.Encoding]::UTF8)
 #endregion Update the psm1 file
-
-#region Updating the Module Version
-if ($AutoVersion) {
-    Write-PSFMessage -Level Important -Message "Updating module version numbers."
-    try { [version]$remoteVersion = (Find-Module 'AzOps' -Repository $Repository -ErrorAction Stop).Version }
-    catch {
-        Stop-PSFFunction -Message "Failed to access $($Repository)" -EnableException $true -ErrorRecord $_
-    }
-    if (-not $remoteVersion) {
-        Stop-PSFFunction -Message "Couldn't find AzOps on repository $($Repository)" -EnableException $true
-    }
-    $newBuildNumber = $remoteVersion.Build + 1
-    [version]$localVersion = (Import-PowerShellDataFile -Path "$($publishDir.FullName)/AzOps/AzOps.psd1").ModuleVersion
-    Update-ModuleManifest -Path "$($publishDir.FullName)/AzOps/AzOps.psd1" -ModuleVersion "$($localVersion.Major).$($localVersion.Minor).$($newBuildNumber)"
-}
-#endregion Updating the Module Version
 
 #region Publish
 if ($SkipPublish) { return }

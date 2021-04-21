@@ -2,21 +2,69 @@
 name: "Release"
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      type:
+        description: "Type (Major / Minor / Patch)"
+        required: true
+        default: "Patch"
 
 jobs:
   release:
     name: "Release"
     runs-on: ubuntu-20.04
     steps:
-      - name: 'Checkout'
+      - name: "Checkout"
         uses: actions/checkout@v2
 
-      - name: 'Dependencies'
-        run: ./scripts/Dependencies.ps1
+      - name: "Configure"
+        run: |
+          git config user.name github-actions
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: "Switch"
+        run: |
+          git checkout -b release
+
+      - name: "Dependencies"
+        run: |
+          ./scripts/Dependencies.ps1
         shell: pwsh
 
-      - name: 'Release'
-        run: ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
+      - name: "Version"
+        id: version
+        run: |
+          ./scripts/Version.ps1 -Type ${{ github.event.inputs.type }}
+          $Version = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
+          Write-Host "::set-output name=version::$Version"
         shell: pwsh
+
+      - name: "Release"
+        run: |
+          ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
+        shell: pwsh
+
+      - name: "Add"
+        run: |
+          git add src/AzOps.psd1
+
+      - name: "Commit"
+        run: |
+          git commit -m 'Update AzOps.psd1'
+
+      - name: "Push"
+        run: |
+          git push origin release
+
+      - name: "Merge"
+        run: |
+          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:'
+          gh pr merge 'release' --squash --delete-branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Release"
+        run: |
+          gh release create ${{ steps.version.outputs.version }} --title 'v${{ steps.version.outputs.version }}' --target 'main' --notes 'Coming soon...'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
