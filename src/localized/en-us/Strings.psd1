@@ -10,8 +10,8 @@
     'Assert-AzOpsWindowsLongPath.No.Registry'                                       = 'Windows has not yet been configured for long path support' #
     'Assert-AzOpsWindowsLongPath.Validating'                                        = 'Validating Windows environment for LongPath support' #
 
-    'Assert-AzOpsJQDependency.Validating'                                           = 'Validating if jq is in current path' #
-    'Assert-AzOpsJQDependency.Success'                                              = 'jq is found in current path' #
+    'Assert-AzOpsJqDependency.Validating'                                           = 'Validating if jq is in current path' #
+    'Assert-AzOpsJqDependency.Success'                                              = 'Supported version of jq found in current path' #
 
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
