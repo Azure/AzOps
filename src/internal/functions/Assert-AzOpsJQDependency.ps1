@@ -1,4 +1,4 @@
-﻿function Assert-AzOpsJQDependency {
+﻿function Assert-AzOpsJqDependency {
 
     <#
         .SYNOPSIS
@@ -8,7 +8,7 @@
         .PARAMETER Cmdlet
             The $PSCmdlet variable of the calling command.
         .EXAMPLE
-            > Assert-AzOpsJQDependency -Cmdlet $PSCmdlet
+            > Assert-AzOpsJqDependency -Cmdlet $PSCmdlet
     #>
 
     [CmdletBinding()]
@@ -18,19 +18,28 @@
     )
 
     process {
+        Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJqDependency.Validating'
 
-        Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJQDependency.Validating'
+        $result = (Invoke-AzOpsNativeCommand -ScriptBlock { jq --version } -IgnoreExitcode)
+        $installed = $result -as [bool]
 
-        $result = (Invoke-AzOpsNativeCommand -ScriptBlock { jq --version } -IgnoreExitcode) -as [bool]
-
-        if ($result) {
-            Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJQDependency.Success'
-            return
+        if ($installed) {
+            [double]$version = ($result).Split("-")[1]
+            if ($version -ge 1.6) {
+                Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJqDependency.Success'
+                return
+            }
+            else {
+                $exception = [System.InvalidOperationException]::new('Unsupported version of jq installed. Please update to a minimum jq version of 1.6')
+                $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
+                Write-PSFMessage -Level Warning -String 'Assert-AzOpsJqDependency.Failed' -Tag error
+                $Cmdlet.ThrowTerminatingError($errorRecord)
+            }
         }
 
-        $exception = [System.InvalidOperationException]::new('JQ is not in current path')
+        $exception = [System.InvalidOperationException]::new('Unable to locate jq installation')
         $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
-        Write-PSFMessage -Level Warning -String 'Assert-AzOpsJQDependency.Failed' -Tag error
+        Write-PSFMessage -Level Warning -String 'Assert-AzOpsJqDependency.Failed' -Tag error
         $Cmdlet.ThrowTerminatingError($errorRecord)
     }
 
