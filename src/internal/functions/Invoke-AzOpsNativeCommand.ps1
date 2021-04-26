@@ -37,7 +37,7 @@
         else { $output = & $ScriptBlock }
 
         if (-not $Quiet -and $output) {
-            $output | Out-String | ForEach-Object {
+            $output | Out-String -NoNewLine | ForEach-Object {
                 Write-PSFMessage -Level Debug -Message $_
             }
             $output
