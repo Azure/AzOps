@@ -71,7 +71,12 @@
 
         if (-not $ExportPath) {
             if ($Resource.Id) {
-                $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                if ($Resource -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription]) {
+                    $objectFilePath = (New-AzOpsScope -scope "subscriptions/$($Resource.id)" -StatePath $StatePath).statepath
+                }
+                else {
+                    $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                }
             }
             elseif ($Resource.ResourceId) {
                 $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath
