@@ -303,7 +303,7 @@
                 }
                 write-host " checking for subscription in azopsazmanagementgroup.children"
                 try {
-                $subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name) 
+                    $subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name
                 }
                 catch{
                     write-host "could not enumerate children in management group"
