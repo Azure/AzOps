@@ -309,7 +309,7 @@
                     write-host "could not enumerate children in management group"
                 }
                 if (!$subscriptionItem) {
-                    write-host " using get-azsubscription output as subscriptionitem 
+                    write-host " using get-azsubscription output as subscriptionitem "
                     $subscriptionItem=$subscriptionobject
                 }
                 if ($subscriptionItem ) {
