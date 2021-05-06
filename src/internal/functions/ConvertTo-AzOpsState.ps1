@@ -71,9 +71,13 @@
 
         if (-not $ExportPath) {
             if ($Resource.Id) {
+                ## this is not an ARM resource , use id instead
+                ## patch for subscription targetting when no rights to MG
                 if ($Resource -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription]) {
+                    # we have targeted subscriptions directly and retrived object with Get-AzSubscription (based on object type) create scope with "/subscriptions/ prefix"
                     $objectFilePath = (New-AzOpsScope -scope "/subscriptions/$($Resource.id)" -StatePath $StatePath).statepath
                 }
+                ## end patch for subscription targetting when no rights to MG
                 else {
                     $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
                 }

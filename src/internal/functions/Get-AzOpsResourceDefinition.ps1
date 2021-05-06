@@ -200,8 +200,8 @@
                     # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
                     # Define variables used by script
-                    write-host "output subscription $($scopeObject.Subscription)"
-                    $subscriptionobject = Get-AzSubscription -SubscriptionId $scopeObject.Subscription
+                    
+                    
                     if (
                         (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.Subscription -like $_ }) -contains $true) -or
                         (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.SubscriptionDisplayName -like $_ }) -contains $true)
@@ -301,16 +301,17 @@
                         Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
                     }
                 }
-                write-host " checking for subscription in azopsazmanagementgroup.children"
+                # write-host " checking for subscription in azopsazmanagementgroup.children"
                 try {
+                    ## collect subscription from Management Groups
                     $subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name
                 }
                 catch{
-                    write-host "could not enumerate children in management group"
+                    # write-host "could not enumerate children in management group"
                 }
                 if (!$subscriptionItem) {
-                    write-host " using get-azsubscription output as subscriptionitem "
-                    $subscriptionItem=$subscriptionobject
+                    # if subscription is not found in management group pull object from Get-AzSubscription 
+                    $subscriptionItem = Get-AzSubscription -SubscriptionId $scopeObject.Subscription
                 }
                 if ($subscriptionItem ) {
                     ConvertTo-AzOpsState -Resource $subscriptionItem -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
