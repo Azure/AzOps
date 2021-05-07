@@ -110,7 +110,7 @@
 
         #region Partial Discovery
         if ($PartialMgDiscoveryRoot) {
-            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
+            Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
             $PartialMgDiscovery = $true
             $managementGroups = @()
             foreach ($managementRoot in $PartialMgDiscoveryRoot) {
