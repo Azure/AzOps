@@ -35,8 +35,8 @@ Describe "Repository" {
 
         if ($null -eq $script:tenantId) {
             Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
-            Write-Host ("script:tenantId " + $script:tenantId)
-            Write-Host ("env:ARM_TENANT_ID" + $env:ARM_TENANT_ID)
+            Write-Host ("script:tenantId -  " + $script:tenantId)
+            Write-Host ("env:ARM_TENANT_ID - " + $env:ARM_TENANT_ID)
             throw
         }
         if ($null -eq $script:subscriptionId) {
