@@ -58,7 +58,7 @@ jobs:
 
       - name: "Merge"
         run: |
-          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:' --reviewer Azure/enterprisescale-vteam
+          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:'
           COUNTER=0
           while : ; do
               DECISION=$(gh pr status --json reviewDecision --jq '.currentBranch.reviewDecision')
