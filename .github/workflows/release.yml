@@ -58,8 +58,24 @@ jobs:
 
       - name: "Merge"
         run: |
-          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:'
-          gh pr merge 'release' --squash --delete-branch
+          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:' --reviewer Azure/enterprisescale-vteam
+          COUNTER=0
+          while : ; do
+              DECISION=$(gh pr status --json reviewDecision --jq '.currentBranch.reviewDecision')
+              if [ "$DECISION" == "APPROVED" ]; then
+                  gh pr merge 'release' --squash --delete-branch
+                  break
+              else
+                  if [ $COUNTER -lt 300 ]; then
+                      echo "Pending pull request approval - $COUNTER seconds"
+                      sleep 30s
+                      COUNTER=$(( $COUNTER + 30 ))
+                  else
+                      echo "Expired pull request approval"
+                      exit 1
+                  fi
+              fi
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
