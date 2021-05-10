@@ -38,7 +38,7 @@ Import - _Create a new repository from the upstream template repository_
 
 ```bash
 az repos import create \
-    --git-url https://github.com/Azure/AzOps-Accelerator.git --repository '(replace)'
+    --git-url https://github.com/azure/azops.git --repository '(replace)'
 ```
 
 Pipelines - _Create two new pipelines from existing YAML manifests_

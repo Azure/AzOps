@@ -16,7 +16,7 @@ az ad sp create-for-rbac --name "AzOps" --role owner --scope /
 ```
 
 ```bash
-gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
+gh repo create '<Name>' --template azure/azops --private --confirm
 ```
 
 ```bash
@@ -36,7 +36,7 @@ gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale De
 
 #### Create the repository
 
-Browse to the [AzOps Accelerator](https://github.com/azure/azops-accelerator), and select *Use this template*
+Browse to the [AzOps Accelerator](https://github.com/azure/azops), and select *Use this template*
 
 ![Create the repository from the template](./Media/Actions/Template-Repository.png)
 
