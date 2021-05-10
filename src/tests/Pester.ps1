@@ -1,5 +1,5 @@
 ﻿param (
-    $TestGeneral = $false,
+    $TestGeneral = $true,
 
     $TestFunctions = $false,
 
