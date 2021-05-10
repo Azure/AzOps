@@ -1,6 +1,4 @@
-﻿$script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
-$script:tenantId = $env:ARM_TENANT_ID
-$script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+﻿
 
 #
 # Repository.Tests.ps1
@@ -28,6 +26,15 @@ Describe "Repository" {
         $ErrorActionPreference = "Stop"
 
         #
+        # Script Isolation
+        # https://github.com/pester/Pester/releases/tag/5.2.0
+        #
+
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:tenantId = $env:ARM_TENANT_ID
+        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+
+        #
         # Validate that the runtime variables
         # are set as they are used to authenticate
         # the Azure session.
@@ -35,8 +42,6 @@ Describe "Repository" {
 
         if ($null -eq $script:tenantId) {
             Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
-            Write-Host ("script:tenantId -  " + $script:tenantId)
-            Write-Host ("env:ARM_TENANT_ID - " + $env:ARM_TENANT_ID)
             throw
         }
         if ($null -eq $script:subscriptionId) {
@@ -184,6 +189,15 @@ Describe "Repository" {
     }
 
     Context "Test" {
+
+        #
+        # Script Isolation
+        # https://github.com/pester/Pester/releases/tag/5.2.0
+        #
+
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:tenantId = $env:ARM_TENANT_ID
+        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
         #region
         # Scope - Root (./root)
