@@ -202,6 +202,14 @@
         #endregion Deploy State
 
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
+
+            # Avoid duplicate entries in the deployment list
+            if ($addition.EndsWith(".parameters.json")) {
+                if ($addModifySet -contains $addition.Replace(".parameters.json", ".json")) {
+                    continue
+                }
+            }
+
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
