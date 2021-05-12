@@ -1,4 +1,4 @@
-name: Docs/Wiki Sync
+name: Wiki Sync
 
 on:
   push:
