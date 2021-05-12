@@ -143,6 +143,7 @@
             #endregion Case: Template File
         }
         #endregion Utility Functions
+
         $common = @{
             Level = 'Host'
             Tag   = 'git'
@@ -165,7 +166,7 @@
         }
         if ($deleteSet) { $deleteSet = $deleteSet | Sort-Object }
         if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
-        #TODO: Clarify what happens with the deletes - not used after reporting them
+        # TODO: Clarify what happens with the deletes - not used after reporting them
 
         Write-PSFMessage @common -String 'Invoke-AzOpsChange.Change.AddModify'
         foreach ($item in $addModifySet) {
