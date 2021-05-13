@@ -22,12 +22,12 @@
     hidden [regex]$regex_subscription = '(?i)^/subscriptions/[^/]*$'
     hidden [regex]$regex_subscriptionExtract = '(?i)^/subscriptions/'
 
-    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/.*/resourcegroups/[^/]*$'
+    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[^/]*$'
     hidden [regex]$regex_resourceGroupExtract = '(?i)^/subscriptions/.*/resourcegroups/'
 
     hidden [regex]$regex_managementgroupProvider = '(?i)^/providers/Microsoft.Management/managementgroups/[\s\S]*/providers'
-    hidden [regex]$regex_subscriptionProvider = '(?i)^/subscriptions/.*/providers'
-    hidden [regex]$regex_resourceGroupProvider = '(?i)^/subscriptions/.*/resourcegroups/[\s\S]*/providers'
+    hidden [regex]$regex_subscriptionProvider = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers'
+    hidden [regex]$regex_resourceGroupProvider = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[\s\S]*/providers'
 
     hidden [regex]$regex_managementgroupResource = '(?i)^/providers/Microsoft.Management/managementGroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
     hidden [regex]$regex_subscriptionResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers/[\s\S]*/[\s\S]*/'
@@ -310,7 +310,6 @@
         }
         return $false
     }
-
     [string] IsSubscription() {
         if (($this.Scope -match $this.regex_subscription)) {
             return ($this.Scope.Split('/')[2])
@@ -437,12 +436,10 @@
         }
     }
     [string] GetAzOpsResourceGroupPath() {
-
         return (Join-Path $this.GetAzOpsSubscriptionPath() -ChildPath ($this.ResourceGroup).ToLower())
     }
     [string] GetSubscription() {
         if ($this.Scope -match $this.regex_subscriptionExtract) {
-
             $subId = $this.Scope -split $this.regex_subscriptionExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
             $sub = $script:AzOpsSubscriptions | Where-Object subscriptionId -eq $subId
             if ($sub) {
@@ -473,7 +470,6 @@
         return $null
     }
     [string] GetResourceGroup() {
-
         if ($this.Scope -match $this.regex_resourceGroupExtract) {
             return ($this.Scope -split $this.regex_resourceGroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1)
         }
@@ -490,7 +486,6 @@
         if ($this.Scope -match $this.regex_resourceGroupProvider) {
             return (($this.regex_resourceGroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[2]
         }
-
         return $null
     }
 
