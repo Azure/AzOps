@@ -22,16 +22,16 @@
     hidden [regex]$regex_subscription = '(?i)^/subscriptions/[^/]*$'
     hidden [regex]$regex_subscriptionExtract = '(?i)^/subscriptions/'
 
-    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[^/]*$'
-    hidden [regex]$regex_resourceGroupExtract = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/'
+    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/.*/resourcegroups/[^/]*$'
+    hidden [regex]$regex_resourceGroupExtract = '(?i)^/subscriptions/.*/resourcegroups/'
 
     hidden [regex]$regex_managementgroupProvider = '(?i)^/providers/Microsoft.Management/managementgroups/[\s\S]*/providers'
-    hidden [regex]$regex_subscriptionProvider = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers'
-    hidden [regex]$regex_resourceGroupProvider = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[\s\S]*/providers'
+    hidden [regex]$regex_subscriptionProvider = '(?i)^/subscriptions/.*/providers'
+    hidden [regex]$regex_resourceGroupProvider = '(?i)^/subscriptions/.*/resourcegroups/[\s\S]*/providers'
 
-    hidden [regex]$regex_managementgroupResource = '(?i)^/providers/Microsoft.Management/managementGroups/[\s\S]*/providers/[\s\S]*/[\s\S]*'
-    hidden [regex]$regex_subscriptionResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers/[\s\S]*/[\s\S]*'
-    hidden [regex]$regex_resourceGroupResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[\s\S]*/providers/[\s\S]*/[\s\S]*'
+    hidden [regex]$regex_managementgroupResource = '(?i)^/providers/Microsoft.Management/managementGroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
+    hidden [regex]$regex_subscriptionResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers/[\s\S]*/[\s\S]*/'
+    hidden [regex]$regex_resourceGroupResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
     #endregion Internal Regex Helpers
 
     #region Constructors
