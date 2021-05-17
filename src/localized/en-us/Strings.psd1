@@ -155,6 +155,7 @@
     'Invoke-AzOpsChange.Deployment.Required'                                        = 'Deployment required' #
     'Invoke-AzOpsChange.Resolve.FoundTemplate'                                      = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsChange.Resolve.FoundBicepTemplate'                                 = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsChange.Resolve.FromMainTemplate'                                   = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsChange.Resolve.MainTemplate.NotSupported'                          = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsChange.Resolve.MainTemplate.Supported'                             = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName

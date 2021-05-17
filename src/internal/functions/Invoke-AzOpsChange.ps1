@@ -201,7 +201,16 @@
         #endregion Deploy State
 
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-            try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
+            try {
+                if ($addition -match '.bicep') {
+                    # Handle Bicep templates
+                    $transpiledTemplatePath = $addition -replace '.bicep', '.json'
+                    Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
+                    bicep build $addition --outfile $transpiledTemplatePath
+                    $addition = $transpiledTemplatePath
+                }
+                $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop
+            }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
                 continue
