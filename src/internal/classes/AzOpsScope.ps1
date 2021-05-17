@@ -22,7 +22,7 @@
     hidden [regex]$regex_subscription = '(?i)^/subscriptions/[^/]*$'
     hidden [regex]$regex_subscriptionExtract = '(?i)^/subscriptions/'
 
-    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[^/]*$'
+    hidden [regex]$regex_resourceGroup = '(?i)^/subscriptions/.*/resourcegroups/[^/]*$'
     hidden [regex]$regex_resourceGroupExtract = '(?i)^/subscriptions/.*/resourcegroups/'
 
     hidden [regex]$regex_managementgroupProvider = '(?i)^/providers/Microsoft.Management/managementgroups/[\s\S]*/providers'
