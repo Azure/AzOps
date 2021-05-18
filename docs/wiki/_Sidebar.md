@@ -1,6 +1,5 @@
-**Guides**
+**User Guide**
 
-* [Home](https://github.com/azure/azops/wiki/home)
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
   * [Service Principal](https://github.com/azure/azops/wiki/service-principal)
@@ -15,9 +14,16 @@
 * [Private Feeds](https://github.com/azure/azops/wiki/private-feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/GitHub-Packages)
+
+**Documentation**
+
 * [Settings](https://github.com/azure/azops/wiki/settings)
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Migration](https://github.com/azure/azops/wiki/migration)
 * [Roadmap](https://github.com/azure/azops/wiki/roadmap)
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
+
+**Contributing**
+
+* [Pre-release](https://github.com/azure/azops/wiki/pre-release)
