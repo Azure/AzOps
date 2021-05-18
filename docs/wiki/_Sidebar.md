@@ -26,7 +26,7 @@
 
 **Contributing**
 
-* [Pre-release](https://github.com/azure/azops/wiki/pre-release)
+* [Testing](https://github.com/azure/azops/wiki/testing)
 * [Debugging](https://github.com/azure/azops/wiki/debugging)
   * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
   * [PowerShell](https://github.com/azure/azops/wiki/powershell)
