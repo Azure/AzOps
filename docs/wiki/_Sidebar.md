@@ -28,5 +28,5 @@
 
 * [Pre-release](https://github.com/azure/azops/wiki/pre-release)
 * [Debugging](https://github.com/azure/azops/wiki/debugging)
- * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
- * [PowerShell](https://github.com/azure/azops/wiki/powershell)
+  * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
+  * [PowerShell](https://github.com/azure/azops/wiki/powershell)
