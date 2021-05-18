@@ -13,7 +13,7 @@
   * [Push](https://github.com/azure/azops/wiki/push)
 * [Private Feeds](https://github.com/azure/azops/wiki/private-feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
-  * [GitHub Packages](https://github.com/azure/azops/wiki/GitHub-Packages)
+  * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
 
 **Documentation**
 
@@ -27,3 +27,6 @@
 **Contributing**
 
 * [Pre-release](https://github.com/azure/azops/wiki/pre-release)
+* [Debugging](https://github.com/azure/azops/wiki/debugging)
+ * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
+ * [PowerShell](https://github.com/azure/azops/wiki/powershell)
