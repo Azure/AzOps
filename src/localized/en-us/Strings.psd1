@@ -13,6 +13,10 @@
     'Assert-AzOpsJqDependency.Validating'                                           = 'Validating if jq is in current path' #
     'Assert-AzOpsJqDependency.Success'                                              = 'Supported version of jq found in current path' #
 
+    'Assert-AzOpsBicepDependency.Validating'                                        = 'Validating if bicep is in current path' #
+    'Assert-AzOpsBicepDependency.Success'                                           = 'Supported version of bicep found in current path' #
+    'Assert-AzOpsBicepDependency.NotFound'                                          = 'Unable to locate bicep binary. Will not be able to deploy bicep templates.' #
+
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
     'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting Resource path for: {0}' # $this.Scope
@@ -186,6 +190,7 @@
     'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
     'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.TemplateParameterError'                                    = 'Error due to empty parameter - will not attempt to deploy template. Error can be ignored for bicep modules.' # $
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError
     'New-AzOpsDeployment.WhatIfResults'                                             = 'What If Results: {0}' # $TemplateFilePath
