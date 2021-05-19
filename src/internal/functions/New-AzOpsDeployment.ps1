@@ -107,6 +107,7 @@
                 }
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                     Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
                     Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
                     Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
@@ -145,6 +146,7 @@
                 }
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                     Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
                     Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
                     Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
@@ -191,6 +193,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
                 Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
                 Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
@@ -233,6 +236,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
                 Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
                 Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
@@ -275,6 +279,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
                 Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
                 Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
