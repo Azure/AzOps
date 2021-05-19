@@ -107,7 +107,11 @@
                 }
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
                 }
 
                 $parameters.Name = $DeploymentName
@@ -141,7 +145,11 @@
                 }
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
+                    Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
                 }
 
                 $parameters.Name = $DeploymentName
@@ -183,7 +191,11 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
@@ -221,7 +233,12 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
+                Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
@@ -258,7 +275,12 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
+                Add-Content -Path './OUTPUT.md' -Value "Changes:" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
+                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
