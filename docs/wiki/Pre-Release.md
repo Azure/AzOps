@@ -1,4 +1,7 @@
 
+The following code snippets can be used to test and validate pre-release code. By updating the Pull / Push pipelines they can install code from specific branches.
+
+
 Create a new folder within the `.github/` named `scripts/` and place the following `Install.ps1` file
 
 ```powershell
