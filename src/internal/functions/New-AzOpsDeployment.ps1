@@ -54,10 +54,10 @@
         #region Resolve Scope
         try {
             if ($TemplateParameterFilePath) {
-                $scopeObject = New-AzOpsScope -Path $TemplateParameterFilePath -StatePath $StatePath -ErrorAction Stop
+                $scopeObject = New-AzOpsScope -Path $TemplateParameterFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
             }
             else {
-                $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
             }
         }
         catch {
@@ -97,12 +97,18 @@
                 }
 
                 # Validate Template
-                $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters
-                if ($results.Error) {
-                    Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+                if ($resultsError) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                }
+                elseif ($results.Error) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                     return
                 }
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | out-string) -Target $scopeObject
+                else {
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
+                }
 
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
@@ -135,6 +141,7 @@
                 }
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
                 }
 
                 $parameters.Name = $DeploymentName
@@ -176,6 +183,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
@@ -213,6 +221,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
@@ -249,6 +258,7 @@
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                $results.Changes | ConvertTo-Json -Depth 5 | Out-File -FilePath "./WhatIf.json" -WhatIf:$false
             }
 
             $parameters.Name = $DeploymentName
