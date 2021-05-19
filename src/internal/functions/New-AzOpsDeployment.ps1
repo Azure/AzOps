@@ -263,7 +263,6 @@
 
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
-                # Whatif Placeholder
                 New-AzTenantDeployment @parameters
             }
             else {
