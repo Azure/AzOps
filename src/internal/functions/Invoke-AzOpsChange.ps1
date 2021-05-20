@@ -209,7 +209,7 @@
                     continue
                 }
             }
-
+            
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
                 $transpiledTemplatePath = $addition -replace '.bicep', '.json'

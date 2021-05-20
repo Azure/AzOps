@@ -103,10 +103,10 @@
     'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed Resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.Subscription.OdataFilter'                          = 'Setting Odatafilter: {0}' # $odataFilter
     'Get-AzOpsResourceDefinition.Subscription.Processing'                           = 'Processing Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-AzOpsResourceDefinition.SubScription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
     'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
     'Get-AzOpsResourceDefinition.Subscription.SkippingResources'                    = 'Resources are skipped in resource group due to SkipResource.' #
