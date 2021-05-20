@@ -310,13 +310,13 @@
                         Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
                     }
                 }
-                # write-host " checking for subscription in azopsazmanagementgroup.children"
+                # adding try/catch to avoid exiting from this if we don't heve permissions on the MG
                 try {
                     ## collect subscription from Management Groups
                     $subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name
                 }
                 catch{
-                    # write-host "could not enumerate children in management group"
+                    
                 }
                 if (!$subscriptionItem) {
                     # if subscription is not found in management group pull object from Get-AzSubscription 
