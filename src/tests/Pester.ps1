@@ -10,7 +10,7 @@
 
     $Include = "*",
 
-    $Exclude = "Help.Tests.ps1"
+    $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1")
 )
 
 Write-PSFMessage -Level Important -Message "Starting Tests"
@@ -43,7 +43,7 @@ if ($TestGeneral) {
     Write-PSFMessage -Level Important -Message "Proceeding with general tests"
     foreach ($file in (Get-ChildItem "$PSScriptRoot\general" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
-        if ($file.Name -like $Exclude) { continue }
+        if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
@@ -74,7 +74,7 @@ if ($TestFunctions) {
     Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
     foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
-        if ($file.Name -like $Exclude) { continue }
+        if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
@@ -105,7 +105,7 @@ if ($TestIntegration) {
     Write-PSFMessage -Level Important -Message "Proceeding with integration tests"
     foreach ($file in (Get-ChildItem "$PSScriptRoot\integration" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
-        if ($file.Name -like $Exclude) { continue }
+        if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
