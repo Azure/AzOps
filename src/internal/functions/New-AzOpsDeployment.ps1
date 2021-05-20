@@ -14,7 +14,6 @@
         .PARAMETER Mode
             Mode in which to process the templates.
             Defaults to incremental.
-            TODO: Clarify use
         .PARAMETER StatePath
             The root folder under which to find the resource json.
         .PARAMETER Confirm
@@ -51,6 +50,7 @@
 
     process {
         Write-PSFMessage -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
+
         #region Resolve Scope
         try {
             if ($TemplateParameterFilePath) {
@@ -70,14 +70,15 @@
         }
         #endregion Resolve Scope
 
+        #region Parse Content
+        $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
+        #endregion
+
         #region Process Scope
         #region Resource Group
         if ($scopeObject.resourcegroup) {
-            Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
-
-            if ($scopeObject.ResourceProvider -eq 'Microsoft.Resources' -and
-                $scopeObject.Resource -eq 'resourceGroups') {
+            if ($templateContent.resources[0].type -eq 'Microsoft.Resources/resourceGroups') {
                 # Since this is a deployment for resource group, it must be invoked at subscription scope
                 $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
                 Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
@@ -113,10 +114,12 @@
                 }
             }
             else {
+                Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
+
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
                     'SkipTemplateParameterPrompt' = $true
-                    'ResourceGroupName'           = $scopeObject.resourcegroup
+                    'ResourceGroupName'           = $scopeObject.Name
                 }
                 if ($TemplateParameterFilePath) {
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
