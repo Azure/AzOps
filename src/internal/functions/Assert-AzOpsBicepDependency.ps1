@@ -27,7 +27,10 @@
             Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsBicepDependency.Success'
         }
         else {
-            Write-PSFMessage -Level Warning -String 'Assert-AzOpsBicepDependency.NotFound'
+            $exception = [System.InvalidOperationException]::new('Unable to locate bicep installation')
+            $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
+            Write-PSFMessage -Level Warning -String 'Assert-AzOpsBicepDependency.NotFound' -Tag error
+            $Cmdlet.ThrowTerminatingError($errorRecord)
         }
 
     }
