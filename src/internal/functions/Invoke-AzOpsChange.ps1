@@ -143,6 +143,7 @@
             #endregion Case: Template File
         }
         #endregion Utility Functions
+
         $common = @{
             Level = 'Host'
             Tag   = 'git'
@@ -165,7 +166,7 @@
         }
         if ($deleteSet) { $deleteSet = $deleteSet | Sort-Object }
         if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
-        #TODO: Clarify what happens with the deletes - not used after reporting them
+        # TODO: Clarify what happens with the deletes - not used after reporting them
 
         Write-PSFMessage @common -String 'Invoke-AzOpsChange.Change.AddModify'
         foreach ($item in $addModifySet) {
@@ -201,16 +202,23 @@
         #endregion Deploy State
 
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-            try {
-                if ($addition -match '.bicep') {
-                    # Handle Bicep templates
-                    $transpiledTemplatePath = $addition -replace '.bicep', '.json'
-                    Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
-                    bicep build $addition --outfile $transpiledTemplatePath
-                    $addition = $transpiledTemplatePath
+
+            # Avoid duplicate entries in the deployment list
+            if ($addition.EndsWith(".parameters.json")) {
+                if ($addModifySet -contains $addition.Replace(".parameters.json", ".json")) {
+                    continue
                 }
-                $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop
             }
+
+            # Handle Bicep templates
+            if ($addition.EndsWith(".bicep")) {
+                $transpiledTemplatePath = $addition -replace '.bicep', '.json'
+                Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
+                bicep build $addition --outfile $transpiledTemplatePath
+                $addition = $transpiledTemplatePath
+            }
+
+            try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
                 continue
