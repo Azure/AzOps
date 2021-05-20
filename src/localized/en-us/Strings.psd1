@@ -13,6 +13,10 @@
     'Assert-AzOpsJqDependency.Validating'                                           = 'Validating if jq is in current path' #
     'Assert-AzOpsJqDependency.Success'                                              = 'Supported version of jq found in current path' #
 
+    'Assert-AzOpsBicepDependency.Validating'                                        = 'Validating if bicep is in current path' #
+    'Assert-AzOpsBicepDependency.Success'                                           = 'Bicep found in current path' #
+    'Assert-AzOpsBicepDependency.NotFound'                                          = 'Unable to locate bicep binary. Will not be able to deploy bicep templates.' #
+
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
     'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting Resource path for: {0}' # $this.Scope
@@ -155,6 +159,7 @@
     'Invoke-AzOpsChange.Deployment.Required'                                        = 'Deployment required' #
     'Invoke-AzOpsChange.Resolve.FoundTemplate'                                      = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsChange.Resolve.FoundBicepTemplate'                                 = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsChange.Resolve.FromMainTemplate'                                   = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsChange.Resolve.MainTemplate.NotSupported'                          = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsChange.Resolve.MainTemplate.Supported'                             = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
@@ -185,6 +190,7 @@
     'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
     'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.TemplateParameterError'                                    = 'Error due to empty parameter - will not attempt to deploy template. Error can be ignored for bicep modules.' # $
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError
     'New-AzOpsDeployment.WhatIfResults'                                             = 'What If Results: {0}' # $TemplateFilePath

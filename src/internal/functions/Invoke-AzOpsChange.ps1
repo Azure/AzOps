@@ -210,6 +210,15 @@
                 }
             }
 
+            # Handle Bicep templates
+            if ($addition.EndsWith(".bicep")) {
+                Assert-AzOpsBicepDependency -Cmdlet $PSCmdlet
+                $transpiledTemplatePath = $addition -replace '.bicep', '.json'
+                Write-PSFMessage @common -String 'Invoke-AzOpsChange.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
+                Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $addition --outfile $transpiledTemplatePath }
+                $addition = $transpiledTemplatePath
+            }
+
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsChange.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
