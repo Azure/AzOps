@@ -14,7 +14,6 @@
         .PARAMETER Mode
             Mode in which to process the templates.
             Defaults to incremental.
-            TODO: Clarify use
         .PARAMETER StatePath
             The root folder under which to find the resource json.
         .PARAMETER Confirm
@@ -51,6 +50,7 @@
 
     process {
         Write-PSFMessage -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
+
         #region Resolve Scope
         try {
             if ($TemplateParameterFilePath) {
@@ -70,14 +70,15 @@
         }
         #endregion Resolve Scope
 
+        #region Parse Content
+        $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
+        #endregion
+
         #region Process Scope
         #region Resource Group
         if ($scopeObject.resourcegroup) {
-            Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
-
-            if ($scopeObject.ResourceProvider -eq 'Microsoft.Resources' -and
-                $scopeObject.Resource -eq 'resourceGroups') {
+            if ($templateContent.resources[0].type -eq 'Microsoft.Resources/resourceGroups') {
                 # Since this is a deployment for resource group, it must be invoked at subscription scope
                 $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
                 Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
@@ -113,10 +114,12 @@
                 }
             }
             else {
+                Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
+
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
                     'SkipTemplateParameterPrompt' = $true
-                    'ResourceGroupName'           = $scopeObject.resourcegroup
+                    'ResourceGroupName'           = $scopeObject.Name
                 }
                 if ($TemplateParameterFilePath) {
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
@@ -125,6 +128,10 @@
                 $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
                 if ($resultsError) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                    if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                        $invalidTemplate = $true
+                    }
                 }
                 elseif ($results.Error) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -136,7 +143,9 @@
 
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start ResourceGroup Deployment?")) {
-                    New-AzResourceGroupDeployment @parameters
+                    if (-not $invalidTemplate) {
+                        New-AzResourceGroupDeployment @parameters
+                    }
                 }
                 else {
                     # Exit deployment
@@ -166,6 +175,9 @@
             $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+                    $invalidTemplate = $true
+                }
             }
             elseif ($results.Error) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -177,7 +189,9 @@
 
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                New-AzSubscriptionDeployment @parameters
+                if (-not $invalidTemplate) {
+                    New-AzSubscriptionDeployment @parameters
+                }
             }
             else {
                 # Exit deployment
@@ -203,6 +217,9 @@
             $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+                    $invalidTemplate = $true
+                }
             }
             elseif ($results.Error) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -214,7 +231,9 @@
 
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
-                New-AzManagementGroupDeployment @parameters
+                if (-not $invalidTemplate) {
+                    New-AzManagementGroupDeployment @parameters
+                }
             }
             else {
                 # Exit deployment

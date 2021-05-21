@@ -30,33 +30,29 @@
     hidden [regex]$regex_resourceGroupProvider = '(?i)^/subscriptions/.*/resourcegroups/[\s\S]*/providers'
 
     hidden [regex]$regex_managementgroupResource = '(?i)^/providers/Microsoft.Management/managementGroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
-    hidden [regex]$regex_subscriptionResource = '(?i)^/subscriptions/.*/providers/[\s\S]*/[\s\S]*/'
-    hidden [regex]$regex_resourceGroupResource = '(?i)^/subscriptions/.*/resourcegroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
+    hidden [regex]$regex_subscriptionResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/providers/[\s\S]*/[\s\S]*/'
+    hidden [regex]$regex_resourceGroupResource = '(?i)^/subscriptions/([0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12})/resourcegroups/[\s\S]*/providers/[\s\S]*/[\s\S]*/'
     #endregion Internal Regex Helpers
 
     #region Constructors
     AzOpsScope ([string]$Scope, [string]$StateRoot) {
+
         <#
-        .SYNOPSIS
-            Creates an AzOpsScope based on the specified resource ID or File System Path
+            .SYNOPSIS
+                Creates an AzOpsScope based on the specified resource ID or File System Path
+            .DESCRIPTION
+                Creates an AzOpsScope based on the specified resource ID or File System Path
+            .PARAMETER Scope
+                Scope == ResourceID or File System Path
+            .INPUTS
+                None. You cannot pipe objects to Add-Extension.
+            .OUTPUTS
+                System.String. Add-Extension returns a string with the extension or file name.
+            .EXAMPLE
+                New-AzOpsScope -Scope "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560"
+                Creates an AzOpsScope based on the specified resource ID
+        #>
 
-        .DESCRIPTION
-            Creates an AzOpsScope based on the specified resource ID or File System Path
-
-        .PARAMETER Scope
-            Scope == ResourceID or File System Path
-
-        .INPUTS
-            None. You cannot pipe objects to Add-Extension.
-
-        .OUTPUTS
-            System.String. Add-Extension returns a string with the extension or file name.
-
-        .EXAMPLE
-            New-AzOpsScope -Scope "/providers/Microsoft.Management/managementGroups/3fc1081d-6105-4e19-b60c-1ec1252cf560"
-
-            Creates an AzOpsScope based on the specified resource ID
-    #>
         Write-PSFMessage -Level Verbose -String 'AzOpsScope.Constructor' -StringValues $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.StateRoot = $StateRoot
         if (Test-Path -Path $scope) {
@@ -195,7 +191,7 @@
                 }
                 { $_.resources } {
                     # Template - 1st resource
-                    Write-PSFMessage -Level Verbose -String 'Az OpsScope.InitializeMemberVariablesFromFile.resource' -StringValues ($_.resources[0].type), ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.resource' -StringValues ($_.resources[0].type), ($_.resources[0].name) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
                     $currentScope = New-AzOpsScope -Path ($Path.Directory)
                     $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($_.resources[0].type)/$($_.resources[0].name)")
                     break
@@ -314,7 +310,6 @@
         }
         return $false
     }
-
     [string] IsSubscription() {
         if (($this.Scope -match $this.regex_subscription)) {
             return ($this.Scope.Split('/')[2])
@@ -441,12 +436,10 @@
         }
     }
     [string] GetAzOpsResourceGroupPath() {
-
         return (Join-Path $this.GetAzOpsSubscriptionPath() -ChildPath ($this.ResourceGroup).ToLower())
     }
     [string] GetSubscription() {
         if ($this.Scope -match $this.regex_subscriptionExtract) {
-
             $subId = $this.Scope -split $this.regex_subscriptionExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
             $sub = $script:AzOpsSubscriptions | Where-Object subscriptionId -eq $subId
             if ($sub) {
@@ -477,7 +470,6 @@
         return $null
     }
     [string] GetResourceGroup() {
-
         if ($this.Scope -match $this.regex_resourceGroupExtract) {
             return ($this.Scope -split $this.regex_resourceGroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1)
         }
@@ -494,7 +486,6 @@
         if ($this.Scope -match $this.regex_resourceGroupProvider) {
             return (($this.regex_resourceGroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[2]
         }
-
         return $null
     }
 
