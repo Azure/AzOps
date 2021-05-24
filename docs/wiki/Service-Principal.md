@@ -36,7 +36,7 @@ Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
 Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret))"
 ```
 
-### AzureAD
+### Azure AD
 
 ```powershell
 #
