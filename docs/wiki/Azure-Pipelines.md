@@ -13,7 +13,6 @@
   - [Import](#import)
   - [Pipelines](#pipelines)
   - [Variables](#variables)
-  - 
 
 ---
 
