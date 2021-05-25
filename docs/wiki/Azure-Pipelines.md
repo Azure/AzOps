@@ -142,7 +142,7 @@ Set the name of Variable Groups to `Credentials`. This can be altered but the va
 
 Add the variables from the Service Principal creation.
 
-![Create the variable group](./Media/Pipelines/Variable Group.png)
+![Create the variable group](./Media/Pipelines/Variable-Group.png)
 
 - ARM_TENANT_ID
 - ARM_SUBSCRIPTION_ID
