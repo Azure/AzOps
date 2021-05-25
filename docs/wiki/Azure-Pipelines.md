@@ -61,11 +61,9 @@ Add the variables from the Service Principal creation.
 
 ![Create the variable group](./Media/Pipelines/Variable-Group.png)
 
-Define the `ARM_CLIENT_SECRET` as a secret.
+Change the variable type for `ARM_CLIENT_SECRET` to secret.
 
-These variables will used to authenticate with Azure.
-
-Please see the [scripts](#scripts) section for ways to implement the variables with Azure CLI.
+These variables will used to authenticate the pipelines with Azure.
 
 #### Configure permissions
 
