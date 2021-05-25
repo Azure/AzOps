@@ -21,5 +21,5 @@ Overview of the Plan process
 * **Plan**  
   Plan the new template changes to Azure Resource Manager
   
-* **Results**
+* **Results**  
   Post the results from the What-If API into the Pull Request 
