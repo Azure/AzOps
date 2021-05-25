@@ -136,11 +136,20 @@ It's recommended to name these pipelines `AzOps - Pull` and `AzOps - Push` respe
 
 ![Create the pipelines](./Media/Pipelines/Pipeline-Creation.png)
 
-When creating the pipelines, create the following variables:
+After creating the pipelines, create a new Variable Group by navigating to `Library`.
 
-![Set the pipeline variables](./Media/Pipelines/Pipeline-Variables.png)
+Set the name of Variable Groups to `Credentials`. This can be altered but the value in the pipelines will need to be updated.
 
-Set the `ARM_CLIENT_SECRET` as secret.
+Add the variables from the Service Principal creation.
+
+![Create the variable group](./Media/Pipelines/Variable Group.png)
+
+- ARM_TENANT_ID
+- ARM_SUBSCRIPTION_ID
+- ARM_CLIENT_ID
+- ARM_CLIENT_SECRET
+
+Define the `ARM_CLIENT_SECRET` as a secret.
 
 These variables will used to authenticate with Azure.
 
