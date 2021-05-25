@@ -1,6 +1,5 @@
 ### In this guide
 
-- [Commands](#commands)
 - [Portal](#portal)
   - [Create the project](#create-project)
   - [Import the repository](#import-repository)
@@ -8,6 +7,13 @@
   - [Configure the pipelines](#configure-pipelines)
   - [Configure the permissions](#configure-permissions)
   - [Configure the branch polices](#configure-branch-policies)
+- [Commands](#commands)
+  - [Project](#project)
+  - [Defaults](#defaults)
+  - [Import](#import)
+  - [Pipelines](#pipelines)
+  - [Variables](#variables)
+  - 
 
 ---
 
@@ -91,35 +97,43 @@ It is also recommend to allow only `squash` merge types from branches into `main
 
 ---
 
-## Commands
+### Commands
 
 The following commands require the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) and the [DevOps Extension](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
 
 > Before running the following commands, the '(replace)' values need to be updated.  
 > Manual step required is to add the permissions within the UI on the repository for the build service.
 
-Project - _Create the new project within a specific organization_
+#### Project
+
+Create the new project within a specific organization
 
 ```bash
 az devops project create \
     --name '(replace)' --organization '(replace)'
 ```
 
-Defaults - _Set the defaults for the local Azure Cli shell_
+#### Defaults
+
+Set the defaults for the local Azure Cli shell
 
 ```bash
 az devops configure \
     --defaults organization=https://dev.azure.com/'(replace)' project='(replace)'
 ```
 
-Import - _Create a new repository from the upstream template repository_
+#### Import 
+
+Create a new repository from the upstream template repository
 
 ```bash
 az repos import create \
     --git-url https://github.com/azure/azops.git --repository '(replace)'
 ```
 
-Pipelines - _Create two new pipelines from existing YAML manifests_
+#### Pipelines 
+
+Create two new pipelines from existing YAML manifests
 
 ```bash
 az pipelines create \
@@ -129,7 +143,9 @@ az pipelines create \
     --name 'AzOps - Push' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/push.yml
 ```
 
-Variables - _Add secrets for authenticating pipelines with Azure Resource Manager_
+#### Variables
+
+Add secrets for authenticating pipelines with Azure Resource Manager
 
 ```bash
 az pipelines variable create \
@@ -157,7 +173,9 @@ az pipelines variable create \
     --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Push' --secret true --value '(replace)'
 ```
 
-Policy - _Add build validation policy to push changes_
+#### Policy
+
+Add build validation policy to push changes
 
 ```bash
 az pipelines show \
