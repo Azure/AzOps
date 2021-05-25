@@ -3,7 +3,7 @@
 - [Portal](#portal)
   - [Create the repository](#create-the-repository)
   - [Configure the secrets](#configure-the-secrets)
-- [Scripting](#scripting)
+- [Scripts](#scripts)
 
 ---
 
