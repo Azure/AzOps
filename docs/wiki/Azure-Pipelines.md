@@ -1,5 +1,3 @@
-_Coming soon_
-
 ### In this guide
 
 - [Commands](#commands)
