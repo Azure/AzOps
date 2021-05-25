@@ -1,10 +1,10 @@
-Overview of the process which the Push workflow operates
+Overview of the Plan process
 
 ---
 
 ### Workflow
 
-### Push
+### Plan
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
@@ -18,5 +18,8 @@ Overview of the process which the Push workflow operates
 * **Diff**  
   Validate if there have been any changes within Azure Resource Manager and the Git representation of the hierarchy.
 
-* **Deploy**  
-  Push the new template changes to Azure Resource Manager
+* **Plan**  
+  Plan the new template changes to Azure Resource Manager
+  
+* **Results**  
+  Post the results from the What-If API into the Pull Request 

@@ -1,8 +1,5 @@
-_Coming soon_
-
 ### In this guide
 
-- [Commands](#commands)
 - [Portal](#portal)
   - [Create the project](#create-project)
   - [Import the repository](#import-repository)
@@ -10,92 +7,12 @@ _Coming soon_
   - [Configure the pipelines](#configure-pipelines)
   - [Configure the permissions](#configure-permissions)
   - [Configure the branch polices](#configure-branch-policies)
-
----
-
-## Commands
-
-The following commands require the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) and the [DevOps Extension](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
-
-> Before running the following commands, the '(replace)' values need to be updated.  
-> Manual step required is to add the permissions within the UI on the repository for the build service.
-
-Project - _Create the new project within a specific organization_
-
-```bash
-az devops project create \
-    --name '(replace)' --organization '(replace)'
-```
-
-Defaults - _Set the defaults for the local Azure Cli shell_
-
-```bash
-az devops configure \
-    --defaults organization=https://dev.azure.com/'(replace)' project='(replace)'
-```
-
-Import - _Create a new repository from the upstream template repository_
-
-```bash
-az repos import create \
-    --git-url https://github.com/azure/azops.git --repository '(replace)'
-```
-
-Pipelines - _Create two new pipelines from existing YAML manifests_
-
-```bash
-az pipelines create \
-    --name 'AzOps - Pull' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/pull.yml
-
-az pipelines create \
-    --name 'AzOps - Push' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/push.yml
-```
-
-Variables - _Add secrets for authenticating pipelines with Azure Resource Manager_
-
-```bash
-az pipelines variable create \
-    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Pull' --secret true --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
-
-az pipelines variable create \
-    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Push' --secret true --value '(replace)'
-```
-
-Policy - _Add build validation policy to push changes_
-
-```bash
-az pipelines show \
-    --name 'AzOps - Push'
-
-az repos policy build create \
-    --blocking true \
-    --branch main \
-    --display-name 'Push' \
-    --enabled true \
-    --build-definition-id (replace) \
-    --repository-id (replace) \
-    --queue-on-source-update-only false \
-    --manual-queue-only false \
-    --valid-duration 0
-```
+- [Scripts](#Scripts)
+  - [Project](#project)
+  - [Defaults](#defaults)
+  - [Import](#import)
+  - [Pipelines](#pipelines)
+  - [Variables](#variables)
 
 ---
 
@@ -136,15 +53,22 @@ It's recommended to name these pipelines `AzOps - Pull` and `AzOps - Push` respe
 
 ![Create the pipelines](./Media/Pipelines/Pipeline-Creation.png)
 
-When creating the pipelines, create the following variables:
+After creating the pipelines, create a new Variable Group by navigating to `Library`.
 
-![Set the pipeline variables](./Media/Pipelines/Pipeline-Variables.png)
+Set the name of Variable Groups to `Credentials`. This can be altered but the value in the pipelines will need to be updated.
 
-Set the `ARM_CLIENT_SECRET` as secret.
+Add the variables from the Service Principal creation.
 
-These variables will used to authenticate with Azure.
+- ARM_TENANT_ID
+- ARM_SUBSCRIPTION_ID
+- ARM_CLIENT_ID
+- ARM_CLIENT_SECRET
 
-Please see the [scripts](#scripts) section for ways to implement the variables with Azure CLI.
+![Create the variable group](./Media/Pipelines/Variable-Group.png)
+
+Change the variable type for `ARM_CLIENT_SECRET` to secret.
+
+These variables will used to authenticate the pipelines with Azure.
 
 #### Configure permissions
 
@@ -169,3 +93,102 @@ In order for the `AzOps - Push` pipeline to run, set the repository `main` branc
 It is also recommend to allow only `squash` merge types from branches into `main`.
 
 ![Repo policy](./Media/Pipelines/Merge-Types.png)
+
+---
+
+### Scripts
+
+The following commands require the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) and the [DevOps Extension](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
+
+> Before running the following commands, the '(replace)' values need to be updated.  
+> Manual step required is to add the permissions within the UI on the repository for the build service.
+
+#### Project
+
+Create the new project within a specific organization
+
+```bash
+az devops project create \
+    --name '(replace)' --organization '(replace)'
+```
+
+#### Defaults
+
+Set the defaults for the local Azure Cli shell
+
+```bash
+az devops configure \
+    --defaults organization=https://dev.azure.com/'(replace)' project='(replace)'
+```
+
+#### Import 
+
+Create a new repository from the upstream template repository
+
+```bash
+az repos import create \
+    --git-url https://github.com/azure/azops.git --repository '(replace)'
+```
+
+#### Pipelines 
+
+Create two new pipelines from existing YAML manifests
+
+```bash
+az pipelines create \
+    --name 'AzOps - Pull' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/pull.yml
+
+az pipelines create \
+    --name 'AzOps - Push' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/push.yml
+```
+
+#### Variables
+
+Add secrets for authenticating pipelines with Azure Resource Manager
+
+```bash
+az pipelines variable create \
+    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Pull' --secret true --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+
+az pipelines variable create \
+    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Push' --secret true --value '(replace)'
+```
+
+#### Policy
+
+Add build validation policy to push changes
+
+```bash
+az pipelines show \
+    --name 'AzOps - Push'
+
+az repos policy build create \
+    --blocking true \
+    --branch main \
+    --display-name 'Push' \
+    --enabled true \
+    --build-definition-id (replace) \
+    --repository-id (replace) \
+    --queue-on-source-update-only false \
+    --manual-queue-only false \
+    --valid-duration 0
+```
+
