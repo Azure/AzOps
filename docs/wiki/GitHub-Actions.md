@@ -39,9 +39,13 @@ Select the *Options* sections, untick *Merge commits* and *Rebase merging*.
 
 ### Commands
 
+Create the repository from the pre-defined template
+
 ```bash
 gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
 ```
+
+Add the repository secrets
 
 ```bash
 gh secret set 'ARM_TENANT_ID' -b "<Secret>"
@@ -49,6 +53,8 @@ gh secret set 'ARM_SUBSCRIPTION_ID' -b "<Secret>"
 gh secret set 'ARM_CLIENT_ID' -b "<Secret>"
 gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
 ```
+
+Initiaite the first Pull workflow
 
 ```bash
 gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale Deployment'
