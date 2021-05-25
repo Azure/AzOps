@@ -3,4 +3,5 @@
 ## Workflows
 
 * ~~Validation (What-If API)~~
-* Approval (Gates - Environments)
+* Approvals
+* Tempalates
