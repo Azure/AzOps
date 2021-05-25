@@ -12,7 +12,7 @@ The following configuration values can be modified within the `settings.json` fi
 | 08 | ExportRawTemplate                    |                                                              |
 | 10 | IgnoreContextCheck                   | Skip Azure PowerShell context validation                     |
 | 11 | InvalidateCache                      |                                                              |
-| 14 | OfferType                            | Default oifer type for Subscriptions creation                |
+| 14 | OfferType                            | Default offer type for Subscriptions creation                |
 | 15 | PartialMgDiscoveryRoot               | Generate folder hierachy for specific Management Groups      |
 | 16 | SkipPolicy                           | Generate template files for Policy types                     |
 | 17 | SkipResource                         | Generate template files for Resources within Resource Groups |
