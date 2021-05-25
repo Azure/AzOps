@@ -96,7 +96,7 @@ It is also recommend to allow only `squash` merge types from branches into `main
 
 ---
 
-### Commands
+### Scripts
 
 The following commands require the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) and the [DevOps Extension](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
 
