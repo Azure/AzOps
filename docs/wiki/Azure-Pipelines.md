@@ -7,7 +7,7 @@
   - [Configure the pipelines](#configure-pipelines)
   - [Configure the permissions](#configure-permissions)
   - [Configure the branch polices](#configure-branch-policies)
-- [Commands](#commands)
+- [Scripts](#Scripts)
   - [Project](#project)
   - [Defaults](#defaults)
   - [Import](#import)
