@@ -2,7 +2,6 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
-  * [Service Principal](https://github.com/azure/azops/wiki/service-principal)
 * [Getting Started](https://github.com/azure/azops/wiki/getting-started)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
