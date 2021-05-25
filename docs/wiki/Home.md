@@ -4,4 +4,4 @@ Please refer to the sidebar (on the right) for details on the Getting Started, A
 
 If you'd like to contribute to the Wiki, please fork the AzOps repository and edit the Wiki pages within the `docs/wiki` directory.
 
-For up-to-date view on work items in flight, please visit the Project [board](https://github.com/Azure/AzOps/projects/1)
+For an up-to-date view on active work items, please visit the Project [board](https://github.com/Azure/AzOps/projects/1)
