@@ -3,7 +3,7 @@
 - [Portal](#portal)
   - [Create the repository](#create-the-repository)
   - [Configure the secrets](#configure-the-secrets)
-- [Commands](#commands)
+- [Scripting](#scripting)
 
 ---
 
@@ -37,7 +37,7 @@ Select the *Options* sections, untick *Merge commits* and *Rebase merging*.
 
 ---
 
-### Commands
+### Scripts
 
 Create the repository from the pre-defined template
 
