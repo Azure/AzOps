@@ -40,11 +40,7 @@ Select the *Options* sections, untick *Merge commits* and *Rebase merging*.
 ### Commands
 
 ```bash
-az ad sp create-for-rbac --name "AzOps" --role owner --scope /
-```
-
-```bash
-gh repo create '<Name>' --template azure/azops --private --confirm
+gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
 ```
 
 ```bash
@@ -57,4 +53,3 @@ gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
 ```bash
 gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale Deployment'
 ```
-
