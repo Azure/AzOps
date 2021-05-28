@@ -108,11 +108,8 @@
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    Add-Content -Path './OUTPUT.md' -Value "WhatIf Results:" -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
+                    $output = "WhatIf Results:{0}```json{0}{1}``` " -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                    Set-Content -Path './OUTPUT.md' -Value $output
                 }
 
                 $parameters.Name = $DeploymentName
@@ -147,11 +144,8 @@
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    Add-Content -Path './OUTPUT.md' -Value "WhatIf Results:" -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
-                    Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
+                    $output = "WhatIf Results:{0}```json{0}{1}``` " -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                    Set-Content -Path './OUTPUT.md' -Value $output
                 }
 
                 $parameters.Name = $DeploymentName
@@ -194,11 +188,8 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Add-Content -Path './OUTPUT.md' -Value "WhatIf Results:" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
+                $output = "WhatIf Results:{0}```json{0}{1}``` " -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                Set-Content -Path './OUTPUT.md' -Value $output
             }
 
             $parameters.Name = $DeploymentName
@@ -237,12 +228,8 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
-                Add-Content -Path './OUTPUT.md' -Value "WhatIf Results:" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
+                $output = "WhatIf Results:{0}```json{0}{1}``` " -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                Set-Content -Path './OUTPUT.md' -Value $output
             }
 
             $parameters.Name = $DeploymentName
@@ -280,12 +267,8 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                New-Item -Path "./" -ItemType File -Name "OUTPUT.md" -WhatIf:$false | Out-Null
-                Add-Content -Path './OUTPUT.md' -Value "WhatIf Results:" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value " " -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```json' -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value "$($results.Changes | ConvertTo-Json -Depth 5)" -WhatIf:$false
-                Add-Content -Path './OUTPUT.md' -Value '```' -WhatIf:$false
+                $output = "WhatIf Results:{0}```json{0}{1}``` " -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                Set-Content -Path './OUTPUT.md' -Value $output
             }
 
             $parameters.Name = $DeploymentName
