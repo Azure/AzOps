@@ -1,5 +1,9 @@
 # AzOps
 
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:bulb:?label=enhancement%20issues)
+![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
+![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/azops)
+
 This repository is for active development of the AzOps PowerShell cmdlets.
 
 ### Getting started
@@ -22,10 +26,44 @@ For information on contributing to the module, visit the [Contributing Guide](ht
 For information on migrating to the new version, visit the [Migration Guide](https://github.com/azure/azops/wiki/migration)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
-### Issues
+### Output
 
-![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement%20:bulb:?label=enhancement%20issues)
-![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug%20:ambulance:?label=bug%20issues)
+This AzOps PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure scopes. To provide this functionility the multiple scopes within Azure Resource Manager are represented (example below) within the filesystem. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting composite templates from ARM and placing them within the repository.
+
+```bash
+root
+└── tenant root group (e42bc18f)
+    ├── applications (73fded8a)
+    │   ├── development (204bf7a2)
+    │   │   ├── microsoft.authorization_roleassignments-4f687d42.json
+    │   │   ├── microsoft.management_managementgroups-204bf7a2.json
+    │   │   └── subscription-1 (fdfda291)
+    │   │       ├── microsoft.authorization_policyassignments-securitycenterbuiltin.json
+    │   │       └── microsoft.subscription_subscriptions-fdfda291.json
+    │   ├── microsoft.authorization_roleassignments-219d3675.json
+    │   ├── microsoft.management_managementgroups-73fded8a.json
+    │   └── production (75718043)
+    │       ├── microsoft.authorization_roleassignments-5bf6a637.json
+    │       ├── microsoft.management_managementgroups-75718043.json
+    │       └── subscription-2 (ad32efed)
+    │           ├── microsoft.authorization_policyassignments-dataprotectionsecuritycenter.json
+    │           ├── microsoft.authorization_policyassignments-securitycenterbuiltin.json
+    │           └── microsoft.subscription_subscriptions-ad32efed.json
+    ├── microsoft.authorization_roleassignments-d18adbf0.json
+    ├── microsoft.authorization_roledefinitions-40db802e.json
+    ├── microsoft.management_managementgroups-e42bc18f.json
+    └── platform (4dc7bd90)
+        ├── microsoft.authorization_policydefinitions-3029d7f6.parameters.json
+        ├── microsoft.authorization_roleassignments-92ebbfe0.json
+        ├── microsoft.management_managementgroups-4dc7bd90.json
+        └── subscription-0 (1e045925)
+            ├── microsoft.authorization_policyassignments-dataprotectionsecuritycenter.json
+            ├── microsoft.authorization_policyassignments-securitycenterbuiltin.json
+            ├── microsoft.authorization_roleassignments-3d8b69be.json
+            ├── microsoft.subscription_subscriptions-1e045925.json
+            └── networks
+                └── microsoft.resources_resourcegroups-networks.json
+```
 
 ### Contributing
 
