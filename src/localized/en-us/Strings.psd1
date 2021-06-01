@@ -193,8 +193,9 @@
     'New-AzOpsDeployment.TemplateParameterError'                                    = 'Error due to empty parameter - will not attempt to deploy template. Error can be ignored for bicep modules.' # $
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError
-    'New-AzOpsDeployment.WhatIfResults'                                             = 'What If Results: {0}' # $TemplateFilePath
-    'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to What If' #
+    'New-AzOpsDeployment.WhatIfResults'                                             = 'WhatIf Results: {0}' # $TemplateFilePath
+    'New-AzOpsDeployment.WhatIfFile'                                                = 'Creating WhatIf Results file'
+    'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to WhatIf' #
 
     'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
     'New-AzOpsStateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $cfgEnrollmentAccount

@@ -148,6 +148,9 @@
             Level = 'Host'
             Tag   = 'git'
         }
+
+        $WhatIfPreferenceState = $WhatIfPreference
+        $WhatIfPreference = $false
     }
 
     process {
@@ -231,6 +234,8 @@
 
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
         }
+
+        $WhatIfPreference = $WhatIfPreferenceState
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
