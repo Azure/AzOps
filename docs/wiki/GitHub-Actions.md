@@ -11,7 +11,7 @@
 
 #### Create the repository
 
-Browse to the [AzOps Accelerator](https://github.com/azure/azops), and select *Use this template*
+Browse to the [AzOps Accelerator](https://github.com/azure/azops-accelerator), and select *Use this template*
 
 ![Create the repository from the template](./Media/Actions/Template-Repository.png)
 
