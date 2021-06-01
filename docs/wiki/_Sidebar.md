@@ -8,7 +8,7 @@
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
   * [Subscriptions](https://github.com/azure/azops/wiki/subscriptions)
 * [Templates](https://github.com/azure/azops/wiki/templates)
-  * [Plan](https://github.com/azure/azops/wiki/plan)
+  * [Validate](https://github.com/azure/azops/wiki/validate)
   * [Pull](https://github.com/azure/azops/wiki/pull)
   * [Push](https://github.com/azure/azops/wiki/push)
 * [Private Feeds](https://github.com/azure/azops/wiki/private-feeds)
