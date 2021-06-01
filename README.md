@@ -28,7 +28,7 @@ File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choo
 
 ### Output
 
-This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scopes](https://docs.microsoft.com/azure/role-based-access-control/scope-overview). To provide this functionility the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting composite templates from ARM and placing them within the repository.
+This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://docs.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionility the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting composite templates from ARM and placing them within the repository.
 
 ```bash
 root
