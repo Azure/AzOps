@@ -1,10 +1,4 @@
-Overview of the process which the Push workflow operates
-
----
-
 ### Workflow
-
-### Push
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
