@@ -4,7 +4,7 @@
 - [Push](#push)
 - [Pull](#pull)
 
---
+---
 
 ## Validate
 
