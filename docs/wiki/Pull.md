@@ -1,7 +1,3 @@
-Overview of the process which the Pull workflow operates
-
----
-
 ### Workflow
 
 * **Checkout**  
