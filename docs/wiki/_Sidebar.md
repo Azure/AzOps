@@ -7,10 +7,6 @@
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
   * [Subscriptions](https://github.com/azure/azops/wiki/subscriptions)
-* [Steps](https://github.com/azure/azops/wiki/steps)
-  * [Validate](https://github.com/azure/azops/wiki/steps#validate)
-  * [Push](https://github.com/azure/azops/wiki/steps#push)
-  * [Pull](https://github.com/azure/azops/wiki/steps#pull)
 * [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
@@ -21,6 +17,7 @@
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Migration](https://github.com/azure/azops/wiki/migration)
 * [Roadmap](https://github.com/azure/azops/wiki/roadmap)
+* [Steps](https://github.com/azure/azops/wiki/steps)
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
 
