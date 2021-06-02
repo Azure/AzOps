@@ -1,23 +1,23 @@
-**Guides**
+**Getting Started**
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
 * [Configuration](https://github.com/azure/azops/wiki/quickstart)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
-* [Deployments](https://github.com/azure/azops/wiki/deployments)
-  * [Subscriptions](https://github.com/azure/azops/wiki/subscriptions)
-* [Feeds](https://github.com/azure/azops/wiki/feeds)
-  * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
-  * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
 
 **Documentation**
 
 * [Settings](https://github.com/azure/azops/wiki/settings)
 * [Updates](https://github.com/azure/azops/wiki/updates)
+* [Steps](https://github.com/azure/azops/wiki/steps)
+* [Deployments](https://github.com/azure/azops/wiki/deployments)
+  * [Subscriptions](https://github.com/azure/azops/wiki/subscriptions)
+* [Feeds](https://github.com/azure/azops/wiki/feeds)
+  * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
+  * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
 * [Migration](https://github.com/azure/azops/wiki/migration)
 * [Roadmap](https://github.com/azure/azops/wiki/roadmap)
-* [Steps](https://github.com/azure/azops/wiki/steps)
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
 
