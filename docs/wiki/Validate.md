@@ -1,10 +1,4 @@
-Overview of the Validate process
-
----
-
 ### Workflow
-
-### Validate
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
