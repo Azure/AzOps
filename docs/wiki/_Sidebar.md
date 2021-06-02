@@ -1,4 +1,4 @@
-**User Guide**
+**Guides**
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
