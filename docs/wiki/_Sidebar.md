@@ -2,7 +2,7 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
-* [Getting Started](https://github.com/azure/azops/wiki/getting-started)
+* [Quickstart](https://github.com/azure/azops/wiki/quickstart)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
@@ -11,7 +11,7 @@
   * [Validate](https://github.com/azure/azops/wiki/steps#validate)
   * [Push](https://github.com/azure/azops/wiki/steps#push)
   * [Pull](https://github.com/azure/azops/wiki/steps#pull)
-* [Private Feeds](https://github.com/azure/azops/wiki/private-feeds)
+* [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
 
