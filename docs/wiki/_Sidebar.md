@@ -2,7 +2,7 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
-* [Quickstarts](https://github.com/azure/azops/wiki/quickstart)
+* [Configuration](https://github.com/azure/azops/wiki/quickstart)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
