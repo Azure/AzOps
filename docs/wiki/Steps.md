@@ -6,7 +6,7 @@
 
 ---
 
-## Validate
+### Validate
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
@@ -26,7 +26,7 @@
 * **Results**  
   Post the results from the What-If API into the Pull Request 
 
-## Push
+### Push
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
@@ -43,7 +43,7 @@
 * **Deploy**  
   Push the new template changes to Azure Resource Manager
 
-## Pull
+### Pull
 
 * **Checkout**  
   This stage checkouts out the repository source code from the Source Control Platform to the CI/CD runner.
