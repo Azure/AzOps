@@ -1,4 +1,4 @@
-﻿function Initialize-AzOpsRepository {
+﻿function Invoke-AzOpsPull {
 
     <#
         .SYNOPSIS
@@ -32,6 +32,7 @@
     #>
 
     [CmdletBinding()]
+    [Alias("Initialize-AzOpsRepository")]
     param (
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
