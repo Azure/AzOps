@@ -13,12 +13,8 @@ Due to permission limitations on the built-in GitHub Token which Git authenticat
 
 ## GitHub Actions
 
-[Source](https://github.com/azure/azops/blob/main/.github/workflows/patch.yml)
+[Source](https://github.com/azure/azops-accelerator/blob/main/.github/workflows/update.yml)
 
 ## Azure Pipelines
 
-_Coming soon_
-
-
-
-
+[Source](https://github.com/azure/azops-accelerator/blob/main/.pipelines/update.yml)

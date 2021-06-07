@@ -1,12 +1,10 @@
-_Coming soon_
-
 ### In this guide
 
 - [Project](#project)
 - [Repository - Import](#repository-import)
 - [Repository - Sync](#repository-sync)
 - [Artifacts - Release](#artifacts-release)
-- [Workflows]
+- [Workflows](#workflows)
 
 ---
 

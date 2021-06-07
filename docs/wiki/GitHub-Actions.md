@@ -1,34 +1,9 @@
-_Coming soon_
-
 ### In this guide
 
-- [Commands](#commands)
 - [Portal](#portal)
   - [Create the repository](#create-the-repository)
   - [Configure the secrets](#configure-the-secrets)
-
----
-
-### Commands
-
-```bash
-az ad sp create-for-rbac --name "AzOps" --role owner --scope /
-```
-
-```bash
-gh repo create '<Name>' --template azure/azops --private --confirm
-```
-
-```bash
-gh secret set 'ARM_TENANT_ID' -b "<Secret>"
-gh secret set 'ARM_SUBSCRIPTION_ID' -b "<Secret>"
-gh secret set 'ARM_CLIENT_ID' -b "<Secret>"
-gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
-```
-
-```bash
-gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale Deployment'
-```
+- [Scripts](#scripts)
 
 ---
 
@@ -36,7 +11,7 @@ gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale De
 
 #### Create the repository
 
-Browse to the [AzOps Accelerator](https://github.com/azure/azops), and select *Use this template*
+Browse to the [AzOps Accelerator](https://github.com/azure/azops-accelerator), and select *Use this template*
 
 ![Create the repository from the template](./Media/Actions/Template-Repository.png)
 
@@ -62,4 +37,25 @@ Select the *Options* sections, untick *Merge commits* and *Rebase merging*.
 
 ---
 
+### Scripts
 
+Create the repository from the pre-defined template
+
+```bash
+gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
+```
+
+Add the repository secrets
+
+```bash
+gh secret set 'ARM_TENANT_ID' -b "<Secret>"
+gh secret set 'ARM_SUBSCRIPTION_ID' -b "<Secret>"
+gh secret set 'ARM_CLIENT_ID' -b "<Secret>"
+gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
+```
+
+Initiaite the first Pull workflow
+
+```bash
+gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale Deployment'
+```
