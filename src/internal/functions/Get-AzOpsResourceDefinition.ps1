@@ -15,8 +15,6 @@
             Skip discovery of resource groups.
         .PARAMETER SkipResource
             Skip discovery of resources inside resource groups.
-        .PARAMETER ExportRawTemplate
-            Export generic templates without embedding them in the parameter block.
         .PARAMETER StatePath
             The root folder under which to write the resource json.
         .EXAMPLE
@@ -54,9 +52,6 @@
         [switch]
         $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
 
-        [switch]
-        $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
-
         [Parameter(Mandatory = $false)]
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
@@ -72,10 +67,7 @@
                 $ScopeObject,
 
                 [string]
-                $StatePath,
-
-                [switch]
-                $ExportRawTemplate
+                $StatePath
             )
 
             process {
@@ -87,7 +79,7 @@
                 Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Resource.Processing' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup
                 try {
                     $resource = Get-AzResource -ResourceId $ScopeObject.scope -ErrorAction Stop
-                    ConvertTo-AzOpsState -Resource $resource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
+                    ConvertTo-AzOpsState -Resource $resource -StatePath $StatePath
                 }
                 catch {
                     Write-PSFMessage @common -Level Warning -String 'Get-AzOpsResourceDefinition.Resource.Processing.Failed' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup -ErrorRecord $_
@@ -107,9 +99,6 @@
 
                 [string]
                 $StatePath,
-
-                [switch]
-                $ExportRawTemplate,
 
                 $Context,
 
@@ -136,7 +125,7 @@
                     Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned' -StringValues $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
                     return
                 }
-                ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+                ConvertTo-AzOpsState -Resource $resourceGroup -StatePath $StatePath
 
 
                 # Get all resources in resource groups
@@ -148,7 +137,7 @@
                 }
                 Get-AzResource @paramGetAzResource | ForEach-Object {
                     New-AzOpsScope -Scope $_.ResourceId
-                } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
+                } | ConvertFrom-TypeResource -StatePath $StatePath
             }
         }
 
@@ -163,9 +152,6 @@
                 $StatePath,
 
                 $Context,
-
-                [switch]
-                $ExportRawTemplate,
 
                 [switch]
                 $SkipResourceGroup,
@@ -221,7 +207,6 @@
                             SkipResource                    = $SkipResource
                             MaxRetryCount                   = $maxRetryCount
                             BackoffMultiplier               = $backoffMultiplier
-                            ExportRawTemplate               = $ExportRawTemplate
                             runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
                             runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
                             runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
@@ -258,7 +243,7 @@
                             }
 
                             Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                            & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                            & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -StatePath $runspaceData.Statepath }
 
                             if (-not $using:SkipResource) {
                                 Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
@@ -286,7 +271,7 @@
                                 foreach ($resource in $resources) {
                                     # Convert resources to AzOpsState
                                     Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
-                                    & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+                                    & $azOps { ConvertTo-AzOpsState -Resource $resource -StatePath $runspaceData.Statepath }
                                 }
                             }
                             else {
@@ -300,7 +285,7 @@
                     }
                 }
                 if ($subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name) {
-                    ConvertTo-AzOpsState -Resource $subscriptionItem -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+                    ConvertTo-AzOpsState -Resource $subscriptionItem -StatePath $StatePath
                 }
             }
         }
@@ -324,9 +309,6 @@
                 [switch]
                 $SkipResource,
 
-                [switch]
-                $ExportRawTemplate,
-
                 [string]
                 $StatePath
             )
@@ -348,14 +330,16 @@
                     if ($child.Type -eq '/subscriptions') {
                         if ($script:AzOpsSubscriptions.id -contains $child.Id) {
                             Get-AzOpsResourceDefinition -Scope $child.Id @parameters
-                        } else {
+                        }
+                        else {
                             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound' -StringValues $child.Name
                         }
-                    } else {
+                    }
+                    else {
                         Get-AzOpsResourceDefinition -Scope $child.Id @parameters
                     }
                 }
-                ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+                ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -StatePath $StatePath
             }
         }
         #endregion Utility Functions
@@ -378,10 +362,10 @@
         }
 
         switch ($scopeObject.Type) {
-            resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
-            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
-            subscriptions {  ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
-            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
+            resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath }
+            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
+            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
         if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
@@ -400,20 +384,20 @@
             # Process policy definitions
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
             $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $scopeObject
-            $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicyDefinitionsInAzure = $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+            $policyDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+            $serializedPolicyDefinitionsInAzure = $policyDefinitions | ConvertTo-AzOpsState -StatePath $StatePath -ReturnObject
 
             # Process policyset definitions (initiatives))
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $scopeObject.Scope
             $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $scopeObject
-            $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicySetDefinitionsInAzure = $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+            $policySetDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+            $serializedPolicySetDefinitionsInAzure = $policySetDefinitions | ConvertTo-AzOpsState -StatePath $StatePath -ReturnObject
 
             # Process policy assignments
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
             $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $scopeObject
-            $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+            $policyAssignments | ConvertTo-AzOpsState -StatePath $StatePath
+            $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -StatePath $StatePath -ReturnObject
         }
         #endregion Process Policies
 
@@ -422,14 +406,14 @@
             # Process role definitions
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $scopeObject.Scope
             $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $scopeObject
-            $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedRoleDefinitionsInAzure = $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+            $roleDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+            $serializedRoleDefinitionsInAzure = $roleDefinitions | ConvertTo-AzOpsState -StatePath $StatePath -ReturnObject
 
             # Process role assignments
             Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $scopeObject.Scope
             $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $scopeObject
-            $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedRoleAssignmentInAzure = $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+            $roleAssignments | ConvertTo-AzOpsState -StatePath $StatePath
+            $serializedRoleAssignmentInAzure = $roleAssignments | ConvertTo-AzOpsState -StatePath $StatePath -ReturnObject
         }
         #endregion Process Roles
 
@@ -453,7 +437,7 @@
             # Add property bag to parameters json
             $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force
             # Export state file with properties at scope
-            ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -ExportRawTemplate -StatePath $StatePath
+            ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -StatePath $StatePath
             #endregion Add accumulated policy and role data
         }
 
