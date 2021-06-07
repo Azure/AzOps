@@ -123,11 +123,11 @@
             }
             else {
                 Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
-
+                
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
                     'SkipTemplateParameterPrompt' = $true
-                    'ResourceGroupName'           = $scopeObject.Name
+                    'ResourceGroupName'           = $scopeObject.resourcegroup
                 }
                 if ($TemplateParameterFilePath) {
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
