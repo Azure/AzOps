@@ -137,17 +137,17 @@
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.UsingCache'                                        = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions' #
 
-    'Initialize-AzOpsRepository.Deleting.State'                                     = 'Removing state in {0}' # $StatePath
-    'Initialize-AzOpsRepository.Duration'                                           = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
-    'Initialize-AzOpsRepository.Initialization.Completed'                           = 'Completed preparations for the AzOps repository setup' #
-    'Initialize-AzOpsRepository.Initialization.Starting'                            = 'Starting preparations for the AzOps repository setup' #
-    'Initialize-AzOpsRepository.Migration.Required'                                 = 'Migration from previous repository state IS required' #
-    'Initialize-AzOpsRepository.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
-    'Initialize-AzOpsRepository.Tenant'                                             = 'Connected to tenant {0}' # $tenantId
-    'Initialize-AzOpsRepository.TemplateParameterFileSuffix'                        = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
-    'Initialize-AzOpsRepository.Validating.UserRole'                                = 'Asserting fundamental Azure access' #
-    'Initialize-AzOpsRepository.Validating.UserRole.Failed'                         = 'Insufficient access to Azure user data' #
-    'Initialize-AzOpsRepository.Validating.UserRole.Success'                        = 'Azure access validated' #
+    'Invoke-AzOpsPull.Deleting.State'                                     = 'Removing state in {0}' # $StatePath
+    'Invoke-AzOpsPull.Duration'                                           = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
+    'Invoke-AzOpsPull.Initialization.Completed'                           = 'Completed preparations for the AzOps repository setup' #
+    'Invoke-AzOpsPull.Initialization.Starting'                            = 'Starting preparations for the AzOps repository setup' #
+    'Invoke-AzOpsPull.Migration.Required'                                 = 'Migration from previous repository state IS required' #
+    'Invoke-AzOpsPull.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
+    'Invoke-AzOpsPull.Tenant'                                             = 'Connected to tenant {0}' # $tenantId
+    'Invoke-AzOpsPull.TemplateParameterFileSuffix'                        = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
+    'Invoke-AzOpsPull.Validating.UserRole'                                = 'Asserting fundamental Azure access' #
+    'Invoke-AzOpsPull.Validating.UserRole.Failed'                         = 'Insufficient access to Azure user data' #
+    'Invoke-AzOpsPull.Validating.UserRole.Success'                        = 'Azure access validated' #
 
     'Invoke-AzOpsChange.Change.AddModify'                                           = 'Adding or modifying:' #
     'Invoke-AzOpsChange.Change.AddModify.File'                                      = '  {0}' # $item
