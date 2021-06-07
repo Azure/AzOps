@@ -16,7 +16,7 @@
             Applies a change to Azure from the AzOps configuration.
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     [Alias("Invoke-AzOpsChange")]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
