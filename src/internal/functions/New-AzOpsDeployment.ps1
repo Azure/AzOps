@@ -97,7 +97,7 @@
                 }
 
                 # Validate Template
-                $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+                $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
                 if ($resultsError) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
                 }
@@ -114,7 +114,7 @@
 
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                    New-AzSubscriptionDeployment @parameters
+                    New-AzDeployment @parameters
                 }
                 else {
                     # Exit deployment
@@ -133,7 +133,7 @@
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
                 }
 
-                $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+                $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
                 if ($resultsError) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
                     if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
@@ -183,7 +183,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
                 if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
@@ -204,7 +204,7 @@
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
                 if (-not $invalidTemplate) {
-                    New-AzSubscriptionDeployment @parameters
+                    New-AzDeployment @parameters
                 }
             }
             else {
@@ -228,7 +228,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
                 if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
@@ -272,7 +272,7 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzTenantDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
+            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
             }
