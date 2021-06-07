@@ -261,15 +261,6 @@
                             Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
-
-                            # Process policy assignments for ResourceGroups as well
-                            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
-
-                            & $azOps {
-                                $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject ( new-AzOpsScope  -Scope $resourceGroup.ResourceId)
-                                $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath
-                            }
-
                             if (-not $using:SkipResource) {
                                 Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                                 $resources = & $azOps {
