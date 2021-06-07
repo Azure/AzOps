@@ -74,7 +74,7 @@
                 # Handle subscription-only scenarios without managementGroup access
                 if ($Resource -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription]) {
                     $objectFilePath = (New-AzOpsScope -scope "/subscriptions/$($Resource.id)" -StatePath $StatePath).statepath
-                }  
+                }
                 else {
                     $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
                 }
