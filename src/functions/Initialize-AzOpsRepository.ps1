@@ -73,7 +73,7 @@
         if (-not $SkipRole) {
             try {
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole'
-                Get-AzADUser -First 1 -ErrorAction Stop
+                $null = Get-AzADUser -First 1 -ErrorAction Stop
                 Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole.Success'
             }
             catch {
