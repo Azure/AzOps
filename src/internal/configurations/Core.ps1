@@ -5,7 +5,6 @@ Set-PSFConfig -Module AzOps -Name Core.DefaultDeploymentRegion -Value northeurop
 Set-PSFConfig -Module AzOps -Name Core.EnrollmentAccountPrincipalName -Value '' -Initialize -Validation stringorempty -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubOffer -Value 'AzurePass_2014-09-01', 'FreeTrial_2014-09-01', 'AAD_2015-09-01' -Initialize -Validation stringarray -Description 'Excluded QuotaID'
 Set-PSFConfig -Module AzOps -Name Core.ExcludedSubState -Value 'Disabled', 'Deleted', 'Warned', 'Expired' -Initialize -Validation stringarray -Description 'Excluded subscription states'
-Set-PSFConfig -Module AzOps -Name Core.ExportRawTemplate -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.IgnoreContextCheck -Value $false -Initialize -Validation bool -Description 'If set to $true, skip AAD tenant validation == 1'
 Set-PSFConfig -Module AzOps -Name Core.InvalidateCache -Value $true -Initialize -Validation bool -Description 'Invalidates cache and ensures that Management Groups and Subscriptions are re-discovered'
 Set-PSFConfig -Module AzOps -Name Core.JqTemplatePath -Value "$script:ModuleRoot\data\template" -Initialize -Validation string -Description 'default path to search for jq template'
