@@ -94,9 +94,6 @@
                 [AzOpsScope]
                 $ScopeObject,
 
-                [switch]
-                $SkipResource,
-
                 [string]
                 $StatePath,
 
@@ -316,17 +313,10 @@
                 $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Exclude ScopeObject
             }
             process {
-                $common = @{
-                    FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target       = $ScopeObject
-                }
-
                 Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Processing' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
 
                 $childOfManagementGroups = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup).Children
-
                 foreach ($child in $childOfManagementGroups) {
-
                     if ($child.Type -eq '/subscriptions') {
                         if ($script:AzOpsSubscriptions.id -contains $child.Id) {
                             Get-AzOpsResourceDefinition -Scope $child.Id @parameters
