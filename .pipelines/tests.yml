@@ -6,6 +6,16 @@ trigger: none
 pool:
   vmImage: ubuntu-20.04
 
+variables:
+  - name: ARM_TENANT_ID
+    value: $(ARM_TENANT_ID)
+  - name: ARM_SUBSCRIPTION_ID
+    value: $(ARM_SUBSCRIPTION_ID)
+  - name: ARM_CLIENT_ID
+    value: $(ARM_CLIENT_ID)
+  - name: ARM_CLIENT_SECRET
+    value: $(ARM_CLIENT_SECRET)
+
 jobs:
   - job: tests
     displayName: 'Tests'
@@ -27,11 +37,6 @@ jobs:
       #   inputs:
       #     targetType: filePath
       #     filePath: ./scripts/Tests.ps1
-      #   env:
-      #     ARM_TENANT_ID: $(ARM_TENANT_ID)
-      #     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-      #     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      #     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
       # - task: PublishTestResults@2
       #   displayName: 'Upload Results'
       #   inputs:
