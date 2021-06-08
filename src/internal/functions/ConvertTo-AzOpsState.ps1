@@ -5,7 +5,7 @@
             The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
         .DESCRIPTION
             The cmdlet converts Azure resources (Resources/ResourceGroups/Policy/PolicySet/PolicyAssignments/RoleAssignment/Definition) to the AzOps state format and exports them to the file structure.
-            It is normally executed and orchestrated through the Initialize-AzOpsRepository cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
+            It is normally executed and orchestrated through the Invoke-AzOpsPull cmdlet. As most of the AzOps-cmdlets, it is dependant on the AzOpsAzManagementGroup and AzOpsSubscriptions variables.
             Cmdlet will look into jq filter is template directory for the specific one before using the generic one at the root of the module
         .PARAMETER Resource
             Object with resource as input
@@ -18,12 +18,10 @@
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
-            Initialize-AzOpsEnvironment
             $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
             ConvertTo-AzOpsState -Resource $policy
             Export custom policy definition to the AzOps StatePath
         .EXAMPLE
-            Initialize-AzOpsEnvironment
             $policy = Get-AzPolicyDefinition -Custom | Select-Object -Last 1
             ConvertTo-AzOpsState -Resource $policy -ReturnObject
             Name                           Value
@@ -71,7 +69,13 @@
 
         if (-not $ExportPath) {
             if ($Resource.Id) {
-                $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                # Handle subscription-only scenarios without managementGroup access
+                if ($Resource -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription]) {
+                    $objectFilePath = (New-AzOpsScope -scope "/subscriptions/$($Resource.id)" -StatePath $StatePath).statepath
+                }
+                else {
+                    $objectFilePath = (New-AzOpsScope -scope $Resource.id -StatePath $StatePath).statepath
+                }
             }
             elseif ($Resource.ResourceId) {
                 $objectFilePath = (New-AzOpsScope -scope $Resource.ResourceId -StatePath $StatePath).statepath

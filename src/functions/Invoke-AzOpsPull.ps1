@@ -1,4 +1,4 @@
-﻿function Initialize-AzOpsRepository {
+﻿function Invoke-AzOpsPull {
 
     <#
         .SYNOPSIS
@@ -27,11 +27,12 @@
         .PARAMETER StatePath
             The root folder under which to write the resource json.
         .EXAMPLE
-            > Initialize-AzOpsRepository
+            > Invoke-AzOpsPull
             Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
     #>
 
     [CmdletBinding()]
+    [Alias("Initialize-AzOpsRepository")]
     param (
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
@@ -69,15 +70,15 @@
 
     begin {
         #region Initialize & Prepare
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Starting'
+        Write-PSFMessage -String 'Invoke-AzOpsPull.Initialization.Starting'
         if (-not $SkipRole) {
             try {
-                Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole'
+                Write-PSFMessage -String 'Invoke-AzOpsPull.Validating.UserRole'
                 $null = Get-AzADUser -First 1 -ErrorAction Stop
-                Write-PSFMessage -String 'Initialize-AzOpsRepository.Validating.UserRole.Success'
+                Write-PSFMessage -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
             }
             catch {
-                Write-PSFMessage -Level Warning -String 'Initialize-AzOpsRepository.Validating.UserRole.Failed'
+                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
                 $SkipRole = $true
             }
         }
@@ -88,10 +89,10 @@
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
 
         $tenantId = (Get-AzContext).Tenant.Id
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Tenant' -StringValues $tenantId
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+        Write-PSFMessage -String 'Invoke-AzOpsPull.Tenant' -StringValues $tenantId
+        Write-PSFMessage -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Initialization.Completed'
+        Write-PSFMessage -String 'Invoke-AzOpsPull.Initialization.Completed'
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
         #endregion Initialize & Prepare
     }
@@ -103,16 +104,16 @@
                     $_.Name -like $("Microsoft.Management_managementGroups-" + $tenantId + $TemplateParameterFileSuffix)
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
             if ($migrationRequired) {
-                Write-PSFMessage -String 'Initialize-AzOpsRepository.Migration.Required'
+                Write-PSFMessage -String 'Invoke-AzOpsPull.Migration.Required'
             }
 
             if ($Force -or $migrationRequired) {
-                Invoke-PSFProtectedCommand -ActionString 'Initialize-AzOpsRepository.Deleting.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
+                Invoke-PSFProtectedCommand -ActionString 'Invoke-AzOpsPull.Deleting.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
                     Remove-Item -Path $StatePath -Recurse -Force -Confirm:$false -ErrorAction Stop
                 } -EnableException $true -PSCmdlet $PSCmdlet
             }
             if ($Rebuild) {
-                Invoke-PSFProtectedCommand -ActionString 'Initialize-AzOpsRepository.Rebuilding.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
+                Invoke-PSFProtectedCommand -ActionString 'Invoke-AzOpsPull.Rebuilding.State' -ActionStringValues $StatePath -Target $StatePath -ScriptBlock {
                     Get-ChildItem -Path $StatePath  -File -Recurse -Force -Filter 'Microsoft.*_*.json' | Remove-Item -Force -Recurse -Confirm:$false -ErrorAction Stop
                 } -EnableException $true -PSCmdlet $PSCmdlet
             }
@@ -148,7 +149,7 @@
 
     end {
         $stopWatch.Stop()
-        Write-PSFMessage -String 'Initialize-AzOpsRepository.Duration' -StringValues $stopWatch.Elapsed -Data @{ Elapsed = $stopWatch.Elapsed }
+        Write-PSFMessage -String 'Invoke-AzOpsPull.Duration' -StringValues $stopWatch.Elapsed -Data @{ Elapsed = $stopWatch.Elapsed }
     }
 
 }

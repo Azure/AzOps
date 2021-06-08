@@ -3,7 +3,7 @@
 # Repository.Tests.ps1
 #
 # The tests within this file validate
-# that the `Initialize-AzOpsRepository`
+# that the `Invoke-AzOpsPull`
 # function is invoking as expected with
 # the correct output data.
 #
@@ -110,7 +110,7 @@ Describe "Repository" {
         }
 
         #
-        # Invoke the Initialize-AzOpsRepository
+        # Invoke the Invoke-AzOpsPull
         # function to generate the scope data which
         # can be tested against to ensure structure
         # is correct and data model hasn't changed.
@@ -118,7 +118,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
-            Initialize-AzOpsRepository -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
+            Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
