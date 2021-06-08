@@ -34,7 +34,7 @@ function New-Deployment {
         }
 
         Write-PSFMessage -Level Verbose -Message "Creating Management Group structure" -FunctionName "BeforeAll"
-        $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
+        $templateFile = Join-Path -Path $global:testroot -ChildPath "artifacts/azuredeploy.jsonc"
         $templateParameters = @{
             "tenantId"       = "$script:tenantId"
             "subscriptionId" = "$script:subscriptionId"
