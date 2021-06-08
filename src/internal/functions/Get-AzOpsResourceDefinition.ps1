@@ -124,7 +124,6 @@
                 }
                 ConvertTo-AzOpsState -Resource $resourceGroup -StatePath $StatePath
 
-
                 # Get all resources in resource groups
                 $paramGetAzResource = @{
                     DefaultProfile    = $Context
@@ -183,6 +182,8 @@
                     # Introduced due to error "Your Azure Credentials have not been set up or expired"
                     # https://github.com/Azure/azure-powershell/issues/9448
                     # Define variables used by script
+
+
                     if (
                         (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.Subscription -like $_ }) -contains $true) -or
                         (((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') | Foreach-Object { $scopeObject.SubscriptionDisplayName -like $_ }) -contains $true)
@@ -274,6 +275,7 @@
                             else {
                                 Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
                             }
+
                         }
                         #endregion Discover all resource groups in parallel
                     }
@@ -281,8 +283,17 @@
                         Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
                     }
                 }
-                if ($subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name) {
-                    ConvertTo-AzOpsState -Resource $subscriptionItem -StatePath $StatePath
+
+                if ($Script:AzOpsAzManagementGroup.Children) {
+                    $subscriptionItem = $script:AzOpsAzManagementGroup.children | Where-Object Name -eq $ScopeObject.name
+                }
+                else {
+                    # Handle subscription-only scenarios without permissions to managementGroups
+                    $subscriptionItem = Get-AzSubscription -SubscriptionId $scopeObject.Subscription
+                }
+
+                if ($subscriptionItem) {
+                    ConvertTo-AzOpsState -Resource $subscriptionItem -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
                 }
             }
         }
@@ -352,10 +363,17 @@
         }
 
         switch ($scopeObject.Type) {
+            <<<<<<< HEAD
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath }
             resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
             subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
+            =======
+            resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
+            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
+            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
+            >>>>>>> main
         }
 
         if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
