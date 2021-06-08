@@ -20,7 +20,7 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            . ./scripts/Deployment.ps1
+            . ./scripts/Deployments.ps1
             New-Deployment
       # - task: PowerShell@2
       #   displayName: 'Run Tests'
@@ -43,5 +43,5 @@ jobs:
         inputs:
           targetType: inline
           script: |
-            . ./scripts/Deployment.ps1
+            . ./scripts/Deployments.ps1
             Remove-Deployment
