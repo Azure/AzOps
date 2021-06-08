@@ -6,15 +6,6 @@ trigger: none
 pool:
   vmImage: ubuntu-20.04
 
-variables:
-  - name: ARM_TENANT_ID
-    value: $(ARM_TENANT_ID)
-  - name: ARM_SUBSCRIPTION_ID
-    value: $(ARM_SUBSCRIPTION_ID)
-  - name: ARM_CLIENT_ID
-    value: $(ARM_CLIENT_ID)
-  - name: ARM_CLIENT_SECRET
-    value: $(ARM_CLIENT_SECRET)
 
 jobs:
   - job: tests
@@ -25,6 +16,7 @@ jobs:
         inputs:
           targetType: filePath
           filePath: ./scripts/Dependencies.ps1
+
       - task: PowerShell@2
         displayName: 'Deploy Infrastructure'
         inputs:
@@ -32,17 +24,25 @@ jobs:
           script: |
             . ./scripts/Deployments.ps1
             New-Deployment
+        env:
+          ARM_TENANT_ID: $(ARM_TENANT_ID)
+          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+
       # - task: PowerShell@2
       #   displayName: 'Run Tests'
       #   inputs:
       #     targetType: filePath
       #     filePath: ./scripts/Tests.ps1
+
       # - task: PublishTestResults@2
       #   displayName: 'Upload Results'
       #   inputs:
       #     testResultsFiles: '**/*.Tests.xml'
       #     testResultsFormat: NUnit
-        condition: always()
+      #   condition: always()
+
       - task: PowerShell@2
         displayName: 'Destroy Infrastructure'
         inputs:
@@ -50,3 +50,8 @@ jobs:
           script: |
             . ./scripts/Deployments.ps1
             Remove-Deployment
+        env:
+          ARM_TENANT_ID: $(ARM_TENANT_ID)
+          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
