@@ -18,7 +18,7 @@ jobs:
       - task: PowerShell@2
         displayName: 'Deploy Infrastructure'
         inputs:
-          targetType: filePath
+          targetType: inline
           script: |
             . ./scripts/Deployment.ps1
             New-Deployment
@@ -39,9 +39,9 @@ jobs:
       #     testResultsFormat: NUnit
         condition: always()
       - task: PowerShell@2
-        displayName: 'Deploy Infrastructure'
+        displayName: 'Destroy Infrastructure'
         inputs:
-          targetType: filePath
+          targetType: inline
           script: |
             . ./scripts/Deployment.ps1
             Remove-Deployment
