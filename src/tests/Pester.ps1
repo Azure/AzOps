@@ -7,7 +7,7 @@
 
     $TestIntegration = $false,
 
-    $TestFunctional = $true,
+    $TestFunctional = $false,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
