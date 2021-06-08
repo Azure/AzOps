@@ -1,11 +1,14 @@
-﻿# tests/
+﻿# Tests
 
 This is the folder, where all the tests go.
 
-Those are subdivided in two categories:
+Those are subdivided in several categories:
 
 - General
-- Function
+- Unit
+- Integration
+- Static
+- Functional
 
 ## General Tests
 
