@@ -35,6 +35,11 @@ jobs:
         inputs:
           targetType: filePath
           filePath: ./scripts/Tests.ps1
+        env:
+          ARM_TENANT_ID: $(ARM_TENANT_ID)
+          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
 
       - task: PublishTestResults@2
         displayName: 'Upload Results'
