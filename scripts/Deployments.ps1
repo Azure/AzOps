@@ -128,6 +128,8 @@ function Remove-Deployment {
     process {
         Write-PSFMessage -Level Verbose -Message "Removing test environment" -FunctionName "Remove-Deployment"
 
+        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+
         $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
         if ($managementGroup) {
             Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
