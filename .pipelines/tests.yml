@@ -50,6 +50,7 @@ jobs:
           script: |
             . ./scripts/Deployments.ps1
             Remove-Deployment
+        condition: always()
         env:
           ARM_TENANT_ID: $(ARM_TENANT_ID)
           ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
