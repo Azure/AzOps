@@ -5,7 +5,8 @@ function New-Deployment {
     process {
         Write-PSFMessage -Level Verbose -Message "Deploying test environment" -FunctionName "New-Deployment"
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:repositoryRoot = (Resolve-Path "$PSScriptRoot/..").Path
+        $script:testRoot = (Join-Path -Path $script:repositoryRoot -ChildPath "tests")
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
