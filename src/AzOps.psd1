@@ -9,28 +9,28 @@
 @{
 
     # Script module or binary module file associated with this manifest.
-    RootModule        = 'AzOps.psm1'
+    RootModule = 'AzOps.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.2.0'
+    ModuleVersion = '1.2.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
 
     # ID used to uniquely identify this module
-    GUID              = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
+    GUID = '4336cc9b-48f8-4b0e-9629-fd1245e848d9'
 
     # Author of this module
-    Author            = 'Customer Architecture and Engineering'
+    Author = 'Customer Architecture and Engineering'
 
     # Company or vendor of this module
-    CompanyName       = 'Microsoft'
+    CompanyName = 'Microsoft'
 
     # Copyright statement for this module
-    Copyright         = '(c) Microsoft. All rights reserved.'
+    Copyright = '(c) Microsoft. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'Integrated CI/CD Solution for Microsoft Azure.'
+    Description = 'Integrated CI/CD Solution for Microsoft Azure.'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '7.0'
@@ -51,10 +51,16 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules   = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.201'; },
-        @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.3.0'; },
-        @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; },
-        @{ModuleName = 'Az.Resources'; RequiredVersion = '4.1.0'; })
+    RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.201'; },
+                   @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.8'; },
+                   @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; },
+                   @{ModuleName = 'Az.Resources'; RequiredVersion = '3.5.0'; })
+
+    # Assemblies that must be loaded prior to importing this module
+    # RequiredAssemblies = @()
+
+    # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+    # ScriptsToProcess = @()
 
     # Type files (.ps1xml) to be loaded when importing this module
     # TypesToProcess = @()
@@ -69,13 +75,13 @@
     FunctionsToExport = 'Initialize-AzOpsEnvironment', 'Invoke-AzOpsPull', 'Invoke-AzOpsPush'
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-    CmdletsToExport   = @()
+    CmdletsToExport = @()
 
     # Variables to export from this module
     # VariablesToExport = @()
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-    AliasesToExport   = @()
+    AliasesToExport = @()
 
     # DSC resources to export from this module
     # DscResourcesToExport = @()
@@ -87,18 +93,18 @@
     # FileList = @()
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-    PrivateData       = @{
+    PrivateData = @{
 
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags         = 'azure', 'cicd', 'enterprise-scale', 'azops'
+            Tags = 'azure','cicd','enterprise-scale','azops'
 
             # A URL to the license for this module.
-            LicenseUri   = 'https://github.com/Azure/AzOps/blob/main/LICENSE'
+            LicenseUri = 'https://github.com/Azure/AzOps/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri   = 'https://github.com/Azure/AzOps'
+            ProjectUri = 'https://github.com/Azure/AzOps'
 
             # A URL to an icon representing this module.
             # IconUri = ''
@@ -117,7 +123,7 @@
 
         } # End of PSData hashtable
 
-    } # End of PrivateData hashtable
+     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
     # HelpInfoURI = ''
@@ -125,4 +131,4 @@
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
 
-}
+    }
