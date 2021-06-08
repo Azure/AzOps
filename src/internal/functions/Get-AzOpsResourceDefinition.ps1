@@ -363,17 +363,10 @@
         }
 
         switch ($scopeObject.Type) {
-            <<<<<<< HEAD
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath }
             resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
             subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
-            =======
-            resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
-            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
-            managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
-            >>>>>>> main
         }
 
         if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
