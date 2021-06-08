@@ -19,7 +19,7 @@ function New-Deployment {
             throw
         }
 
-        Write-PSFMessage -Level Verbose -Message "Validationg Azure context" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Verbose -Message "Validating Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
         if ($tenant -inotcontains "$script:tenantId") {
             Write-PSFMessage -Level Verbose -Message "Authenticating Azure session" -FunctionName "BeforeAll"
