@@ -5,7 +5,7 @@
             Deploys a set of ARM templates into Azure.
         .DESCRIPTION
             Deploys a set of ARM templates into Azure.
-            Define the state using Initialize-AzOpsRepository and maintain it via:
+            Define the state using Invoke-AzOpsPull and maintain it via:
             - Invoke-AzOpsGitPull
             - Invoke-AzOpsGitPush
         .PARAMETER FileName

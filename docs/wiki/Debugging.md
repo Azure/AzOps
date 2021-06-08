@@ -34,7 +34,7 @@ At the command prompt we'll provide it the json file path (wrapped as a changese
 
 ```powershell
 $ChangeSet = @("M`troot\myorg (myorg)\myorg-sandboxes (myorg-sandboxes)\new-subscription.json")
-Invoke-AzOpsChange -ChangeSet $ChangeSet
+Invoke-AzOpsPush -ChangeSet $ChangeSet
 ```
 
 You can then monitor the PowerShell terminal in VS Code to see the Deployment complete with the accompanying logs.

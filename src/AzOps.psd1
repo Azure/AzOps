@@ -51,9 +51,9 @@ PowerShellVersion = '7.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.201'; }, 
-               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.8'; }, 
-               @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; }, 
+RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.201'; },
+               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.2.8'; },
+               @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; },
                @{ModuleName = 'Az.Resources'; RequiredVersion = '3.5.0'; })
 
 # Assemblies that must be loaded prior to importing this module
@@ -72,7 +72,7 @@ RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.201'; }
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Initialize-AzOpsEnvironment', 'Initialize-AzOpsRepository'
+FunctionsToExport = 'Initialize-AzOpsEnvironment', 'Invoke-AzOpsPull', 'Invoke-AzOpsPush'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
