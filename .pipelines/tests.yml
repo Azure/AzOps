@@ -16,18 +16,32 @@ jobs:
           targetType: filePath
           filePath: ./scripts/Dependencies.ps1
       - task: PowerShell@2
-        displayName: 'Run Tests'
+        displayName: 'Deploy Infrastructure'
         inputs:
           targetType: filePath
-          filePath: ./scripts/Tests.ps1
-        env:
-          ARM_TENANT_ID: $(ARM_TENANT_ID)
-          ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-          ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-          ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      - task: PublishTestResults@2
-        displayName: 'Upload Results'
-        inputs:
-          testResultsFiles: '**/*.Tests.xml'
-          testResultsFormat: NUnit
+          script: |
+            . ./scripts/Deployment.ps1
+            New-Deployment
+      # - task: PowerShell@2
+      #   displayName: 'Run Tests'
+      #   inputs:
+      #     targetType: filePath
+      #     filePath: ./scripts/Tests.ps1
+      #   env:
+      #     ARM_TENANT_ID: $(ARM_TENANT_ID)
+      #     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+      #     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      #     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      # - task: PublishTestResults@2
+      #   displayName: 'Upload Results'
+      #   inputs:
+      #     testResultsFiles: '**/*.Tests.xml'
+      #     testResultsFormat: NUnit
         condition: always()
+      - task: PowerShell@2
+        displayName: 'Deploy Infrastructure'
+        inputs:
+          targetType: filePath
+          script: |
+            . ./scripts/Deployment.ps1
+            Remove-Deployment
