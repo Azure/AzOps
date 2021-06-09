@@ -100,11 +100,6 @@ Describe "Pull" {
 
     Context "Test" {
 
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
-
         $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
