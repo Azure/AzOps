@@ -5,7 +5,7 @@
 
     $TestUnit = $false,
 
-    $TestIntegration = $false,
+    $TestIntegration = $true,
 
     $TestFunctional = $false,
 
