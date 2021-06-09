@@ -4,4 +4,4 @@
 # Needs to ensure things are Done Right and only working commits to main get built
 
 # Run internal pester tests
-& "$PSScriptRoot\..\src\tests\Pester.ps1"
+& "$PSScriptRoot/../tests/Pester.ps1"
