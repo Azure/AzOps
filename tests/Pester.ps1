@@ -26,14 +26,14 @@ $global:__pester_data = @{ }
 
 Remove-Module AzOps -ErrorAction Ignore
 
-Import-Module "$PSScriptRoot\..\AzOps.psd1" -Scope Global
-Import-Module "$PSScriptRoot\..\AzOps.psm1" -Scope Global -Force
+Import-Module "$PSScriptRoot/../src/AzOps.psd1" -Scope Global
+Import-Module "$PSScriptRoot/../src/AzOps.psm1" -Scope Global -Force
 
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester
 
 Write-PSFMessage -Level Important -Message "Creating test results folder"
-$null = New-Item -Path "$PSScriptRoot\..\.." -Name results -ItemType Directory -Force
+$null = New-Item -Path "$PSScriptRoot/.." -Name results -ItemType Directory -Force
 
 $totalFailed = 0
 $totalRun = 0
@@ -45,12 +45,12 @@ $config.TestResult.Enabled = $true
 #region Run General Tests
 if ($TestGeneral) {
     Write-PSFMessage -Level Important -Message "Proceeding with general tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\general" | Where-Object Name -like "*.Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot/general" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -74,12 +74,12 @@ if ($TestGeneral) {
 #region Run Static Tests
 if ($TestStatic) {
     Write-PSFMessage -Level Important -Message "Proceeding with static tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\static" | Where-Object Name -like "*.Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot/static" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -105,12 +105,12 @@ if ($TestStatic) {
 #region Run Unit Tests
 if ($TestUnit) {
     Write-PSFMessage -Level Important -Message "Proceeding with individual tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\functions" -Recurse -File | Where-Object Name -like "*.Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot/functions" -Recurse -File | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -134,12 +134,12 @@ if ($TestUnit) {
 #region Run Integration Tests
 if ($TestIntegration) {
     Write-PSFMessage -Level Important -Message "Proceeding with integration tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\integration" | Where-Object Name -like "*.Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot/integration" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -163,12 +163,12 @@ if ($TestIntegration) {
 #region Run Functional Tests
 if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")) {
+    foreach ($file in (Get-ChildItem "$PSScriptRoot/functional" | Where-Object Name -like "*.Tests.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
