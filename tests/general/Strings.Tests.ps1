@@ -7,9 +7,9 @@
 #>
 
 Describe "Testing localization strings" {
-    $moduleRoot = (Get-Module AzOps).ModuleBase
+    $moduleRoot = (Resolve-Path "$global:testroot/../src").Path
     $stringsResults = Export-PSMDString -ModuleRoot $moduleRoot
-    $exceptions = & "$global:testroot\general\Strings.Exceptions.ps1"
+    $exceptions = & "$global:testroot/general/Strings.Exceptions.ps1"
 
     foreach ($stringEntry in $stringsResults) {
         if ($stringEntry.String -eq "key") { continue } # Skipping the template default entry

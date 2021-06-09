@@ -1,5 +1,5 @@
 ﻿param (
-    $TestGeneral = $true,
+    $TestGeneral = $false,
 
     $TestStatic = $true,
 
@@ -12,9 +12,9 @@
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
 
-    $Include = "*",
+    $Include = "PSScriptAnalyzer.Tests.ps1",
 
-    $Exclude = @("Help.Tests.ps1")
+    $Exclude = "*"
 )
 
 Write-PSFMessage -Level Important -Message "Starting Tests"
@@ -50,7 +50,7 @@ if ($TestGeneral) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -79,7 +79,7 @@ if ($TestStatic) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -110,7 +110,7 @@ if ($TestUnit) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -139,7 +139,7 @@ if ($TestIntegration) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -168,7 +168,7 @@ if ($TestFunctional) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../../results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot/../results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output

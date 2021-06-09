@@ -36,20 +36,20 @@ Param (
     $SkipTest,
 
     [string[]]
-    $CommandPath = @("$global:testroot\..\functions", "$global:testroot\..\internal\functions"),
+    $CommandPath = @("$global:testroot/../src/functions", "$global:testroot/../src/internal/functions"),
 
     [string]
     $ModuleName = "AzOps",
 
     [string]
-    $ExceptionsFile = "$global:testroot\general\Help.Exceptions.ps1"
+    $ExceptionsFile = "$global:testroot/general/Help.Exceptions.ps1"
 )
 if ($SkipTest) { return }
 . $ExceptionsFile
 
 # For some reason, the default value may not exist / be cleared
 if (-not $CommandPath) {
-    $CommandPath = @("$global:testroot\..\functions", "$global:testroot\..\internal\functions")
+    $CommandPath = @("$global:testroot/../src/functions", "$global:testroot/../src/internal/functions")
 }
 $moduleObject = Get-Module $ModuleName
 
@@ -123,7 +123,7 @@ foreach ($command in $commands) {
                 if ($parameter.ParameterType.IsEnum) {
                     # Enumerations often have issues with the typename not being reliably available
                     $names = $parameter.ParameterType::GetNames($parameter.ParameterType)
-                        # Parameter type in Help should match code
+                    # Parameter type in Help should match code
                     It "help for $commandName has correct parameter type for $parameterName" -TestCases @{ parameterHelp = $parameterHelp; names = $names } {
                         $parameterHelp.parameterValueGroup.parameterValue | Should -be $names
                     }
