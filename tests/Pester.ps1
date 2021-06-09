@@ -5,9 +5,9 @@
 
     $TestUnit = $false,
 
-    $TestIntegration = $true,
+    $TestIntegration = $false,
 
-    $TestFunctional = $false,
+    $TestFunctional = $true,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
