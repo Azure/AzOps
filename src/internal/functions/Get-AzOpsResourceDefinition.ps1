@@ -293,7 +293,7 @@
                 }
 
                 if ($subscriptionItem) {
-                    ConvertTo-AzOpsState -Resource $subscriptionItem -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+                    ConvertTo-AzOpsState -Resource $subscriptionItem -StatePath $StatePath
                 }
             }
         }
