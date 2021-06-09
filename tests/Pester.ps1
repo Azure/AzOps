@@ -1,5 +1,5 @@
 ﻿param (
-    $TestGeneral = $false,
+    $TestGeneral = $true,
 
     $TestStatic = $true,
 
@@ -12,9 +12,9 @@
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
 
-    $Include = "PSScriptAnalyzer.Tests.ps1",
+    $Include = "*",
 
-    $Exclude = "*"
+    $Exclude = "Help.Tests.ps1"
 )
 
 Write-PSFMessage -Level Important -Message "Starting Tests"
