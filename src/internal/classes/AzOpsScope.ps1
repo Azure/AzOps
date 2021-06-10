@@ -121,7 +121,7 @@
     hidden [void] InitializeMemberVariablesFromFile([System.IO.FileInfo]$Path) {
         if (-not $Path.Exists) { throw 'Invalid Input!' }
 
-        if ($Path.Extension -ne '.json' -and $Path.Extension -ne '.jsonc') {
+        if ($Path.Extension -notin '.json', '.jsonc') {
             # Try to determine based on directory
             Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.NotJson' -StringValues $Path -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
             $this.InitializeMemberVariablesFromDirectory($Path.Directory)
