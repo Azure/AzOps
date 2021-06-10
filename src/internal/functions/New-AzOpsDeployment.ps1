@@ -29,7 +29,7 @@
     param (
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
-        $DeploymentName = "azops-template-deployment",
+        $DeploymentName = "AzOps.Deployment",
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
@@ -79,9 +79,8 @@
         if ($scopeObject.resourcegroup) {
             Set-AzOpsContext -ScopeObject $scopeObject
             if ($templateContent.resources[0].type -eq 'Microsoft.Resources/resourceGroups') {
-                # Since this is a deployment for resource group, it must be invoked at subscription scope
+                # Resource Group Creation - Requires Subscription Deployment
                 $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-                Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
@@ -97,33 +96,26 @@
                 }
 
                 # Validate Template
-                $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-                if ($resultsError) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                }
-                elseif ($results.Error) {
+                $results = Test-AzResourceGroupDeployment @parameters
+                if ($results) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                     return
                 }
-                else {
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
-                    Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
-                }
 
+                Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
                     New-AzDeployment @parameters
                 }
                 else {
-                    # Exit deployment
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                    $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                    Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
                 }
             }
             else {
-                Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
-                
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
                     'SkipTemplateParameterPrompt' = $true
@@ -133,25 +125,14 @@
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
                 }
 
-                $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-                if ($resultsError) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                    if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                        $invalidTemplate = $true
-                    }
-                }
-                elseif ($results.Error) {
+                # Validate Template
+                $results = Test-AzDeployment @parameters
+                if ($results) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                     return
                 }
-                else {
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
-                    Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
-                }
 
+                Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start ResourceGroup Deployment?")) {
                     if (-not $invalidTemplate) {
@@ -159,8 +140,12 @@
                     }
                 }
                 else {
-                    # Exit deployment
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                    $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                    Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
+
                 }
             }
         }
@@ -168,7 +153,6 @@
         #region Subscription
         elseif ($scopeObject.subscription) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
                 Set-AzOpsContext -ScopeObject $scopeObject
@@ -183,32 +167,23 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
-                    $invalidTemplate = $true
-                }
-            }
-            elseif ($results.Error) {
+            # Validate Template
+            $results = Test-AzDeployment @parameters
+            if ($results) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
+            }
+
+            Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            $parameters.Name = $DeploymentName
+            if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
+                New-AzDeployment @parameters
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
                 Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
-            }
-
-            $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                if (-not $invalidTemplate) {
-                    New-AzDeployment @parameters
-                }
-            }
-            else {
-                # Exit deployment
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
@@ -216,7 +191,6 @@
         #region Management Group
         elseif ($scopeObject.managementGroup) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'                = $TemplateFilePath
@@ -228,40 +202,30 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
-                    $invalidTemplate = $true
-                }
-            }
-            elseif ($results.Error) {
+            # Validate Template
+            $results = Test-AzManagementGroupDeployment @parameters
+            if ($results) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
+            }
+
+            Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            $parameters.Name = $DeploymentName
+            if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
+                New-AzManagementGroupDeployment @parameters
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
                 Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
-            }
-
-            $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
-                if (-not $invalidTemplate) {
-                    New-AzManagementGroupDeployment @parameters
-                }
-            }
-            else {
-                # Exit deployment
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #endregion Management Group
-        #region Root
+        #region Tenant
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'                = $TemplateFilePath
@@ -272,31 +236,27 @@
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
 
-            $results = Get-AzDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-            }
-            elseif ($results.Error) {
+            # Validate Template
+            $results = Test-AzTenantDeployment @parameters
+            if ($results) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
                 return
             }
-            else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
-                Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
-            }
 
+            Write-PSFMessage -String 'New-AzOpsDeployment.Tenant.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
                 New-AzTenantDeployment @parameters
             }
             else {
-                # Exit deployment
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                $output = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, ($results.Changes | ConvertTo-Json -Depth 5)
+                Set-Content -Path '/tmp/OUTPUT.md' -Value $output -WhatIf:$false
             }
         }
-        #endregion Root
+        #endregion Tenant
         #region Unidentified
         else {
             Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Unidentified' -Target $scopeObject -StringValues $scopeObject
