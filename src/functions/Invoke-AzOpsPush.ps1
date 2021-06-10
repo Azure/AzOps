@@ -62,7 +62,7 @@
             }
 
             $fileItem = Get-Item -Path $FilePath
-            if ($fileItem.Extension -notin '.json' , '.bicep') {
+            if ($fileItem.Extension -notin '.json', '.jsonc', '.bicep') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
