@@ -16,12 +16,7 @@ Describe "Push" {
 
     BeforeAll {
 
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
-
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
@@ -52,7 +47,7 @@ Describe "Push" {
         $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
         $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
         $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
-        $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
+        $script:subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
 
         #
@@ -105,19 +100,46 @@ Describe "Push" {
         # Copy templates
         #
 
+        $path = Join-Path -Path $global:testroot -ChildPath "artifacts/management.jsonc"
+        Copy-Item -Path $path -Destination "$script:testManagementGroupDirectory"
+
+        #
+        # Changes
+        #
+
+        $changes = @(
+            "A	root/tenant root group ($script:tenantId)/test ($($script:testManagementGroup.Name))/management.jsonc"
+        )
+
+        #
+        # Push
+        #
+
+        Invoke-AzOpsPush -ChangeSet $changes
+
+        #
+        # Pull
+        #
+
+        try {
+            Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
+            throw
+        }
+
     }
 
     Context "Test" {
-
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
 
         $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
+        It "Invalid should exist" {
+            $true | Should -BeTrue
+        }
 
     }
 

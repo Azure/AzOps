@@ -16,7 +16,7 @@ Describe "Pull" {
 
     BeforeAll {
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
@@ -47,7 +47,7 @@ Describe "Pull" {
         $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
         $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
         $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
-        $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
+        $script:subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
 
         #
@@ -100,7 +100,7 @@ Describe "Pull" {
 
     Context "Test" {
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
