@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {
+        "apiVersion": "2020-05-01",
+        "displayName": "Test"
+    },
+    "resources": [
+        // Management Group - Test - Pipeline
+        {
+            "type": "Microsoft.Management/managementGroups",
+            "name": "[guid('Pipeline')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "scope": "/",
+            "properties": {
+                "displayName": "Pipeline",
+                "details": {
+                    "parent": {
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
