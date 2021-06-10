@@ -30,7 +30,7 @@
             }
         }
         else {
-            Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
+            $null = Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
         }
 
         Write-PSFMessage -Level Verbose -Message "Creating Management Group structure" -FunctionName "BeforeAll"
