@@ -14,12 +14,22 @@
 
     $Include = "*",
 
-    $Exclude = "Help.Tests.ps1"
+    $Exclude = @("Help.Tests.ps1", "Generic.Tests.ps1", "Push.Tests.ps1")
 )
 
-Write-PSFMessage -Level Important -Message "Starting Tests"
+Write-PSFMessage -Level Important -Message "Checking environment"
+if ($null -eq $env:ARM_TENANT_ID) {
+    Write-PSFMessage -Level Critical -Message "Unset variable ARM_TENANT_ID"
+    continue
+}
+if ($null -eq $env:ARM_SUBSCRIPTION_ID) {
+    Write-PSFMessage -Level Critical -Message "Unset variable ARM_SUBSCRIPTION_ID"
+    continue
+}
 
-Write-PSFMessage -Level Important -Message "Importing Module"
+Write-PSFMessage -Level Important -Message "Starting tests"
+
+Write-PSFMessage -Level Important -Message "Importing module"
 
 $global:testroot = $PSScriptRoot
 $global:__pester_data = @{ }
@@ -32,7 +42,7 @@ Import-Module "$PSScriptRoot/../src/AzOps.psm1" -Scope Global -Force
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester
 
-Write-PSFMessage -Level Important -Message "Creating test results folder"
+Write-PSFMessage -Level Important -Message "Creating results folder"
 $null = New-Item -Path "$PSScriptRoot/.." -Name results -ItemType Directory -Force
 
 $totalFailed = 0
