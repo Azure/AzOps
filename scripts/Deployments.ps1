@@ -41,7 +41,7 @@
         }
         $params = @{
             ManagementGroupId       = "$script:tenantId"
-            Name                    = "AzOps-Tests"
+            Name                    = "AzOps.Deployment"
             TemplateFile            = "$templateFile"
             TemplateParameterObject = $templateParameters
             Location                = "northeurope"
