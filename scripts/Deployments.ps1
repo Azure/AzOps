@@ -1,66 +1,102 @@
 ﻿function New-Deployment {
 
+    [CmdletBinding()]
     param ()
 
-    process {
-        Write-PSFMessage -Level Verbose -Message "Deploying test environment" -FunctionName "New-Deployment"
-
-        $script:repositoryRoot = (Resolve-Path "$PSScriptRoot/..").Path
-        $script:testRoot = (Join-Path -Path $script:repositoryRoot -ChildPath "tests")
-        $script:tenantId = $env:ARM_TENANT_ID
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
-
-        if ($null -eq $script:tenantId) {
-            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
-            throw
-        }
-        if ($null -eq $script:subscriptionId) {
-            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_SUBSCRIPTION_ID"
-            throw
-        }
-
-        Write-PSFMessage -Level Verbose -Message "Validating Azure context" -FunctionName "BeforeAll"
-        $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ($tenant -inotcontains "$script:tenantId") {
-            Write-PSFMessage -Level Verbose -Message "Authenticating Azure session" -FunctionName "BeforeAll"
-            if ($env:USER -eq "vsts") {
-                # Platform: Azure Pipelines
-                $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
-                $null = Connect-AzAccount -TenantId $script:tenantId -ServicePrincipal -Credential $credential -SubscriptionId $script:subscriptionId -WarningAction SilentlyContinue
+    begin {
+        function Connect-Account {
+            process {
+                Write-PSFMessage -Level Verbose -Message "Validating context"
+                $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
+                if ($tenant -inotcontains "$($env:ARM_TENANT_ID)") {
+                    Write-PSFMessage -Level Verbose -Message "Authenticating session"
+                    if ($env:USER -eq "vsts") {
+                        # Platform: Azure Pipelines
+                        $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+                        $null = Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID -WarningAction SilentlyContinue
+                    }
+                }
+                else {
+                    Write-PSFMessage -Level Verbose -Message "Setting context"
+                    $null = Set-AzContext -TenantId $env:ARM_TENANT_ID -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+                }
             }
         }
-        else {
-            $null = Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
+    }
+
+    process {
+        Write-PSFMessage -Level Verbose -Message "Deploying test environment"
+
+        if ($null -eq $env:ARM_TENANT_ID) {
+            Write-PSFMessage -Level Critical -Message "Unset variable ARM_TENANT_ID"
+            continue
+        }
+        if ($null -eq $env:ARM_SUBSCRIPTION_ID) {
+            Write-PSFMessage -Level Critical -Message "Unset variable ARM_SUBSCRIPTION_ID"
+            continue
         }
 
-        Write-PSFMessage -Level Verbose -Message "Creating Management Group structure" -FunctionName "BeforeAll"
-        $templateFile = Join-Path -Path $global:testroot -ChildPath "artifacts/azuredeploy.jsonc"
+        $tenantId = $env:ARM_TENANT_ID
+        $subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $managementGroupName = "Tests"
+        $resourceGroupName = "Application-0"
+
+        Connect-Account
+
+        $repositoryRoot = (Resolve-Path "$PSScriptRoot/..").Path
+        $testRoot = (Join-Path -Path $repositoryRoot -ChildPath "tests")
+        $templateFile = Join-Path -Path $testroot -ChildPath "artifacts/azuredeploy.jsonc"
+
         $templateParameters = @{
-            "tenantId"       = "$script:tenantId"
-            "subscriptionId" = "$script:subscriptionId"
+            "tenantId"       = "$tenantId"
+            "subscriptionId" = "$subscriptionId"
+            "managementGroupName" = "$managementGroupName"
+            "resourceGroupName" = "$resourceGroupName"
         }
         $params = @{
-            ManagementGroupId       = "$script:tenantId"
-            Name                    = "AzOps.Deployment"
+            ManagementGroupId       = "$tenantId"
+            Name                    = "AzOps.Tests"
             TemplateFile            = "$templateFile"
             TemplateParameterObject = $templateParameters
             Location                = "northeurope"
         }
+
+        Write-PSFMessage -Level Verbose -Message "Creating Management Group structure"
         try {
             New-AzManagementGroupDeployment @params
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Deployment failed" -Exception $_.Exception
-            throw
+            continue
         }
+
     }
 
 }
 function Remove-Deployment {
 
+    [CmdletBinding()]
     param()
 
     begin {
+        function Connect-Account {
+            process {
+                Write-PSFMessage -Level Verbose -Message "Validating context"
+                $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
+                if ($tenant -inotcontains "$($env:ARM_TENANT_ID)") {
+                    Write-PSFMessage -Level Verbose -Message "Authenticating session"
+                    if ($env:USER -eq "vsts") {
+                        # Platform: Azure Pipelines
+                        $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+                        $null = Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID -WarningAction SilentlyContinue
+                    }
+                }
+                else {
+                    Write-PSFMessage -Level Verbose -Message "Setting context"
+                    $null = Set-AzContext -TenantId $env:ARM_TENANT_ID -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+                }
+            }
+        }
         function Remove-ManagementGroups {
 
             param (
@@ -88,14 +124,14 @@ function Remove-Deployment {
                             Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
                         }
                         if ($_.Type -eq '/subscriptions') {
-                            Write-PSFMessage -Level Verbose -Message "Moving Subscription: $($_.Name)" -FunctionName "AfterAll"
+                            Write-PSFMessage -Level Verbose -Message "Moving $($_.Name)"
                             # Move Subscription resource to Tenant Root Group
                             New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
                         }
                     }
                 }
 
-                Write-PSFMessage -Level Verbose -Message "Removing Management Group: $($DisplayName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Removing $($DisplayName)"
                 Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
             }
 
@@ -113,11 +149,11 @@ function Remove-Deployment {
             )
 
             process {
-                Write-PSFMessage -Level Verbose -Message "Setting Context: $($SubscriptionName)" -FunctionName "AfterAll"
+                Write-PSFMessage -Level Verbose -Message "Setting Context: $($SubscriptionName)"
                 Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group: $($_)" -FunctionName "AfterAll"
+                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group: $($_)"
                     Remove-AzResourceGroup -Name $_ -Force
                 }
             }
@@ -126,20 +162,34 @@ function Remove-Deployment {
     }
 
     process {
-        Write-PSFMessage -Level Verbose -Message "Removing test environment" -FunctionName "Remove-Deployment"
+        Write-PSFMessage -Level Verbose -Message "Removing test environment"
 
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
-
-        $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
-        if ($managementGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
-            Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
+        if ($null -eq $env:ARM_TENANT_ID) {
+            Write-PSFMessage -Level Critical -Message "Unset variable ARM_TENANT_ID"
+            continue
+        }
+        if ($null -eq $env:ARM_SUBSCRIPTION_ID) {
+            Write-PSFMessage -Level Critical -Message "Unset variable ARM_SUBSCRIPTION_ID"
+            continue
         }
 
-        $resourceGroup = Get-AzResourceGroup -Name "Application"
+        $tenantId = $env:ARM_TENANT_ID
+        $subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $managementGroupName = "Test"
+        $resourceGroupName = "Application-0"
+
+        Connect-Account
+
+        $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq $managementGroupName
+        if ($managementGroup) {
+            Write-PSFMessage -Level Verbose -Message "Removing Management Group structure"
+            Remove-ManagementGroups -DisplayName $managementGroupName -Name $managementGroup.Name -RootName $tenantId
+        }
+
+        $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
         if ($resourceGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
-            $subscription = Get-AzSubscription -SubscriptionId $script:subscriptionId
+            Write-PSFMessage -Level Verbose -Message "Removing Resource Groups"
+            $subscription = Get-AzSubscription -SubscriptionId $subscriptionId
             Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
         }
     }
