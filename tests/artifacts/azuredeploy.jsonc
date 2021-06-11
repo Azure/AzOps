@@ -84,7 +84,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
             ]
         },
-        // Subscription - Test - Platform - Management - Subscription-0
+        // Subscription - Test - Platform - Management - AzOps
         {
             "type": "Microsoft.Management/managementGroups/subscriptions",
             "name": "[concat(guid('Management'), '/', parameters('subscriptionId'))]",
@@ -94,11 +94,11 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
             ]
         },
-        // Resource Group - Test - Platform - Management - Subscription-0 - Application
+        // Resource Group - Test - Platform - Management - AzOps - Application-0
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
-            "name": "AzOps-Tests-Nested",
+            "name": "AzOps.Deployment.Nested",
             "subscriptionId": "[parameters('subscriptionId')]",
             "location": "northeurope",
             "properties": {
@@ -110,7 +110,7 @@
                         {
                             "type": "Microsoft.Resources/resourceGroups",
                             "apiVersion": "2019-10-01",
-                            "name": "Application",
+                            "name": "Application-0",
                             "location": "northeurope"
                         }
                     ]
