@@ -3,8 +3,8 @@
 #
 
 # This script has been converted to tabs
-# when invoking the AzOpsChange cmdlet the
-# git diff needs to include a tab otherwise
+# when invoking the AzOpsPush cmdlet the
+# Git diff needs to include a tab otherwise
 # the expression won't detect the file.
 
 #
@@ -14,11 +14,6 @@
 $ErrorActionPreference = "Stop"
 #$VerbosePreference = "Continue"
 #$DebugPreference = "Continue"
-
-#
-# Context
-#
-
 
 #
 # Config
@@ -39,8 +34,7 @@ Import-Module ./src/AzOps.psd1 -Force
 # Initialize
 #
 
-#Initialize-AzOpsEnvironment
-Initialize-AzOpsRepository -Rebuild
+Initialize-AzOpsEnvironment
 
 #
 # Internal
@@ -57,8 +51,5 @@ Initialize-AzOpsRepository -Rebuild
 # $managementId = ""
 # $subscriptionId = ""
 
-# $change = "A	root/tenant root group ($tenantId)/azuredeploy.json"
-
-# $module.Invoke( {
-# 		Invoke-AzOpsChange -ChangeSet ""
-# 	})
+#$change = "A	root/tenant root group ($tenantId)/test ()/management.jsonc"
+Invoke-AzOpsPush -ChangeSet $change
