@@ -7,22 +7,27 @@
         },
         "subscriptionId": {
             "type": "string"
+        },
+        "managementGroupName": {
+            "type": "string"
+        },
+        "resourceGroupName": {
+            "type": "string"
         }
     },
     "functions": [],
     "variables": {
-        "apiVersion": "2020-05-01",
-        "displayName": "Test"
+        "apiVersion": "2020-05-01"
     },
     "resources": [
-        // Management Group - Test
+        // Management Group - Tests
         {
             "type": "Microsoft.Management/managementGroups",
-            "name": "[guid(variables('displayName'))]",
+            "name": "[guid(parameters('managementGroupName'))]",
             "apiVersion": "[variables('apiVersion')]",
             "scope": "/",
             "properties": {
-                "displayName": "[variables('displayName')]",
+                "displayName": "[parameters('managementGroupName')]",
                 "details": {
                     "parent": {
                         "id": "[resourceId('Microsoft.Management/managementGroups', parameters('tenantId'))]"
@@ -30,7 +35,7 @@
                 }
             }
         },
-        // Management Group - Test - Platform
+        // Management Group - Tests - Platform
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Platform')]",
@@ -40,15 +45,15 @@
                 "displayName": "Platform",
                 "details": {
                     "parent": {
-                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
             ]
         },
-        // Management Group - Test - Platform - Connectivity
+        // Management Group - Tests - Platform - Connectivity
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Connectivity')]",
@@ -66,7 +71,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
             ]
         },
-        // Management Group - Test - Platform - Management
+        // Management Group - Tests - Platform - Management
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Management')]",
@@ -84,7 +89,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
             ]
         },
-        // Subscription - Test - Platform - Management - AzOps
+        // Subscription - Tests - Platform - Management - AzOps
         {
             "type": "Microsoft.Management/managementGroups/subscriptions",
             "name": "[concat(guid('Management'), '/', parameters('subscriptionId'))]",
@@ -94,7 +99,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
             ]
         },
-        // Resource Group - Test - Platform - Management - AzOps - Application-0
+        // Resource Group - Tests - Platform - Management - AzOps - Application-0
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
@@ -110,14 +115,14 @@
                         {
                             "type": "Microsoft.Resources/resourceGroups",
                             "apiVersion": "2019-10-01",
-                            "name": "Application-0",
+                            "name": "[parameters('resourceGroupName')]",
                             "location": "northeurope"
                         }
                     ]
                 }
             }
         },
-        // Management Group - Test - Platform - Identity
+        // Management Group - Tests - Platform - Identity
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Identity')]",
@@ -135,7 +140,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Platform'))]"
             ]
         },
-        // Management Group - Test - Landing Zones
+        // Management Group - Tests - Landing Zones
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Landing-Zones')]",
@@ -145,15 +150,15 @@
                 "displayName": "Landing-Zones",
                 "details": {
                     "parent": {
-                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
             ]
         },
-        // Management Group - Test - Landing Zones - SAP
+        // Management Group - Tests - Landing Zones - SAP
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('SAP')]",
@@ -171,7 +176,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
             ]
         },
-        // Management Group - Test - Landing Zones - Online
+        // Management Group - Tests - Landing Zones - Online
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Online')]",
@@ -189,7 +194,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
             ]
         },
-        // Management Group - Test - Landing Zones - Corp
+        // Management Group - Tests - Landing Zones - Corp
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Corp')]",
@@ -207,7 +212,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Landing-Zones'))]"
             ]
         },
-        // Management Group - Test - Sandboxes
+        // Management Group - Tests - Sandboxes
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Sandboxes')]",
@@ -217,15 +222,15 @@
                 "displayName": "Sandboxes",
                 "details": {
                     "parent": {
-                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
             ]
         },
-        // Management Group - Test - Decomissioned
+        // Management Group - Tests - Decomissioned
         {
             "type": "Microsoft.Management/managementGroups",
             "name": "[guid('Decomissioned')]",
@@ -235,19 +240,19 @@
                 "displayName": "Decomissioned",
                 "details": {
                     "parent": {
-                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                        "id": "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
                     }
                 }
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Management/managementGroups', guid(variables('displayName')))]"
+                "[resourceId('Microsoft.Management/managementGroups', guid(parameters('managementGroupName')))]"
             ]
         }
     ],
     "outputs": {
         "testManagementGroup": {
             "type": "string",
-            "value": "[guid(variables('displayName'))]"
+            "value": "[guid(parameters('managementGroupName'))]"
         },
         "platformManagementGroup": {
             "type": "string",
