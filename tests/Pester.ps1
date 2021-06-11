@@ -1,7 +1,7 @@
 ﻿param (
-    $TestGeneral = $true,
+    $TestGeneral = $false,
 
-    $TestStatic = $true,
+    $TestStatic = $false,
 
     $TestUnit = $false,
 
