@@ -16,9 +16,9 @@ Describe "Push" {
 
     BeforeAll {
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
-        $script:tenantId = $env:ARM_TENANT_ID
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $repositoryRoot = (Resolve-Path "$global:testroot/..").Path
+        $tenantId = $env:ARM_TENANT_ID
+        $subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
         #
         # Invoke the Invoke-AzOpsPull
@@ -43,12 +43,12 @@ Describe "Push" {
         # the filesystem are aligned.
         #
 
-        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
-        $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
-        $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
-        $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
-        $script:subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $script:subscriptionId)
-        $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
+        $managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$tenantId" -Name "AzOps-Tests")
+        $testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($managementGroupDeployment.Outputs.testManagementGroup.value)")
+        $platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($managementGroupDeployment.Outputs.platformManagementGroup.value)")
+        $managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($managementGroupDeployment.Outputs.managementManagementGroup.value)")
+        $subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $subscriptionId)
+        $resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
 
         #
         # The following values are discovering the file
@@ -59,67 +59,66 @@ Describe "Push" {
         #
 
         #region Paths
-        $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
+        $generatedRootPath = Join-Path -Path $repositoryRoot -ChildPath "root"
         Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "BeforeAll"
 
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
-        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:tenantId).json")
-        $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
-        $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName "BeforeAll"
+        $tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($tenantId).json")
+        $tenantRootGroupDirectory = ($tenantRootGroupPath).Directory
+        $tenantRootGroupFile = ($tenantRootGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($tenantRootGroupFile)" -FunctionName "BeforeAll"
 
-        $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:testManagementGroup.Name).json")
-        $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
-        $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
+        $testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($testManagementGroup.Name).json")
+        $testManagementGroupDirectory = ($testManagementGroupPath).Directory
+        $testManagementGroupFile = ($testManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($testManagementGroupFile)" -FunctionName "BeforeAll"
 
-        $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:platformManagementGroup.Name).json")
-        $script:platformManagementGroupDirectory = ($script:platformManagementGroupPath).Directory
-        $script:platformManagementGroupFile = ($script:platformManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName "BeforeAll"
+        $platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($platformManagementGroup.Name).json")
+        $platformManagementGroupDirectory = ($platformManagementGroupPath).Directory
+        $platformManagementGroupFile = ($platformManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($platformManagementGroupFile)" -FunctionName "BeforeAll"
 
-        $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:managementManagementGroup.Name).json")
-        $script:managementManagementGroupDirectory = ($script:managementManagementGroupPath).Directory
-        $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "BeforeAll"
+        $managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($managementManagementGroup.Name).json")
+        $managementManagementGroupDirectory = ($managementManagementGroupPath).Directory
+        $managementManagementGroupFile = ($managementManagementGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($managementManagementGroupFile)" -FunctionName "BeforeAll"
 
+        $subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($subscription.Id).json")
+        $subscriptionDirectory = ($subscriptionPath).Directory
+        $subscriptionFile = ($subscriptionPath).FullName
+        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($subscriptionFile)" -FunctionName "BeforeAll"
 
-        $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($script:subscription.Id).json")
-        $script:subscriptionDirectory = ($script:subscriptionPath).Directory
-        $script:subscriptionFile = ($script:subscriptionPath).FullName
-        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "BeforeAll"
-
-        $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($script:resourceGroup.ResourceGroupName).json")
-        $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
-        $script:resourceGroupFile = ($script:resourceGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
+        $resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($resourceGroup.ResourceGroupName).json")
+        $resourceGroupDirectory = ($resourceGroupPath).Directory
+        $resourceGroupFile = ($resourceGroupPath).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($resourceGroupFile)" -FunctionName "BeforeAll"
         #endregion Paths
 
         #
         # Copy templates
         #
 
-        $path = Join-Path -Path $global:testroot -ChildPath "artifacts/management.jsonc"
-        Copy-Item -Path $path -Destination "$script:testManagementGroupDirectory"
-
-        #
-        # Changes
-        #
-
-        $changes = @(
-            "A	root/tenant root group ($script:tenantId)/test ($($script:testManagementGroup.Name))/management.jsonc"
-        )
+        $artifactsPath = Join-Path -Path $global:testroot -ChildPath "artifacts/"
+        Copy-Item -Path (Join-Path -Path $artifactsPath -ChildPath "tenant.jsonc") -Destination $tenantRootGroupDirectory
+        Copy-Item -Path (Join-Path -Path $artifactsPath -ChildPath "management.jsonc") -Destination $managementManagementGroupDirectory
+        Copy-Item -Path (Join-Path -Path $artifactsPath -ChildPath "subscription.jsonc") -Destination $subscriptionDirectory
+        Copy-Item -Path (Join-Path -Path $artifactsPath -ChildPath "resource.jsonc") -Destination $resourceGroupDirectory
 
         #
         # Push
         #
 
-        Invoke-AzOpsPush -ChangeSet $changes
+        $changes = @(
+            "A	root/tenant root group ($tenantId)/tenant.jsonc"
+            "A	root/tenant root group ($tenantId)/test ($($testManagementGroup.Name))/management.jsonc"
+            "A	root/tenant root group ($tenantId)/test ($($testManagementGroup.Name))/platform ($($platformManagementGroup.Name))/management ($($managementManagementGroup.Name))/subscription.jsonc"
+            "A	root/tenant root group ($tenantId)/test ($($testManagementGroup.Name))/platform ($($platformManagementGroup.Name))/management ($($managementManagementGroup.Name))/azops ($($subscription.SubscriptionId))/application/resource.jsonc"
+        )
 
-        #
-        # Pull
-        #
+        $changes | ForEach-Object {
+            Invoke-AzOpsPush -ChangeSet $_
+        }
 
         try {
             Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
@@ -133,9 +132,18 @@ Describe "Push" {
 
     Context "Test" {
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
-        $script:tenantId = $env:ARM_TENANT_ID
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $tenantId = $env:ARM_TENANT_ID
+        $subscriptionId = $env:ARM_SUBSCRIPTION_ID
+
+        # Resource Group Deployment
+
+        # Subscription Deployment
+
+        # Management Group Deployment
+
+        # Tenant Deployment
+
 
         It "Invalid should exist" {
             $true | Should -BeTrue
