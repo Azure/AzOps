@@ -27,12 +27,12 @@ Describe "Pull" {
         # is correct and data model hasn't changed.
         #
 
-        Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Important -Message "  Generating folder structure" -FunctionName "Pull.Tests.ps1"
         try {
             Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
         }
         catch {
-            Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
+            Write-PSFMessage -Level Critical -Message "Pull failed" -Exception $_.Exception
             throw
         }
 
@@ -43,12 +43,15 @@ Describe "Pull" {
         # the filesystem are aligned.
         #
 
-        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
+        #region Scopes
+        Write-PSFMessage -Level Important -Message "  Retrieiving resource data" -FunctionName "Pull.Tests.ps1"
+        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps.Tests")
         $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
         $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
         $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
         $script:subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
+        #endregion Scopes
 
         #
         # The following values are discovering the file
@@ -100,9 +103,9 @@ Describe "Pull" {
 
     Context "Test" {
 
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
-        $script:tenantId = $env:ARM_TENANT_ID
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        #$script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
+        #$script:tenantId = $env:ARM_TENANT_ID
+        #$script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
         #region
         # Scope - Root (./root)
