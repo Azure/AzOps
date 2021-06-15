@@ -28,7 +28,7 @@
     )
 
     begin {
-        $subscriptions = Get-AzSubscription
+        $subscriptions = Get-AzSubscription -WarningAction SilentlyContinue
         $enrollmentAccounts = Get-AzEnrollmentAccount
     }
 
