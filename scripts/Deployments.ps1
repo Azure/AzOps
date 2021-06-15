@@ -48,10 +48,10 @@
         $templateFile = Join-Path -Path $testroot -ChildPath "artifacts/azuredeploy.jsonc"
 
         $templateParameters = @{
-            "tenantId"       = "$tenantId"
-            "subscriptionId" = "$subscriptionId"
+            "tenantId"            = "$tenantId"
+            "subscriptionId"      = "$subscriptionId"
             "managementGroupName" = "$managementGroupName"
-            "resourceGroupName" = "$resourceGroupName"
+            "resourceGroupName"   = "$resourceGroupName"
         }
         $params = @{
             ManagementGroupId       = "$tenantId"
@@ -150,7 +150,7 @@ function Remove-Deployment {
 
             process {
                 Write-PSFMessage -Level Verbose -Message "Setting Context: $($SubscriptionName)"
-                Set-AzContext -SubscriptionName $subscriptionName
+                $null = Set-AzContext -SubscriptionName $subscriptionName
 
                 $ResourceGroupNames | ForEach-Object {
                     Write-PSFMessage -Level Verbose -Message "Removing Resource Group: $($_)"
