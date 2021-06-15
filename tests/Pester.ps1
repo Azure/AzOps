@@ -14,7 +14,7 @@
 
     $Include = "*",
 
-    $Exclude = @("Help.Tests.ps1", "Generic.Tests.ps1", "Push.Tests.ps1")
+    $Exclude = @("Help.Tests.ps1", "Generic.Tests.ps1", "Pull.Tests.ps1")
 )
 
 Write-PSFMessage -Level Important -Message "Checking environment"
