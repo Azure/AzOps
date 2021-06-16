@@ -370,7 +370,7 @@
             }
         }
         else {
-            Write-PSFMessage -Level Error -String 'AzOpsScope.GetAzOpsManagementGroupPath.NotFound' -StringValues $managementgroupName -FunctionName AzOpsScope -ModuleName AzOps
+            Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.GetAzOpsManagementGroupPath.NotFound' -StringValues $managementgroupName -FunctionName AzOpsScope -ModuleName AzOps
             throw "Management Group not found: $managementgroupName"
         }
     }
