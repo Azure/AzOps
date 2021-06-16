@@ -17,7 +17,7 @@
                 "displayName": "Pipeline",
                 "details": {
                     "parent": {
-                        "id": "[resourceId('Microsoft.Management/managementGroups', variables('tenantId'))]"
+                        "id": "[concat('/providers/Microsoft.Management/managementGroups/', variables('tenantId'))]"
                     }
                 }
             }
