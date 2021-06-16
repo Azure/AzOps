@@ -4,8 +4,7 @@
     "parameters": {},
     "functions": [],
     "variables": {
-        "apiVersion": "2020-05-01",
-        "tenantId": "5663f39e-feb1-4303-a1f9-cf20b702de61"
+        "apiVersion": "2020-05-01"
     },
     "resources": [
         {
@@ -17,7 +16,7 @@
                 "displayName": "Pipeline",
                 "details": {
                     "parent": {
-                        "id": "[concat('/providers/Microsoft.Management/managementGroups/', variables('tenantId'))]"
+                        "id": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Tests'))]"
                     }
                 }
             }
