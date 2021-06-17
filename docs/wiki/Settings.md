@@ -9,16 +9,15 @@ The following configuration values can be modified within the `settings.json` fi
 | 05 | EnrollmentAccountPrincipalName       | Default enrollment account for Subscription creation         |
 | 06 | ExcludedSubOffer                     | Exclude speicific Subscription offer types from creation     |
 | 07 | ExcludedSubState                     | Exclude specific Subscription states from creation           |
-| 08 | ExportRawTemplate                    |                                                              |
-| 10 | IgnoreContextCheck                   | Skip Azure PowerShell context validation                     |
-| 11 | InvalidateCache                      |                                                              |
-| 14 | OfferType                            | Default offer type for Subscriptions creation                |
-| 15 | PartialMgDiscoveryRoot               | Generate folder hierachy for specific Management Groups      |
-| 16 | SkipPolicy                           | Generate template files for Policy types                     |
-| 17 | SkipResource                         | Generate template files for Resources within Resource Groups |
-| 18 | SkipResourceGroup                    | Generate folder hierachy for all Resource Groups             |
-| 19 | SkipRole                             | Generate template files for Role types                       |
-| 20 | State                                | Default top level folder name within the repository          |
-| 21 | SubscriptionsToIncludeResourceGroups | Generate folder hierachy for specific Resource Groups        |
-| 23 | TemplateParameterFileSuffix          | Default template file suffix                                 |
-| 24 | ThrottleLimit                        |                                                              |
+| 08 | IgnoreContextCheck                   | Skip Azure PowerShell context validation                     |
+| 09 | InvalidateCache                      |                                                              |
+| 10 | OfferType                            | Default offer type for Subscriptions creation                |
+| 11 | PartialMgDiscoveryRoot               | Generate folder hierachy for specific Management Groups      |
+| 12 | SkipPolicy                           | Generate template files for Policy types                     |
+| 13 | SkipResource                         | Generate template files for Resources within Resource Groups |
+| 14 | SkipResourceGroup                    | Generate folder hierachy for all Resource Groups             |
+| 15 | SkipRole                             | Generate template files for Role types                       |
+| 16 | State                                | Default top level folder name within the repository          |
+| 17 | SubscriptionsToIncludeResourceGroups | Generate folder hierachy for specific Resource Groups        |
+| 18 | TemplateParameterFileSuffix          | Default template file suffix                                 |
+| 19 | ThrottleLimit                        |                                                              |

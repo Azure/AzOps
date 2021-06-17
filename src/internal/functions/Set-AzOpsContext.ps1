@@ -12,7 +12,7 @@
             Changes the current context to the subscription of $scopeObject.
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Mandatory = $true)]
         [AzOpsScope]

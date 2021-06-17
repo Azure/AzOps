@@ -71,7 +71,7 @@
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Processing'
         $currentAzContext = Get-AzContext
         $tenantId = $currentAzContext.Tenant.Id
-        $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
+        #$rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
 
         Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Initializing'
         if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.State'))) {

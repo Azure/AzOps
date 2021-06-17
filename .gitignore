@@ -6,6 +6,7 @@
 *.code-workspace
 !.vscode/launch.json
 !.vscode/settings.json
+!.vscode/tasks.json
 !.devcontainer/*
 
 # Visual Studio

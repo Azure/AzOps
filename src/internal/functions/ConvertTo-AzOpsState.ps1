@@ -13,8 +13,6 @@
             ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
         .PARAMETER ReturnObject
             Used if to return object in pipeline instead of exporting file
-        .PARAMETER ExportRawTemplate
-            Used in cases you want to return the template without the custom parameters json schema
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
@@ -48,9 +46,6 @@
 
         [switch]
         $ReturnObject,
-
-        [switch]
-        $ExportRawTemplate,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]

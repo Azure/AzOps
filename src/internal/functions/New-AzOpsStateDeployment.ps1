@@ -17,10 +17,10 @@
             Deploys the specified set of ARM templates into Azure.
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [ValidateScript({ Test-Path $_ })]
+        [ValidateScript( { Test-Path $_ })]
         $FileName,
 
         [string]

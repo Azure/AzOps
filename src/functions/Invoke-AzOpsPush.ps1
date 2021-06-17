@@ -16,7 +16,7 @@
             Applies a change to Azure from the AzOps configuration.
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     [Alias("Invoke-AzOpsChange")]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -62,7 +62,7 @@
             }
 
             $fileItem = Get-Item -Path $FilePath
-            if ($fileItem.Extension -notin '.json' , '.bicep') {
+            if ($fileItem.Extension -notin '.json', '.jsonc', '.bicep') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
@@ -226,7 +226,7 @@
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
                 Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
-                continue
+                # continue
             }
             if (-not $scopeObject) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $addition, $StatePath -Target $addition

@@ -1,6 +1,6 @@
 ﻿
 #
-# Repository.Tests.ps1
+# Pull.Tests.ps1
 #
 # The tests within this file validate
 # that the `Invoke-AzOpsPull`
@@ -12,102 +12,15 @@
 # required for invocation.
 #
 
-Describe "Repository" {
+Describe "Pull" {
 
     BeforeAll {
 
-        Write-PSFMessage -Level Verbose -Message "Initializing test environment" -FunctionName "BeforeAll"
-
-        #
-        # Set the error preference
-        #
-
-        $ErrorActionPreference = "Stop"
-
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
-
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
+        $script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
-
-        #
-        # Validate that the runtime variables
-        # are set as they are used to authenticate
-        # the Azure session.
-        #
-
-        if ($null -eq $script:tenantId) {
-            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
-            throw
-        }
-        if ($null -eq $script:subscriptionId) {
-            Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_SUBSCRIPTION_ID"
-            throw
-        }
-
-        #
-        # Ensure PowerShell has an authenticate
-        # Azure Context which the tests can
-        # run within and generate data as needed
-        #
-
-        Write-PSFMessage -Level Verbose -Message "Validationg Azure context" -FunctionName "BeforeAll"
-        $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
-        if ($tenant -inotcontains "$script:tenantId") {
-            Write-PSFMessage -Level Verbose -Message "Authenticating Azure session" -FunctionName "BeforeAll"
-            if ($env:USER -eq "vsts") {
-                # Platform: Azure Pipelines
-                $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
-                $null = Connect-AzAccount -TenantId $script:tenantId -ServicePrincipal -Credential $credential -SubscriptionId $script:subscriptionId -WarningAction SilentlyContinue
-            }
-        }
-        else {
-            Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
-        }
-
-        #
-        # Deploy the Azure environment
-        # based upon prefined resource templates
-        # which will generate a matching
-        # file system hierachy
-        #
-
-        Write-PSFMessage -Level Verbose -Message "Creating Management Group structure" -FunctionName "BeforeAll"
-        $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
-        $templateParameters = @{
-            "tenantId"       = "$script:tenantId"
-            "subscriptionId" = "$script:subscriptionId"
-        }
-        $params = @{
-            ManagementGroupId       = "$script:tenantId"
-            Name                    = "AzOps-Tests"
-            TemplateFile            = "$templateFile"
-            TemplateParameterObject = $templateParameters
-            Location                = "northeurope"
-        }
-        try {
-            New-AzManagementGroupDeployment @params
-        }
-        catch {
-            Write-PSFMessage -Level Critical -Message "Deployment failed" -Exception $_.Exception
-            throw
-        }
-
-        #
-        # Ensure that the root directory
-        # does not exist before running
-        # tests.
-        #
-
-        Write-PSFMessage -Level Verbose -Message "Testing for root directory existence" -FunctionName "BeforeAll"
-        $generatedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "root"
-        if (Test-Path -Path $generatedRoot) {
-            Write-PSFMessage -Level Verbose -Message "Removing root directory" -FunctionName "BeforeAll"
-            Remove-Item -Path $generatedRoot -Recurse
-        }
+        $script:resourceGroupName = "Application-0"
+        $script:deploymentName = "AzOps.Tests"
 
         #
         # Invoke the Invoke-AzOpsPull
@@ -116,14 +29,16 @@ Describe "Repository" {
         # is correct and data model hasn't changed.
         #
 
-        Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
+        #region Pull
+        Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "Pull.Tests.ps1"
         try {
-            Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResource:$true
+            Invoke-AzOpsPull -SkipRole:$true -SkipPolicy:$true -SkipResourceGroup:$false -SkipResource:$true
         }
         catch {
-            Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
+            Write-PSFMessage -Level Critical -Message "Pull failed" -Exception $_.Exception
             throw
         }
+        #endregion Pull
 
         #
         # The following values match the Reosurce Template
@@ -132,12 +47,15 @@ Describe "Repository" {
         # the filesystem are aligned.
         #
 
-        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
+        #region Scopes
+        Write-PSFMessage -Level Verbose -Message "Retrieiving resource data" -FunctionName "Pull.Tests.ps1"
+        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name $script:deploymentName)
         $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
         $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
         $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
-        $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
-        $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
+        $script:subscription = (Get-AzSubscription -WarningAction SilentlyContinue | Where-Object Id -eq $script:subscriptionId)
+        $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq $script:resourceGroupName)
+        #endregion Scopes
 
         #
         # The following values are discovering the file
@@ -149,54 +67,49 @@ Describe "Repository" {
 
         #region Paths
         $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
-        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "Pull.Tests.ps1"
 
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:tenantId).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
         $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName "Pull.Tests.ps1"
 
         $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:testManagementGroup.Name).json")
         $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
         $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "Pull.Tests.ps1"
 
         $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:platformManagementGroup.Name).json")
         $script:platformManagementGroupDirectory = ($script:platformManagementGroupPath).Directory
         $script:platformManagementGroupFile = ($script:platformManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName "Pull.Tests.ps1"
 
         $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:managementManagementGroup.Name).json")
         $script:managementManagementGroupDirectory = ($script:managementManagementGroupPath).Directory
         $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "Pull.Tests.ps1"
 
 
         $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($script:subscription.Id).json")
         $script:subscriptionDirectory = ($script:subscriptionPath).Directory
         $script:subscriptionFile = ($script:subscriptionPath).FullName
-        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "Pull.Tests.ps1"
 
         $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($script:resourceGroup.ResourceGroupName).json")
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
-        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "Pull.Tests.ps1"
         #endregion Paths
 
     }
 
     Context "Test" {
 
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
-
-        $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
-        $script:tenantId = $env:ARM_TENANT_ID
-        $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        #$script:repositoryRoot = (Resolve-Path "$global:testroot/..").Path
+        #$script:tenantId = $env:ARM_TENANT_ID
+        #$script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
         #region
         # Scope - Root (./root)
@@ -362,7 +275,7 @@ Describe "Repository" {
         }
         #endregion
 
-        #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/application)
+        #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/application-0)
         It "Resource Group directory should exist" {
             Test-Path -Path $script:resourceGroupDirectory | Should -BeTrue
         }
@@ -393,85 +306,6 @@ Describe "Repository" {
 
     }
 
-    AfterAll {
-
-        function Remove-ManagementGroups {
-
-            param (
-                [Parameter()]
-                [string]
-                $DisplayName,
-
-                [Parameter()]
-                [string]
-                $Name,
-
-                [Parameter()]
-                [string]
-                $RootName
-            )
-
-            process {
-                # Retrieve list of children within the provided Management Group Id
-                $children = (Get-AzManagementGroup -GroupId $Name -Expand -Recurse -WarningAction SilentlyContinue).Children
-
-                if ($children) {
-                    $children | ForEach-Object {
-                        if ($_.Type -eq "/providers/Microsoft.Management/managementGroups") {
-                            # Invoke function again with Child resources
-                            Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
-                        }
-                        if ($_.Type -eq '/subscriptions') {
-                            Write-PSFMessage -Level Verbose -Message "Moving Subscription: $($_.Name)" -FunctionName "AfterAll"
-                            # Move Subscription resource to Tenant Root Group
-                            New-AzManagementGroupSubscription -GroupId $RootName -SubscriptionId $_.Name -WarningAction SilentlyContinue
-                        }
-                    }
-                }
-
-                Write-PSFMessage -Level Verbose -Message "Removing Management Group: $($DisplayName)" -FunctionName "AfterAll"
-                Remove-AzManagementGroup -GroupId $Name -WarningAction SilentlyContinue
-            }
-
-        }
-
-        function Remove-ResourceGroups {
-
-            param (
-                [Parameter()]
-                [string]
-                $SubscriptionName,
-
-                [Parameter()]
-                [string[]]
-                $ResourceGroupNames
-            )
-
-            process {
-                Write-PSFMessage -Level Verbose -Message "Setting Context: $($SubscriptionName)" -FunctionName "AfterAll"
-                Set-AzContext -SubscriptionName $subscriptionName
-
-                $ResourceGroupNames | ForEach-Object {
-                    Write-PSFMessage -Level Verbose -Message "Removing Resource Group: $($_)" -FunctionName "AfterAll"
-                    Remove-AzResourceGroup -Name $_ -Force
-                }
-            }
-
-        }
-
-        $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
-        if ($managementGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
-            Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
-        }
-
-        $resourceGroup = Get-AzResourceGroup -Name "Application"
-        if ($resourceGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
-            $subscription = Get-AzSubscription -SubscriptionId $script:subscriptionId
-            Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
-        }
-
-    }
+    AfterAll { }
 
 }

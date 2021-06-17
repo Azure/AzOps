@@ -22,6 +22,8 @@
             Management Group hierarchy in file system
     #>
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+
     [CmdletBinding(SupportsShouldProcess = $true)]
     [OutputType()]
     param (
