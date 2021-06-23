@@ -54,8 +54,15 @@ gh secret set 'ARM_CLIENT_ID' -b "<Secret>"
 gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
 ```
 
+Disable *Allow Merge commits* and *Allow rebase merging*
+
+```bash
+gh api -X PATCH /repos/{owner}/{repo} -f allow_rebase_merge=false
+gh api -X PATCH /repos/{owner}/{repo} -f allow_merge_commit=false
+```
+
 Initiaite the first Pull workflow
 
 ```bash
-gh api -X POST /repos/:owner/:repo/dispatches -f event_type='Enterprise-Scale Deployment'
+gh api -X POST /repos/{owner}/{repo}/dispatches -f event_type='Enterprise-Scale Deployment'
 ```
