@@ -2,24 +2,6 @@
 # Notes
 #
 
-# This script has been converted to tabs
-# when invoking the AzOpsChange cmdlet the
-# git diff needs to include a tab otherwise
-# the expression won't detect the file.
-
-#
-# Preferences
-#
-
-$ErrorActionPreference = "Stop"
-#$VerbosePreference = "Continue"
-#$DebugPreference = "Continue"
-
-#
-# Context
-#
-
-
 #
 # Config
 #
@@ -33,14 +15,13 @@ Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 9
 # Import
 #
 
-Import-Module ./src/AzOps.psd1 -Force
+#Import-Module ./src/AzOps.psd1 -Force
 
 #
 # Initialize
 #
 
-#Initialize-AzOpsEnvironment
-Initialize-AzOpsRepository -Rebuild
+Initialize-AzOpsEnvironment
 
 #
 # Internal
@@ -50,15 +31,19 @@ Initialize-AzOpsRepository -Rebuild
 # $module = Get-Module -Name AzOps
 
 #
-# Deployment
+# Pull
 #
 
-# $tenantId = ""
+#Invoke-AzOpsPull
+
+#
+# Push
+#
+
+$tenantId = "5663f39e-feb1-4303-a1f9-cf20b702de61"
 # $managementId = ""
 # $subscriptionId = ""
 
-# $change = "A	root/tenant root group ($tenantId)/azuredeploy.json"
+$change = "A	root/tenant root group ($tenantId)/azuredeploy.json"
 
-# $module.Invoke( {
-# 		Invoke-AzOpsChange -ChangeSet ""
-# 	})
+Invoke-AzOpsPush -ChangeSet $change
