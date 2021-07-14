@@ -58,7 +58,7 @@ jobs:
 
       - name: "Merge"
         run: |
-          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release :zap:'
+          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release'
           COUNTER=0
           while : ; do
               DECISION=$(gh pr status --json reviewDecision --jq '.currentBranch.reviewDecision')
