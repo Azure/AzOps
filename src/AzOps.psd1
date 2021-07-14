@@ -56,6 +56,12 @@
         @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; },
         @{ModuleName = 'Az.Resources'; RequiredVersion = '4.2.0'; })
 
+    # Assemblies that must be loaded prior to importing this module
+    # RequiredAssemblies = @()
+
+    # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+    # ScriptsToProcess = @()
+
     # Type files (.ps1xml) to be loaded when importing this module
     # TypesToProcess = @()
 
@@ -124,11 +130,5 @@
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
-
-}
-
-
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
 
 }
