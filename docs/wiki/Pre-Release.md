@@ -67,7 +67,7 @@ Update the `pull.yml` and `push.yml` workflows with the following depedency sect
 - name: "Dependencies"
   run: |
     . .github/scripts/Install.ps1
-    Install-SourceModule -Repository "ljtill/AzOps" -Branch "dev"
+    Install-SourceModule -Repository "Azure/AzOps" -Branch "main"
     $module = Get-Module -Name AzOps -ListAvailable
     $data = Import-PowerShellDataFile -Path $module.Path
     foreach ($dependency in $data.RequiredModules) {
