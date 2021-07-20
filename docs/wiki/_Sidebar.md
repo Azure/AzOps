@@ -12,7 +12,7 @@
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Steps](https://github.com/azure/azops/wiki/steps)
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
-  * [Subscriptions](https://github.com/azure/azops/wiki/subscriptions)
+  * [Subscriptions](https://github.com/Azure/Enterprise-Scale/wiki/Create-Landingzoness)
 * [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
