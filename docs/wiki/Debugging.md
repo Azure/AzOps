@@ -28,7 +28,8 @@ Connect-AzAccount -Credential $Credential -Tenant xxxx-xxx-xxxx-xxxx-xxx -Servic
 
 Running `Debug.ps1` in the last step leaves us on a [nested prompt](https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshost.enternestedprompt). We're now able to feed in new Powershell commands at the command prompt to run in the correct context.
 
-In this example, we're going to provide a new ARM template at a specific scope. The Arm template is the [Create New Subscription](https://github.com/Azure/Enterprise-Scale/blob/main/examples/landing-zones/empty-subscription/emptySubscription.json) template from the Enterprise Scale repo, it has had default values provided for each of the parameters. The file is being dropped it inside the file structure that was created in the last step, inside the `Sandboxes` directory; `root\myorg (myorg)\myorg-sandboxes (myorg-sandboxes`).
+In this example, we're going to provide a new ARM template at a specific scope. The Arm template is the [Create New Subscription](https://github.com/Azure/Enterprise-Scale/blob/main/examples/landing-zones/empty-subscription/emptySubscription.json)
+ template from the Enterprise Scale repo, it has had default values provided for each of the parameters. The file is being dropped it inside the file structure that was created in the last step, inside the `Sandboxes` directory; `root\myorg (myorg)\myorg-sandboxes (myorg-sandboxes`).
 
 At the command prompt we'll provide it the json file path (wrapped as a changeset object), and then run the cmdlet to Invoke the AzOps Change process.
 
@@ -65,7 +66,7 @@ Set-PSFConfig PSFramework.Logging.MaxMessageCount 1MB
 
 By default, setting breakpoints on AzOps in VS Code will not work.
 This is due to the files being invoked as scriptblock by default, rather than as file, for performance reasons.
-To work around this issue, set a configuration setting to disable thisbehavior:
+To work around this issue, set a configuration setting to disable this behavior:
 
 ```powershell
 Set-PSFConfig AzOps.Import.DoDotSource $true

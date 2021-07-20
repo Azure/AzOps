@@ -12,7 +12,7 @@
 - Assign the permissions at the required scope (/)
 - Assign the Directory role permissions
 
-Please check if the _Az_ and _AzureAD_ modules are installed locally before executing these scripts. 
+Please check if the _Az_ and _AzureAD_ modules are installed locally before executing these scripts.
 Alternatively, these command can be run within a Cloud Shell instance.
 
 ---

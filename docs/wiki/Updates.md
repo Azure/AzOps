@@ -1,6 +1,6 @@
 ## Overview
 
-This Accelerator has been constructed whereby user generated repositories are created from a template design. This means at the point in time when the downstream repository is created, it is up to date however as time progresses there is the possibility that the downstream repository 
+This Accelerator has been constructed whereby user generated repositories are created from a template design. This means at the point in time when the downstream repository is created, it is up to date however as time progresses there is the possibility that the downstream repository
 doesn't maintain the latest workflow files. Due to on-going development of this project (AzOps) there are times where it's recommended that the downstream workflows / pipelines are updated. We aren't planning to alter the Actions / Pipelines files too frequently however manually copying the contents isn't the perfect solution.
 
 To provide the ability to update Actions / Pipelines on demand we created a solution 'Patch', this will allow users to periodically check the upstream repository (azure/azops) for any changes to the SCM folders and if so copy them changes downstream by creating a new temporary branch and opening a Pull Request for the user to review the changes.
