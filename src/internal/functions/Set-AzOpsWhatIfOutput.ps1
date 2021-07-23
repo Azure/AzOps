@@ -1,4 +1,4 @@
-function Set-AzOpsWhatIfOutput {
+﻿function Set-AzOpsWhatIfOutput {
 
     <#
         .SYNOPSIS
@@ -8,7 +8,7 @@ function Set-AzOpsWhatIfOutput {
         .PARAMETER results
             The WhatIf result from a deployment
         .EXAMPLE
-            > et-WhatIfOutput -results $results
+            > Set-WhatIfOutput -results $results
     #>
 
     [CmdletBinding()]
@@ -18,9 +18,9 @@ function Set-AzOpsWhatIfOutput {
     )
 
     process {
-        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' 
+        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
 
-        $resultJson=($results.Changes | ConvertTo-Json -Depth 5)
+        $resultJson = ($results.Changes | ConvertTo-Json -Depth 5)
         $mdOutput = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
 
         Set-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
