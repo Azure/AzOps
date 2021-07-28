@@ -427,6 +427,12 @@
             $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $scopeObject
             $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
+
+            # Process policy exemptions
+            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Exemptions', $scopeObject.Scope
+            $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
+            $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+            $serializedpolicyExemptionsInAzure = $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
         }
         #endregion Process Policies
 
@@ -460,6 +466,7 @@
                 'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
                 'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
                 'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
+                'policyExemptions'     = @($serializedpolicyExemptionsInAzure)
                 'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
                 'roleAssignments'      = @($serializedRoleAssignmentInAzure)
             }

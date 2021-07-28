@@ -32,9 +32,10 @@ For the purpose of discovery, following resources are considered within the scop
     - *Microsoft.Management/managementGroups*
     - *Microsoft.Management/managementGroups/subscriptions*
     - *Microsoft.Subscription/subscriptions*
-- Policy Definition and Policy Assignment for Governance
+- Policy Definition, Policy Assignment and Policy Exemption for Governance
   - ResourceTypes:
     - *Microsoft.Authorization/policyDefinitions*
+    - *Microsoft.Authorization/policyExemptions*
     - *Microsoft.Authorization/policySetDefinitions*
     - *Microsoft.Authorization/policyAssignments*
 - Role Definition and Role Assignment
