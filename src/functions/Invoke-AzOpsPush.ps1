@@ -166,7 +166,7 @@
                 $deleteSet += $filename
                 continue
             }
-            if ($operation -in 'A', 'M', 'R') { $filename }
+            if ($operation -in 'A', 'M', 'R' -or $operation -match '^R0[0-9][1-9]$') { $filename }
         }
         if ($deleteSet) { $deleteSet = $deleteSet | Sort-Object }
         if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
