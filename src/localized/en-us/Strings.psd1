@@ -85,6 +85,10 @@
     'Get-AzOpsPolicyDefinition.ManagementGroup'                                     = 'Retrieving custom policy definitions for Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
+    'Get-AzOpsPolicyExemption.ManagementGroup'                                     = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsPolicyExemption.ResourceGroup'                                       = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
+    'Get-AzOpsPolicyExemption.Subscription'                                        = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+
     'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
