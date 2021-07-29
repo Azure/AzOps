@@ -28,7 +28,7 @@
 
         if ($context.Subscription.Id -ne $ScopeObject.Subscription) {
             Write-PSFMessage -String 'Set-AzOpsContext.Change' -StringValues $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-            Set-AzContext -SubscriptionId $scopeObject.Subscription
+            Set-AzContext -SubscriptionId $scopeObject.Subscription -WhatIf:$false
         }
     }
 }
