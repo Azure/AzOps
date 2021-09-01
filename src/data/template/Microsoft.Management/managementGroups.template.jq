@@ -40,6 +40,12 @@ end
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+        "_generated": {
+            "name": "AzOps",
+            "version": "0.0.0"
+        }
+    },
   "parameters": {},
   "variables": {},
   "resources": [
