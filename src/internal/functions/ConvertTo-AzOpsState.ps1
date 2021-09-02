@@ -197,11 +197,6 @@
                     $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
 
-                    #region Add Current version of AzOps to Metadata of Template
-                    $currentVersion = (Import-PowerShellDataFile -Path "./src/AzOps.psd1").ModuleVersion
-                    $object.metadata._generated.version = $currentVersion
-                    #endregion
-                    
                     #region Replace Resource Type and API Version
                     if (
                         ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
