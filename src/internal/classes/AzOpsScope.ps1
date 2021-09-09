@@ -225,7 +225,7 @@
             }
             else {
                 if ( (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix') -notcontains 'parameters.json' -and
-                    ("$($this.ResourceProvider)/$($this.Resource)" -eq 'Microsoft.Authorization/policyDefinitions')
+                    ("$($this.ResourceProvider)/$($this.Resource)" -in 'Microsoft.Authorization/policyDefinitions', 'Microsoft.Authorization/policySetDefinitions')
                 ) {
                     $this.StatePath = ($this.GetAzOpsResourcePath() + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
                 }

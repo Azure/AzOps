@@ -72,6 +72,11 @@
 
         #region Parse Content
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
+
+        if ($templateContent.metadata._generator.name -eq 'bicep') {
+            # Detect bicep templates
+            $bicepTemplate = $true
+        }
         #endregion
 
         #region Process Scope
@@ -99,7 +104,15 @@
                 # Validate Template
                 $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
                 if ($resultsError) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
+                    if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                        $invalidTemplate = $true
+                    }
+                    else {
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
+                        throw $resultsError.exception.InnerException.Message
+                    }
+        
                 }
                 elseif ($results.Error) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -113,7 +126,9 @@
 
                 $parameters.Name = $DeploymentName
                 if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                    New-AzSubscriptionDeployment @parameters
+                    if (-not $invalidTemplate) {
+                        New-AzSubscriptionDeployment @parameters
+                    }
                 }
                 else {
                     # Exit deployment
@@ -134,11 +149,16 @@
 
                 $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
                 if ($resultsError) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                    if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+
+                    if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
                         Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                         $invalidTemplate = $true
                     }
+                    else {
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
+                        throw $resultsError.exception.InnerException.Message
+                    }
+                    
                 }
                 elseif ($results.Error) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -183,9 +203,13 @@
 
             $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+                if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                     $invalidTemplate = $true
+                }
+                else {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
+                    throw $resultsError.exception.InnerException.Message
                 }
             }
             elseif ($results.Error) {
@@ -227,9 +251,14 @@
 
             $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-                if ($resultsError.exception.InnerException.Message -match 'InvalidTemplate') {
+
+                if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                     $invalidTemplate = $true
+                }
+                else {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
+                    throw $resultsError.exception.InnerException.Message
                 }
             }
             elseif ($results.Error) {
