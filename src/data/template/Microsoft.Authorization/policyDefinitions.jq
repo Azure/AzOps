@@ -1,1 +1,1 @@
-del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.Metadata, .Properties.PolicyType)
+del(.ResourceId, .ResourceName, .PolicyDefinitionId, .SubscriptionId, .Properties.PolicyType, .Properties.Metadata.createdBy, .Properties.Metadata.createdOn, .Properties.Metadata.updatedBy, .Properties.Metadata.updatedOn)
