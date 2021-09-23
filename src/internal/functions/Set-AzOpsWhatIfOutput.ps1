@@ -8,23 +8,35 @@
         .PARAMETER results
             The WhatIf result from a deployment
         .EXAMPLE
-            > Set-WhatIfOutput -results $results
+            > Set-WhatIfOutput -results $results -removeAzOpsFlag $true
+            $removeAzOpsFlag is set to true when we need to push contents for Remove-AzopsDeployment to PR
     #>
 
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        $results
+        $results,
+
+        [Parameter(Mandatory = $false)]
+        $removeAzOpsFlag = $false
     )
 
     process {
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
 
-        $resultJson = ($results.Changes | ConvertTo-Json -Depth 5)
-        $mdOutput = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
+        if(-not (Test-Path -Path '/tmp/OUTPUT.md')){
+            New-Item -Path '/tmp/OUTPUT.md'
+            New-Item -Path '/tmp/OUTPUT.json'
+        }
 
-        Set-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
-        Set-Content -Path '/tmp/OUTPUT.json' -Value $resultJson -WhatIf:$false
+        if($removeAzOpsFlag){
+            $mdOutput = '{0}WhatIf Results Resource Deletion:{1}{0}' -f [environment]::NewLine, $results
+        }
+        else{
+            $resultJson = ($results.Changes | ConvertTo-Json -Depth 5)
+            $mdOutput = 'WhatIf Results:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
+            Add-Content -Path '/tmp/OUTPUT.json' -Value $resultJson -WhatIf:$false
+        }
+        Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
     }
-
 }

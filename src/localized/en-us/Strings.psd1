@@ -223,6 +223,16 @@
     'Register-AzOpsResourceProvider.Processing'                                     = 'Processing resource provider {0} from {1}' # $ScopeObject, $FileName
     'Register-AzOpsResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
 
+    'Remove-AzOpsDeployment.Processing'                                             = 'Processing deployment {0} for template {1}' # $DeploymentName, $TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'This is user defined template {0} . Resource Deletion is only defined for Azops Generated template' #$TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Success'                                       = 'Processing AzOps Generated Template File {0}' # $TemplateFilePath
+    'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
+    'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
+    'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping deployment due to WhatIf' #
+    'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound'             = 'Unable to find Role assignment with id {0} resulted in error {1}'# $roleAssignmentId,$resultsError
+    'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound'         = 'Unable to find Policy assignment with id {0} resulted in error {1}'# $policyAssignmentId,$resultsError
+    'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext'            = 'This Context {0} dont have permission to remove on scope {1}'# $context.Account.id, $Id
+
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
     'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
     'Save-AzOpsManagementGroupChildren.Data.FileName'                               = 'Resolved state path filename: {0}' # $statepathFileName
@@ -238,4 +248,5 @@
 
     'Set-AzOpsContext.Change'                                                       = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' # 
+    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}'
 }

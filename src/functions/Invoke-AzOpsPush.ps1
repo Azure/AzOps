@@ -236,11 +236,32 @@
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
         }
 
+        $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
+
+            if ($deletion.EndsWith(".parameters.json") -or $deletion.EndsWith(".bicep")) {
+                continue
+            }
+            try { $scopeObject = New-AzOpsScope -Path $deletion -StatePath $StatePath -ErrorAction Stop }
+            catch {
+                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
+                continue
+            }
+            if (-not $scopeObject) {
+                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $deletion, $StatePath -Target $deletion
+                continue
+            }
+            Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
+        }
         $WhatIfPreference = $WhatIfPreferenceState
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $deploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+
+        #Removal of RoleAssignments and PolicyAssignments
+        $uniqueProperties = 'Scope', 'TemplateFilePath'
+        $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
+        
     }
 
 }
