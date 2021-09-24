@@ -1,182 +1,256 @@
-### In this guide
+# AzOps Via Azure Pipelines
 
-- [Portal](#portal)
-  - [Create the project](#create-project)
-  - [Import the repository](#import-repository)
-  - [Remove actions directory](#remove-actions-directory)
-  - [Configure the pipelines](#configure-pipelines)
-  - [Configure the permissions](#configure-permissions)
-  - [Configure the branch polices](#configure-branch-policies)
-- [Scripts](#Scripts)
-  - [Project](#project)
-  - [Defaults](#defaults)
-  - [Import](#import)
-  - [Pipelines](#pipelines)
-  - [Variables](#variables)
 
----
 
-### Portal
+## Table of Content
 
-#### Create project
+[[_TOC_]]
 
-Browse to [Azure DevOps](https://dev.azure.com), authenticate to the organisation and create a new _Private_ or _Enterprise_ project.
+## Prerequisites
 
-Ensure that the Version Control is selected with *Git*
+* [Create the Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
 
-![Create the project](./Media/Pipelines/Project-Creation.png)
+* [Assign the permissions at the required scope (/)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
+* Assign the Directory role permissions
 
-#### Import repository
+* [Create project](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
 
-Within the newly created project, import the template repository from GitHub.
+Please check if the Az and AzureAD modules are installed locally before executing these scripts. Alternatively, these command can be run within a Cloud Shell instance.
 
-Provide the Clone URL of the AzOps Accelerator repository.
+### Powershell command to create SPN:
+```powershell
+Connect-AzAccount
+$servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName AzOps
+Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
+Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
+Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
+Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
+```
+### Powershell command to assign the Directory role permissions
 
-![Import the repository parameters](./Media/Pipelines/Import-Repository.png)
+```powershell
+Install-Module -Name AzureAD
+Connect-AzureAD
+$servicePrincipal = Get-AzureADServicePrincipal -Filter "DisplayName eq 'AzOps'"
+$directoryRole = Get-AzureADDirectoryRole -Filter "DisplayName eq 'Directory Readers'"
+if ($directoryRole -eq $null) {
+    Write-Warning "Directory Reader role not found"
+}
+else {
+    Add-AzureADDirectoryRoleMember -ObjectId $directoryRole.ObjectId -RefObjectId $servicePrincipal.ObjectId
+}
+```
 
-Additional documentation can be found [here](https://docs.microsoft.com/azure/devops/repos/git/import-git-repository).
+## Important Repo Link to refer:- 
 
-#### Remove actions directory
+Repo | Description
+-|-
+[AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
 
-As this deployment will be configured for Azure Pipelines it is safe to delete the `.github` folder.
 
-![Actions](./Media/Pipelines/Delete-Actions.png)
+##  Two ways to configure AzOps:-
+- via Azure DevOps Portal
+- Via command line script
 
-#### Configure pipelines
+## configure AzOps via Azure DevOps Portal
 
-Create two new pipelines, selecting the existing files:
+- Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
+    
+    1. Select Repos, Files.
+        
+        ![Azure-DevOps-repository](./Media/Pipelines/Azure-DevOps-repository.PNG)
+    
+    2. From the repo drop-down, select Import repository.
 
-- .pipelines/pull.yml
-- .pipelines/push.yml
+        ![Import-Repository](./Media/Pipelines/Import-Repository.PNG)
+    
+    3. Provide the Clone URL of the AzOps   Accelerator repository.
 
-It's recommended to name these pipelines `AzOps - Pull` and `AzOps - Push` respectively (in both the YAML file, *and* within the pipeline after you create it).
+        ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
-![Create the pipelines](./Media/Pipelines/Pipeline-Creation.png)
+    4. Below Repo will be imported.
 
-After creating the pipelines, create a new Variable Group by navigating to `Library`.
+        ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.PNG)
 
-Set the name of Variable Groups to `Credentials`. This can be altered but the value in the pipelines will need to be updated.
+- Remove actions directory: As this deployment will be configured for Azure Pipelines it is safe to delete the `.github` folder.
 
-Add the variables from the Service Principal creation.
+    ![Remove-Github-Folder](./Media/Pipelines/Remove-Github-Folder.PNG)
+ 
+ - Configure pipelines: Create two new pipelines, selecting the existing files
+    * pipelines/pull.yml
+    * pipelines/push.yml
+- Steps to create YML Pipeline.
+    1. Navigate to the pipeline and click on new Pipeline.
+    ![New-Pipeline](./Media/Pipelines/New-Pipeline.PNG)
+    
+    2. Select the below Azure repo option.
+    ![Azure-repo-git](./Media/Pipelines/Azure-repo-git.PNG)
+    ![Existing-Pipeline](./Media/Pipelines/Existing-Pipeline.PNG)
+    
+    3. Create two new pipelines, selecting the existing files
+    ![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
+      
 
-- ARM_TENANT_ID
-- ARM_SUBSCRIPTION_ID
-- ARM_CLIENT_ID
-- ARM_CLIENT_SECRET
+- Rename the Pipeline `AzOps - Pull` and `AzOps - Push` respectively (in both the YAML file, and within the pipeline after you create it).
+![Pipelines](./Media/Pipelines/Pipelines.PNG)  
 
-![Create the variable group](./Media/Pipelines/Variable-Group.png)
+-  create a service principle in Azure which will further be used for deployment via AzOps.
+    1. Sign in to your Azure Account through the Azure portal.
 
-Change the variable type for `ARM_CLIENT_SECRET` to secret.
+    2. Select Azure Active Directory.
 
-These variables will used to authenticate the pipelines with Azure.
+    3. Select App registrations.
 
-#### Configure permissions
+    4. Name the application. Select a supported account type, which determines who can use the application.
+    ![SPN](./Media/Pipelines/SPN.PNG)  
 
-The build service account must have the following permissions on the repository:
+-  Assign a role to the SPN
+    1. In the Azure portal, select the level of scope you wish to assign the application to. For example, to assign a role at the subscription scope, search for and select Subscriptions, or select Subscriptions on the Home page.
+    ![Subscription](./Media/Pipelines/Subscription.PNG)
 
-- `Contribute`
-- `Contribute to pull requests`
-- `Create branch`
+    2. Select the particular subscription to assign the application to.
+    ![Subscription-2](./Media/Pipelines/Subscription-2.PNG) 
+If you don't see the subscription you're looking for, select global subscriptions filter. Make sure the subscription you want is selected for the portal.
 
-Navigate to the project settings, within the *Repos* section, select *Repositories*, select the newly created repository.
+    3. Select Access control (IAM).
 
-Select the *[Project] Build Service ([Organization])* account, and configure the permissions above.
+    4. Select Select Add > Add role assignment to open the Add role assignment page.
 
-![Configure the Repository Permissions](./Media/Pipelines/Repository-Permissions.png)
+    5. Select the role you wish to assign to the application. For example, to allow the application to execute actions like reboot, start and stop instances, select the Contributor role.
 
-#### Configure branch policies
+    > Note: If this SPN is require to be used for assigning RBAC, then Owner access.
 
-In order for the `AzOps - Push` pipeline to run, set the repository `main` branch to [require build verification](https://docs.microsoft.com/azure/devops/repos/git/branch-policies) using most of default settings, but do define a path filter `/azops/*`.
+- create a new Variable Group by navigating to `Library`
+- Set the name of Variable Groups to Credentials. This can be altered but the value in the pipelines will need to be updated.
+- Add the variables from the Service Principal creation.
 
-![Build Policy](./Media/Pipelines/Branch-Policies.png)
+        ARM_TENANT_ID
+        ARM_SUBSCRIPTION_ID
+        ARM_CLIENT_ID
+        ARM_CLIENT_SECRET
 
-It is also recommend to allow only `squash` merge types from branches into `main`.
+>Note: Change the variable type for ARM_CLIENT_SECRET to secret.
 
-![Repo policy](./Media/Pipelines/Merge-Types.png)
+![Library](./Media/Pipelines/Library.PNG) 
+    
+- Update creadential with details captured while creating the SPN. These variables will used to authenticate the pipelines with Azure.
+- The build service account must have the following permissions on the repository.
+    * Contribute
+    * Contribute to pull requests
+    * Create branch
 
----
+- Navigate to the project settings, within the Repos section, select Repositories, select the newly created repository.
 
-### Scripts
+- Select the [Project] Build Service ([Organization]) account, and configure the permissions above.
 
-The following commands require the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) and the [DevOps Extension](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
+     ![Permission1](./Media/Pipelines/Permission1.PNG) 
 
-> Before running the following commands, the '(replace)' values need to be updated.  
-> Manual step required is to add the permissions within the UI on the repository for the build service.
+- Configure branch policies: In order for the AzOps - Push pipeline to run, set the repository main branch to require build verification using most of default settings, but do define a path filter /azops/*.
+     ![Branch-policy-1](./Media/Pipelines/Branch-policy-1.PNG) 
+- Allow only squash merge types from branches into main.
 
-#### Project
+     ![Build-validation](./Media/Pipelines/Build-validation.PNG)
 
-Create the new project within a specific organization
+- All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps.      
 
-```bash
+    Id|Name|Description|Example
+    -|-|-|-
+    01|AutoGeneratedTemplateFolderPath|Generates the Folder within the `root` folder to keep all the standalone json file like Policy , Subscription detail etc.("Core.AutoGeneratedTemplateFolderPath": "/.az")|![Auto-Generated-Template-FolderPath](./Media/Pipelines/Auto-Generated-Template-FolderPath.PNG)
+    02|DefaultDeploymentRegion|This switch will to be used to set the default region for deployments|`"Core.DefaultDeploymentRegion": "northeurope"`
+    03|EnrollmentAccountPrincipalName| Switch will be used to set the default enrollment account in case of Subscription creation|`"Core.EnrollmentAccountPrincipalName": ""`|
+    04|ExcludedSubOffer|This switch excludes speicific Subscription offer types from getting pulled |`"Core.ExcludedSubOffer": [ "AzurePass_2014-09-01","FreeTrial_2014-09-01","AAD_2015-09-01"]`|
+    05|ExcludedSubState|This switch excludes  specific states of Subscription from getting pulled |`"Core.ExcludedSubState": ["Disabled","Deleted","Warned","Expired"]`|
+    06|IgnoreContextCheck|This switch skip Azure PowerShell context validation, if it set to true|`"Core.IgnoreContextCheck": false`
+    11|OfferType|Set the default offer type for Subscriptions for pull|`"Core.OfferType": "MS-AZR-0017P"`
+    07|PartialMgDiscoveryRoot| This switch will generate seperate folder hierachy for specific Management Groups if mentioned|`"Core.PartialMgDiscoveryRoot": []"`
+    08|SkipPolicy| If this set to `True`, then it will avoid creating/pulling Azure Policy state of the environment in json file|`"Core.SkipPolicy": false`
+    09|SkipResource|If this set to `True`, then it will avoid creating/pulling Azure resources within the resources group information in json file|`"Core.SkipResource": false`
+    10|SkipResourceGroup|If this set to `false`, then it will generate folder hierachy for all Resource Groups in the Azure infra|`"Core.SkipResourceGroup": false`
+    11|SkipRole|If this set to `false`, then it will generate file for RBAC information in the Azure infra|`"Core.SkipRole": false`
+    12|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Pipelines/State.PNG)
+    13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
+    14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
+
+- Now, We are good to trigger pull to fech the existing Azure environment.
+![Pipelines](./Media/Pipelines/Pipelines.PNG)  
+
+- Once, pull pipeline complete it will look like below screenshot.
+![Pull](./Media/Pipelines/Pull.PNG)
+- This `root` folder contains existing state of Azure environment.
+- Now, start creating arm template to deployment more resources as shown in below screen shot.
+![RG](./Media/Pipelines/RG.PNG)
+
+> Note: Please follow above naming convention for parameter file creation.
+
+- Run the Push pipeline to apply the update.
+![Pipelines](./Media/Pipelines/Pipelines.PNG)  
+
+## Configure via command line script
+
+- Install dependent tools & extentions.
+    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/)
+    - [DevOps Extension.](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops)
+- Step to add the permissions within the UI on the repository for the build service.
+    1. Open Project settings>Repositories.To set the permissions for all Git repositories, choose Security.
+    ![Repository-Perm](./Media/Pipelines/Repository-Perm.PNG)
+
+    2. Now set the permission for build service as shown below.
+    ![Repository-Perm-2](./Media/Pipelines/Repository-Perm-2.PNG)
+- Before running the following commands, values need to be updated in `<xx>`.
+- Create the new project within a specific organization
+```git
 az devops project create \
-    --name '(replace)' --organization '(replace)'
+    --name '<Name_of_Project>' --organization '<Name_Of_organization>'
 ```
+- Set the defaults for the local Azure Cli shell
 
-#### Defaults
-
-Set the defaults for the local Azure Cli shell
-
-```bash
+```git
 az devops configure \
-    --defaults organization=https://dev.azure.com/'(replace)' project='(replace)'
+    --defaults organization=https://dev.azure.com/'<Name_Of_organization>' project='<Name_of_Project>'
 ```
-
-#### Import 
-
-Create a new repository from the upstream template repository
-
-```bash
+- Create a new repository from the [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) template repository
+```git
 az repos import create \
-    --git-url https://github.com/azure/azops.git --repository '(replace)'
+    --git-url https://github.com/Azure/AzOps-Accelerator.git --repository '<Name_Of_repository>'
 ```
-
-#### Pipelines 
-
-Create two new pipelines from existing YAML manifests
-
-```bash
+- Create two new pipelines from existing YAML manifests
+```git
 az pipelines create \
-    --name 'AzOps - Pull' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/pull.yml
+    --name 'AzOps - Pull' --branch main --repository '<Name_Of_repository>'--repository-type tfsgit --yaml-path .pipelines/pull.yml
 
 az pipelines create \
-    --name 'AzOps - Push' --branch main --repository '(replace)' --repository-type tfsgit --yaml-path .pipelines/push.yml
+    --name 'AzOps - Push' --branch main --repository '<Name_Of_repository>'--repository-type tfsgit --yaml-path .pipelines/push.yml
 ```
+- Add secrets for authenticating pipelines with Azure Resource Manager
 
-#### Variables
-
-Add secrets for authenticating pipelines with Azure Resource Manager
-
-```bash
+```git
 az pipelines variable create \
-    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Pull' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '(replace)'
+    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Pull' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Pull' --secret true --value '(replace)'
+    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Pull' --secret true --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+    --name 'ARM_TENANT_ID' --pipeline-name 'AzOps - Push' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+    --name 'ARM_SUBSCRIPTION_ID' --pipeline-name 'AzOps - Push' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Push' --secret false --value '(replace)'
+    --name 'ARM_CLIENT_ID' --pipeline-name 'AzOps - Push' --secret false --value '<Value>'
 
 az pipelines variable create \
-    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Push' --secret true --value '(replace)'
+    --name 'ARM_CLIENT_SECRET' --pipeline-name 'AzOps - Push' --secret true --value '<Value>'
 ```
+- Add build validation policy to push changes
 
-#### Policy
-
-Add build validation policy to push changes
-
-```bash
+```git
 az pipelines show \
     --name 'AzOps - Push'
 
@@ -185,10 +259,19 @@ az repos policy build create \
     --branch main \
     --display-name 'Push' \
     --enabled true \
-    --build-definition-id (replace) \
-    --repository-id (replace) \
+    --build-definition-id <builddefinitionid> \
+    --repository-id <repository-id> \
     --queue-on-source-update-only false \
     --manual-queue-only false \
     --valid-duration 0
+
 ```
+
+    
+
+
+
+
+
+
 
