@@ -3,12 +3,12 @@
 
 
 - [Prerequisites](#Prerequisites)
-- [Powershell command to create SPN](#Powershell command to create SPN)
-- [Powershell command to assign the Directory role permissions](#Powershell command to assign the Directory role permissions)
-- [Important Repo Link to refer](#Important Repo Link to refer)
-- [Two ways to configure AzOps](#Two ways to configure AzOps)
-- [Configure AzOps via Portal](#Configure AzOps via Portal)
-- [Configure via command line script](#Configure via command line script)
+- [Powershell command to create SPN](#Powershell-command-to-create-SPN)
+- [Powershell command to assign the Directory role permissions](#Powershell-command-to-assign-the-Directory-role-permissions)
+- [Important Repo Link to refer](#Important-Repo-Link-to-refer)
+- [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
+- [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
+- [Configure via command line script](#Configure-via-command-line-script)
 
 
 
