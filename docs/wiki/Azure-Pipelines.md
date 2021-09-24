@@ -52,7 +52,7 @@ Repo | Description
 - via Azure DevOps Portal
 - Via command line script
 
-## configure AzOps via Azure DevOps Portal
+## Configure AzOps via Azure DevOps Portal
 
 - Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
     
@@ -62,15 +62,15 @@ Repo | Description
     
     2. From the repo drop-down, select Import repository.
 
-        ![Import-Repository](./Media/Pipelines/Import-Repository.PNG)
+        ![Import-Repository](./Media/Pipelines/Import-Repository.png)
     
-    3. Provide the Clone URL of the AzOps   Accelerator repository.
+    3. Provide the Clone URL of the AzOps Accelerator repository.
 
         ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
     4. Below Repo will be imported.
 
-        ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.PNG)
+        ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.png)
 
 - Remove actions directory: As this deployment will be configured for Azure Pipelines it is safe to delete the `.github` folder.
 
