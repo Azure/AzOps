@@ -64,7 +64,7 @@ Repo | Description
 
         ![Import-Repository](./Media/Pipelines/Import-Repository.PNG)
     
-    3. Provide the Clone URL of the AzOps   Accelerator repository.
+    3. Provide the Clone URL of the AzOps Accelerator repository.
 
         ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
