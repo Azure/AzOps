@@ -44,14 +44,14 @@ else {
 }
 ```
 
-### Important Repo Link to refer:- 
+### Important Repo Link to refer 
 
 Repo | Description
 -|-
 [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
 
 
-###  Two ways to configure AzOps:-
+### Two ways to configure AzOps
 - via Azure DevOps Portal
 - Via command line script
 
