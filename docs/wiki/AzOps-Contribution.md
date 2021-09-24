@@ -1,3 +1,5 @@
+# AzOps Contribution Guide
+
 - [Intended Audience](#Intended-Audience)
 - [Overview](#Overview)
 - [Dependency tool for local code modification](#Dependency-tool-for-local-code-modification)
@@ -46,7 +48,7 @@ Resolving deltas: 100% (1104/1104), done.
 
 2. Open the code with visual studio code
 
-![vs](./Media/Contribution/Open-Code-Invs.PNG)
+![vs](./Media/Contribution/Open-code-Invs.PNG)
 
 3. Reopen the code in container by clicking on icon
 
@@ -78,7 +80,7 @@ Invoke-AzOpsPull
 
 > **_NOTE:_**  This will pull the existing state of the Azure Environment under `root` folder.
 
-![root](./Media/Contribution/root.PNG)
+![root](./Media/Contribution/Root.PNG)
 
 Below folder structure can be referenced as example:-
 
