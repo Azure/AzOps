@@ -22,7 +22,7 @@
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
 
 **Contributing**
-* [Contribution](https://github.com/azure/azops/wiki/AzOps-Contribution)
+* [Contribution](../wiki/AzOps-Contribution.md)
 * [Releases](https://github.com/azure/azops/wiki/releases)
 * [Tests](https://github.com/azure/azops/wiki/tests)
   * [Pre-release](https://github.com/azure/azops/wiki/pre-release)

@@ -102,6 +102,6 @@ However, manual changes (made for example using the Azure portal) may be unavoid
 
 ### Contribution & Implementation Quick Start Guide
 
-- [Contribution to AzOps](/AzOps-Contribution.md)
-- [GitHub Actions](/GitHub-Actions.md)
-- [Azure Pipelines](/Azure-Pipelines.md)
+- [Contribution to AzOps](../wiki/AzOps-Contribution.md)
+- [GitHub Actions](../wiki/GitHub-Actions.md)
+- [Azure Pipelines](../wiki/Azure-Pipelines.md)
