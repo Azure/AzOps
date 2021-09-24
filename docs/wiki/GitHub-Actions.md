@@ -57,7 +57,7 @@ Repo | Description
 
     1. In the upper-right corner of any page, click  and then click Import repository.
 
-        ![Import-Git](./Media/Actions/Import-Git.PNG)
+        ![Import-Git](./Media/Actions/Import-GIT.PNG)
 
     2. Under "Your old repository's clone URL", type the URL of the project you want to import.
 
@@ -120,7 +120,7 @@ If you don't see the subscription you're looking for, select global subscription
     09|SkipResource|If this set to `True`, then it will avoid creating/pulling Azure resources within the resources group information in json file|`"Core.SkipResource": false`
     10|SkipResourceGroup|If this set to `false`, then it will generate folder hierachy for all Resource Groups in the Azure infra|`"Core.SkipResourceGroup": false`
     11|SkipRole|If this set to `false`, then it will generate file for RBAC information in the Azure infra|`"Core.SkipRole": false`
-    12|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Actions/State.PNG)
+    12|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Pipelines/State.PNG)
     13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
     14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
@@ -128,7 +128,7 @@ If you don't see the subscription you're looking for, select global subscription
 ![Workflow](./Media/Actions/Workflow.PNG)  
 
 - Once, pull pipeline complete it will look like below screenshot.
-![Root-git](./Media/Actions/Root-git.PNG)
+![Root-git](./Media/Actions/Root-GIT.PNG)
 - This `root` folder contains existing state of Azure environment.
 - Now, start creating arm template to deployment more resources as shown in below screen shot.
 ![RG](./Media/Pipelines/RG.PNG)
