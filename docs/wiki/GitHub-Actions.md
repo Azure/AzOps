@@ -2,9 +2,15 @@
 
 
 
-## Table of Content
+- [Prerequisites](#Prerequisites)
+- [Powershell command to create SPN](#Powershell command to create SPN)
+- [Powershell command to assign the Directory role permissions](#Powershell command to assign the Directory role permissions)
+- [Important Repo Link to refer](#Important Repo Link to refer)
+- [Two ways to configure AzOps](#Two ways to configure AzOps)
+- [Configure AzOps via Portal](#Configure AzOps via Portal)
+- [Configure via command line script](#Configure via command line script)
 
-[[_TOC_]]
+
 
 ## Prerequisites
 
@@ -41,17 +47,17 @@ else {
 }
 ```
 
-## Important Repo Link to refer:- 
+### Important Repo Link to refer:- 
 
 Repo | Description
 -|-
 [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
 
-##  Two ways to configure AzOps:-
+###  Two ways to configure AzOps:-
 - via Potal
 - Via command line script
 
-## configure AzOps via Potal
+### Configure AzOps via Portal
 
 - Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
 
@@ -124,7 +130,7 @@ If you don't see the subscription you're looking for, select global subscription
     13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
     14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
-- Now, We are good to trigger pull to fech the existing Azure environment. Navigate to Actions and run `AzOps - Pull`
+- Now, We are good to trigger pull to fetch the existing Azure environment. Navigate to Actions and run `AzOps - Pull`
 ![Workflow](./Media/Actions/workflow.PNG)  
 
 - Once, pull pipeline complete it will look like below screenshot.
@@ -138,7 +144,7 @@ If you don't see the subscription you're looking for, select global subscription
 - Run the Push pipeline to apply the update.
 ![Workflow](./Media/Actions/workflow.PNG)
 
-## Configure via command line script
+### Configure via command line script
 
 - Create the repository from the pre-defined template
 
