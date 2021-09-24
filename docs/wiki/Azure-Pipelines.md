@@ -52,7 +52,7 @@ Repo | Description
 - via Azure DevOps Portal
 - Via command line script
 
-## configure AzOps via Azure DevOps Portal
+## Configure AzOps via Azure DevOps Portal
 
 - Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
     
