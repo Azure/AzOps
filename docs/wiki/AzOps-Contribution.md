@@ -1,31 +1,33 @@
-## Table of Content
+- [Intended Audience](#Intended-Audience)
+- [Overview](#Overview)
+- [Dependency tool for local code modification](#Dependency-tool-for-local-code-modification)
+- [Quick Start Repos](#Quick-Start-Repos)
+- [How to modify/edit Code locally](#How-to-modify/edit-Code-locally)
 
-
-
-## Intended Audience
+### Intended Audience
 
 This is an Microsoft Wiki and the guidance herein is intended for architects, consultants and engineers who are responsible for Contribution towars AzOps development.
 
-## Overview
+### Overview
 
 The purpose of this wiki is to provide you with a starting point for contribution towards Azops Framework for Azure landing zones deployment via ARM & Bicep files. It provides with sample files, folder structure and advices on how to get start with contribution.
 
 
-## Dependency tool for local code modification
+### Dependency tool for local code modification
 
 * [Docker Desktop](https://docs.docker.com/desktop/)
 * [Visual Studio Code](https://code.visualstudio.com/download)
 * [Git](https://git-scm.com/downloads)
 * [Install Remote - Containers on Vistual Studio code](https://code.visualstudio.com/docs/remote/containers-tutorial)
 
-## Quick Start Repos
+### Quick Start Repos
 
 Repo | Description
 -|-
 [AzOps](https://github.com/Azure/AzOps.git)|This repository is for active development of the AzOps PowerShell cmdlets.
 
  
-## How to modify/edit Code locally
+### How to modify/edit Code locally
 
 1. Clone repo locally 
 

@@ -1,10 +1,13 @@
 # AzOps Via Azure Pipelines
 
+- [Prerequisites](#Prerequisites)
+- [Powershell command to create SPN](#Powershell-command-to-create-SPN)
+- [Powershell command to assign the Directory role permissions](#Powershell-command-to-assign-the-Directory-role-permissions)
+- [Important Repo Link to refer](#Important-Repo-Link-to-refer)
+- [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
+- [Configure AzOps via Azure DevOps Portal](#Configure-AzOps-via-Azure-DevOps-Portal)
+- [Configure via command line script](#Configure-via-command-line-script)
 
-
-## Table of Content
-
-[[_TOC_]]
 
 ## Prerequisites
 
@@ -41,18 +44,18 @@ else {
 }
 ```
 
-## Important Repo Link to refer:- 
+### Important Repo Link to refer:- 
 
 Repo | Description
 -|-
 [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
 
 
-##  Two ways to configure AzOps:-
+###  Two ways to configure AzOps:-
 - via Azure DevOps Portal
 - Via command line script
 
-## Configure AzOps via Azure DevOps Portal
+### Configure AzOps via Azure DevOps Portal
 
 - Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
     
@@ -185,7 +188,7 @@ If you don't see the subscription you're looking for, select global subscription
 - Run the Push pipeline to apply the update.
 ![Pipelines](./Media/Pipelines/Pipelines.PNG)  
 
-## Configure via command line script
+### Configure via command line script
 
 - Install dependent tools & extentions.
     - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/)
