@@ -125,7 +125,7 @@ If you don't see the subscription you're looking for, select global subscription
     14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
 - Now, We are good to trigger pull to fech the existing Azure environment. Navigate to Actions and run `AzOps - Pull`
-![Workflow](./Media/Actions/Workflow.PNG)  
+![Workflow](./Media/Actions/workflow.PNG)  
 
 - Once, pull pipeline complete it will look like below screenshot.
 ![Root-git](./Media/Actions/Root-GIT.PNG)
@@ -136,7 +136,7 @@ If you don't see the subscription you're looking for, select global subscription
 > Note: Please follow above naming convention for parameter file creation.
 
 - Run the Push pipeline to apply the update.
-![Workflow](./Media/Actions/Workflow.PNG)
+![Workflow](./Media/Actions/workflow.PNG)
 
 ## Configure via command line script
 
