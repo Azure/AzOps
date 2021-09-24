@@ -62,7 +62,7 @@ Repo | Description
     
     2. From the repo drop-down, select Import repository.
 
-        ![Import-Repository](./Media/Pipelines/Import-Repository.PNG)
+        ![Import-Repository](./Media/Pipelines/Import-Repository.png)
     
     3. Provide the Clone URL of the AzOps Accelerator repository.
 
