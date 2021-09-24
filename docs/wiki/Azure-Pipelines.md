@@ -70,7 +70,7 @@ Repo | Description
 
     4. Below Repo will be imported.
 
-        ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.PNG)
+        ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.png)
 
 - Remove actions directory: As this deployment will be configured for Azure Pipelines it is safe to delete the `.github` folder.
 
