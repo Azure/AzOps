@@ -4,7 +4,7 @@
 - [Overview](#Overview)
 - [Dependency tool for local code modification](#Dependency-tool-for-local-code-modification)
 - [Quick Start Repos](#Quick-Start-Repos)
-- [How to modify/edit Code locally](#How-to-modify/edit-Code-locally)
+- [How to modify/edit Code locally](#How-to-modifyedit-Code-locally)
 
 ### Intended Audience
 
