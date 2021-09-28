@@ -6,16 +6,12 @@
 - [Quick Start Repos](#Quick-Start-Repos)
 - [How to modify/edit Code locally](#How-to-modifyedit-Code-locally)
 
-### Intended Audience
-
-This is an Microsoft Wiki and the guidance herein is intended for architects, consultants and engineers who are responsible for Contribution towars AzOps development.
-
 ### Overview
 
-The purpose of this wiki is to provide you with a starting point for contribution towards Azops Framework for Azure landing zones deployment via ARM & Bicep files. It provides with sample files, folder structure and advices on how to get start with contribution.
+The purpose of this wiki is to provide you with a starting point for contribution towards the AzOps PowerShell Module. It provides sample files, folder structure and recommendations on how to get started with contributions. 
 
 
-### Dependency tool for local code modification
+### Recommended tooling
 
 * [Docker Desktop](https://docs.docker.com/desktop/)
 * [Visual Studio Code](https://code.visualstudio.com/download)
@@ -46,23 +42,23 @@ Resolving deltas: 100% (1104/1104), done.
 
 ```
 
-2. Open the code with visual studio code
+2. Open the code with VS Code
 
 ![vs](./Media/Contribution/Open-code-Invs.PNG)
 
-3. Reopen the code in container by clicking on icon
+3. Reopen the code in container by clicking on icon below
 
 ![reopenincontainer](./Media/Contribution/Reopen-In-Container.PNG)
 
 It will open the local repo to docker container.
 
-4. Authenticate  via local azure credential with below command
+4. Connect and authenticate to Azure with the Azure PowerShell module 
 
 ```powershell
 Connect-AzAccount -UseDeviceAuthentication
 ```
 
-5. Then browse into below location : /workspaces/AzOps/scripts" and follow the steps mention in `Debug.ps1`.
+5. Then browse into below location: /workspaces/AzOps/scripts" and follow the steps mention in `Debug.ps1`.
 
 ![Debug](./Media/Contribution/Debug.PNG)
 
@@ -72,7 +68,7 @@ Connect-AzAccount -UseDeviceAuthentication
 Import-Module ./src/AzOps.psd1 -Force
 Initialize-AzOpsEnvironment
 ```
-7. Now to Test the Pull, Below command will be used. 
+7. To test the Pull, use the below command 
 
 ```powershell
 Invoke-AzOpsPull
