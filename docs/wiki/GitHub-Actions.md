@@ -54,7 +54,7 @@ Repo | Description
 [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
 
 ### Two ways to configure AzOps
-- via Potal
+- via Portal
 - Via command line script
 
 ### Configure AzOps via Portal
