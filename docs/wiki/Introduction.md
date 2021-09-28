@@ -100,8 +100,8 @@ However, manual changes (made for example using the Azure portal) may be unavoid
 - Changes made OOB (only for Platform resources) enlisted in Section #1 are tracked in Git.
 - Configuration Drifts should surface just like any other pull request for repo owners to determine based on repo level policy whether to roll-back or roll-forward changes - interactively (with human intervention) or automatically.
 
-### Contribution & Implementation Quick Start Guide
+### Contribution & Implementation Quick Start Guides
 
-- [Contribution to AzOps](../wiki/AzOps-Contribution.md)
-- [GitHub Actions](../wiki/GitHub-Actions.md)
-- [Azure Pipelines](../wiki/Azure-Pipelines.md)
+- [Contribution to AzOps](https://github.com/azure/azops/wiki/azops-contribution)
+- [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
+- [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
