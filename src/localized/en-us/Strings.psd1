@@ -173,6 +173,7 @@
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                  = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Scope.Failed'                                               = 'Failed to read {0} as part of {1}' # $addition, $StatePath
     'Invoke-AzOpsPush.Scope.NotFound'                                             = 'Skipping {0}, not part of {1}' # $addition, $StatePath
+    'InvokeAzOpsPush.ManagementGroups.NotSupported'                               = 'Resource Deletion is not supported at Management group level {0}'#$managementfolderpath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
     'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}' # $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE
@@ -232,6 +233,7 @@
     'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound'             = 'Unable to find Role assignment with id {0} resulted in error {1}'# $roleAssignmentId,$resultsError
     'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound'         = 'Unable to find Policy assignment with id {0} resulted in error {1}'# $policyAssignmentId,$resultsError
     'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext'            = 'This Context {0} dont have permission to remove on scope {1}'# $context.Account.id, $Id
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Currently only Role Assignment and Policy Assignment resource deletion is supported. Hence, skiping any other Resouce deletion of file {0}'# $templateFilePath
 
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
     'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
