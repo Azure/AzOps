@@ -59,21 +59,17 @@ Repo | Description
 
 ### Configure AzOps via Portal
 
-- Import the above [Repo](https://github.com/Azure/AzOps-Accelerator.git) to new project.
+- AzOps Accelerator is a template repository and repository can directly created using `Use this template`.[Repo](https://github.com/Azure/AzOps-Accelerator.git)
 
-    1. In the upper-right corner of any page, click  and then click Import repository.
+    1. Click on `Use this template` Button to create new repository.
 
-        ![Import-Git](./Media/Actions/Import-GIT.PNG)
+        ![Import-Git](./Media/Actions/Usetemplate-GIT.PNG)
 
-    2. Under "Your old repository's clone URL", type the URL of the project you want to import.
-
-        ![GIT-Project-2](./Media/Actions/GIT-Project-2.PNG)
-
-    3. Specify whether the new repository should be public or private.
+    2. Specify whether the new repository should be public or private.
 
         ![GIT-Project](./Media/Actions/GIT-Project.PNG)
 
-    4. Review the information you entered, then click Begin import.
+    3. Review the information you entered, then click Begin import.
 
         ![GIT-Repository](./Media/Actions/GIT-Repository.PNG)
 
