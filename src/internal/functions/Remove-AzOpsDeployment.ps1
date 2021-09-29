@@ -96,7 +96,7 @@ function Remove-AzOpsDeployment {
                 return
             }
             else {
-                $results = '{0}: What if succeeded: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName,$scopeObject.scope
+                $results = '{0}: What if Successful: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName,$scopeObject.scope
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
@@ -118,7 +118,9 @@ function Remove-AzOpsDeployment {
         {
             #Validate
             $roleAssignmentPermissionCheck = $false
-            $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -ErrorAction Continue -ErrorVariable roleAssignmentError | Where-Object {$_.RoleAssignmentId -match $scopeObject.Scope}
+            $scopeOfRoleAssignment = $scopeObject.scope
+            $scopeOfRoleAssignment = $scopeOfRoleAssignment.Substring(0,$scopeOfRoleAssignment.LastIndexOf('/providers'))
+            $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -scope $scopeOfRoleAssignment -ErrorAction Continue -ErrorVariable roleAssignmentError
             
             $roleAssignments = Get-AzRoleAssignment -ServicePrincipalName $context.Account.id -Scope $roleAssignment.Scope -ErrorAction Continue
             foreach($role in $roleAssignments){
@@ -142,7 +144,7 @@ function Remove-AzOpsDeployment {
                 return
             }
             else {
-                $results = '{0}: What if succeded: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName,$templateContent.resources[0].properties.PrincipalId,$roleAssignment.Scope,$templateContent.resources[0].properties.RoleDefinitionName
+                $results = '{0}: What if Successful: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName,$templateContent.resources[0].properties.PrincipalId,$roleAssignment.Scope,$templateContent.resources[0].properties.RoleDefinitionName
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true

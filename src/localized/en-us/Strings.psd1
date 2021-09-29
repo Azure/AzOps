@@ -173,7 +173,6 @@
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                  = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Scope.Failed'                                               = 'Failed to read {0} as part of {1}' # $addition, $StatePath
     'Invoke-AzOpsPush.Scope.NotFound'                                             = 'Skipping {0}, not part of {1}' # $addition, $StatePath
-    'InvokeAzOpsPush.ManagementGroups.NotSupported'                               = 'Resource Deletion is not supported at Management group level {0}'#$managementfolderpath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
     'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}' # $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE
