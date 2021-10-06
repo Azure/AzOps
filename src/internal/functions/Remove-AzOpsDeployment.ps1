@@ -36,12 +36,10 @@ function Remove-AzOpsDeployment {
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
         #endregion
         #region Validate it is AzOpsgenerated template
-        if($templateContent.metadata._generator.name -eq "AzOps")
-        {
+        if ($templateContent.metadata._generator.name -eq "AzOps") {
             Write-PSFMessage -Level Verbose -Message 'Remove-AzOpsDeployment.Metadata.Success' -StringValues $TemplateFilePath -Target $TemplateFilePath
         }
-        else
-        {
+        else {
             Write-PSFMessage -Level Error -Message 'Remove-AzOpsDeployment.Metadata.Failed' -StringValues $TemplateFilePath -Target $TemplateFilePath
             return
         }
@@ -59,74 +57,73 @@ function Remove-AzOpsDeployment {
             return
         }
         #endregion Resolve Scope
+
         #region SetContext
         Set-AzOpsContext -ScopeObject $scopeObject
         #endregion SetContext
+
         #GetContext
         $context = Get-AzContext
         $contextObjectId = (Get-AzADServicePrincipal -ApplicationId $context.Account.id).Id
         #region PolicyAssignment
-        if($scopeObject.Resource -eq "policyAssignments"){
+        if ($scopeObject.Resource -eq "policyAssignments") {
             #Validate
             $policyAssignment = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction Continue -ErrorVariable resultsError
-            if($policyAssignment){
-                $validatePermissionList = @("Microsoft.Authorization/policyAssignments/delete","Microsoft.Authorization/policyAssignments/*","Microsoft.Authorization/*")
+            if ($policyAssignment) {
+                $validatePermissionList = @("Microsoft.Authorization/policyAssignments/delete", "Microsoft.Authorization/policyAssignments/*", "Microsoft.Authorization/*")
                 $roleAssignmentPermissionCheck = Get-AzOpsContextPermissionCheck -contextObjectId $contextObjectId -scope $policyAssignment.Properties.Scope -validatePermissionList $validatePermissionList
             }
             if (($resultsError -ne $null) -or (-not $policyAssignment)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound' -StringValues $scopeObject.Scope,$resultsError -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound' -StringValues $scopeObject.Scope, $resultsError -Target $scopeObject
                 $results = '{0}: What if Operation Failed: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName, $scopeObject.scope
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
                 return
             }
             elseif ((-not $roleAssignmentPermissionCheck)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext' -StringValues $context.Account.Id,$scopeObject.Scope -Target $scopeObject
-                $results = '{0}: What if Operation Failed: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName,$scopeObject.scope
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext' -StringValues $context.Account.Id, $scopeObject.Scope -Target $scopeObject
+                $results = '{0}: What if Operation Failed: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName, $scopeObject.scope
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
                 return
             }
             else {
-                $results = '{0}: What if Successful: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName,$scopeObject.scope
+                $results = '{0}: What if Successful: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $deploymentName, $scopeObject.scope
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
             }
             #removal of resource
-            if ($PSCmdlet.ShouldProcess("RemovePolicyAssignment?")) 
-            {
+            if ($PSCmdlet.ShouldProcess("RemovePolicyAssignment?")) {
                 Remove-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction Stop
             }
-            else{
+            else {
                 Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #endregion PolicyAssignment
         #Region roleAssignments
-        if($scopeObject.Resource -eq "roleAssignments")
-        {
+        if ($scopeObject.Resource -eq "roleAssignments") {
             #Validate
             $scopeOfRoleAssignment = $scopeObject.scope
-            $scopeOfRoleAssignment = $scopeOfRoleAssignment.Substring(0,$scopeOfRoleAssignment.LastIndexOf('/providers'))
+            $scopeOfRoleAssignment = $scopeOfRoleAssignment.Substring(0, $scopeOfRoleAssignment.LastIndexOf('/providers'))
             $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -scope $scopeOfRoleAssignment -ErrorAction Continue -ErrorVariable roleAssignmentError
-            if($roleAssignment)
-            {
-                $validatePermissionList = @("Microsoft.Authorization/roleAssignments/delete","Microsoft.Authorization/roleAssignments/*","Microsoft.Authorization/*")
+            if ($roleAssignment) {
+                $validatePermissionList = @("Microsoft.Authorization/roleAssignments/delete", "Microsoft.Authorization/roleAssignments/*", "Microsoft.Authorization/*")
                 $roleAssignmentPermissionCheck = Get-AzOpsContextPermissionCheck -contextObjectId $contextObjectId -scope $roleAssignment.Scope -validatePermissionList $validatePermissionList
             }
             if (($roleAssignmentError -ne $null) -or (-not $roleAssignment)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound' -StringValues $scopeObject.Scope,$resultsError -Target $scopeObject
-                $results = '{0}: What if Failed: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName,$templateContent.resources[0].properties.PrincipalId,$roleAssignment.Scope,$templateContent.resources[0].properties.RoleDefinitionName
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound' -StringValues $scopeObject.Scope, $resultsError -Target $scopeObject
+                $results = '{0}: What if Failed: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName, $templateContent.resources[0].properties.PrincipalId, $roleAssignment.Scope, $templateContent.resources[0].properties.RoleDefinitionName
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
                 return
             }
             elseif (-not $roleAssignmentPermissionCheck) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext' -StringValues $context.Account.Id,$scopeObject.Scope -Target $scopeObject
-                $results = '{0}: What if Failed: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName,$templateContent.resources[0].properties.PrincipalId,$roleAssignment.Scope,$templateContent.resources[0].properties.RoleDefinitionName
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveAssignment.MissingPermissionOnContext' -StringValues $context.Account.Id, $scopeObject.Scope -Target $scopeObject
+                $results = '{0}: What if Failed: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName, $templateContent.resources[0].properties.PrincipalId, $roleAssignment.Scope, $templateContent.resources[0].properties.RoleDefinitionName
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
                 return
             }
             else {
-                $results = '{0}: What if Successful: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName,$templateContent.resources[0].properties.PrincipalId,$roleAssignment.Scope,$templateContent.resources[0].properties.RoleDefinitionName
+                $results = '{0}: What if Successful: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $deploymentName, $templateContent.resources[0].properties.PrincipalId, $roleAssignment.Scope, $templateContent.resources[0].properties.RoleDefinitionName
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
                 Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
@@ -135,8 +132,7 @@ function Remove-AzOpsDeployment {
             if ($PSCmdlet.ShouldProcess("RemoveRoleAssignment?")) {
                 Remove-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -Scope $roleAssignment.Scope -ErrorAction Stop
             }
-            else
-            {
+            else {
                 Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }

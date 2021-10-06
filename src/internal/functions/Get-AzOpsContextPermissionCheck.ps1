@@ -29,32 +29,29 @@ function Get-AzOpsContextPermissionCheck {
     )
 
     process {
-        $roleAssignmentPermissionCheck=$false
+        $roleAssignmentPermissionCheck = $false
         $token = (Get-AzAccessToken).Token
         $requestHeader = @{
             "Authorization" = "Bearer " + $token
-            "Content-Type" = "application/json"
+            "Content-Type"  = "application/json"
         }
         $uri = "https://management.azure.com$scope/providers/Microsoft.Authorization/roleAssignments?api-version=2015-07-01"
         $roleAssignmentList = (Invoke-RestMethod -Method GET -Headers $requestheader -Uri $uri)
-        foreach($role in $roleAssignmentList.value.properties)
-        {
+        foreach ($role in $roleAssignmentList.value.properties) {
             if ($scope.contains("/subscriptions")) {
-                if(-not ($role.scope -eq $scope -or $role.scope -eq '/'))
-                {
+                if (-not ($role.scope -eq $scope -or $role.scope -eq '/')) {
                     Continue
                 }
             }
-            if($role.principalId -eq $contextObjectId)
-            {
+            if ($role.principalId -eq $contextObjectId) {
                 foreach ($item in $validatePermissionList) {
-                $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') +1)
-                    if(Get-AzRoleDefinition -Id $roledefinitionId | Where-Object {$_.Actions -contains $item -or $_.Actions -eq "*"}){
+                    $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') + 1)
+                    if (Get-AzRoleDefinition -Id $roledefinitionId | Where-Object { $_.Actions -contains $item -or $_.Actions -eq "*" }) {
                         $roleAssignmentPermissionCheck = $true
                         break
                     }
                 }
-                if($roleAssignmentPermissionCheck -eq $true){
+                if ($roleAssignmentPermissionCheck -eq $true) {
                     break
                 }
             }

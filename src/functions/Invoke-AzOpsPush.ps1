@@ -181,15 +181,14 @@
             Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.AddModify.File' -StringValues $item
         }
         Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.Delete'
-         if($DeleteSetContents -and $deleteSet) {
-            $DeleteSetContents = $DeleteSetContents -join "" -split "-- " | Where-Object {$_}
+        if ($DeleteSetContents -and $deleteSet) {
+            $DeleteSetContents = $DeleteSetContents -join "" -split "-- " | Where-Object { $_ }
             foreach ($item in $deleteSet) {
                 Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
                 foreach ($content in $DeleteSetContents) {
-                    if($content.Contains($item)){
-                        $jsonValue = $content.replace($item,"")
-                        if(-not(Test-Path -Path (Split-Path -Path $item)))
-                        {
+                    if ($content.Contains($item)) {
+                        $jsonValue = $content.replace($item, "")
+                        if (-not(Test-Path -Path (Split-Path -Path $item))) {
                             New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
                         }
                         Set-Content -Path $item -Value $jsonValue
@@ -252,7 +251,7 @@
 
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
         }
-        
+
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
 
             if ($deletion.EndsWith(".parameters.json") -or $deletion.EndsWith(".bicep")) {
@@ -260,7 +259,7 @@
             }
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            if(-not($templateContent.resources[0].type -eq "Microsoft.Authorization/roleAssignments" -or $templateContent.resources[0].type -eq "Microsoft.Authorization/policyAssignments")){
+            if (-not($templateContent.resources[0].type -eq "Microsoft.Authorization/roleAssignments" -or $templateContent.resources[0].type -eq "Microsoft.Authorization/policyAssignments")) {
                 Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }
@@ -285,7 +284,7 @@
         #Removal of RoleAssignments and PolicyAssignments
         $uniqueProperties = 'Scope', 'TemplateFilePath'
         $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
-        
+
     }
 
 }

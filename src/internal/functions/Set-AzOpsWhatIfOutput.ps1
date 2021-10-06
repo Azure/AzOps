@@ -24,16 +24,16 @@
     process {
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
 
-        if(-not (Test-Path -Path '/tmp/OUTPUT.md')){
+        if (-not (Test-Path -Path '/tmp/OUTPUT.md')) {
             New-Item -Path '/tmp/OUTPUT.md'
             New-Item -Path '/tmp/OUTPUT.json'
         }
 
-        if($removeAzOpsFlag){
+        if ($removeAzOpsFlag) {
             $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $results
         }
-        else{
-            $resultJson = ($results.Changes | ConvertTo-Json -Depth 5)
+        else {
+            $resultJson = ($results.Changes | ConvertTo-Json -Depth 100)
             $mdOutput = 'WhatIf Results: Resource Creation:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
             Add-Content -Path '/tmp/OUTPUT.json' -Value $resultJson -WhatIf:$false
         }
