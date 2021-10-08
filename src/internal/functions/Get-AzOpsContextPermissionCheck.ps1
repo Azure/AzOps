@@ -30,30 +30,26 @@ function Get-AzOpsContextPermissionCheck {
 
     process {
         $roleAssignmentPermissionCheck = $false
-        $token = (Get-AzAccessToken).Token
-        $requestHeader = @{
-            "Authorization" = "Bearer " + $token
-            "Content-Type"  = "application/json"
-        }
-        $uri = "https://management.azure.com$scope/providers/Microsoft.Authorization/roleAssignments?api-version=2015-07-01"
-        $roleAssignmentList = (Invoke-RestMethod -Method GET -Headers $requestheader -Uri $uri)
-        foreach ($role in $roleAssignmentList.value.properties) {
-            if ($scope.contains("/subscriptions")) {
-                if (-not ($role.scope -eq $scope -or $role.scope -eq '/')) {
+        $roleAssignmentList = Get-AzRoleAssignment -Scope $scope | Where-Object {$_.ObjectId -eq $contextObjectId}
+        foreach($role in $roleAssignmentList) {
+            $roleassignmentScope = $role.Scope.ToLower()
+            if((-not($scope.contains("/resourcegroups"))) -and $roleassignmentScope.contains("/resourcegroups")) {
+               Continue
+            }
+            if($scope.contains("/resourcegroups") -and (-not ($scope.contains("/providers")))) {
+                if($roleassignmentScope.contains("/providers") -and (-not ($roleassignmentScope.contains("/microsoft.management/managementgroups")))){
                     Continue
                 }
             }
-            if ($role.principalId -eq $contextObjectId) {
-                foreach ($item in $validatePermissionList) {
-                    $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') + 1)
-                    if (Get-AzRoleDefinition -Id $roledefinitionId | Where-Object { $_.Actions -contains $item -or $_.Actions -eq "*" }) {
-                        $roleAssignmentPermissionCheck = $true
-                        break
-                    }
-                }
-                if ($roleAssignmentPermissionCheck -eq $true) {
+            foreach ($item in $validatePermissionList) {
+                $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') +1)
+                if(Get-AzRoleDefinition -Id $roledefinitionId | Where-Object {$_.Actions -contains $item -or $_.Actions -eq "*"}){
+                   $roleAssignmentPermissionCheck = $true
                     break
-                }
+               }
+           }
+            if($roleAssignmentPermissionCheck -eq $true) {
+                break
             }
         }
         return $roleAssignmentPermissionCheck
