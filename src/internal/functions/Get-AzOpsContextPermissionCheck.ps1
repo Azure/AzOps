@@ -30,25 +30,25 @@ function Get-AzOpsContextPermissionCheck {
 
     process {
         $roleAssignmentPermissionCheck = $false
-        $roleAssignmentList = Get-AzRoleAssignment -Scope $scope | Where-Object {$_.ObjectId -eq $contextObjectId}
-        foreach($role in $roleAssignmentList) {
+        $roleAssignmentList = Get-AzRoleAssignment -Scope $scope | Where-Object { $_.ObjectId -eq $contextObjectId }
+        foreach ($role in $roleAssignmentList) {
             $roleassignmentScope = $role.Scope.ToLower()
-            if((-not($scope.contains("/resourcegroups"))) -and $roleassignmentScope.contains("/resourcegroups")) {
-               Continue
+            if ((-not($scope.contains("/resourcegroups"))) -and $roleassignmentScope.contains("/resourcegroups")) {
+                Continue
             }
-            if($scope.contains("/resourcegroups") -and (-not ($scope.contains("/providers")))) {
-                if($roleassignmentScope.contains("/providers") -and (-not ($roleassignmentScope.contains("/microsoft.management/managementgroups")))){
+            if ($scope.contains("/resourcegroups") -and (-not ($scope.contains("/providers")))) {
+                if ($roleassignmentScope.contains("/providers") -and (-not ($roleassignmentScope.contains("/microsoft.management/managementgroups")))) {
                     Continue
                 }
             }
             foreach ($item in $validatePermissionList) {
-                $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') +1)
-                if(Get-AzRoleDefinition -Id $roledefinitionId | Where-Object {$_.Actions -contains $item -or $_.Actions -eq "*"}){
-                   $roleAssignmentPermissionCheck = $true
+                $roledefinitionId = $role.roleDefinitionId.Substring($role.roleDefinitionId.LastIndexOf('/') + 1)
+                if (Get-AzRoleDefinition -Id $roledefinitionId | Where-Object { $_.Actions -contains $item -or $_.Actions -eq "*" }) {
+                    $roleAssignmentPermissionCheck = $true
                     break
-               }
-           }
-            if($roleAssignmentPermissionCheck -eq $true) {
+                }
+            }
+            if ($roleAssignmentPermissionCheck -eq $true) {
                 break
             }
         }
