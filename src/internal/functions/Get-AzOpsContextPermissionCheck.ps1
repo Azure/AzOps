@@ -1,4 +1,4 @@
-function Get-AzOpsContextPermissionCheck {
+﻿function Get-AzOpsContextPermissionCheck {
 
     <#
         .SYNOPSIS

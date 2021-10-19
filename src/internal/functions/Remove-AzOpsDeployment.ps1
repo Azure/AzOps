@@ -1,4 +1,4 @@
-function Remove-AzOpsDeployment {
+﻿function Remove-AzOpsDeployment {
     <#
         .SYNOPSIS
             Delete a Role Assignment / policy Assignment from azure.
