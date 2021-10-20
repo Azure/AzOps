@@ -3,6 +3,7 @@
 - [Introduction](#Introduction)
 - [Supported Action](#Supported-Action)
 - [How to use](#How-to-use)
+- [Integration with AzOps Accelerator](#Integration-with-AzOps-Accelerator)
 
 
 ### Introduction
@@ -84,3 +85,11 @@ Below are the detail steps by following  which Resource deletion feature can be 
                                         OR
                 Microsoft.Authorization/* OR  * (For everything)
     ```                                                                                 
+
+### Integration with AzOps Accelerator
+
+The AzOps Accelerator pipelines (including `Git Hub Actions` & `Azure Pipelines`) have been updated to incorporate the execution of the new resource deletion feature.
+
+Conditional logic has been implemented to call `Invoke-AzOpsPush` with required change set in case of resource deletion operation, while existing logic without resource deletion remains same.
+
+![ResourceDeletion_Pipeline_logic](./Media/ResourceDeletion/ResourceDeletion_pipelineupdate.PNG)
