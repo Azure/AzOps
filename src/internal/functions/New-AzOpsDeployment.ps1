@@ -112,7 +112,7 @@
                         Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
                         throw $resultsError.exception.InnerException.Message
                     }
-        
+
                 }
                 elseif ($results.Error) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -121,7 +121,7 @@
                 else {
                     Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                     Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                    Set-AzOpsWhatIfOutput -results $results
+                    Set-AzOpsWhatIfOutput -Results $results
                 }
 
                 $parameters.Name = $DeploymentName
@@ -137,7 +137,7 @@
             }
             else {
                 Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
-                
+
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
                     'SkipTemplateParameterPrompt' = $true
@@ -158,7 +158,7 @@
                         Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
                         throw $resultsError.exception.InnerException.Message
                     }
-                    
+
                 }
                 elseif ($results.Error) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
@@ -167,7 +167,7 @@
                 else {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    Set-AzOpsWhatIfOutput -results $results
+                    Set-AzOpsWhatIfOutput -Results $results
                 }
 
                 $parameters.Name = $DeploymentName
@@ -219,7 +219,7 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -results $results
+                Set-AzOpsWhatIfOutput -Results $results
             }
 
             $parameters.Name = $DeploymentName
@@ -268,7 +268,7 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -results $results
+                Set-AzOpsWhatIfOutput -Results $results
             }
 
             $parameters.Name = $DeploymentName
@@ -308,7 +308,7 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -results $results
+                Set-AzOpsWhatIfOutput -Results $results
             }
 
             $parameters.Name = $DeploymentName
