@@ -15,10 +15,10 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        $results,
+        $Results,
 
         [Parameter(Mandatory = $false)]
-        $removeAzOpsFlag = $false
+        $RemoveAzOpsFlag = $false
     )
 
     process {
@@ -29,8 +29,8 @@
             New-Item -Path '/tmp/OUTPUT.json'
         }
 
-        if ($removeAzOpsFlag) {
-            $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $results
+        if ($RemoveAzOpsFlag) {
+            $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $Results
         }
         else {
             $resultJson = ($results.Changes | ConvertTo-Json -Depth 100)
