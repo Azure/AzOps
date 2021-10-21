@@ -13,6 +13,7 @@
 * [Steps](https://github.com/azure/azops/wiki/steps)
 * [Deployments](https://github.com/azure/azops/wiki/deployments)
   * [Subscriptions](https://github.com/Azure/Enterprise-Scale/wiki/Create-Landingzoness)
+* [Resources Deletion Feature](https://github.com/azure/azops/wiki/ResourceDeletion)
 * [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
