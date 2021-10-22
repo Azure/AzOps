@@ -24,7 +24,7 @@ The purpose of this wiki is to provide detailed information about **AzOps Resour
 
 Detailed steps:
 
-1. Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run AzOps - Pull
+1. Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run `AzOps - Pull`
 
     ![ResourceDeletion_workflow](./Media/ResourceDeletion/ResourceDeletion_workflow.PNG)
     ![ResourceDeletion_intial_Pull](./Media/ResourceDeletion/ResourceDeletion_intial_Pull.PNG)
