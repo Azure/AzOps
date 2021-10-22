@@ -29,7 +29,7 @@ Detailed steps:
     ![ResourceDeletion_workflow](./Media/ResourceDeletion/ResourceDeletion_workflow.PNG)
     ![ResourceDeletion_intial_Pull](./Media/ResourceDeletion/ResourceDeletion_intial_Pull.PNG)
 
-2. Its recommended to capture the current stage either from `portal` or via any `script` to validate the behaviour after completion of the deletion.
+2. It's recommended to capture the current stage either from `portal` or via any `script` to validate the behaviour after completion of the deletion.
 
     ![ResourceDeletion_RBAC_portal](./Media/ResourceDeletion/ResourceDeletion_RBAC_portal.PNG)
     ![ResourceDeletion_azpolicy_portal](./Media/ResourceDeletion/ResourceDeletion_azpolicy_portal.PNG)
