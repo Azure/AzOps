@@ -13,7 +13,7 @@ The purpose of this wiki is to provide detailed information about **AzOps Resour
 **AzOps Resource Deletion** performs deletion of role and policy assignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels.
 
 
-### Supported Action
+### Supported Actions
 
  - Deleting Custom or Built-in Role assignment: When `Invoke-AzOpsPull` runs, it fetches the existing environment which includes custom and built-in role assignment. By removing the assignment file, role assignment at all Azure scope levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
 
