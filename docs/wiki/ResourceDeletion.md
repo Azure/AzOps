@@ -1,4 +1,4 @@
-# AzOps Resources Deletion
+# AzOps Resource Deletion
 
 - [Introduction](#Introduction)
 - [Supported Action](#Supported-Action)
