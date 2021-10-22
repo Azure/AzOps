@@ -15,9 +15,9 @@ The purpose of this wiki is to provide detailed information about **AzOps Resour
 
 ### Supported Action
 
- - Deleting Custom or Built-in Role assignment: When `Invoke-AzOpsPull` runs, its fetches the existing environment which also includes custom and built-in role assignment. By removing the assignment file, role assignment at all levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
+ - Deleting Custom or Built-in Role assignment: When `Invoke-AzOpsPull` runs, it fetches the existing environment which includes custom and built-in role assignment. By removing the assignment file, role assignment at all Azure scope levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
 
- - Deleting Custom or Built-in Azure Policy assignment: When `Invoke-AzOpsPull` runs, its fetches the existing environment which also includes custom and built-in  Azure Policy assignment. By removing the assignment file,  Azure Policy assignment at all levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
+ - Deleting Custom or Built-in Azure Policy assignment: When `Invoke-AzOpsPull` runs, its fetches the existing environment which includes custom and built-in Azure Policy assignment. By removing the assignment file, Azure Policy assignment at all Azure scope levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
 
 
 ### How to use
