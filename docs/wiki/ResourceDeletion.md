@@ -22,7 +22,7 @@ The purpose of this wiki is to provide detailed information about **AzOps Resour
 
 ### How to use
 
-Below are the detail steps by following  which Resource deletion feature can be leveraged:
+Detailed steps:
 
 1. Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run AzOps - Pull
 
