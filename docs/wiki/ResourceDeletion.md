@@ -8,7 +8,7 @@
 
 ### Introduction
 
-The purpose of this wiki is to provide you with the detail information about ** AzOps Resource Deletion**. Resource deletion performs deletion of role and policy assignments in Azure, based on the AzOps pull generated templates at all scopes.
+The purpose of this wiki is to provide you with the detail information about **AzOps Resource Deletion**. Resource deletion performs deletion of role and policy assignments in Azure, based on the AzOps pull generated templates at all scopes.
 
 
 ### Supported Action
