@@ -95,5 +95,5 @@ Conditional logic has been implemented to call `Invoke-AzOpsPush` with required 
 
 ### How to Add AzOps Resource Deletion to existing AzOps - Pull and Validate pipelines (applicable to implementations created prior to AzOps release v1.6.0)
 
-1. Update the `AzOps - Pull` pipeline by copying content from the latest upstream `pull.yml`https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/pull.yml file into your existing file.
-2. Update the `AzOps - Validate` pipeline by copying content from the latest upstream `validate.yml`https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/validate.yml file into your existing file.
+1. Update the `AzOps - Pull` pipeline by copying content from the latest upstream [pull.yml](https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/pull.yml) file into your existing file.
+2. Update the `AzOps - Validate` pipeline by copying content from the latest upstream [validate.yml](https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/validate.yml) file into your existing file.
