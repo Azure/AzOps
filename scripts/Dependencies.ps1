@@ -18,6 +18,11 @@ foreach ($dependency in $data.RequiredModules) {
     if ($null -ne $module) { Uninstall-Module -Name $dependency -Force }
     Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force
 }
+# Download and add bicep to PATH
+curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+chmod +x ./bicep
+sudo mv ./bicep /usr/local/bin/bicep
+bicep --help
 
 # List Modules
 Get-InstalledModule | Select-Object Name, Version, Repository, InstalledDate | Sort-Object Name | Format-Table
