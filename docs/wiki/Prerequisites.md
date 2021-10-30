@@ -1,19 +1,18 @@
 ## In this guide
 
 - [Steps](#steps)
-- [Azure](#discovery)
-- [Azure Active Directory](#azuread)
+- [Azure](#azure)
+- [Azure Active Directory](#azure-active-directory)
 
 ---
 
 ### Steps
 
-- Create the Service Principal
-- Assign the permissions at the required scope (/)
-- Assign the Directory role permissions
+- Create Service Principal
+- Assign Azure `Owner` role at the required root scope (/) to the Service Principal
+- Add Service Principal to Azure Active Directory `Directory Readers` role
 
-Please check if the _Az_ and _AzureAD_ modules are installed locally before executing these scripts.
-Alternatively, these command can be run within a Cloud Shell instance.
+Theses steps require _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
 
 ---
 
@@ -26,7 +25,7 @@ Alternatively, these command can be run within a Cloud Shell instance.
 # Install module
 #
 
-Install-Module -Name Az
+Install-Module Az.Accounts, Az.Resources
 
 #
 # Connect to Azure
@@ -36,10 +35,11 @@ Connect-AzAccount
 
 #
 # Create Service Principal and assign
-# 'Owner' role to tenant root scope '/'
+# 'Owner' role at tenant root scope '/'
 #
 
-$servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName AzOps
+$servicePrincipalDisplayName = "AzOps"
+$servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName $servicePrincipalDisplayName
 
 #
 # Display the generated Service Principal
@@ -60,32 +60,37 @@ Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureSt
 # Install module
 #
 
-Install-Module -Name AzureAD
+Install-Module Microsoft.Graph.Identity.DirectoryManagement
 
 #
 # Connect to Azure Active Directory
 #
 
-Connect-AzureAD
+Connect-MgGraph -Scopes "Directory.Read.All,RoleManagement.ReadWrite.Directory"
 
 #
-# Get Service Principal from Azure AD
+# Get Service Principal from Azure Active Directory
 #
 
-$servicePrincipal = Get-AzureADServicePrincipal -Filter "DisplayName eq 'AzOps'"
-
-#
-# Assign Azure AD Directory Role
-#
-
-$directoryRole = Get-AzureADDirectoryRole -Filter "DisplayName eq 'Directory Readers'"
-if ($directoryRole -eq $null) {
-    Write-Warning "Directory Reader role not found"
+$servicePrincipalDisplayName = "AzOps"
+$servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$servicePrincipalDisplayName'"
+if (-not $servicePrincipal) {
+    Write-Error "$servicePrincipalDisplayName Service Principal not found"
 }
-else {
-    Add-AzureADDirectoryRoleMember -ObjectId $directoryRole.ObjectId -RefObjectId $servicePrincipal.ObjectId
+
+#
+# Add Azure Active Directory Role Member
+#
+
+$directoryRoleDisplayName = "Directory Readers"
+$directoryRole = Get-MgDirectoryRole -Filter "DisplayName eq '$directoryRoleDisplayName'"
+if (-not $directoryRole) {
+    Write-Warning "$directoryRoleDisplayName role not found"
+} else {
+    $body = @{'@odata.id' = "https://graph.microsoft.com/v1.0/directoryObjects/$($servicePrincipal.Id)"}
+    New-MgDirectoryRoleMemberByRef -DirectoryRoleId $directoryRole.id -BodyParameter $body
 }
 ```
 
-> If you receiving the warning message "Directory Reader role not found."  this usually occurs when the role has not yet been used in your directory.
-> As a workaround, try assigning this role manually to the AzOps App in the Azure portal
+> If you receive a warning message "Directory Readers role not found."  this can occur when the role has not yet been used in your directory.
+> As a workaround, assigning the role manually to the AzOps App from the Azure portal
