@@ -12,7 +12,9 @@
 - Assign Azure `Owner` role at the required root scope (/) to the Service Principal
 - Add Service Principal to Azure Active Directory `Directory Readers` role
 
-Theses steps require _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
+The Service Principal requires Azure Active Directory [Directory Readers](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#directory-readers) role to discover Azure 'roleAssignments'. These permissions are used to enrich data around the role assignments with additional Azure AD context such as ObjectType and Azure AD Object DisplayName.
+
+> Theses steps require _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
 
 ---
 
