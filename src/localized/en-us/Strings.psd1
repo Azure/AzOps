@@ -161,10 +161,11 @@
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                    = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                        = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                        = 'Deployment required' #
+    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                      = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                 = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                   = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
+    'Invoke-AzOpsPush.Resolve.InvalidCharacter'                                   = 'The specified file contains invalid characters (remove any "[" or "]" characters)! Skipping {0}' # $FilePath
     'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                          = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                             = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.NoJson'                                             = 'The specified file is not a json file at all! Skipping {0}' # $fileItem.FullName
