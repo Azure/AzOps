@@ -70,6 +70,7 @@
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
+
             #endregion Initialization Prep
 
             #region Case: Parameters File

@@ -56,6 +56,7 @@
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
+    'ConvertTo-AzOpsState.File.InvalidCharacter'                                    = 'The specified AzOpsState file contains invalid characters (remove any "[" or "]" characters)! Skipping {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.File.UseExisting'                                         = 'AzOpsState file is found. Using existing file: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.NoExportPath'                                             = 'No export path found for {0}. Ensure the original data type remains intact or specify an -ExportPath' # $Resource
     'ConvertTo-AzOpsState.Processing'                                               = 'Processing input: {0}' # $Resource
@@ -161,9 +162,9 @@
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                    = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                        = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                        = 'Deployment required' #
+    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                      = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                 = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                   = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                          = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                             = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
