@@ -4,13 +4,13 @@ This article answers frequently asked questions relating to AzOps.
 
 ## In this Section
 
-  - [Subscription or resources not showing up in repository?](#subscription-or-resources-not-showing-up-in-repository)
+  - [Subscriptions or resources not showing up in repository?](#subscriptions-or-resources-not-showing-up-in-repository)
 
 
 
-## Subscription or resources not showing up in your repository?
+## Subscriptions or resources not showing up in your repository?
 
-If subscriptions, resource groups or resources are not showing up in your repository (it affects both pull operations and push deployments of new resources). This can happen because there are invalid characters in the resource path. 
+If there are invalid characters in the resource path, discovery of subscriptions, resource groups or resources will fail during push or pull operations.
 
 To confirm if this applies to you, check the pipeline logs for any of the following messages:
 ```powershell
