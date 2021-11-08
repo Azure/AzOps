@@ -20,3 +20,4 @@ To confirm if this applies to you, check the pipeline logs for any of the follow
 ```powershell
 [New-AzOpsScope] Path not found: <PathToResource> 
 ```
+Remove the invalid resource or character and retry the operation.
