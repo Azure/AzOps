@@ -65,11 +65,18 @@
                 Scope                     = $ScopeObject.Scope
             }
 
+        #    #check for invalid characters "[" "]"
+        #    if ($FilePath -match [regex]::Escape("[") -or $FilePath -match [regex]::Escape("]")) {
+        #        Write-PSFMessage -Level Error -String 'Invoke-AzOpsPush.Resolve.InvalidCharacter' -StringValues $FilePath -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
+        #        return
+        #    }
+
             $fileItem = Get-Item -Path $FilePath
             if ($fileItem.Extension -notin '.json' , '.bicep') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
+
             #endregion Initialization Prep
 
             #region Case: Parameters File
