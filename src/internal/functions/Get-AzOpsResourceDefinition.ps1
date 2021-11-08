@@ -15,6 +15,8 @@
             Skip discovery of resource groups.
         .PARAMETER SkipResource
             Skip discovery of resources inside resource groups.
+        .PARAMETER SkipResourceType
+            Skip discovery of specific resource types.
         .PARAMETER ExportRawTemplate
             Export generic templates without embedding them in the parameter block.
         .PARAMETER StatePath
@@ -53,6 +55,9 @@
 
         [switch]
         $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
+
+        [string[]]
+        $SkipResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceType'),
 
         [switch]
         $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
@@ -105,6 +110,9 @@
                 [switch]
                 $SkipResource,
 
+                [string[]]
+                $SkipResourceType,
+
                 [string]
                 $StatePath,
 
@@ -145,7 +153,7 @@
                     ODataQuery        = $OdataFilter
                     ExpandProperties  = $true
                 }
-                Get-AzResource @paramGetAzResource | ForEach-Object {
+                Get-AzResource @paramGetAzResource | Where-Object {$_.Type -notin $SkipResourceType} | ForEach-Object {
                     New-AzOpsScope -Scope $_.ResourceId
                 } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
             }
@@ -171,6 +179,9 @@
 
                 [switch]
                 $SkipResource,
+
+                [string[]]
+                $SkipResourceType,
 
                 [string]
                 $ODataFilter )
@@ -220,6 +231,7 @@
                             ScopeObject                     = $ScopeObject
                             ODataFilter                     = $ODataFilter
                             SkipResource                    = $SkipResource
+                            SkipResourceType                = $SkipResourceType
                             MaxRetryCount                   = $maxRetryCount
                             BackoffMultiplier               = $backoffMultiplier
                             ExportRawTemplate               = $ExportRawTemplate
@@ -284,7 +296,7 @@
                                 }
 
                                 # Loop through resources and convert them to AzOpsState
-                                foreach ($resource in $resources) {
+                                foreach ($resource in ($resources | Where-Object {$_.Type -notin $runspaceData.SkipResourceType})) {
                                     # Convert resources to AzOpsState
                                     Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
                                     & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
@@ -392,8 +404,8 @@
 
         switch ($scopeObject.Type) {
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
-            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -OdataFilter $odataFilter }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -ODataFilter $odataFilter }
+            resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -OdataFilter $odataFilter }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -ODataFilter $odataFilter }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
