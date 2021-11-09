@@ -3,7 +3,7 @@ name: "Dependencies"
 
 on:
   schedule:
-    - cron:  '0 */6 * * *'
+    - cron:  '30 1 1,15 * *'
   workflow_dispatch:
 
 env:
@@ -20,13 +20,11 @@ env:
 
 jobs:
   dependencies:
-    name: "Dependencies"
+    name: "Automated Dependencies"
     runs-on: ubuntu-20.04
     steps:
       - name: "Checkout"
-        shell: bash
-        run: |
-          git checkout -b ${{ env.branch }}
+        uses: actions/checkout@v2
 
       - name: "Configure"
         run: |
@@ -37,24 +35,23 @@ jobs:
         run: |
           git checkout -b ${{ env.branch }}
 
+      - name: "Dependencies"
+        run: |
+          ./scripts/Dependencies.ps1
+        shell: pwsh
+
       - name: "Updates"
         run: ./scripts/UpdateRequiredModules.ps1
         shell: pwsh
 
-      - name: "Add"
+      - name: "Execute"
         run: |
-          git add src/AzOps.psd1
-
-      - name: "Commit"
-        run: |
-          git commit -m 'Update AzOps.psd1'
-
-      - name: "Push"
-        run: |
-          git push origin ${{ env.branch }}
-
-      - name: "Merge"
-        run: |
-          gh pr create --base 'main' --head ${{ env.branch }} --title 'Bump Automated-Dependencies' --body '' --label 'dependencies'
+          FILE=/tmp/updates.json
+          if [ -f "$FILE" ]; then
+              git add src/AzOps.psd1
+              git commit -m 'Update AzOps.psd1'
+              git push origin ${{ env.branch }}
+              gh pr create --base 'main' --head ${{ env.branch }} --title 'Bump Dependencies' --body '' --label 'dependencies'
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
