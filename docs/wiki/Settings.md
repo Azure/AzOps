@@ -17,7 +17,7 @@ The following configuration values can be modified within the `settings.json` fi
 | 16 | SkipPolicy                           | Generate template files for Policy types                     |
 | 17 | SkipResource                         | Generate template files for Resources within Resource Groups |
 | 18 | SkipResourceGroup                    | Generate folder hierachy for all Resource Groups             |
-| 19 | SkipResourceType                     | Skip these Resource Types                                    |
+| 19 | SkipResourceType                     | Skip specific [Resource Types](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets resourcegroup scoped resources)|
 | 20 | SkipRole                             | Generate template files for Role types                       |
 | 21 | State                                | Default top level folder name within the repository          |
 | 22 | SubscriptionsToIncludeResourceGroups | Generate folder hierachy for specific Resource Groups        |
