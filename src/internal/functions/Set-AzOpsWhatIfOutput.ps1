@@ -37,13 +37,13 @@
         }
         else {
             $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
-            $resultstring = $Results | Out-String
-            $resultstringmeasure = $resultstring | Measure-Object -Line -Character -Word
-            if ($($resultstringmeasure.Characters) -gt $ResultSizeLimit) {
+            $resultString = $Results | Out-String
+            $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
+            if ($($resultStringMeasure.Characters) -gt $ResultSizeLimit) {
                 $mdOutput = 'WhatIf Results: WhatIf is too large for comment field, for more details look at PR files to determine changes.'
             }
             else {
-                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultstring
+                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString
             }
             Add-Content -Path '/tmp/OUTPUT.json' -Value $resultJson -WhatIf:$false
         }
