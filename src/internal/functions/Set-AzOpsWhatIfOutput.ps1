@@ -8,7 +8,7 @@
         .PARAMETER results
             The WhatIf result from a deployment
         .EXAMPLE
-            > Set-WhatIfOutput -results $results -removeAzOpsFlag $true
+            > Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
             $removeAzOpsFlag is set to true when we need to push contents for Remove-AzopsDeployment to PR
     #>
 
@@ -18,7 +18,10 @@
         $Results,
 
         [Parameter(Mandatory = $false)]
-        $RemoveAzOpsFlag = $false
+        $RemoveAzOpsFlag = $false,
+
+        [Parameter(Mandatory = $false)]
+        $ResultSizeLimit = "64000"
     )
 
     process {
@@ -33,8 +36,15 @@
             $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $Results
         }
         else {
-            $resultJson = ($results.Changes | ConvertTo-Json -Depth 100)
-            $mdOutput = 'WhatIf Results: Resource Creation:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
+            $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
+            $resultstring = $Results | Out-String
+            $resultstringmeasure = $resultstring | Measure-Object -Line -Character -Word
+            if ($($resultstringmeasure.Characters) -gt $ResultSizeLimit) {
+                $mdOutput = 'WhatIf Results: WhatIf is too large for comment field, for more details look at PR files to determine changes.'
+            }
+            else {
+                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultstring
+            }
             Add-Content -Path '/tmp/OUTPUT.json' -Value $resultJson -WhatIf:$false
         }
         Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
