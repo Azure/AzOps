@@ -25,7 +25,7 @@ Before you start to configure the workload federation feature in Azure AD and ch
     ![Overview](./Media/oidc/spn_addcreds2.jpg)
     ![Overview](./Media/oidc/spn_added.jpg)
 ### Github Actions 
-> **Note:** If you don't want to update the pipelines manually, end-to-end sample pipelines with all required settings configured can be found [here](.https://github.com/azure/azops-accelerator/github/samples/oidc-azuread). 
+> **Note:** If you don't want to update the pipelines manually, end-to-end sample pipelines with all required settings configured can be found [here](https://github.com/Azure/AzOps-Accelerator/tree/main/.github/samples/oidc-azuread). 
 1. Add [permissions for the action](https://github.blog/changelog/2021-04-20-github-actions-control-permissions-for-github_token/) to be able to access the id-tokens and other relevant objects.
     ```yaml
     permissions:
