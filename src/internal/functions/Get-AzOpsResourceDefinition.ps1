@@ -202,7 +202,7 @@
                 # Skip discovery of resource groups if SkipResourceGroup switch have been used
                 # Separate discovery of resource groups in subscriptions to support parallel discovery
                 if ($SkipResourceGroup) {
-                    Write-PSFMessage -Level Important @common -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'
+                    Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'
                 }
                 else {
                     # Get all Resource Groups in Subscription
@@ -303,7 +303,7 @@
                                 }
                             }
                             else {
-                                Write-PSFMessage -Level Important @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
+                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
                             }
 
                         }
@@ -396,7 +396,7 @@
         }
 
         if ($scopeObject.Subscription) {
-            Write-PSFMessage -Level Warning-String 'Get-AzOpsResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
             $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scopeObject.Subscription }
             $odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
             Write-PSFMessage -Level Debug -String 'Get-AzOpsResourceDefinition.Subscription.OdataFilter' -StringValues $odataFilter

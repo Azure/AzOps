@@ -227,12 +227,12 @@
                     #endregion
 
                 }
-                Write-PSFMessage -Level Important -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
+                Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
                 ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
         else {
-            Write-PSFMessage -Level Important -String 'ConvertTo-AzOpsState.Exporting.Default' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
+            Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Exporting.Default' -StringValues $objectFilePath -FunctionName 'ConvertTo-AzOpsState'
             if ($ReturnObject) { return $Resource }
             else {
                 ConvertTo-Json -InputObject $Resource -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force

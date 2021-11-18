@@ -138,7 +138,7 @@
                 $result.TemplateParameterFilePath = $parameterPath
             }
             else {
-                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
