@@ -63,17 +63,17 @@
     process {
         # If data exists and we don't want to rebuild the data cache, no point in continuing
         if (-not $InvalidateCache -and $script:AzOpsAzManagementGroup -and $script:AzOpsSubscriptions) {
-            Write-PSFMessage -String 'Initialize-AzOpsEnvironment.UsingCache'
+            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.UsingCache'
             return
         }
 
         #region Initialize & Prepare
-        Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Processing'
+        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Processing'
         $currentAzContext = Get-AzContext
         $tenantId = $currentAzContext.Tenant.Id
         $rootScope = '/providers/Microsoft.Management/managementGroups/{0}' -f $tenantId
 
-        Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Initializing'
+        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Initializing'
         if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.State'))) {
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
@@ -100,7 +100,7 @@
             $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
         }
         if (-not $rootPermissions) {
-            Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
+            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
             $PartialMgDiscovery = $true
         }
         else {
@@ -110,7 +110,7 @@
 
         #region Partial Discovery
         if ($PartialMgDiscoveryRoot) {
-            Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
+            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
             $PartialMgDiscovery = $true
             $managementGroups = @()
             foreach ($managementRoot in $PartialMgDiscoveryRoot) {
@@ -121,16 +121,16 @@
         #endregion Partial Discovery
 
         #region Management Group Resolution
-        Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -StringValues $managementGroups.Count
+        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -StringValues $managementGroups.Count
         $tempResolved = foreach ($mgmtGroup in $managementGroups) {
-            Write-PSFMessage -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
+            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
             Get-AzOpsManagementGroups -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution
         #endregion Management Group Processing
 
-        Write-PSFMessage -String 'Initialize-AzOpsEnvironment.Processing.Completed'
+        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Processing.Completed'
     }
 
 }

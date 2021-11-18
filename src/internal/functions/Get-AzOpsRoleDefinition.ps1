@@ -21,14 +21,14 @@
     )
 
     process {
-        Write-PSFMessage -String 'Get-AzOpsRoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
+        Write-PSFMessage -Level Important -String 'Get-AzOpsRoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
         foreach ($roleDefinition in Get-AzRoleDefinition -Custom -Scope $ScopeObject.Scope -WarningAction SilentlyContinue) {
             #removing trailing '/' if it exists in assignable scopes
             if (($roledefinition.AssignableScopes[0] -replace "[/]$" -replace '') -eq $ScopeObject.Scope) {
                 [AzOpsRoleDefinition]::new($roleDefinition)
             }
             else {
-                Write-PSFMessage -String 'Get-AzOpsRoleDefinition.NonAuthorative' -StringValues $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsRoleDefinition.NonAuthorative' -StringValues $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
             }
         }
     }

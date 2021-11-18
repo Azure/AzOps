@@ -8,7 +8,7 @@
         .PARAMETER results
             The WhatIf result from a deployment
         .EXAMPLE
-            > Set-WhatIfOutput -results $results -removeAzOpsFlag $true
+            > Set-AzOpsWhatIfOutput -results $results -removeAzOpsFlag $true
             $removeAzOpsFlag is set to true when we need to push contents for Remove-AzopsDeployment to PR
     #>
 
@@ -18,23 +18,33 @@
         $Results,
 
         [Parameter(Mandatory = $false)]
-        $RemoveAzOpsFlag = $false
+        $RemoveAzOpsFlag = $false,
+
+        [Parameter(Mandatory = $false)]
+        $ResultSizeLimit = "64000"
     )
 
     process {
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
 
         if (-not (Test-Path -Path '/tmp/OUTPUT.md')) {
-            New-Item -Path '/tmp/OUTPUT.md'
-            New-Item -Path '/tmp/OUTPUT.json'
+            New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
+            New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
         }
 
         if ($RemoveAzOpsFlag) {
             $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $Results
         }
         else {
-            $resultJson = ($results.Changes | ConvertTo-Json -Depth 100)
-            $mdOutput = 'WhatIf Results: Resource Creation:{0}```json{0}{1}{0}```{0}' -f [environment]::NewLine, $resultJson
+            $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
+            $resultString = $Results | Out-String
+            $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
+            if ($($resultStringMeasure.Characters) -gt $ResultSizeLimit) {
+                $mdOutput = 'WhatIf Results: WhatIf is too large for comment field, for more details look at PR files to determine changes.'
+            }
+            else {
+                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString
+            }
             #If there is existing content in output.json we want to preserve that and append to it the latest results in a proper JSON document
             #with a top level array for parsing later if needed.
             $existingContent = @(get-content '/tmp/OUTPUT.json' -raw | convertfrom-json)

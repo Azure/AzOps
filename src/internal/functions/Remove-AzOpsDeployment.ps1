@@ -31,7 +31,7 @@
         $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
         $deploymentName = "AzOps-RemoveResource-$deploymentName"
         $roleAssignmentPermissionCheck = $false
-        Write-PSFMessage -String 'Remove-AzOpsDeployment.Processing' -StringValues $deploymentName, $TemplateFilePath -Target $TemplateFilePath
+        Write-PSFMessage -Level Important -String 'Remove-AzOpsDeployment.Processing' -StringValues $deploymentName, $TemplateFilePath -Target $TemplateFilePath
         #region Parse Content
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
         #endregion
