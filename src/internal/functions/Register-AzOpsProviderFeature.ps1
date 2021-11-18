@@ -27,10 +27,10 @@
         #TODO: Clarify original function design intent
 
         # Get Subscription ID from scope (since Subscription ID is not available for Resource Groups and Resources)
-        Write-PSFMessage -String 'Register-AzOpsProviderFeature.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
+        Write-PSFMessage -Level Verbose -String 'Register-AzOpsProviderFeature.Processing' -StringValues $ScopeObject, $FileName -Target $ScopeObject
         $currentContext = Get-AzContext
         if ($ScopeObject.Subscription -and $currentContext.Subscription.Id -ne $ScopeObject.Subscription) {
-            Write-PSFMessage -String 'Register-AzOpsProviderFeature.Context.Switching' -StringValues $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name -Target $ScopeObject
+            Write-PSFMessage -Level Verbose -String 'Register-AzOpsProviderFeature.Context.Switching' -StringValues $currentContext.Subscription.Name, $CurrentAzContext.Subscription.Id, $ScopeObject.Subscription, $ScopeObject.Name -Target $ScopeObject
             try {
                 $null = Set-AzContext -SubscriptionId $ScopeObject.Subscription -ErrorAction Stop
             }
@@ -43,7 +43,7 @@
         $providerFeatures = Get-Content  $FileName | ConvertFrom-Json
         foreach ($providerFeature in $providerFeatures) {
             if ($ProviderFeature.FeatureName -and $ProviderFeature.ProviderName) {
-                Write-PSFMessage -String 'Register-AzOpsProviderFeature.Provider.Feature' -StringValues $ProviderFeature.FeatureName, $ProviderFeature.ProviderName -Target $ScopeObject
+                Write-PSFMessage -Level Verbose -String 'Register-AzOpsProviderFeature.Provider.Feature' -StringValues $ProviderFeature.FeatureName, $ProviderFeature.ProviderName -Target $ScopeObject
                 Register-AzProviderFeature -Confirm:$false -ProviderNamespace $ProviderFeature.ProviderName -FeatureName $ProviderFeature.FeatureName
             }
         }

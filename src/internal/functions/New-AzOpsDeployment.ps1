@@ -49,7 +49,7 @@
     )
 
     process {
-        Write-PSFMessage -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
+        Write-PSFMessage -Level Important -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
 
         #region Resolve Scope
         try {
@@ -86,7 +86,7 @@
             if ($templateContent.resources[0].type -eq 'Microsoft.Resources/resourceGroups') {
                 # Since this is a deployment for resource group, it must be invoked at subscription scope
                 $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-                Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
@@ -136,7 +136,7 @@
                 }
             }
             else {
-                Write-PSFMessage -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
 
                 $parameters = @{
                     'TemplateFile'                = $TemplateFilePath
@@ -186,7 +186,7 @@
         #region Subscription
         elseif ($scopeObject.subscription) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
                 Set-AzOpsContext -ScopeObject $scopeObject
@@ -237,7 +237,7 @@
         #region Management Group
         elseif ($scopeObject.managementGroup) {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'                = $TemplateFilePath
@@ -286,7 +286,7 @@
         #region Root
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
             $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-            Write-PSFMessage -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
 
             $parameters = @{
                 'TemplateFile'                = $TemplateFilePath

@@ -89,13 +89,13 @@
                     Target       = $ScopeObject
                 }
 
-                Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Resource.Processing' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup
+                Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Resource.Processing' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup
                 try {
                     $resource = Get-AzResource -ResourceId $ScopeObject.scope -ErrorAction Stop
                     ConvertTo-AzOpsState -Resource $resource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
                 }
                 catch {
-                    Write-PSFMessage @common -Level Warning -String 'Get-AzOpsResourceDefinition.Resource.Processing.Failed' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup -ErrorRecord $_
+                    Write-PSFMessage -Level Warning @common -String 'Get-AzOpsResourceDefinition.Resource.Processing.Failed' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup -ErrorRecord $_
                 }
             }
         }
@@ -131,17 +131,17 @@
                     Target       = $ScopeObject
                 }
 
-                Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+                Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
                 try {
                     $resourceGroup = Get-AzResourceGroup -Name $ScopeObject.ResourceGroup -DefaultProfile $Context -ErrorAction Stop
                 }
                 catch {
-                    Write-PSFMessage @common -Level Warning -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -ErrorRecord $_
+                    Write-PSFMessage -Level Warning @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -ErrorRecord $_
                     return
                 }
                 if ($resourceGroup.ManagedBy) {
-                    Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned' -StringValues $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
+                    Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned' -StringValues $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
                     return
                 }
                 ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
@@ -197,12 +197,12 @@
                     Target       = $ScopeObject
                 }
 
-                Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+                Write-PSFMessage -Level Important @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
                 # Skip discovery of resource groups if SkipResourceGroup switch have been used
                 # Separate discovery of resource groups in subscriptions to support parallel discovery
                 if ($SkipResourceGroup) {
-                    Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'
+                    Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'
                 }
                 else {
                     # Get all Resource Groups in Subscription
@@ -221,7 +221,7 @@
                             Get-AzResourceGroup -DefaultProfile ($Context | Write-Output) -ErrorAction Stop | Where-Object { -not $_.ManagedBy }
                         } -RetryCount $maxRetryCount -RetryWait $backoffMultiplier -RetryType Exponential
                         if (-not $resourceGroups) {
-                            Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+                            Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
                         }
 
                         #region Prepare Input Data for parallel processing
@@ -270,11 +270,11 @@
                                 $_.Subscription.id -eq $runspaceData.ScopeObject.Subscription
                             }
 
-                            Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                            Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
                             if (-not $using:SkipResource) {
-                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                                 $resources = & $azOps {
                                     $parameters = @{
                                         DefaultProfile = $Context | Select-Object -First 1
@@ -292,25 +292,25 @@
                                     } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                 }
                                 if (-not $resources) {
-                                    Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                                    Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                                 }
 
                                 # Loop through resources and convert them to AzOpsState
                                 foreach ($resource in ($resources | Where-Object {$_.Type -notin $runspaceData.SkipResourceType})) {
                                     # Convert resources to AzOpsState
-                                    Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
+                                    Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
                                     & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
                                 }
                             }
                             else {
-                                Write-PSFMessage @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
+                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingResources'
                             }
 
                         }
                         #endregion Discover all resource groups in parallel
                     }
                     else {
-                        Write-PSFMessage @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
+                        Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'
                     }
                 }
 
@@ -362,7 +362,7 @@
                     Target       = $ScopeObject
                 }
 
-                Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Processing' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+                Write-PSFMessage -Level Important -String 'Get-AzOpsResourceDefinition.ManagementGroup.Processing' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
 
                 $childOfManagementGroups = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup).Children
 
@@ -373,7 +373,7 @@
                             Get-AzOpsResourceDefinition -Scope $child.Id @parameters
                         }
                         else {
-                            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound' -StringValues $child.Name
+                            Write-PSFMessage -Level Warning -String 'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound' -StringValues $child.Name
                         }
                     }
                     else {
@@ -387,16 +387,16 @@
     }
 
     process {
-        Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing' -StringValues $Scope
+        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing' -StringValues $Scope
 
         try { $scopeObject = New-AzOpsScope -Scope $Scope -StatePath $StatePath -ErrorAction Stop }
         catch {
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.NotFound' -StringValues $Scope
+            Write-PSFMessage -Level Warning -String 'Get-AzOpsResourceDefinition.Processing.NotFound' -StringValues $Scope
             return
         }
 
         if ($scopeObject.Subscription) {
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
             $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scopeObject.Subscription }
             $odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
             Write-PSFMessage -Level Debug -String 'Get-AzOpsResourceDefinition.Subscription.OdataFilter' -StringValues $odataFilter
@@ -410,7 +410,7 @@
         }
 
         if ($scopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
 
@@ -423,25 +423,25 @@
         #region Process Policies
         if (-not $SkipPolicy) {
             # Process policy definitions
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
             $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $scopeObject
             $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedPolicyDefinitionsInAzure = $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policyset definitions (initiatives))
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $scopeObject.Scope
             $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $scopeObject
             $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedPolicySetDefinitionsInAzure = $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policy assignments
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
             $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $scopeObject
             $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policy exemptions
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Exemptions', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Exemptions', $scopeObject.Scope
             $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
             $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedpolicyExemptionsInAzure = $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
@@ -451,13 +451,13 @@
         #region Process Roles
         if (-not $SkipRole) {
             # Process role definitions
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $scopeObject.Scope
             $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $scopeObject
             $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedRoleDefinitionsInAzure = $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process role assignments
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $scopeObject.Scope
             $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $scopeObject
             $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             $serializedRoleAssignmentInAzure = $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
@@ -465,7 +465,7 @@
         #endregion Process Roles
 
         if ($scopeObject.Type -notin 'subscriptions', 'managementGroups') {
-            Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
+            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
 
@@ -489,7 +489,7 @@
             #endregion Add accumulated policy and role data
         }
 
-        Write-PSFMessage -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
+        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
     }
 
 }
