@@ -28,8 +28,8 @@
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
 
         if (-not (Test-Path -Path '/tmp/OUTPUT.md')) {
-            New-Item -Path '/tmp/OUTPUT.md'
-            New-Item -Path '/tmp/OUTPUT.json'
+            New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
+            New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
         }
 
         if ($RemoveAzOpsFlag) {
