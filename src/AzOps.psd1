@@ -12,7 +12,7 @@
 RootModule = 'AzOps.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.6.2'
+ModuleVersion = '1.6.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -51,9 +51,9 @@ PowerShellVersion = '7.0'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.214'; },
-               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.6.2'; },
-               @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; },
+RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.214'; }, 
+               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.6.2'; }, 
+               @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; }, 
                @{ModuleName = 'Az.Resources'; RequiredVersion = '4.4.1'; })
 
 # Assemblies that must be loaded prior to importing this module
