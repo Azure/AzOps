@@ -73,7 +73,7 @@
         Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Starting'
         if (-not $SkipRole) {
             try {
-                Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.UserRole'
+                Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.UserRole'
                 $null = Get-AzADUser -First 1 -ErrorAction Stop
                 Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
             }
