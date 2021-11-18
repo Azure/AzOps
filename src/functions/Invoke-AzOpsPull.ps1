@@ -70,12 +70,12 @@
 
     begin {
         #region Initialize & Prepare
-        Write-PSFMessage -String 'Invoke-AzOpsPull.Initialization.Starting'
+        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Starting'
         if (-not $SkipRole) {
             try {
-                Write-PSFMessage -String 'Invoke-AzOpsPull.Validating.UserRole'
+                Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.UserRole'
                 $null = Get-AzADUser -First 1 -ErrorAction Stop
-                Write-PSFMessage -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
+                Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
             }
             catch {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
@@ -89,10 +89,10 @@
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
 
         $tenantId = (Get-AzContext).Tenant.Id
-        Write-PSFMessage -String 'Invoke-AzOpsPull.Tenant' -StringValues $tenantId
-        Write-PSFMessage -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Tenant' -StringValues $tenantId
+        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
-        Write-PSFMessage -String 'Invoke-AzOpsPull.Initialization.Completed'
+        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Completed'
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
         #endregion Initialize & Prepare
     }
@@ -104,7 +104,7 @@
                     $_.Name -like $("Microsoft.Management_managementGroups-" + $tenantId + $TemplateParameterFileSuffix)
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
             if ($migrationRequired) {
-                Write-PSFMessage -String 'Invoke-AzOpsPull.Migration.Required'
+                Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Migration.Required'
             }
 
             if ($Force -or $migrationRequired) {
@@ -149,7 +149,7 @@
 
     end {
         $stopWatch.Stop()
-        Write-PSFMessage -String 'Invoke-AzOpsPull.Duration' -StringValues $stopWatch.Elapsed -Data @{ Elapsed = $stopWatch.Elapsed }
+        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Duration' -StringValues $stopWatch.Elapsed -Data @{ Elapsed = $stopWatch.Elapsed }
     }
 
 }
