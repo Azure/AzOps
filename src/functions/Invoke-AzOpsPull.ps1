@@ -90,7 +90,7 @@
 
         $tenantId = (Get-AzContext).Tenant.Id
         Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Tenant' -StringValues $tenantId
-        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+        Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
         Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Completed'
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
