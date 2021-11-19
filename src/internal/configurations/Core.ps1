@@ -21,3 +21,4 @@ Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeResourceGroups -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup to be false. Subscription ID or Display Name that matches the filter. Powershell filter that matches with like operator is supported.'
 Set-PSFConfig -Module AzOps -Name Core.TemplateParameterFileSuffix -Value '.json' -Initialize -Validation string -Description 'parameter file suffix to look for'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 10 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
+Set-PSFConfig -Module AzOps -Name Core.WhatifExcludedChangeTypes -Value @('NoChange','Ignore') -Initialize -Validation stringarray -Description 'Exlude specific change types from WhatIf operations.'
