@@ -56,7 +56,7 @@
         Write-PSFMessage -Level Verbose -String 'AzOpsScope.Constructor' -StringValues $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.StateRoot = $StateRoot
         if (Test-Path -Path $scope) {
-            if ((Get-Item $scope).GetType().ToString() -eq 'System.IO.FileInfo') {
+            if ((Get-Item $scope -Force).GetType().ToString() -eq 'System.IO.FileInfo') {
                 #Strong confidence based on content - file
                 Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile' -StringValues $scope -FunctionName AzOpsScope -ModuleName AzOps
                 $this.InitializeMemberVariablesFromFile($Scope)
@@ -81,7 +81,7 @@
         $subscriptionFileName = "microsoft.subscription_subscriptions-*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')"
         $resourceGroupFileName = "microsoft.resources_resourceGroups-*$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')"
 
-        if ($Path.FullName -eq (Get-Item $this.StateRoot).FullName) {
+        if ($Path.FullName -eq (Get-Item $this.StateRoot -Force).FullName) {
             # Root tenant path
             Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory.RootTenant' -StringValues $Path -FunctionName InitializeMemberVariablesFromDirectory -ModuleName AzOps
             $this.InitializeMemberVariables("/")
