@@ -74,7 +74,7 @@
                     Stop-PSFFunction -String 'New-AzOpsScope.Path.InvalidRoot' -StringValues $Path, $StatePath -EnableException $true -Cmdlet $PSCmdlet
                 }
                 Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromFile' -Target $Path -ScriptBlock {
-                    [AzOpsScope]::new($(Get-Item -Path $Path), $StatePath)
+                    [AzOpsScope]::new($(Get-Item -Path $Path -Force), $StatePath)
                 } -EnableException $true -PSCmdlet $PSCmdlet
             }
         }
