@@ -115,7 +115,7 @@ jobs:
 
     name: "Pull"
     runs-on: ubuntu-20.04
-    environment: prod
+    environment: poc
     
     #
     # Only run Pull after successful Push or on manually triggered/scheduled events
