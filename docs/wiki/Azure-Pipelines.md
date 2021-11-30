@@ -174,7 +174,7 @@ If you don't see the subscription you're looking for, select global subscription
     13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
     14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
-- Now, We are good to trigger pull to fech the existing Azure environment.
+- Now, we are good to trigger the first push, which will in turn trigger the first pull to fetch the existing Azure environment.
 ![Pipelines](./Media/Pipelines/Pipelines.PNG)  
 
 - Once, pull pipeline complete it will look like below screenshot.
