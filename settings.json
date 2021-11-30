@@ -30,8 +30,7 @@
             "Core.SkipRole": false,
             "Core.SubscriptionsToIncludeResourceGroups": "*",
             "Core.TemplateParameterFileSuffix": ".json",
-            "Core.ThrottleLimit": 10,
-            "Core.State": "/workspaces/AzOps-Accelerator"
+            "Core.ThrottleLimit": 10
         },
         "|AzureDevOps": {
             "!Condition": "EnvAzDevPipeline",
