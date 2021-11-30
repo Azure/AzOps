@@ -172,7 +172,7 @@ jobs:
           foreach ($dependency in $data.RequiredModules) {
           Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Force
           }
-          get-childitem "$($env:GITHUB_WORKSPACE)/root" -recurse
+          
 
       - name: "Install CLI-beta (for OIDC federated credentials support)"
         run: |
@@ -212,6 +212,8 @@ jobs:
           }
           Invoke-AzOpsPull -Rebuild
           Get-Job | Remove-Job -Force
+          "Directory List"
+          get-childitem "$($env:GITHUB_WORKSPACE)/root"
         env:
           ACTION: ${{ github.event.action }}
 
