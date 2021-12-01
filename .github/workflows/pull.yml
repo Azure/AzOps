@@ -11,9 +11,9 @@ on:
 
   # Trigger the workflow on push or pull request,
   # but only for the main branch
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
   #
   # Repository Dispatch
   # Invoke this action based on event / webhook, this
@@ -126,8 +126,8 @@ jobs:
     # Only run Pull after successful Push or on manually triggered/scheduled events
     #
 
-    #if: ${{ github.event.workflow_run.conclusion == 'success' ||
-    #  contains(fromJson('["schedule", "workflow_dispatch", "repository_dispatch"]'), github.event_name) }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' ||
+      contains(fromJson('["schedule", "workflow_dispatch", "repository_dispatch"]'), github.event_name) }}
 
     steps:
       #
@@ -217,8 +217,6 @@ jobs:
           }
           Invoke-AzOpsPull -Rebuild
           Get-Job | Remove-Job -Force
-          "Directory List"
-          get-childitem "$($env:GITHUB_WORKSPACE)/root" -recurse
         env:
           ACTION: ${{ github.event.action }}
 
@@ -231,13 +229,7 @@ jobs:
       - name: "Status"
         id: status
         shell: bash
-        run: |
-          echo "Present Working Directory"
-          echo $PWD
-
-          echo "Directory Listing"
-          ls -R
-          
+        run: |         
           STATUS=$(git status --short)
           echo "Status = $STATUS"
           if [ -z "$STATUS" ]
