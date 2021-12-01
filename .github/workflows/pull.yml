@@ -238,7 +238,7 @@ jobs:
           ls -R
           
           STATUS=$(git status --short)
-          echo $STATUS
+          echo "Status = $STATUS"
           if [ -z "$STATUS" ]
           then
             echo "::set-output name=state::stop"
