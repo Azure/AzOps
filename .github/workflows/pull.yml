@@ -126,8 +126,8 @@ jobs:
     # Only run Pull after successful Push or on manually triggered/scheduled events
     #
 
-    if: ${{ github.event.workflow_run.conclusion == 'success' ||
-      contains(fromJson('["schedule", "workflow_dispatch", "repository_dispatch"]'), github.event_name) }}
+    #if: ${{ github.event.workflow_run.conclusion == 'success' ||
+    #  contains(fromJson('["schedule", "workflow_dispatch", "repository_dispatch"]'), github.event_name) }}
 
     steps:
       #
