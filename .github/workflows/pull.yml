@@ -226,10 +226,10 @@ jobs:
         id: status
         shell: bash
         run: |
-          "Present Working Directory"
+          echo "Present Working Directory"
           echo $PWD
 
-          "Directory Listing"
+          echo "Directory Listing"
           ls -R
           
           STATUS=$(git status --short)
