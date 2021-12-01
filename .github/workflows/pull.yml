@@ -213,7 +213,7 @@ jobs:
           Invoke-AzOpsPull -Rebuild
           Get-Job | Remove-Job -Force
           "Directory List"
-          get-childitem "$($env:GITHUB_WORKSPACE)/root"
+          get-childitem "$($env:GITHUB_WORKSPACE)/root" -recurse
         env:
           ACTION: ${{ github.event.action }}
 
