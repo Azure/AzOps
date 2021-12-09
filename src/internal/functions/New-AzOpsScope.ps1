@@ -53,6 +53,12 @@
         $Path,
 
         [string]
+        $ResourceProvider,
+
+        [string]
+        $ResourceName,
+
+        [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
     process {
@@ -60,9 +66,16 @@
 
         switch ($PSCmdlet.ParameterSetName) {
             scope {
-                Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
-                    [AzOpsScope]::new($Scope, $StatePath)
-                } -EnableException $true -PSCmdlet $PSCmdlet
+                if (($ResourceProvider -and $ResourceName) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery ))) {
+                    Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
+                        [AzOpsScope]::new($Scope, $ResourceProvider,$ResourceName,$StatePath)
+                    } -EnableException $true -PSCmdlet $PSCmdlet
+                }
+                else {
+                    Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
+                        [AzOpsScope]::new($Scope, $StatePath)
+                    } -EnableException $true -PSCmdlet $PSCmdlet
+                }
             }
             pathfile {
                 if (-not (Test-Path $Path)) {
