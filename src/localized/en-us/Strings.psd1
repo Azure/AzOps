@@ -52,7 +52,8 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions'                    = 'Determine scope based on ResourceType subscriptions {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.resourceGroups'                   = 'Determine scope based on ResourceType resourceGroups {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on Resource Type {0} and Resource Name {1}' # ResourceType and #Resource Name
-
+    'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Extended Child Resource based on Resource Type {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
+    
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
@@ -115,7 +116,10 @@
     'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
     'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
     'Get-AzOpsResourceDefinition.Subscription.SkippingResources'                    = 'Resources are skipped in resource group due to SkipResource.' #
-
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources'    = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template'           = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
+    'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting'             = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
+    'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'       = 'Resources are skipped in resource group due to SkipExtendedChildResourcesDiscovery and SkipResource'
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
@@ -183,6 +187,7 @@
 
     'New-AzOpsScope.Creating.FromFile'                                              = 'Creating a new scope from a path' #
     'New-AzOpsScope.Creating.FromScope'                                             = 'Creating new AzOpsScope object using scope [{0}]' # $Scope
+    'New-AzOpsScope.Creating.FromParentScope'                                       = 'Creating new AzOpsScope statepath using parent scope [{0}] with child Resource details' # $Scope
     'New-AzOpsScope.Path.InvalidRoot'                                               = 'Path "{0}" must be a path under "{1}" !' # $Path, $StatePath
     'New-AzOpsScope.Path.NotFound'                                                  = 'Path not found: {0}' # $Path
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #

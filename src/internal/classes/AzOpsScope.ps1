@@ -73,10 +73,30 @@
             $this.InitializeMemberVariables($Scope)
         }
     }
-
+    # Constructors used for Extended Child Resource Discovery
     AzOpsScope ([string]$Scope, [string]$ResourceProvider, [string]$ResourceName, [string]$StateRoot) {
+        <#
+            .SYNOPSIS
+                Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name
+            .DESCRIPTION
+                Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name 
+            .PARAMETER Scope
+                Scope == ResourceID of Parent resource
+            .PARAMETER ResourceProvider
+                The Resource provider of the resource 
+            .PARAMETER ResourceName
+                The Name of the resource
+            .INPUTS
+                None. You cannot pipe objects to Add-Extension.
+            .OUTPUTS
+                Creates an StatePath of Child Resource
+            .EXAMPLE
+                New-AzOpsScope -Scope "/subscriptions/7d57452c-d765-4fc6-87ec-6649c37f0a0a/resourceGroups/resourcegroup" -ResourceProvider "Microsoft.Network/virtualHubs/hubRouteTables" -ResourceName "hubroutetable1"
+                Using Parent Resource id , Resource provider and Resource name it generates a statepath to place the Child Resource file and parent scope Object
+        #>
         $this.StateRoot = $StateRoot
         $this.ChildResourceName = $ResourceProvider + '-' + $ResourceName + ".json"
+        Write-PSFMessage -Level Verbose -String 'AzOpsScope.ChildResource.InitializeMemberVariables' -StringValues $ResourceProvider, $ResourceName, $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.InitializeMemberVariables($Scope)
     }
 

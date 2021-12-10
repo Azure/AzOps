@@ -314,26 +314,31 @@
 
                         }
                         #endregion Discover all resource groups in parallel
-                        if ((-not $SkipExtendedChildResourcesDiscovery) -and  (-not $SkipResource)){
+                        
+                        #region Discover all Extended Child Resources
+                        if ((-not $SkipExtendedChildResourcesDiscovery) -and  (-not $SkipResource)) {
                             foreach ($resourceGroup in $resourceGroups) {
                                 $resourceGroupName = $resourceGroup.ResourceGroupName
                                 $getResources = Get-AzResource -ResourceGroupName $resourceGroupName
                                 foreach ($resource in $getResources) {
+                                    # Export-AzResourceGroup is used to export all extended child resources which is not possible through Get-AzResource API
                                     Export-AzResourceGroup -Resource $resource.ResourceId -ResourceGroupName $resourceGroupName -SkipAllParameterization -Path "/tmp/$resourceGroupName.json" -Confirm:$false -Force | Out-Null
                                     $exportResources = (Get-content -Path "/tmp/$resourceGroupName.json" | ConvertFrom-Json).resources
                                     foreach ($exportResource in ($exportResources | Where-Object {$_.Type -notin $SkipResourceType})) {
                                         if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
+                                            Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
                                             $resourceProvider = $exportResource.type -replace '/','_'
                                             $resourceName = $exportResource.name -replace '/','_'
                                             if(Get-Member -InputObject $exportResource -name 'dependsOn'){
                                                 $exportResource.PsObject.Members.Remove('dependsOn')
                                             }
-                                            
                                             $resourceHash = @{resources=@($exportResource)}
                                             $jqJsonTemplate = Join-Path $JqTemplatePath -ChildPath "templateExtendedChildResources.jq"
+                                            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template' -StringValues $jqJsonTemplate 
                                             $object = ($resourceHash | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                                             
                                             $objectFilePath = (New-AzOpsScope -scope $resourceGroup.ResourceId -ResourceProvider $resourceProvider -ResourceName $resourceName -StatePath $StatePath).statepath
+                                            Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting' -StringValues $objectFilePath
                                             ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
                                         }
                                     }
@@ -343,6 +348,10 @@
                                 }
                             }
                         }
+                        else {
+                            Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'
+                        }
+                        #endregion Discover all Extended Child Resources
 
                     }
                     else {
