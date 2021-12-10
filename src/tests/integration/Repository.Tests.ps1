@@ -132,10 +132,11 @@ Describe "Repository" {
         # can be tested against to ensure structure
         # is correct and data model hasn't changed.
         #
-
+        
+        Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
-            Invoke-AzOpsPull -PartialMgDiscoveryRoot $($script:managementGroupDeployment.Outputs.testManagementGroup.value) -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
+            Invoke-AzOpsPull -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
