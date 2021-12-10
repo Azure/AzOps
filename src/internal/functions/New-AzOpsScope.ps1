@@ -66,7 +66,7 @@
 
         switch ($PSCmdlet.ParameterSetName) {
             scope {
-                if (($ResourceProvider -and $ResourceName) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery ))) {
+                if (($ResourceProvider -and $ResourceName) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery))) {
                     Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromParentScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
                         [AzOpsScope]::new($Scope, $ResourceProvider,$ResourceName,$StatePath)
                     } -EnableException $true -PSCmdlet $PSCmdlet

@@ -73,7 +73,7 @@
             $this.InitializeMemberVariables($Scope)
         }
     }
-    # Constructors used for Extended Child Resource Discovery
+    # Overridden Constructor used for Extended Child Resource Discovery
     AzOpsScope ([string]$Scope, [string]$ResourceProvider, [string]$ResourceName, [string]$StateRoot) {
         <#
             .SYNOPSIS
