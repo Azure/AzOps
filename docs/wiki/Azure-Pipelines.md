@@ -168,11 +168,13 @@ If you don't see the subscription you're looking for, select global subscription
     07|PartialMgDiscoveryRoot| This switch will generate seperate folder hierachy for specific Management Groups if mentioned|`"Core.PartialMgDiscoveryRoot": []"`
     08|SkipPolicy| If this set to `True`, then it will avoid creating/pulling Azure Policy state of the environment in json file|`"Core.SkipPolicy": false`
     09|SkipResource|If this set to `True`, then it will avoid creating/pulling Azure resources within the resources group information in json file|`"Core.SkipResource": false`
-    10|SkipResourceGroup|If this set to `false`, then it will generate folder hierachy for all Resource Groups in the Azure infra|`"Core.SkipResourceGroup": false`
-    11|SkipRole|If this set to `false`, then it will generate file for RBAC information in the Azure infra|`"Core.SkipRole": false`
-    12|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Pipelines/State.PNG)
-    13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
-    14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
+    10|SkipExtendedChildResourcesDiscovery|If this set to `True`, then it will avoid creating/pulling Azure extended Child resources within the resources group information in json file.|`"Core.SkipExtendedChildResourcesDiscovery": false`
+    11|SkipResourceType|This switch will exclude specific Resource Types from getting pulled. [Resource Types](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources)|`"Core.SkipResourceType": [ "Microsoft.VSOnline/plans","Microsoft.PowerPlatform/enterprisePolicies" ]`
+    12|SkipResourceGroup|If this set to `false`, then it will generate folder hierachy for all Resource Groups in the Azure infra|`"Core.SkipResourceGroup": false`
+    13|SkipRole|If this set to `false`, then it will generate file for RBAC information in the Azure infra|`"Core.SkipRole": false`
+    14|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Pipelines/State.PNG)
+    15|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
+    16|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
 - Now, we are good to trigger the first push, which will in turn trigger the first pull to fetch the existing Azure environment.
 ![Pipelines](./Media/Pipelines/Pipelines.PNG)  

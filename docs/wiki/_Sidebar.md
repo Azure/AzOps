@@ -16,6 +16,7 @@
 * [Deployments](https://github.com/Azure/Enterprise-Scale/wiki/Deploying-Enterprise-Scale#operating-the-azure-platform-using-azops-infrastructure-as-code-with-github-actions)
   * [Subscriptions](https://github.com/Azure/Enterprise-Scale/wiki/Create-Landingzones#create-landing-zones-subscription-using-azops)
 * [Resources Deletion Feature](https://github.com/azure/azops/wiki/ResourceDeletion)
+* [Extended Child Resource Discovery Feature](https://github.com/azure/azops/wiki/AzOps-Extended-Child-Resources-Pull)
 * [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)

@@ -1,4 +1,4 @@
-# AzOps Extended Child Resource Pull
+# AzOps Extended Child Resources Pull
 
 - [Introduction](#Introduction)
 - [Supported Action](#Supported-Action)
@@ -7,15 +7,15 @@
 
 ### Introduction
 
-The purpose of this wiki is to provide detailed information about feature **AzOps: Extended Child Resource Pull**.
+The purpose of this wiki is to provide detailed information about feature **AzOps: Extended Child Resources Pull**.
 
-**AzOps: Extended Child Resource Pull** performs pull all the sub resources associated with a Azure resources.
+**AzOps: Extended Child Resources Pull** performs pull all the sub resources associated with a Azure resources.
 For Example: Hub route table in Vitual WAN, Container from Azure storage account. 
 
 
 ### Supported Actions
 
-- By setting the parameter to `FALSE` for option `Core.SkipExtendedChildResourcesDiscovery` in `setting.json` file will enable the pull. 
+- By setting the parameter to `FALSE` for option `Core.SkipExtendedChildResourcesDiscovery` in `settings.json` file will enable the pull. 
 
 ### How to use
 
@@ -23,7 +23,7 @@ AzOps has default feature to pull Azure resources and its immediate sub resource
 
 With this feature now it can pull all those sub resources under same resource group folder.
 
-- Step 1 - Browse to `AzOps Accelerator` Repository after clone and locate file `setting.json`.
+- Step 1 - Browse to `AzOps Accelerator` Repository after clone and locate file `settings.json`.
 
     ![Setting file](./Media/ExtendedChildResources/settingfile.PNG)
 
