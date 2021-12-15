@@ -13,8 +13,6 @@ This wiki explains how this feature can be configured and used in the AzOps GitH
 
 > **Important**: To make this feature work with the current implementation of Workload identities, we take a dependency on [Environments for Github Actions](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment). *Environments are only available in public repositories for free. Access to environments in private repositories requires [GitHub Enterprise](https://docs.github.com/en/get-started/learning-about-github/githubs-products#github-enterprise).*
 
-> **Note:** The Workload identity federation feature identity feature is currently in preview. Features and implementation details may change in the future.
-
 ## Configure
 Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at https://github.com/azure/azops/wiki/prerequisites and have your service principal ready with appropriate RBAC permissions.
 
@@ -39,25 +37,13 @@ Before you start to configure the workload federation feature in Azure AD and ch
     ```
 3. Replace existing `Connect-AzAccount` with below steps. Currently, the OIDC integration requires Azure CLI beta. 
     ```yaml
-          - name: "Install CLI-beta (for OIDC federated credentials support)"
-        run: |
-           cd ../..
-           CWD="$(pwd)"
-           python3 -m venv oidc-venv
-           . oidc-venv/bin/activate
-           echo "activated environment" 
-           python3 -m pip install --upgrade pip
-           echo "started installing cli beta" 
-           pip install -q --extra-index-url https://azcliprod.blob.core.windows.net/beta/simple/ azure-cli
-           echo "installed cli beta"    
-           echo "$CWD/oidc-venv/bin" >> $GITHUB_PATH   
       #
       # Connect
       # Authenticate Azure context
       #
 
       - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
-        uses: azure/login@v1.4.0
+        uses: azure/login@v1
         with:
           client-id: ${{ env.ARM_CLIENT_ID}}
           tenant-id: ${{ env.ARM_TENANT_ID }}
