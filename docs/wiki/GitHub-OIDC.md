@@ -35,7 +35,7 @@ Before you start to configure the workload federation feature in Azure AD and ch
     ```yaml
         environment: prod
     ```
-3. Replace existing `Connect-AzAccount` with below steps. Currently, the OIDC integration requires Azure CLI beta. 
+3. Replace existing `Connect-AzAccount` with below steps.
     ```yaml
       #
       # Connect
@@ -50,7 +50,7 @@ Before you start to configure the workload federation feature in Azure AD and ch
           subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }} 
           enable-AzPSSession: true
     ```
-4. Test and validate Pull, Pull and Validate pipelines. 
+4. Test the Pull, Pull and Validate pipelines to ensure it works with the OIDC integration. 
 5. After successful validation, all references to `ARM_CLIENT_SECRET` can be removed from the actions and the repository. 
     ```yaml
     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
