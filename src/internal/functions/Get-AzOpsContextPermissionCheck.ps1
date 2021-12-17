@@ -30,7 +30,7 @@
 
     process {
         $roleAssignmentPermissionCheck = $false
-        $roleAssignmentList = Get-AzRoleAssignment -Scope $scope | Where-Object { $_.ObjectId -eq $contextObjectId }
+        $roleAssignmentList = Get-AzRoleAssignment -Scope $scope -WarningAction SilentlyContinue | Where-Object { $_.ObjectId -eq $contextObjectId }
         foreach ($role in $roleAssignmentList) {
             $roleassignmentScope = $role.Scope.ToLower()
             if ((-not($scope.contains("/resourcegroups"))) -and $roleassignmentScope.contains("/resourcegroups")) {

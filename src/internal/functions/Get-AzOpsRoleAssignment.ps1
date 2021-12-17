@@ -22,7 +22,7 @@
 
     process {
         Write-PSFMessage -Level Important -String 'Get-AzOpsRoleAssignment.Processing' -StringValues $ScopeObject -Target $ScopeObject
-        foreach ($roleAssignment in Get-AzRoleAssignment -Scope $ScopeObject.Scope | Where-Object Scope -eq $ScopeObject.Scope) {
+        foreach ($roleAssignment in Get-AzRoleAssignment -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object Scope -eq $ScopeObject.Scope) {
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsRoleAssignment.Assignment' -StringValues $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName -Target $ScopeObject
             [AzOpsRoleAssignment]::new($roleAssignment)
         }

@@ -94,10 +94,10 @@
 
         #region Validate root '/' permissions
         if ($currentAzContext.Account.Type -eq "User") {
-            $rootPermissions = Get-AzRoleAssignment -UserPrincipalName $currentAzContext.Account.Id -Scope "/" -ErrorAction SilentlyContinue
+            $rootPermissions = Get-AzRoleAssignment -UserPrincipalName $currentAzContext.Account.Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
         }
         else {
-            $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue
+            $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
         }
         if (-not $rootPermissions) {
             Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
