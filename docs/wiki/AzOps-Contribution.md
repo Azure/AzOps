@@ -16,7 +16,7 @@ The purpose of this wiki is to provide you with a starting point for contributio
 * [Docker Desktop](https://docs.docker.com/desktop/)
 * [Visual Studio Code](https://code.visualstudio.com/download)
 * [Git](https://git-scm.com/downloads)
-* [Install Remote - Containers on Vistual Studio code](https://code.visualstudio.com/docs/remote/containers-tutorial)
+* [Install Remote - Containers on Visual Studio code](https://code.visualstudio.com/docs/remote/containers-tutorial)
 
 ### Quick Start Repos
 
