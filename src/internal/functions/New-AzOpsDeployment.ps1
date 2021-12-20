@@ -45,7 +45,11 @@
         $Mode = "Incremental",
 
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
+
+        [string]        
+        $WhatifExcludedChangeTypes = (Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes')
+
     )
 
     process {
@@ -100,8 +104,7 @@
                 if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
                     Set-AzOpsContext -ScopeObject $scopeObject
                 }
-                $WhatifExcludedChangeTypes = Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'
-                if($WhatifExcludedChangeTypes){
+                if ($WhatifExcludedChangeTypes) {
                     $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
                 }
                 # Validate Template
@@ -150,12 +153,13 @@
                 if ($TemplateParameterFilePath) {
                     $parameters.TemplateParameterFile = $TemplateParameterFilePath
                 }
-                $WhatifExcludedChangeTypes = Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'
-                if($WhatifExcludedChangeTypes){
+                if ($WhatifExcludedChangeTypes) {
                     $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
                 }
                 $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-                if($parameters.ExcludeChangeType){$parameters.Remove('ExcludeChangeType')}
+                if ($parameters.ExcludeChangeType) {
+                    $parameters.Remove('ExcludeChangeType')
+                }
                 if ($resultsError) {
 
                     if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
@@ -208,8 +212,7 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            $WhatifExcludedChangeTypes = Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'
-            if($WhatifExcludedChangeTypes){
+            if ($WhatifExcludedChangeTypes) {
                 $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
             }
             $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
@@ -260,12 +263,13 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            $WhatifExcludedChangeTypes = Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'
-            if($WhatifExcludedChangeTypes){
+            if ($WhatifExcludedChangeTypes) {
                 $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
             }
             $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if($parameters.ExcludeChangeType){$parameters.Remove('ExcludeChangeType')}
+            if ($parameters.ExcludeChangeType) {
+                $parameters.Remove('ExcludeChangeType')
+            }
             if ($resultsError) {
 
                 if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
@@ -312,12 +316,13 @@
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
-            $WhatifExcludedChangeTypes = Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'
-            if($WhatifExcludedChangeTypes){
+            if ($WhatifExcludedChangeTypes) {
                 $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
             }
             $results = Get-AzTenantDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if($parameters.ExcludeChangeType){$parameters.Remove('ExcludeChangeType')}
+            if ($parameters.ExcludeChangeType) {
+                $parameters.Remove('ExcludeChangeType')
+            }
             if ($resultsError) {
                 Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
             }

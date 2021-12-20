@@ -45,12 +45,14 @@
             else {
                 $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString
             }
-            $existingContent = @(get-content '/tmp/OUTPUT.json' -raw | convertfrom-json)
-            if($existingContent.count -gt 0){
-                $existingContent+=$results.Changes
-                $existingContent=$existingContent|ConvertTo-Json -Depth 100
+            $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json)
+            if ($existingContent.count -gt 0) {
+                $existingContent += $results.Changes
+                $existingContent = $existingContent|ConvertTo-Json -Depth 100
             }
-            else{$existingContent=$resultJson}
+            else {
+                $existingContent = $resultJson
+            }
             Set-Content -Path '/tmp/OUTPUT.json' -Value $existingContent -WhatIf:$false
         }
         Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false

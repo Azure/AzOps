@@ -23,4 +23,4 @@ The following configuration values can be modified within the `settings.json` fi
 | 22 | SubscriptionsToIncludeResourceGroups | Generate folder hierachy for specific Resource Groups        |
 | 23 | TemplateParameterFileSuffix          | Default template file suffix                                 |
 | 24 | ThrottleLimit                        |                                                              |
-| 25 | WhatifExcludedChangeTypes            | Exlude specific change types from WhatIf operations          |
+| 25 | WhatifExcludedChangeTypes            | Exclude specific change types from WhatIf operations          |
