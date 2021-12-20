@@ -96,6 +96,35 @@ Describe "Repository" {
             throw
         }
 
+        <#
+        Wait for Management Group structure consistency
+        #>
+
+        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
+        $script:timeOutMinutes = 20
+        $script:mgmtRun = "Run"
+
+        While ($script:mgmtRun -eq "Run")
+        {
+            Write-PSFMessage -Level Verbose -Message "Waiting for Management Group structure consistency" -FunctionName "BeforeAll"
+            
+            $script:mgmt = Get-AzManagementGroup
+            $script:testManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
+            $script:platformManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
+            $script:managementManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
+
+            if ($script:testManagementGroup -ne $null -and $script:platformManagementGroup -ne $null -and $script:managementManagementGroup -ne $null) {
+                $script:mgmtRun = "Done"
+            }
+            else {
+                Start-Sleep -Seconds 60
+                $script:timeOutMinutes--
+            }
+            if ($script:timeOutMinutes -le 0) {
+                break
+            }
+        }
+
         #
         # Ensure that the root directory
         # does not exist before running
@@ -116,10 +145,6 @@ Describe "Repository" {
         # the filesystem are aligned.
         #
 
-        $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
-        $script:testManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
-        $script:platformManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
-        $script:managementManagementGroup = (Get-AzManagementGroup | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.managementManagementGroup.value)")
         $script:policyAssignments = (Get-AzPolicyAssignment | Where-Object Name -eq "TestPolicyAssignment")
         $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
