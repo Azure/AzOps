@@ -34,5 +34,3 @@ root/*
 # Debug
 **.private**
 debug/*
-
-settings.json
