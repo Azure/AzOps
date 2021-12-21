@@ -48,7 +48,7 @@
             $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json)
             if ($existingContent.count -gt 0) {
                 $existingContent += $results.Changes
-                $existingContent = $existingContent|ConvertTo-Json -Depth 100
+                $existingContent = $existingContent | ConvertTo-Json -Depth 100
             }
             else {
                 $existingContent = $resultJson
