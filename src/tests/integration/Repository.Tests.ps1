@@ -149,8 +149,8 @@ Describe "Repository" {
         $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
         $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object {$_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7"})
-        $script:routeTable = (Get-AzRouteTable -ResourceGroupName $($script:resourceGroup).ResourceGroupName -Name "RouteTable")
-        
+        $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
+
         #
         # Invoke the Invoke-AzOpsPull
         # function to generate the scope data which

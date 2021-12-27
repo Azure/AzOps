@@ -4,7 +4,7 @@ param (
 )
 
 # Development Modules
-$modules = @("Az.Network","Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
+$modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
 Write-Host "Installing development modules"
 foreach ($module in $modules) {
     Install-Module $module -Repository $Repository -Force
