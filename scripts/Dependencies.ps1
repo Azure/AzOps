@@ -4,6 +4,7 @@ param (
 )
 
 # Development Modules
+Set-PSRepository -Name $Repository -InstallationPolicy Trusted
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
 Write-Host "Installing development modules"
 foreach ($module in $modules) {
