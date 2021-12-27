@@ -47,6 +47,7 @@
     )
 
     begin {
+        $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::Host
         Assert-AzOpsWindowsLongPath -Cmdlet $PSCmdlet
         Assert-AzOpsJqDependency -Cmdlet $PSCmdlet
 
