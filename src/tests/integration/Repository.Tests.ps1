@@ -145,7 +145,7 @@ Describe "Repository" {
         # the filesystem are aligned.
         #
 
-        $script:policyAssignments = (Get-AzPolicyAssignment | Where-Object Name -eq "TestPolicyAssignment")
+        $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
         $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
         $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object {$_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7"})
@@ -182,47 +182,47 @@ Describe "Repository" {
 
         $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
 
-        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:tenantId).json")
+        $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:tenantId).toLower()).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
         $script:tenantRootGroupFile = ($script:tenantRootGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "TenantRootGroupPath: $($script:tenantRootGroupFile)" -FunctionName "BeforeAll"
 
-        $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:testManagementGroup.Name).json")
+        $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:testManagementGroup.Name).toLower()).json")
         $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
         $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
 
-        $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:platformManagementGroup.Name).json")
+        $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:platformManagementGroup.Name).toLower()).json")
         $script:platformManagementGroupDirectory = ($script:platformManagementGroupPath).Directory
         $script:platformManagementGroupFile = ($script:platformManagementGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "PlatformManagementGroupFile: $($script:platformManagementGroupFile)" -FunctionName "BeforeAll"
 
-        $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$($script:managementManagementGroup.Name).json")
+        $script:managementManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:managementManagementGroup.Name).toLower()).json")
         $script:managementManagementGroupDirectory = ($script:managementManagementGroupPath).Directory
         $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "BeforeAll"
 
-        $script:policyAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$($script:policyAssignments.Name).json")
+        $script:policyAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignments.Name).toLower()).json")
         $script:policyAssignmentsDirectory = ($script:policyAssignmentsPath).Directory
         $script:policyAssignmentsFile = ($script:policyAssignmentsPath).FullName
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
-        $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$($script:subscription.Id).json")
+        $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($script:subscription.Id).toLower()).json")
         $script:subscriptionDirectory = ($script:subscriptionPath).Directory
         $script:subscriptionFile = ($script:subscriptionPath).FullName
         Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "BeforeAll"
 
-        $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$($script:resourceGroup.ResourceGroupName).json")
+        $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroup.ResourceGroupName).toLower()).json")
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
 
-        $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$($script:roleAssignments.RoleAssignmentId -replace ".*/").json")
+        $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
         $script:roleAssignmentsFile = ($script:roleAssignmentsPath).FullName
         Write-PSFMessage -Level Debug -Message "RoleAssignmentFile: $($script:roleAssignmentsFile)" -FunctionName "BeforeAll"
 
-        $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$($script:routeTable.Name).json")
+        $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$(($script:routeTable.Name).toLower()).json")
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
         Write-PSFMessage -Level Debug -Message "RouteTableFile: $($script:routeTableFile)" -FunctionName "BeforeAll"
