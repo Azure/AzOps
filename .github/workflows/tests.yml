@@ -59,4 +59,4 @@ jobs:
       - name: "Run Tests"
         shell: pwsh
         run: |
-          ./scripts/Tests.ps1
+          ./src/tests/Pester.ps1
