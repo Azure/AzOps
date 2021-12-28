@@ -23,12 +23,12 @@ permissions:
       pull-requests: write
       
 jobs:
-  validate:
+  tests:
     #
     # Validate
     #
 
-    name: "Validate"
+    name: "Tests"
     runs-on: ubuntu-20.04
     environment: test
     
