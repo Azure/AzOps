@@ -62,7 +62,7 @@ Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureSt
 # Install module
 #
 
-Install-Module Microsoft.Graph.Identity.DirectoryManagement
+Install-Module Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Applications
 
 #
 # Connect to Azure Active Directory
