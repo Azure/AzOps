@@ -101,7 +101,7 @@ Describe "Repository" {
         #>
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
-        $script:timeOutMinutes = 20
+        $script:timeOutMinutes = 25
         $script:mgmtRun = "Run"
 
         While ($script:mgmtRun -eq "Run") {
