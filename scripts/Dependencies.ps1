@@ -4,6 +4,7 @@ param (
 )
 
 # Development Modules
+Set-PSRepository -Name $Repository -InstallationPolicy Trusted
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
 Write-Host "Installing development modules"
 foreach ($module in $modules) {
@@ -16,7 +17,7 @@ Write-Host "Installing runtime modules"
 foreach ($dependency in $data.RequiredModules) {
     $module = Get-Module -Name $dependency -ListAvailable
     if ($null -ne $module) { Uninstall-Module -Name $dependency -Force }
-    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository -Force
+    Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository
 }
 # Download and add bicep to PATH
 curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
