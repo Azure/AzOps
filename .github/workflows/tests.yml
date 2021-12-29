@@ -16,7 +16,8 @@ env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  
 permissions:
       id-token: write
       contents: write
@@ -45,15 +46,22 @@ jobs:
         shell: pwsh
         run: |
           ./scripts/Dependencies.ps1
-
-      # Authenticate Azure context   
-      - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
-        uses: azure/login@v1
-        with:
-          client-id: ${{ env.ARM_CLIENT_ID}}
-          tenant-id: ${{ env.ARM_TENANT_ID }}
-          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }} 
-          enable-AzPSSession: true
+      
+      # Connect to Azure - TEMPORARY until 2.7.0 credential expiration issue is fixed 
+      - name: "Connect"
+        shell: pwsh
+        run: |
+          $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+          Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+          
+    # # Authenticate Azure context   
+    # - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ env.ARM_CLIENT_ID}}
+    #     tenant-id: ${{ env.ARM_TENANT_ID }}
+    #     subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }} 
+    #     enable-AzPSSession: true
       
       # Run Tests   
       - name: "Run Tests"
