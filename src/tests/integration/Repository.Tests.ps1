@@ -104,10 +104,9 @@ Describe "Repository" {
         $script:timeOutMinutes = 20
         $script:mgmtRun = "Run"
 
-        While ($script:mgmtRun -eq "Run")
-        {
+        While ($script:mgmtRun -eq "Run") {
             Write-PSFMessage -Level Verbose -Message "Waiting for Management Group structure consistency" -FunctionName "BeforeAll"
-            
+
             $script:mgmt = Get-AzManagementGroup
             $script:testManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.testManagementGroup.value)")
             $script:platformManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:managementGroupDeployment.Outputs.platformManagementGroup.value)")
@@ -148,7 +147,7 @@ Describe "Repository" {
         $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
         $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
         $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
-        $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object {$_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7"})
+        $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
         $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
 
         #
@@ -157,7 +156,7 @@ Describe "Repository" {
         # can be tested against to ensure structure
         # is correct and data model hasn't changed.
         #
-        
+
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
@@ -568,7 +567,7 @@ Describe "Repository" {
             }
 
         }
-        
+
         function Remove-ResourceGroups {
 
             param (
@@ -593,23 +592,31 @@ Describe "Repository" {
 
         }
 
-        $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
-        if ($managementGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
-            Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
-        }
+        try {
 
-        $roleAssignment = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object {$_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7"})
-        if ($roleAssignment) {
-            Write-PSFMessage -Level Verbose -Message "Removing Role Assignment" -FunctionName "AfterAll"
-            $roleAssignment | Remove-AzRoleAssignment
-        }
+            $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
+            if ($managementGroup) {
+                Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
+                Remove-ManagementGroups -DisplayName "Test" -Name $managementGroup.Name -RootName (Get-AzTenant).TenantId
+            }
 
-        $resourceGroup = Get-AzResourceGroup -Name "Application"
-        if ($resourceGroup) {
-            Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
             $subscription = Get-AzSubscription -SubscriptionId $script:subscriptionId
-            Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
+            Set-AzContext -SubscriptionId $script:subscriptionId
+            $roleAssignment = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            if ($roleAssignment) {
+                Write-PSFMessage -Level Verbose -Message "Removing Role Assignment" -FunctionName "AfterAll"
+                $roleAssignment | Remove-AzRoleAssignment
+            }
+
+            $resourceGroup = Get-AzResourceGroup -Name "Application"
+            if ($resourceGroup) {
+                Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
+                Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
+            }
+
+        }
+        catch {
+            Write-PSFMessage -Level Warning -Message $_ -FunctionName "AfterAll"
         }
 
     }
