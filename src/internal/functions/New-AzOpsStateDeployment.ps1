@@ -33,7 +33,7 @@
     }
 
     process {
-        Write-PSFMessage -String 'New-AzOpsStateDeployment.Processing' -StringValues $FileName
+        Write-PSFMessage -Level Important -String 'New-AzOpsStateDeployment.Processing' -StringValues $FileName
         $scopeObject = New-AzOpsScope -Path (Get-Item -Path $FileName).FullName -StatePath $StatePath
 
         if (-not $scopeObject.Type) {
@@ -45,12 +45,12 @@
 
         #region Process Subscriptions
         if ($FileName -match '/*.subscription.json$') {
-            Write-PSFMessage -String 'New-AzOpsStateDeployment.Subscription' -StringValues $FileName -Target $scopeObject
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsStateDeployment.Subscription' -StringValues $FileName -Target $scopeObject
             $subscription = $subscriptions | Where-Object Name -EQ $scopeObject.subscriptionDisplayName
 
             #region Subscription needs to be created
             if (-not $subscription) {
-                Write-PSFMessage -String 'New-AzOpsStateDeployment.Subscription.New' -StringValues $FileName -Target $scopeObject
+                Write-PSFMessage -Level Important -String 'New-AzOpsStateDeployment.Subscription.New' -StringValues $FileName -Target $scopeObject
 
                 if (-not $enrollmentAccounts) {
                     Write-PSFMessage -Level Error -String 'New-AzOpsStateDeployment.NoEnrollmentAccount' -Target $scopeObject
@@ -59,11 +59,11 @@
                 }
 
                 if ($cfgEnrollmentAccount = Get-PSFConfigValue -FullName 'AzOps.Core.EnrollmentAccountPrincipalName') {
-                    Write-PSFMessage -String 'New-AzOpsStateDeployment.EnrollmentAccount.Selected' -StringValues $cfgEnrollmentAccount
+                    Write-PSFMessage -Level Important -String 'New-AzOpsStateDeployment.EnrollmentAccount.Selected' -StringValues $cfgEnrollmentAccount
                     $enrollmentAccountObjectId = ($enrollmentAccounts | Where-Object PrincipalName -eq $cfgEnrollmentAccount).ObjectId
                 }
                 else {
-                    Write-PSFMessage -String 'New-AzOpsStateDeployment.EnrollmentAccount.First' -StringValues @($enrollmentAccounts)[0].PrincipalName
+                    Write-PSFMessage -Level Important -String 'New-AzOpsStateDeployment.EnrollmentAccount.First' -StringValues @($enrollmentAccounts)[0].PrincipalName
                     $enrollmentAccountObjectId = @($enrollmentAccounts)[0].ObjectId
                 }
 
@@ -79,7 +79,7 @@
             #endregion Subscription needs to be created
             #region Subscription exists already
             else {
-                Write-PSFMessage -String 'New-AzOpsStateDeployment.Subscription.Exists' -StringValues $subscription.Name, $subscription.Id -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsStateDeployment.Subscription.Exists' -StringValues $subscription.Name, $subscription.Id -Target $scopeObject
                 Invoke-PSFProtectedCommand -ActionString 'New-AzOpsStateDeployment.Subscription.AssignManagementGroup' -ActionStringValues $subscription.Name, $scopeObject.ManagementGroupDisplayName -ScriptBlock {
                     New-AzManagementGroupSubscription -GroupName $scopeObject.ManagementGroup -SubscriptionId $subscription.SubscriptionId -ErrorAction Stop
                 } -Target $scopeObject -EnableException $true -PSCmdlet $PSCmdlet

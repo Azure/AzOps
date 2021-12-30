@@ -3,55 +3,55 @@ name: "Dependencies"
 
 on:
   schedule:
-    - cron:  '0 */6 * * *'
+    - cron:  '30 1 1,15 * *'
   workflow_dispatch:
+
+env:
+  #
+  # Branch Name
+  # As part of the Dependencies workflow we create a temporary branch
+  # this value can be changed if this name is already reserved for other systems
+  # within the repository.
+  #
+  # Default: automated-dependencies
+  #
+
+  branch: "automated-dependencies"
 
 jobs:
   dependencies:
-    name: "Dependencies"
+    name: "Automated Dependencies"
     runs-on: ubuntu-20.04
     steps:
       - name: "Checkout"
         uses: actions/checkout@v2
 
-      - name: "Updates"
+      - name: "Configure"
         run: |
-          $data = Import-PowerShellDataFile -Path "./src/AzOps.psd1"
-          $modules = @()
-          $data.RequiredModules | ForEach-Object {
-              $moduleVersion = $_.RequiredVersion
-              $galleryVersion = (Find-Module -Name $_.ModuleName).Version
-              if ($moduleVersion -lt $galleryVersion) {
-                  $modules += @{
-                      "name"     = $_.ModuleName
-                      "version" = @{
-                          "current" = $moduleVersion
-                          "gallery" = $galleryVersion
-                      }
-                  }
-              }
-          }
-          if ($modules) {
-              $filePath = Join-Path -Path "/tmp" -ChildPath "updates.json"
-              ConvertTo-Json $modules | Out-File -FilePath $filePath
-          }
+          git config user.name github-actions
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: "Switch"
+        run: |
+          git checkout -b ${{ env.branch }}
+
+      - name: "Dependencies"
+        run: |
+          ./scripts/Dependencies.ps1
         shell: pwsh
 
-      - name: "Issues"
+      - name: "Updates"
+        run: ./scripts/UpdateRequiredModules.ps1
+        shell: pwsh
+
+      - name: "Execute"
         run: |
           FILE=/tmp/updates.json
           if [ -f "$FILE" ]; then
-            cat $FILE | jq -r '.[]|[.name, .version.current, .version.gallery] | @tsv' |
-            while IFS=$'\t' read -r name current gallery; do
-              COUNT=$(gh api -X GET search/issues -F per_page=100 --paginate -f q="repo:$GITHUB_REPOSITORY is:issue is:open $name in:title" --jq ".total_count")
-              if [ $COUNT -eq 0 ]; then
-                if [ "$GITHUB_REPOSITORY" == "Azure/AzOps" ]; then
-                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery" --label "dependencies"
-                else
-                  gh issue create --title "Bump $name from $current to $gallery" --body "New $name module version available in the PowerShell Gallery"
-                fi
-              fi
-            done
+              git add src/AzOps.psd1
+              git commit -m 'Update AzOps.psd1'
+              git push origin ${{ env.branch }}
+              gh pr create --base 'main' --head ${{ env.branch }} --title 'Bump Dependencies' --body '' --label 'dependencies'
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

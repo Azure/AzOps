@@ -70,6 +70,7 @@
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
+
             #endregion Initialization Prep
 
             #region Case: Parameters File
@@ -82,7 +83,7 @@
                 #region Directly Associated Template file exists
                 $templatePath = $fileItem.FullName -replace '.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
                 if (Test-Path $templatePath) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
+                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                     $result.TemplateFilePath = $templatePath
                     return $result
                 }
@@ -91,16 +92,16 @@
                 #region Directly Associated bicep template exists
                 $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
                 if (Test-Path $bicepTemplatePath) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
+                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
                     $result.TemplateFilePath = $bicepTemplatePath
                     return $result
                 }
                 #endregion Directly Associated bicep template exists
 
                 #region Check in the main template file for a match
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.NotFoundTemplate' -StringValues $FilePath, $templatePath
+                Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Resolve.NotFoundTemplate' -StringValues $FilePath, $templatePath
                 $mainTemplateItem = Get-Item $AzOpsMainTemplate
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.FromMainTemplate' -StringValues $mainTemplateItem.FullName
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FromMainTemplate' -StringValues $mainTemplateItem.FullName
 
                 # Determine Resource Type in Parameter file
                 $templateParameterFileHashtable = Get-Content -Path $fileItem.FullName | ConvertFrom-Json -AsHashtable
@@ -118,7 +119,7 @@
                 # Check if generic template is supporting the resource type for the deployment.
                 if ($effectiveResourceType -and
                     (Get-Content $mainTemplateItem.FullName | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.Keys -contains $effectiveResourceType) {
-                    Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName
+                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName
                     $result.TemplateFilePath = $mainTemplateItem.FullName
                     return $result
                 }
@@ -133,11 +134,11 @@
             $result.TemplateFilePath = $fileItem.FullName
             $parameterPath = Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath
             }
             else {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
@@ -162,7 +163,7 @@
         if (-not $ChangeSet) { return }
 
         #region Categorize Input
-        Write-PSFMessage @common -String 'Invoke-AzOpsPush.Deployment.Required'
+        Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Deployment.Required'
         $deleteSet = @()
         $addModifySet = foreach ($change in $ChangeSet) {
             $operation, $filename = ($change -split "`t")[0, -1]
@@ -176,15 +177,15 @@
         if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
         # TODO: Clarify what happens with the deletes - not used after reporting them
 
-        Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.AddModify'
+        Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify'
         foreach ($item in $addModifySet) {
-            Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.AddModify.File' -StringValues $item
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify.File' -StringValues $item
         }
-        Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.Delete'
+        Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete'
         if ($DeleteSetContents -and $deleteSet) {
             $DeleteSetContents = $DeleteSetContents -join "" -split "-- " | Where-Object { $_ }
             foreach ($item in $deleteSet) {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
+                Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
                 foreach ($content in $DeleteSetContents) {
                     if ($content.Contains($item)) {
                         $jsonValue = $content.replace($item, "")
@@ -205,17 +206,17 @@
         $newStateDeploymentCmd.Begin($true)
         foreach ($addition in $addModifySet) {
             if ($addition -notmatch '/*.subscription.json$') { continue }
-            Write-PSFMessage @common -String 'Invoke-AzOpsPush.Deploy.Subscription' -StringValues $addition -Target $addition
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Deploy.Subscription' -StringValues $addition -Target $addition
             $newStateDeploymentCmd.Process($addition)
         }
         foreach ($addition in $addModifySet) {
             if ($addition -notmatch '/*.providerfeatures.json$') { continue }
-            Write-PSFMessage @common -String 'Invoke-AzOpsPush.Deploy.ProviderFeature' -StringValues $addition -Target $addition
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Deploy.ProviderFeature' -StringValues $addition -Target $addition
             $newStateDeploymentCmd.Process($addition)
         }
         foreach ($addition in $addModifySet) {
             if ($addition -notmatch '/*.resourceproviders.json$') { continue }
-            Write-PSFMessage @common -String 'Invoke-AzOpsPush.Deploy.ResourceProvider' -StringValues $addition -Target $addition
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Deploy.ResourceProvider' -StringValues $addition -Target $addition
             $newStateDeploymentCmd.Process($addition)
         }
         $newStateDeploymentCmd.End()
@@ -234,18 +235,18 @@
             if ($addition.EndsWith(".bicep")) {
                 Assert-AzOpsBicepDependency -Cmdlet $PSCmdlet
                 $transpiledTemplatePath = $addition -replace '.bicep', '.json'
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
                 Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $addition --outfile $transpiledTemplatePath }
                 $addition = $transpiledTemplatePath
             }
 
             try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
             catch {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
+                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
                 continue
             }
             if (-not $scopeObject) {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $addition, $StatePath -Target $addition
+                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $addition, $StatePath -Target $addition
                 continue
             }
 
@@ -260,17 +261,17 @@
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
             if (-not($templateContent.resources[0].type -eq "Microsoft.Authorization/roleAssignments" -or $templateContent.resources[0].type -eq "Microsoft.Authorization/policyAssignments")) {
-                Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }
 
             try { $scopeObject = New-AzOpsScope -Path $deletion -StatePath $StatePath -ErrorAction Stop }
             catch {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
+                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
                 continue
             }
             if (-not $scopeObject) {
-                Write-PSFMessage @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $deletion, $StatePath -Target $deletion
+                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $deletion, $StatePath -Target $deletion
                 continue
             }
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate

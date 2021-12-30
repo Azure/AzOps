@@ -2,8 +2,10 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
+ 
 * [Services](https://github.com/azure/azops/wiki/services)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
+     * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 
 **Documentation**
@@ -11,8 +13,8 @@
 * [Settings](https://github.com/azure/azops/wiki/settings)
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Steps](https://github.com/azure/azops/wiki/steps)
-* [Deployments](https://github.com/azure/azops/wiki/deployments)
-  * [Subscriptions](https://github.com/Azure/Enterprise-Scale/wiki/Create-Landingzoness)
+* [Deployments](https://github.com/Azure/Enterprise-Scale/wiki/Deploying-Enterprise-Scale#operating-the-azure-platform-using-azops-infrastructure-as-code-with-github-actions)
+  * [Subscriptions](https://github.com/Azure/Enterprise-Scale/wiki/Create-Landingzones#create-landing-zones-subscription-using-azops)
 * [Resources Deletion Feature](https://github.com/azure/azops/wiki/ResourceDeletion)
 * [Feeds](https://github.com/azure/azops/wiki/feeds)
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)

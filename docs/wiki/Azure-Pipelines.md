@@ -1,26 +1,27 @@
 # AzOps Via Azure Pipelines
 
 - [Prerequisites](#Prerequisites)
-- [Powershell command to create SPN](#Powershell-command-to-create-SPN)
-- [Powershell command to assign the Directory role permissions](#Powershell-command-to-assign-the-Directory-role-permissions)
+- [PowerShell command to create SPN](#Powershell-command-to-create-SPN)
+- [PowerShell command to assign the Directory role permissions](#Powershell-command-to-assign-the-Directory-role-permissions)
 - [Important Repo Link to refer](#Important-Repo-Link-to-refer)
 - [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
 - [Configure AzOps via Azure DevOps Portal](#Configure-AzOps-via-Azure-DevOps-Portal)
 - [Configure via command line script](#Configure-via-command-line-script)
-
 
 ## Prerequisites
 
 * [Create the Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
 
 * [Assign the permissions at the required scope (/)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
+
 * Assign the Directory role permissions
 
 * [Create project](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
 
-Please check if the Az and AzureAD modules are installed locally before executing these scripts. Alternatively, these command can be run within a Cloud Shell instance.
+Please check if the `Az`, `Microsoft.Graph.Identity.DirectoryManagement` and `Microsoft.Graph.Applications` modules are installed locally before executing these scripts. Alternatively, these command can be run within a Cloud Shell instance.
 
-### Powershell command to create SPN:
+### Powershell command to create SPN
+
 ```powershell
 Connect-AzAccount
 $servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName AzOps
@@ -29,27 +30,32 @@ Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
 Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
 Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
 ```
+
 ### Powershell command to assign the Directory role permissions
 
 ```powershell
-Install-Module -Name AzureAD
-Connect-AzureAD
-$servicePrincipal = Get-AzureADServicePrincipal -Filter "DisplayName eq 'AzOps'"
-$directoryRole = Get-AzureADDirectoryRole -Filter "DisplayName eq 'Directory Readers'"
-if ($directoryRole -eq $null) {
-    Write-Warning "Directory Reader role not found"
+Install-Module Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Applications
+Connect-MgGraph -Scopes "Directory.Read.All,RoleManagement.ReadWrite.Directory"
+$servicePrincipalDisplayName = "AzOps"
+$servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$servicePrincipalDisplayName'"
+if (-not $servicePrincipal) {
+    Write-Error "$servicePrincipalDisplayName Service Principal not found"
 }
-else {
-    Add-AzureADDirectoryRoleMember -ObjectId $directoryRole.ObjectId -RefObjectId $servicePrincipal.ObjectId
+$directoryRoleDisplayName = "Directory Readers"
+$directoryRole = Get-MgDirectoryRole -Filter "DisplayName eq '$directoryRoleDisplayName'"
+if (-not $directoryRole) {
+    Write-Warning "$directoryRoleDisplayName role not found"
+} else {
+    $body = @{'@odata.id' = "https://graph.microsoft.com/v1.0/directoryObjects/$($servicePrincipal.Id)"}
+    New-MgDirectoryRoleMemberByRef -DirectoryRoleId $directoryRole.id -BodyParameter $body
 }
 ```
 
-### Important Repo Link to refer 
+### Important Repo Link to refer
 
 Repo | Description
 -|-
 [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution.
-
 
 ### Two ways to configure AzOps
 - via Azure DevOps Portal
@@ -174,7 +180,7 @@ If you don't see the subscription you're looking for, select global subscription
     13|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
     14|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
 
-- Now, We are good to trigger pull to fech the existing Azure environment.
+- Now, we are good to trigger the first push, which will in turn trigger the first pull to fetch the existing Azure environment.
 ![Pipelines](./Media/Pipelines/Pipelines.PNG)  
 
 - Once, pull pipeline complete it will look like below screenshot.
@@ -269,12 +275,3 @@ az repos policy build create \
     --valid-duration 0
 
 ```
-
-    
-
-
-
-
-
-
-

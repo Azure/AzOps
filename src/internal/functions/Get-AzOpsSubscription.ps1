@@ -38,8 +38,8 @@
     )
 
     process {
-        Write-PSFMessage -String 'Get-AzOpsSubscription.Excluded.States' -StringValues ($ExcludedStates -join ',')
-        Write-PSFMessage -String 'Get-AzOpsSubscription.Excluded.Offers' -StringValues ($ExcludedOffers -join ',')
+        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Excluded.States' -StringValues ($ExcludedStates -join ',')
+        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Excluded.Offers' -StringValues ($ExcludedOffers -join ',')
 
         $nextLink = "/subscriptions?api-version=$ApiVersion"
         $allSubscriptionsResults = do {
@@ -58,15 +58,15 @@
             return
         }
 
-        Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Found' -StringValues $allSubscriptionsResults.Count
+        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Found' -StringValues $allSubscriptionsResults.Count
         if ($allSubscriptionsResults.Count -gt $includedSubscriptions.Count) {
-            Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Excluded' -StringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
+            Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Excluded' -StringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
         }
 
         if ($includedSubscriptions | Where-Object State -EQ PastDue) {
-            Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.PastDue' -StringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
+            Write-PSFMessage -Level Warning -String 'Get-AzOpsSubscription.Subscriptions.PastDue' -StringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
         }
-        Write-PSFMessage -String 'Get-AzOpsSubscription.Subscriptions.Included' -StringValues $includedSubscriptions.Count
+        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Included' -StringValues $includedSubscriptions.Count
         $includedSubscriptions
     }
 

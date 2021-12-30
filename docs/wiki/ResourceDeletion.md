@@ -1,4 +1,4 @@
-# AzOps Resources Deletion Feature
+# AzOps Resource Deletion
 
 - [Introduction](#Introduction)
 - [Supported Action](#Supported-Action)
@@ -8,26 +8,27 @@
 
 ### Introduction
 
-The purpose of this wiki is to provide you with the detail information about the **Resource Deletion** feature. The resource deletion function is an enhancement which takes care of deleting the role and policy assignments from Azure, based on the AzOps pull generated templates at all scopes.
+The purpose of this wiki is to provide detailed information about **AzOps Resource Deletion**.
+
+**AzOps Resource Deletion** performs deletion of role and policy assignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels.
 
 
-### Supported Action
+### Supported Actions
 
- - Deleting Custom or Built-in Role assignment: When `Invoke-AzOpsPull` runs, its fetches the existing environment which also includes custom and built-in role assignment. By removing the assignment file, role assignment at all levels `(Management Group/Subscription/Resource Group)` can be managed from repo directly.
+ - Deleting custom or built-in roleAssignments: When `Invoke-AzOpsPull` runs, it fetches the existing environment which includes custom and built-in roleAssignments. By removing the assignment file, roleAssignments at all Azure scope levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
 
- - Deleting Custom or Built-in Azure Policy assignment: When `Invoke-AzOpsPull` runs, its fetches the existing environment which also includes custom and built-in  Azure Policy assignment. By removing the assignment file,  Azure Policy assignment at all levels `(Management Group/Subscription/Resource Group)` can be managed from repo directly.
-
+ - Deleting custom or built-in policyAssignments: When `Invoke-AzOpsPull` runs, its fetches the existing environment which includes custom and built-in policyAssignments. By removing the assignment file, policyAssignments at all Azure scope levels `(Management Group/Subscription/Resource Group)` can be managed from the repository directly.
 
 ### How to use
 
-Below are the detail steps by following  which Resource deletion feature can be leveraged:-
+Detailed steps:
 
-1. Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run AzOps - Pull
+1. Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run `AzOps - Pull`
 
     ![ResourceDeletion_workflow](./Media/ResourceDeletion/ResourceDeletion_workflow.PNG)
     ![ResourceDeletion_intial_Pull](./Media/ResourceDeletion/ResourceDeletion_intial_Pull.PNG)
 
-2. Its recommended to capture the current stage either from `portal` or via any `script` to validate the behavior after completion of the deletion.
+2. It's recommended to capture the current stage either from `portal` or via any `script` to validate the behaviour after completion of the deletion.
 
     ![ResourceDeletion_RBAC_portal](./Media/ResourceDeletion/ResourceDeletion_RBAC_portal.PNG)
     ![ResourceDeletion_azpolicy_portal](./Media/ResourceDeletion/ResourceDeletion_azpolicy_portal.PNG)
@@ -37,7 +38,7 @@ Below are the detail steps by following  which Resource deletion feature can be 
 ![ResourceDeletion_RBAC_File](./Media/ResourceDeletion/ResourceDeletion_RBAC_File.PNG)
 ![ResourceDeletion_azpolicy_File](./Media/ResourceDeletion/ResourceDeletion_azpolicy_File.PNG)
 
-4. Once file has been deleted from the branch, create pull request from `Feature Branch` to `Master/Main Branch`.
+4. Once file has been deleted from the branch, create pull request from `Feature Branch` to `Main Branch`.
 
 ![ResourceDeletion_Pull_Request_creation](./Media/ResourceDeletion/ResourceDeletion_Pull_Request_creation.PNG)
 ![ResourceDeletion_Pull_Request_status](./Media/ResourceDeletion/ResourceDeletion_Pull_Request_status.PNG)
@@ -46,7 +47,7 @@ Below are the detail steps by following  which Resource deletion feature can be 
 
 ![ResourceDeletion_azops_validate_pipeline](./Media/ResourceDeletion/ResourceDeletion_azops_validate_pipeline.PNG)
 
-6. Now the `Approver` can review the pull request. It will have the detailed information about the file which are expected to be deleted and pull request can be approved based on that.
+6. Now the `Approver` can review the pull request. It contains detailed information about which file to delete and pull request can be approved based on that.
 
 ![ResourceDeletion_azops_validate_pipeline](./Media/ResourceDeletion/ResourceDeletion_Pull_Request_review.PNG)
 ![ResourceDeletion_azops_validate_pipeline](./Media/ResourceDeletion/ResourceDeletion_Pull_Request_merge.PNG)
@@ -63,10 +64,8 @@ Below are the detail steps by following  which Resource deletion feature can be 
 
 **_Please Note_**
 
-- For any other resource type other than `Role assignment` or `Azure Policy assignment`, deletion is not supported in AzOps yet.
-- Resource Deletion is only supported for templates generated by `AzOps - Pull`.
-- Resource Deletion is also supported, If AutoGeneratedTemplateFolderPath setting is set to specific `FOLDER NAME` in `setting.json` file.
-![ResourceDeletion_AutoGeneratedTemplateFolderPath1](./Media/ResourceDeletion/ResourceDeletion_AutoGeneratedTemplateFolderPath.PNG)
+- Resource Deletion is supported for templates generated by `AzOps - Pull` for resource type `roleAssignments` and `policyAssignments`.
+- For any other resource type **deletion is not supported in AzOps at this time**.
 - SPN used for deletion/change action, should have the below scope in its role definition.
 
     - For Azure Policy assignment removal
@@ -88,8 +87,13 @@ Below are the detail steps by following  which Resource deletion feature can be 
 
 ### Integration with AzOps Accelerator
 
-The [AzOps Accelerator pipelines](https://github.com/azure/azops-accelerator) (including `Git Hub Actions` & `Azure Pipelines`) have been updated to incorporate the execution of the new resource deletion feature.
+The [AzOps Accelerator pipelines](https://github.com/azure/azops-accelerator) (including `Git Hub Actions` & `Azure Pipelines`) incorporates the execution of resource deletion.
 
 Conditional logic has been implemented to call `Invoke-AzOpsPush` with required change set in case of resource deletion operation, while existing logic without resource deletion remains same.
 
 ![ResourceDeletion_Pipeline_logic](./Media/ResourceDeletion/ResourceDeletion_pipelineupdate.PNG)
+
+### How to Add AzOps Resource Deletion to existing AzOps - Push and Validate pipelines (applicable to implementations created prior to AzOps release v1.6.0)
+
+1. Update the `AzOps - Push` pipeline by copying content from the latest upstream [push.yml](https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/push.yml) file into your existing file.
+2. Update the `AzOps - Validate` pipeline by copying content from the latest upstream [validate.yml](https://github.com/Azure/AzOps-Accelerator/blob/main/.pipelines/validate.yml) file into your existing file.
