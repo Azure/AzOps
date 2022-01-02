@@ -163,7 +163,7 @@ az repos policy build create --blocking true --branch main `
     --build-definition-id (az pipelines show --name 'AzOps - Validate' --query 'id') `
     --display-name 'Validate' --enabled true --queue-on-source-update-only false `
     --repository-id (az repos list --query "[?name=='$RepoName'].id" -o tsv) `
-    --manual-queue-only false --valid-duration 0
+    --manual-queue-only false --valid-duration 0 --path-filter '/root/*'
 
 # Add branch policy to limit merge types to squash only
 az repos policy merge-strategy create --blocking true --branch main `
