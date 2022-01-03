@@ -156,7 +156,7 @@ Describe "Repository" {
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception
         }
-        
+
         #
         # Invoke the Invoke-AzOpsPull
         # function to generate the scope data which

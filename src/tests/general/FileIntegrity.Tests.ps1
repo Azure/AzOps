@@ -49,7 +49,7 @@ Describe "Verifying integrity of module files" {
             }
 
             It "[$name] Should have no lines with trailing spaces (error will reflect line number with trailing space)" -TestCases @{ file = $file } {
-                ($file | Select-String "\s$" | Where-Object { $_.Line.Trim().Length -gt 0 }).LineNumber | Should -BeNullOrEmpty
+                ($file | Select-String "\s$").LineNumber | Should -BeNullOrEmpty
             }
 
             $tokens = $null
