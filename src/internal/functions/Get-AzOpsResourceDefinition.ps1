@@ -468,28 +468,6 @@
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
-
-        if (Get-PSFConfigValue -FullName 'AzOps.Core.AllInOneTemplate') {
-            #region Add accumulated policy and role data
-            # Get statefile from scope
-            $parametersJson = Get-Content -Path $scopeObject.StatePath | ConvertFrom-Json -Depth 100
-            # Create property bag and add resources at scope
-            $propertyBag = [ordered]@{
-                'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
-                'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-                'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
-                'policyExemptions'     = @($serializedpolicyExemptionsInAzure)
-                'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
-                'roleAssignments'      = @($serializedRoleAssignmentInAzure)
-            }
-            # Add property bag to parameters json
-            $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force
-            # Export state file with properties at scope
-            ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -ExportRawTemplate -StatePath $StatePath
-            #endregion Add accumulated policy and role data
-        }
-
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
     }
-
 }
