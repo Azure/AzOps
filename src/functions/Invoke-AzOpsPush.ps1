@@ -226,7 +226,7 @@
 
             # Avoid duplicate entries in the deployment list
             if ($addition.EndsWith(".parameters.json")) {
-                if ($addModifySet -contains $addition.Replace(".parameters.json", ".json")) {
+                if ($addModifySet -contains $addition.Replace(".parameters.json", ".json") -or $addModifySet -contains $addition.Replace(".parameters.json", ".bicep")) {
                     continue
                 }
             }
