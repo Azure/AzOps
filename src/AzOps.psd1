@@ -33,7 +33,7 @@ Copyright = '(c) Microsoft. All rights reserved.'
 Description = 'Integrated CI/CD Solution for Microsoft Azure.'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.0'
+PowerShellVersion = '7.2'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -52,9 +52,9 @@ PowerShellVersion = '7.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.6.214'; }, 
-               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.7.0'; }, 
+               @{ModuleName = 'Az.Accounts'; RequiredVersion = '2.7.1'; }, 
                @{ModuleName = 'Az.Billing'; RequiredVersion = '2.0.0'; }, 
-               @{ModuleName = 'Az.Resources'; RequiredVersion = '5.1.0'; })
+               @{ModuleName = 'Az.Resources'; RequiredVersion = '5.2.0'; })
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
