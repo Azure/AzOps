@@ -14,7 +14,7 @@
 
 The Service Principal requires Azure Active Directory [Directory Readers](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#directory-readers) role to discover Azure 'roleAssignments'. These permissions are used to enrich data around the role assignments with additional Azure AD context such as ObjectType and Azure AD Object DisplayName.
 
-> Theses steps require _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
+> Theses steps require PowerShell 7 and _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
 
 ---
 
@@ -62,7 +62,7 @@ Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureSt
 # Install module
 #
 
-Install-Module Microsoft.Graph.Identity.DirectoryManagement
+Install-Module Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Applications
 
 #
 # Connect to Azure Active Directory

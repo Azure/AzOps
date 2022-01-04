@@ -13,6 +13,8 @@
     $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1")
 )
 
+Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 9
+
 Write-PSFMessage -Level Important -Message "Starting Tests"
 
 Write-PSFMessage -Level Important -Message "Importing Module"

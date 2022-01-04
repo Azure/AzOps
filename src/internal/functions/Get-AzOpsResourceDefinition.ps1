@@ -459,37 +459,27 @@
             return
         }
 
-        $serializedPolicyDefinitionsInAzure = @()
-        $serializedPolicySetDefinitionsInAzure = @()
-        $serializedPolicyAssignmentsInAzure = @()
-        $serializedRoleDefinitionsInAzure = @()
-        $serializedRoleAssignmentInAzure = @()
-
         #region Process Policies
         if (-not $SkipPolicy) {
             # Process policy definitions
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
             $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $scopeObject
             $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicyDefinitionsInAzure = $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policyset definitions (initiatives))
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $scopeObject.Scope
             $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $scopeObject
             $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicySetDefinitionsInAzure = $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policy assignments
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
             $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $scopeObject
             $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedPolicyAssignmentsInAzure = $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process policy exemptions
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Exemptions', $scopeObject.Scope
             $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
             $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedpolicyExemptionsInAzure = $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
         }
         #endregion Process Policies
 
@@ -499,13 +489,11 @@
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $scopeObject.Scope
             $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $scopeObject
             $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedRoleDefinitionsInAzure = $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
 
             # Process role assignments
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $scopeObject.Scope
             $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $scopeObject
             $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-            $serializedRoleAssignmentInAzure = $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate -StatePath $StatePath -ReturnObject
         }
         #endregion Process Roles
 
@@ -513,28 +501,6 @@
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
-
-        if (Get-PSFConfigValue -FullName 'AzOps.Core.AllInOneTemplate') {
-            #region Add accumulated policy and role data
-            # Get statefile from scope
-            $parametersJson = Get-Content -Path $scopeObject.StatePath | ConvertFrom-Json -Depth 100
-            # Create property bag and add resources at scope
-            $propertyBag = [ordered]@{
-                'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
-                'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-                'policyAssignments'    = @($serializedPolicyAssignmentsInAzure)
-                'policyExemptions'     = @($serializedpolicyExemptionsInAzure)
-                'roleDefinitions'      = @($serializedRoleDefinitionsInAzure)
-                'roleAssignments'      = @($serializedRoleAssignmentInAzure)
-            }
-            # Add property bag to parameters json
-            $parametersJson.parameters.input.value | Add-Member -Name 'properties' -MemberType NoteProperty -Value $propertyBag -force
-            # Export state file with properties at scope
-            ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scopeObject.StatePath -ExportRawTemplate -StatePath $StatePath
-            #endregion Add accumulated policy and role data
-        }
-
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
     }
-
 }
