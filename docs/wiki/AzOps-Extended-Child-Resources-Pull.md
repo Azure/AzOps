@@ -15,7 +15,7 @@ For Example: Hub route table in Vitual WAN, Container from Azure storage account
 
 ### Supported Actions
 
-- By setting the parameter to `FALSE` for option `Core.SkipExtendedChildResourcesDiscovery` in `settings.json` file will enable the pull. 
+- By setting the parameter to `false` for option `Core.SkipExtendedChildResourcesDiscovery` in `settings.json` file will enable the pull. 
 
 ### How to use
 
@@ -27,7 +27,7 @@ With this feature now it can pull all those sub resources under same resource gr
 
     ![Setting file](./Media/ExtendedChildResources/settingfile.PNG)
 
-- Step 2 - Set the value to `FALSE` for `Core.SkipExtendedChildResourcesDiscovery` parameters.
+- Step 2 - Set the value to `false` for `Core.SkipExtendedChildResourcesDiscovery` parameters.
 
 - Step 3 - Trigger the pull to fetch the fresh data of existing Azure environment. Navigate to Actions and run `AzOps - Pull`
 
