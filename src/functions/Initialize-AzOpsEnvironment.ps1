@@ -47,6 +47,9 @@
     )
 
     begin {
+        # Change PSSStyle output rendering to Host to remove escape sequences are removed in redirected or piped output.
+        $PSStyle.OutputRendering = [System.Management.Automation.OutputRendering]::Host
+        # Assert dependencies
         Assert-AzOpsWindowsLongPath -Cmdlet $PSCmdlet
         Assert-AzOpsJqDependency -Cmdlet $PSCmdlet
 

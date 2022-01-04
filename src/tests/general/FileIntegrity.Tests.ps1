@@ -4,9 +4,8 @@
 
 Describe "Verifying integrity of module files" {
     BeforeAll {
-        function Get-FileEncoding
-        {
-        <#
+        function Get-FileEncoding {
+            <#
             .SYNOPSIS
                 Tests a file for encoding.
 
@@ -24,12 +23,10 @@ Describe "Verifying integrity of module files" {
                 $Path
             )
 
-            if ($PSVersionTable.PSVersion.Major -lt 6)
-            {
+            if ($PSVersionTable.PSVersion.Major -lt 6) {
                 [byte[]]$byte = get-content -Encoding byte -ReadCount 4 -TotalCount 4 -Path $Path
             }
-            else
-            {
+            else {
                 [byte[]]$byte = Get-Content -AsByteStream -ReadCount 4 -TotalCount 4 -Path $Path
             }
 
@@ -44,16 +41,15 @@ Describe "Verifying integrity of module files" {
     Context "Validating PS1 Script files" {
         $allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.ps1" | Where-Object FullName -NotLike "$moduleRoot\tests\*"
 
-        foreach ($file in $allFiles)
-        {
+        foreach ($file in $allFiles) {
             $name = $file.FullName.Replace("$moduleRoot\", '')
 
             It "[$name] Should have UTF8 encoding with Byte Order Mark" -TestCases @{ file = $file } {
                 Get-FileEncoding -Path $file.FullName | Should -Be 'UTF8 BOM'
             }
 
-            It "[$name] Should have no trailing space" -TestCases @{ file = $file } {
-                ($file | Select-String "\s$" | Where-Object { $_.Line.Trim().Length -gt 0}).LineNumber | Should -BeNullOrEmpty
+            It "[$name] Should have no lines with trailing spaces (error will reflect line number with trailing space)" -TestCases @{ file = $file } {
+                ($file | Select-String "\s$").LineNumber | Should -BeNullOrEmpty
             }
 
             $tokens = $null
@@ -64,10 +60,8 @@ Describe "Verifying integrity of module files" {
                 $parseErrors | Should -BeNullOrEmpty
             }
 
-            foreach ($command in $global:BannedCommands)
-            {
-                if ($global:MayContainCommand["$command"] -notcontains $file.Name)
-                {
+            foreach ($command in $global:BannedCommands) {
+                if ($global:MayContainCommand["$command"] -notcontains $file.Name) {
                     It "[$name] Should not use $command" -TestCases @{ tokens = $tokens; command = $command } {
                         $tokens | Where-Object Text -EQ $command | Should -BeNullOrEmpty
                     }
@@ -79,8 +73,7 @@ Describe "Verifying integrity of module files" {
     Context "Validating help.txt help files" {
         $allFiles = Get-ChildItem -Path $moduleRoot -Recurse | Where-Object Name -like "*.help.txt" | Where-Object FullName -NotLike "$moduleRoot\tests\*"
 
-        foreach ($file in $allFiles)
-        {
+        foreach ($file in $allFiles) {
             $name = $file.FullName.Replace("$moduleRoot\", '')
 
             It "[$name] Should have UTF8 encoding" -TestCases @{ file = $file } {
