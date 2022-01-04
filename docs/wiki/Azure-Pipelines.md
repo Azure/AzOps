@@ -1,6 +1,5 @@
 # AzOps Via Azure Pipelines
 
-- [AzOps Via Azure Pipelines](#azops-via-azure-pipelines)
   - [Prerequisites](#prerequisites)
     - [Powershell command to create SPN](#powershell-command-to-create-spn)
     - [Powershell command to assign the Directory role permissions](#powershell-command-to-assign-the-directory-role-permissions)
@@ -81,7 +80,7 @@ New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionId $role.Id -
 
 ## Configure using Azure CLI in PowerShell
 
-This is the fastest and easiest way to get started using AzOps. The PowerShell script below will set up a new project or use an existing if it already exists. The account used to sign in with Azure CLI need to have access to create projects in Azure DevOps or have the owner role assigned to an existing project.
+The PowerShell script below will set up a new project or use an existing if it already exists. The account used to sign in with Azure CLI need to have access to create projects in Azure DevOps or have the owner role assigned to an existing project.
 
 - The script will:
   - Create a new repository and import the official [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) repository
@@ -197,7 +196,7 @@ $Body = @{
 $Uri = "`"https://dev.azure.com/$Organization/_apis/accesscontrolentries/${AzureReposSecurityNamespaceId}?api-version=6.0`""
 az rest --method post --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppId -o json
 
-# Add pipeline permissions for all three pipelines to to the credentials Variable Group
+# Add pipeline permissions for all three pipelines to the credentials Variable Group
 $AzureDevOpsGlobalAppId = '499b84ac-1321-427f-aa17-267ca6975798'
 $Pipelines = az pipelines list --query "[? contains(name,'AzOps')].{id:id,name:name}" | ConvertFrom-Json
 $VariableGroup = az pipelines variable-group list --query "[?name=='credentials'].{id:id,name:name}" | ConvertFrom-Json
@@ -300,7 +299,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 - Configure branch policies  
   In order for the `AzOps - Validate` pipeline to run, set the repository main 
   branch to require build verification using most of default settings, but do define a path filter matching 
-  your state setting, for example: `/azops/*` or `/root/*`.
+  your state setting, for example: `/root/*`.
   ![Branch-policy-1](./Media/Pipelines/Branch-policy-1.PNG)
 
 - Allow only squash merge types from branches into main.
@@ -315,7 +314,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 - Optionally, add the variable AZOPS_MODULE_VERSION to the variable group `credentials` to pin the version of the AzOps module to be used
 
-- As this deployment will be configured for Azure Pipelines it is safe to 
+- This deployment is configured for Azure Pipelines. It is safe to 
   delete the `.github` folder and any MarkDown files in the root of the repository
 
     ![Remove-Github-Folder](./Media/Pipelines/Remove-Github-Folder.PNG)
@@ -334,5 +333,6 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
    > Note: Please follow above naming convention for parameter file creation.
 
 - Creating a Pull Request with changes to the `root` folder will trigger a validate pipeline. The validate pipeline will perform a What-If deployment of the changes and post the results as a comment om the pull request
-- Run the Push pipeline to apply the update.  
+
+- Merge the Pull Request to trigger the push pipeline and deploy the changes  
   ![Pipelines](./Media/Pipelines/Pipelines.PNG)  
