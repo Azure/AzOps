@@ -19,3 +19,4 @@ Id|Name|Description|Example
 14|State|It generate default top level folder in the repository with the name defined in the setting file|![State](./Media/Pipelines/State.PNG)
 15|SubscriptionsToIncludeResourceGroups|If `*` is mentioned then, it will generate folder hierachy for all Resource Groups, else specific resource group can be mentioned |`"Core.SubscriptionsToIncludeResourceGroups": "*"`
 16|TemplateParameterFileSuffix|Its generated the template file with specific file suffix|`"Core.TemplateParameterFileSuffix": ".json"`
+17 | WhatifExcludedChangeTypes | Exclude specific change types from WhatIf operations |
