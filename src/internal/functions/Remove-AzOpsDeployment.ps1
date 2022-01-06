@@ -105,7 +105,7 @@
             #Validate
             $scopeOfRoleAssignment = $scopeObject.scope
             $scopeOfRoleAssignment = $scopeOfRoleAssignment.Substring(0, $scopeOfRoleAssignment.LastIndexOf('/providers'))
-            $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -scope $scopeOfRoleAssignment -ErrorAction Continue -ErrorVariable roleAssignmentError
+            $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -scope $scopeOfRoleAssignment -ErrorAction Continue -ErrorVariable roleAssignmentError -WarningAction SilentlyContinue
             if ($roleAssignment) {
                 $validatePermissionList = @("Microsoft.Authorization/roleAssignments/delete", "Microsoft.Authorization/roleAssignments/*", "Microsoft.Authorization/*")
                 $roleAssignmentPermissionCheck = Get-AzOpsContextPermissionCheck -contextObjectId $contextObjectId -scope $roleAssignment.Scope -validatePermissionList $validatePermissionList
