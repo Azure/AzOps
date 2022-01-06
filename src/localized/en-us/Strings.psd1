@@ -119,7 +119,7 @@
     'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources'    = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template'           = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
     'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting'             = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
-    'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'       = 'Resources are skipped in resource group due to SkipExtendedChildResourcesDiscovery and SkipResource'
+    'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'       = 'Extended Child Resources are skipped in resource group {0} due to SkipExtendedChildResourcesDiscovery' # $resourceGroup.ResourceGroupName
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
