@@ -334,7 +334,7 @@
                                         }
                                     }
                                     else {
-                                        Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'
+                                        Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources' -StringValues $resourceGroup.ResourceGroupName
                                     }
                                 }
                                 if (Test-Path -Path $tempExportPath) {
