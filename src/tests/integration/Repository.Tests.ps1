@@ -152,7 +152,7 @@ Describe "Repository" {
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
-            $script:ruleCollectionGroups = (Get-AzResource -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
+            $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
 
         }
         catch {
@@ -167,8 +167,6 @@ Describe "Repository" {
         #
 
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
-        Set-PSFConfig -FullName AzOps.Core.SkipResourceGroup -Value $false
-        Set-PSFConfig -FullName AzOps.Core.SkipResource -Value $false
         Set-PSFConfig -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery -Value $false
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
