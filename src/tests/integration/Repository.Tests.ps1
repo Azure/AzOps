@@ -152,6 +152,8 @@ Describe "Repository" {
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
+            $script:ruleCollectionGroups = (Get-AzResource -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
+
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception
@@ -165,6 +167,10 @@ Describe "Repository" {
         #
 
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
+        Set-PSFConfig -FullName AzOps.Core.SkipResourceGroup -Value $false
+        Set-PSFConfig -FullName AzOps.Core.SkipResource -Value $false
+        Set-PSFConfig -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery -Value $false
+
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
             Invoke-AzOpsPull -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
@@ -232,8 +238,12 @@ Describe "Repository" {
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
         Write-PSFMessage -Level Debug -Message "RouteTableFile: $($script:routeTableFile)" -FunctionName "BeforeAll"
-        #endregion Paths
 
+        $script:ruleCollectionGroupsPath = ($filePaths | Where-Object Name -eq "microsoft.network_firewallpolicies_rulecollectiongroups-testpolicy_$(($script:ruleCollectionGroups).toLower()).json")
+        $script:ruleCollectionGroupsDirectory = ($script:ruleCollectionGroupsPath).Directory
+        $script:ruleCollectionGroupsFile = ($script:ruleCollectionGroupsPath).FullName
+        Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
+        #endregion Paths
     }
 
     Context "Test" {
@@ -531,6 +541,34 @@ Describe "Repository" {
         }
         #endregion
 
+        #region Scope - ruleCollectionGroup (./root/tenant root group/test/platform/management/subscription-0/application/testpolicy/testgroup)
+        It "Rule Collection Group directory should exist" {
+            Test-Path -Path $script:ruleCollectionGroupsDirectory | Should -BeTrue
+        }
+        It "Rule Collection Group file should exist" {
+            Test-Path -Path $script:ruleCollectionGroupsFile | Should -BeTrue
+        }
+        It "Rule Collection Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Rule Collection Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Rule Collection Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Rule Collection Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Rule Collection Group resource type should match" {
+            $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Network/firewallPolicies/ruleCollectionGroups"
+        }
+        #endregion
     }
 
     AfterAll {

@@ -79,11 +79,11 @@
             .SYNOPSIS
                 Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name
             .DESCRIPTION
-                Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name 
+                Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name
             .PARAMETER Scope
                 Scope == ResourceID of Parent resource
             .PARAMETER ResourceProvider
-                The Resource provider of the resource 
+                The Resource provider of the resource
             .PARAMETER ResourceName
                 The Name of the resource
             .INPUTS
@@ -95,7 +95,7 @@
                 Using Parent Resource id , Resource provider and Resource name it generates a statepath to place the Child Resource file and parent scope Object
         #>
         $this.StateRoot = $StateRoot
-        $this.ChildResourceName = $ResourceProvider + '-' + $ResourceName + ".json"
+        $this.ChildResourceName = $ResourceProvider + '-' + $ResourceName
         Write-PSFMessage -Level Verbose -String 'AzOpsScope.ChildResource.InitializeMemberVariables' -StringValues $ResourceProvider, $ResourceName, $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.InitializeMemberVariables($Scope)
     }

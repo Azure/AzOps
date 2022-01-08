@@ -60,7 +60,7 @@
         $SkipResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceType'),
 
         [switch]
-        $SkipExtendedChildResourcesDiscovery  = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipExtendedChildResourcesDiscovery'),
+        $SkipExtendedChildResourcesDiscovery = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipExtendedChildResourcesDiscovery'),
 
         [string]
         $JqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.JqTemplatePath'),
@@ -159,7 +159,7 @@
                     ODataQuery        = $OdataFilter
                     ExpandProperties  = $true
                 }
-                Get-AzResource @paramGetAzResource | Where-Object {$_.Type -notin $SkipResourceType} | ForEach-Object {
+                Get-AzResource @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
                     New-AzOpsScope -Scope $_.ResourceId
                 } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
             }
@@ -304,29 +304,29 @@
                                 }
                                 $tempExportPath = "/tmp/" + $resourceGroup.ResourceGroupName + ".json"
                                 # Loop through resources and convert them to AzOpsState
-                                foreach ($resource in ($resources | Where-Object {$_.Type -notin $runspaceData.SkipResourceType})) {
+                                foreach ($resource in ($resources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType })) {
                                     # Convert resources to AzOpsState
                                     Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
                                     & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
-                                    
+
                                     if (-not $using:SkipExtendedChildResourcesDiscovery) {
                                         Export-AzResourceGroup -Resource $resource.ResourceId -ResourceGroupName $resourceGroup.ResourceGroupName -SkipAllParameterization -Path $tempExportPath -Confirm:$false -Force | Out-Null
                                         $exportResources = (Get-content -Path $tempExportPath | ConvertFrom-Json).resources
-                                        foreach ($exportResource in ($exportResources | Where-Object {$_.Type -notin $runspaceData.SkipResourceType})) {
+                                        foreach ($exportResource in ($exportResources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType })) {
                                             if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
                                                 Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
-                                                $resourceProvider = $exportResource.type -replace '/','_'
-                                                $resourceName = $exportResource.name -replace '/','_'
-                                                if(Get-Member -InputObject $exportResource -name 'dependsOn'){
+                                                $resourceProvider = $exportResource.type -replace '/', '_'
+                                                $resourceName = $exportResource.name -replace '/', '_'
+                                                if (Get-Member -InputObject $exportResource -name 'dependsOn') {
                                                     $exportResource.PsObject.Members.Remove('dependsOn')
                                                 }
-                                                $resourceHash = @{resources=@($exportResource)}
+                                                $resourceHash = @{resources = @($exportResource) }
                                                 $jqJsonTemplate = Join-Path $runspaceData.JqTemplatePath -ChildPath "templateExtendedChildResources.jq"
-                                                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template' -StringValues $jqJsonTemplate 
+                                                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template' -StringValues $jqJsonTemplate
                                                 $object = ($resourceHash | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
-                                                
-                                                & $azOps { 
-                                                    $objectFilePath = (New-AzOpsScope -scope $resourceGroup.ResourceId -ResourceProvider $resourceProvider -ResourceName $resourceName -StatePath $runspaceData.Statepath).statepath 
+
+                                                & $azOps {
+                                                    $objectFilePath = (New-AzOpsScope -scope $resourceGroup.ResourceId -ResourceProvider $resourceProvider -ResourceName $resourceName -StatePath $runspaceData.Statepath).statepath
                                                     Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting' -StringValues $objectFilePath
                                                     ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
                                                 }
