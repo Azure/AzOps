@@ -53,7 +53,7 @@
         [Parameter(ParameterSetName = "pathfile", ValueFromPipeline = $true)]
         [string]
         $Path,
-        
+
         [hashtable]
         $ChildResource,
 

@@ -50,7 +50,7 @@
 
         [switch]
         $ReturnObject,
-        
+
         [hashtable]
         $ChildResource,
 
@@ -72,9 +72,9 @@
     process {
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Processing' -StringValues $Resource
 
-        if($ChildResource){
+        if ($ChildResource) {
             $objectFilePath = (New-AzOpsScope -scope $ChildResource.parentResourceId -ChildResource $ChildResource -StatePath $Statepath).statepath
-            
+
             $jqJsonTemplate = Join-Path $JqTemplatePath -ChildPath "templateChildResource.jq"
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template' -StringValues $jqJsonTemplate
             $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
