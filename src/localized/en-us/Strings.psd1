@@ -52,8 +52,8 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions'                    = 'Determine scope based on ResourceType subscriptions {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.resourceGroups'                   = 'Determine scope based on ResourceType resourceGroups {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on Resource Type {0} and Resource Name {1}' # ResourceType and #Resource Name
-    'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Extended Child Resource based on Resource Type {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
-    
+    'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on Resource Type {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
+
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
@@ -254,6 +254,6 @@
     'Save-AzOpsManagementGroupChildren.Subscription.NotFound'                       = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Set-AzOpsContext.Change'                                                       = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' # 
+    'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
     'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}'
 }
