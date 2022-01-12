@@ -11,6 +11,8 @@
             The path from which to build a scope.
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
+        .PARAMETER ExtendedChildResource
+            The ExtendedChildResource contains details of the child resource.
         .PARAMETER Confirm
             If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
         .PARAMETER WhatIf
@@ -51,12 +53,9 @@
         [Parameter(ParameterSetName = "pathfile", ValueFromPipeline = $true)]
         [string]
         $Path,
-
-        [string]
-        $ResourceProvider,
-
-        [string]
-        $ResourceName,
+        
+        [hashtable]
+        $ExtendedChildResource,
 
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
@@ -66,9 +65,9 @@
 
         switch ($PSCmdlet.ParameterSetName) {
             scope {
-                if (($ResourceProvider -and $ResourceName) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery))) {
+                if (($ExtendedChildResource) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery))) {
                     Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromParentScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
-                        [AzOpsScope]::new($Scope, $ResourceProvider,$ResourceName,$StatePath)
+                        [AzOpsScope]::new($Scope, $ExtendedChildResource, $StatePath)
                     } -EnableException $true -PSCmdlet $PSCmdlet
                 }
                 else {

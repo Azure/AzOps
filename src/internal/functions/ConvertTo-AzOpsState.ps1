@@ -13,6 +13,8 @@
             ExportPath is used if resource needs to be exported to other path than the AzOpsScope path
         .PARAMETER ReturnObject
             Used if to return object in pipeline instead of exporting file
+        .PARAMETER ExtendedChildResource
+            The ExtendedChildResource contains details of the child resource
         .PARAMETER ExportRawTemplate
             Used in cases you want to return the template without the custom parameters json schema
         .PARAMETER StatePath
@@ -48,6 +50,9 @@
 
         [switch]
         $ReturnObject,
+        
+        [hashtable]
+        $ExtendedChildResource,
 
         [switch]
         $ExportRawTemplate,
@@ -66,6 +71,18 @@
 
     process {
         Write-PSFMessage -Level Debug -String 'ConvertTo-AzOpsState.Processing' -StringValues $Resource
+
+        if($ExtendedChildResource){
+            $objectFilePath = (New-AzOpsScope -scope $ExtendedChildResource.parentResourceId -ExtendedChildResource $ExtendedChildResource -StatePath $Statepath).statepath
+            
+            $jqJsonTemplate = Join-Path $JqTemplatePath -ChildPath "templateExtendedChildResources.jq"
+            Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResources.Jq.Template' -StringValues $jqJsonTemplate
+            $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+
+            Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResources.Exporting' -StringValues $objectFilePath
+            ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
+            return
+        }
 
         if (-not $ExportPath) {
             if ($Resource.Id) {

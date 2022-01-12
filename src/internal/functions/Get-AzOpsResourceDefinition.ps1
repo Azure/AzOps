@@ -315,20 +315,17 @@
                                         foreach ($exportResource in ($exportResources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType })) {
                                             if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
                                                 Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
-                                                $resourceProvider = $exportResource.type -replace '/', '_'
-                                                $resourceName = $exportResource.name -replace '/', '_'
+                                                $extendedChildResource = @{
+                                                    resourceProvider = $exportResource.type -replace '/', '_'
+                                                    resourceName = $exportResource.name -replace '/', '_'
+                                                    parentResourceId = $resourceGroup.ResourceId
+                                                }
                                                 if (Get-Member -InputObject $exportResource -name 'dependsOn') {
                                                     $exportResource.PsObject.Members.Remove('dependsOn')
                                                 }
                                                 $resourceHash = @{resources = @($exportResource) }
-                                                $jqJsonTemplate = Join-Path $runspaceData.JqTemplatePath -ChildPath "templateExtendedChildResources.jq"
-                                                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template' -StringValues $jqJsonTemplate
-                                                $object = ($resourceHash | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
-
                                                 & $azOps {
-                                                    $objectFilePath = (New-AzOpsScope -scope $resourceGroup.ResourceId -ResourceProvider $resourceProvider -ResourceName $resourceName -StatePath $runspaceData.Statepath).statepath
-                                                    Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting' -StringValues $objectFilePath
-                                                    ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
+                                                    ConvertTo-AzOpsState -Resource $resourceHash -ExtendedChildResource $extendedChildResource -StatePath $runspaceData.Statepath
                                                 }
                                             }
                                         }

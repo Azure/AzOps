@@ -79,6 +79,8 @@
     'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
     'ConvertTo-AzOpsState.Jq.Remove'                                                = 'Using Jq Remove Template at path {0}'# jqRemoveTemplate
     'ConvertTo-AzOpsState.Jq.Template'                                              = 'Using Jq Json Template at path {0}'# jqRemoveTemplate
+    'ConvertTo-AzOpsState.Subscription.ChildResources.Jq.Template'                  = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
+    'ConvertTo-AzOpsState.Subscription.ChildResources.Exporting'                    = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
@@ -117,8 +119,6 @@
     'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
     'Get-AzOpsResourceDefinition.Subscription.SkippingResources'                    = 'Resources are skipped in resource group due to SkipResource.' #
     'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources'    = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.ChildResources.Jq.Template'           = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
-    'Get-AzOpsResourceDefinition.Subscription.ChildResources.Exporting'             = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
     'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'       = 'Extended Child Resources are skipped in resource group {0} due to SkipExtendedChildResourcesDiscovery' # $resourceGroup.ResourceGroupName
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject

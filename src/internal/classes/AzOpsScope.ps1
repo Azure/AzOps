@@ -74,7 +74,7 @@
         }
     }
     # Overridden Constructor used for Extended Child Resource Discovery
-    AzOpsScope ([string]$Scope, [string]$ResourceProvider, [string]$ResourceName, [string]$StateRoot) {
+    AzOpsScope ([string]$Scope, [hashtable]$ExtendedChildResource, [string]$StateRoot) {
         <#
             .SYNOPSIS
                 Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name
@@ -82,10 +82,8 @@
                 Creates an StatePath of Child Resource based on the specified resource ID of ResourceGroup, Resource provider of Resource and Resource name
             .PARAMETER Scope
                 Scope == ResourceID of Parent resource
-            .PARAMETER ResourceProvider
-                The Resource provider of the resource
-            .PARAMETER ResourceName
-                The Name of the resource
+            .PARAMETER ExtendedChildResource
+                The ExtendedChildResource contains details of the child resource
             .INPUTS
                 None. You cannot pipe objects to Add-Extension.
             .OUTPUTS
@@ -95,8 +93,8 @@
                 Using Parent Resource id , Resource provider and Resource name it generates a statepath to place the Child Resource file and parent scope Object
         #>
         $this.StateRoot = $StateRoot
-        $this.ChildResourceName = $ResourceProvider + '-' + $ResourceName
-        Write-PSFMessage -Level Verbose -String 'AzOpsScope.ChildResource.InitializeMemberVariables' -StringValues $ResourceProvider, $ResourceName, $scope -FunctionName AzOpsScope -ModuleName AzOps
+        $this.ChildResourceName = $ExtendedChildResource.resourceProvider + '-' + $ExtendedChildResource.resourceName
+        Write-PSFMessage -Level Verbose -String 'AzOpsScope.ChildResource.InitializeMemberVariables' -StringValues $ExtendedChildResource.ResourceProvider, $ExtendedChildResource.ResourceName, $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.InitializeMemberVariables($Scope)
     }
 
