@@ -167,7 +167,7 @@ Describe "Repository" {
         #
 
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
-        Set-PSFConfig -FullName AzOps.Core.SkipExtendedChildResourcesDiscovery -Value $false
+        Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {

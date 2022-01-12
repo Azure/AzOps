@@ -60,7 +60,7 @@
         $SkipResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceType'),
 
         [switch]
-        $SkipExtendedChildResourcesDiscovery = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipExtendedChildResourcesDiscovery'),
+        $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
 
         [string]
         $JqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.JqTemplatePath'),
@@ -159,7 +159,7 @@
                     ODataQuery        = $OdataFilter
                     ExpandProperties  = $true
                 }
-                Get-AzResource @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
+                Get-AzResource @paramGetAzResource | Where-Object {$_.Type -notin $SkipResourceType} | ForEach-Object {
                     New-AzOpsScope -Scope $_.ResourceId
                 } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
             }
@@ -237,12 +237,12 @@
                             ScopeObject                         = $ScopeObject
                             ODataFilter                         = $ODataFilter
                             SkipResource                        = $SkipResource
+                            SkipChildResource                   = $SkipChildResource
                             SkipResourceType                    = $SkipResourceType
                             MaxRetryCount                       = $maxRetryCount
                             BackoffMultiplier                   = $backoffMultiplier
                             ExportRawTemplate                   = $ExportRawTemplate
                             JqTemplatePath                      = $JqTemplatePath
-                            SkipExtendedChildResourcesDiscovery = $SkipExtendedChildResourcesDiscovery
                             runspace_AzOpsAzManagementGroup     = $script:AzOpsAzManagementGroup
                             runspace_AzOpsSubscriptions         = $script:AzOpsSubscriptions
                             runspace_AzOpsPartialRoot           = $script:AzOpsPartialRoot
@@ -304,18 +304,18 @@
                                 }
                                 $tempExportPath = "/tmp/" + $resourceGroup.ResourceGroupName + ".json"
                                 # Loop through resources and convert them to AzOpsState
-                                foreach ($resource in ($resources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType })) {
+                                foreach ($resource in ($resources | Where-Object {$_.Type -notin $runspaceData.SkipResourceType})) {
                                     # Convert resources to AzOpsState
                                     Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
                                     & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
-                                    if (-not $using:SkipExtendedChildResourcesDiscovery) {
+                                    if (-not $using:SkipChildResource) {
                                         Export-AzResourceGroup -Resource $resource.ResourceId -ResourceGroupName $resourceGroup.ResourceGroupName -SkipAllParameterization -Path $tempExportPath -Confirm:$false -Force | Out-Null
                                         $exportResources = (Get-content -Path $tempExportPath | ConvertFrom-Json).resources
                                         foreach ($exportResource in ($exportResources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType })) {
                                             if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
-                                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
-                                                $extendedChildResource = @{
+                                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
+                                                $ChildResource = @{
                                                     resourceProvider = $exportResource.type -replace '/', '_'
                                                     resourceName = $exportResource.name -replace '/', '_'
                                                     parentResourceId = $resourceGroup.ResourceId
@@ -325,13 +325,13 @@
                                                 }
                                                 $resourceHash = @{resources = @($exportResource) }
                                                 & $azOps {
-                                                    ConvertTo-AzOpsState -Resource $resourceHash -ExtendedChildResource $extendedChildResource -StatePath $runspaceData.Statepath
+                                                    ConvertTo-AzOpsState -Resource $resourceHash -ChildResource $ChildResource -StatePath $runspaceData.Statepath
                                                 }
                                             }
                                         }
                                     }
                                     else {
-                                        Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources' -StringValues $resourceGroup.ResourceGroupName
+                                        Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource' -StringValues $resourceGroup.ResourceGroupName
                                     }
                                 }
                                 if (Test-Path -Path $tempExportPath) {

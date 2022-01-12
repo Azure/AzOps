@@ -79,8 +79,8 @@
     'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
     'ConvertTo-AzOpsState.Jq.Remove'                                                = 'Using Jq Remove Template at path {0}'# jqRemoveTemplate
     'ConvertTo-AzOpsState.Jq.Template'                                              = 'Using Jq Json Template at path {0}'# jqRemoveTemplate
-    'ConvertTo-AzOpsState.Subscription.ChildResources.Jq.Template'                  = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
-    'ConvertTo-AzOpsState.Subscription.ChildResources.Exporting'                    = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
+    'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template'                  = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
+    'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting'                    = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
@@ -118,8 +118,8 @@
     'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
     'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
     'Get-AzOpsResourceDefinition.Subscription.SkippingResources'                    = 'Resources are skipped in resource group due to SkipResource.' #
-    'Get-AzOpsResourceDefinition.Subscription.Processing.ExtendedChildResources'    = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.SkippingExtendedChildResources'       = 'Extended Child Resources are skipped in resource group {0} due to SkipExtendedChildResourcesDiscovery' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource'             = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource'                = 'Child Resources are skipped in resource group {0} due to SkipChildResource' # $resourceGroup.ResourceGroupName
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
@@ -187,7 +187,7 @@
 
     'New-AzOpsScope.Creating.FromFile'                                              = 'Creating a new scope from a path' #
     'New-AzOpsScope.Creating.FromScope'                                             = 'Creating new AzOpsScope object using scope [{0}]' # $Scope
-    'New-AzOpsScope.Creating.FromParentScope'                                       = 'Creating new AzOpsScope statepath using parent scope [{0}] with child Resource details' # $Scope
+    'New-AzOpsScope.Creating.FromParentScope'                                       = 'Creating new AzOpsScope statepath using parent scope [{0}] with child resource details' # $Scope
     'New-AzOpsScope.Path.InvalidRoot'                                               = 'Path "{0}" must be a path under "{1}" !' # $Path, $StatePath
     'New-AzOpsScope.Path.NotFound'                                                  = 'Path not found: {0}' # $Path
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #
