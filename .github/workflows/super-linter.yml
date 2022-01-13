@@ -8,19 +8,21 @@ name: "Lint Code Base"
 
 on:
   pull_request_target:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   run-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: "Checkout code"
         uses: actions/checkout@v2
         with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Lint Code Base
+      - name: "Lint Code Base"
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
