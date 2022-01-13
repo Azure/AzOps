@@ -11,6 +11,8 @@
             The path from which to build a scope.
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
+        .PARAMETER ChildResource
+            The ChildResource contains details of the child resource.
         .PARAMETER Confirm
             If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
         .PARAMETER WhatIf
@@ -52,6 +54,9 @@
         [string]
         $Path,
 
+        [hashtable]
+        $ChildResource,
+
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
@@ -60,9 +65,16 @@
 
         switch ($PSCmdlet.ParameterSetName) {
             scope {
-                Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
-                    [AzOpsScope]::new($Scope, $StatePath)
-                } -EnableException $true -PSCmdlet $PSCmdlet
+                if (($ChildResource) -and (-not(Get-PSFConfigValue -FullName AzOps.Core.SkipChildResource))) {
+                    Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromParentScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
+                        [AzOpsScope]::new($Scope, $ChildResource, $StatePath)
+                    } -EnableException $true -PSCmdlet $PSCmdlet
+                }
+                else {
+                    Invoke-PSFProtectedCommand -ActionString 'New-AzOpsScope.Creating.FromScope' -ActionStringValues $Scope -Target $Scope -ScriptBlock {
+                        [AzOpsScope]::new($Scope, $StatePath)
+                    } -EnableException $true -PSCmdlet $PSCmdlet
+                }
             }
             pathfile {
                 if (-not (Test-Path $Path)) {
