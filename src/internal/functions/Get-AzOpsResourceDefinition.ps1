@@ -62,9 +62,6 @@
         [switch]
         $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
 
-        [string]
-        $JqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.JqTemplatePath'),
-
         [switch]
         $ExportRawTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.ExportRawTemplate'),
 
@@ -242,7 +239,6 @@
                             MaxRetryCount                   = $maxRetryCount
                             BackoffMultiplier               = $backoffMultiplier
                             ExportRawTemplate               = $ExportRawTemplate
-                            JqTemplatePath                  = $JqTemplatePath
                             runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
                             runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
                             runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
