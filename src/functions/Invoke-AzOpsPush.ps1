@@ -76,7 +76,7 @@
             #region Case: Parameters File
             if ($fileItem.Name.EndsWith('.parameters.json')) {
                 $result.TemplateParameterFilePath = $fileItem.FullName
-                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), ''
+                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '' -replace ' ', '_'
                 if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
                 $result.DeploymentName = "AzOps-$deploymentName"
 
