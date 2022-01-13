@@ -154,7 +154,7 @@
                         {
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2019-10-01",
-                            "name": "RouteTable",
+                            "name": "RouteTableAndPolicy",
                             "resourceGroup": "Application",
                             "dependsOn": [
                                 "Application"
@@ -176,7 +176,93 @@
                                             "properties": {
                                                 "disableBgpRoutePropagation": "false"
                                             }
+                                        },
+                                        {
+                                            "type": "Microsoft.Network/firewallPolicies",
+                                            "name": "TestPolicy",
+                                            "apiVersion": "2021-06-01",
+                                            "location": "eastus",
+                                            "tags": {},
+                                            "properties": {
+                                                "sku": {
+                                                    "tier": "Standard"
+                                                },
+                                                "threatIntelMode": "Alert",
+                                                "threatIntelWhitelist": {
+                                                    "fqdns": [],
+                                                    "ipAddresses": []
+                                                },
+                                                "childPolicies": [],
+                                                "ruleCollectionGroups": [
+                                                ],
+                                                "firewalls": []
+                                            }
                                         }
+
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-10-01",
+                            "name": "RuleGroupCollection",
+                            "resourceGroup": "Application",
+                            "dependsOn": [
+                                "RouteTableAndPolicy"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                                            "apiVersion": "2020-11-01",
+                                            "name": "TestPolicy/TestGroup",
+                                            "location": "eastus",
+                                            "properties": {
+                                                "priority": 100,
+                                                "ruleCollections": [
+                                                    {
+                                                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                                                        "action": {
+                                                            "type": "Allow"
+                                                        },
+                                                        "rules": [
+                                                            {
+                                                                "ruleType": "NetworkRule",
+                                                                "name": "Test",
+                                                                "ipProtocols": [
+                                                                    "TCP"
+                                                                ],
+                                                                "sourceAddresses": [
+                                                                    "10.100.100.0/24"
+                                                                ],
+                                                                "sourceIpGroups": [],
+                                                                "destinationAddresses": [
+                                                                    "10.200.201.0/24"
+                                                                ],
+                                                                "destinationIpGroups": [],
+                                                                "destinationFqdns": [],
+                                                                "destinationPorts": [
+                                                                    "3389"
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "name": "TestRule",
+                                                        "priority": 101
+                                                    }
+                                                ]
+                                            }
+                                        }
+
                                     ],
                                     "outputs": {
                                     }
