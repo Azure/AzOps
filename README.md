@@ -3,21 +3,23 @@
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/enhancement?label=enhancement%20issues)
 ![GitHub issues by-label](https://img.shields.io/github/issues/azure/azops/bug?label=bug%20issues)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/azops)
+![GitHub Super-Linter](https://github.com/Azure/AzOps/workflows/AzOps%20-%20Tests/badge.svg)
+![GitHub Super-Linter](https://github.com/Azure/AzOps/workflows/Lint%20Code%20Base/badge.svg)
 
 This repository is for active development of the AzOps PowerShell cmdlets.
 
-### Getting started
+## Getting started
 
 For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
 
-### Dependencies
+## Dependencies
 
 - [Az.Accounts](https://github.com/azure/azure-powershell)
 - [Az.Billing](https://github.com/azure/azure-powershell)
 - [Az.Resources](https://github.com/azure/azure-powershell)
 - [PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
 
-### Need help?
+## Need help?
 
 For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
 For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
@@ -26,9 +28,11 @@ For information on contributing to the module, visit the [Contributing Guide](ht
 For information on migrating to the new version, visit the [Migration Guide](https://github.com/azure/azops/wiki/migration)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
-### Output
+## Output
 
-AzOps is rooted in the principle that everything in Azure is a resource and to operate at-scale, it should be managed declaratively to determine target goal state of the overall platform. This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://docs.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionality the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting (Pull) composite templates from ARM and placing them within the repository.
+AzOps is rooted in the principle that everything in Azure is a resource and to operate at-scale, it should be managed declaratively to determine target goal state of the overall platform.
+
+This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://docs.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionality the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting (Pull) composite templates from ARM and placing them within the repository.
 
 ```bash
 root
@@ -65,11 +69,11 @@ root
                 └── microsoft.resources_resourcegroups-networks.json
 ```
 
-### Contributing
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -79,7 +83,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-### Trademarks
+## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
 trademarks or logos is subject to and must follow
