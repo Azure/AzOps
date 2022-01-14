@@ -260,9 +260,10 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
     > Note: Make sure to create them in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
-    * \.pipelines/push.yml
-    * \.pipelines/pull.yml
-    * \.pipelines/validate.yml
+    
+    1. \.pipelines/push.yml
+    2. \.pipelines/pull.yml
+    3. \.pipelines/validate.yml
 
     <br/>
 
