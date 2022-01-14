@@ -1,5 +1,5 @@
 <!-- Thank you for submitting a Pull Request. Please fill out the template below.-->
-## Overview/Summary
+# Overview/Summary
 
 Replace this with a brief description of what this Pull Request fixes, changes, etc.
 
@@ -25,4 +25,3 @@ Please provide any testing evidence to show that your Pull Request works/fixes a
 - [ ] Ensured my code/branch is up-to-date with the latest changes in the `main` [branch](https://github.com/Azure/azops/tree/main)
 - [ ] Performed testing and provided evidence.
 - [ ] Updated relevant and associated documentation.
-- [ ] Updated the ["What's New?"](https://github.com/Azure/Enterprise-Scale/wiki/Whats-new) wiki page (located in the [Enterprise-Scale repo](https://github.com/Azure/Enterprise-Scale) in the directory: `/docs/wiki/whats-new.md`)
