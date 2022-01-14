@@ -19,5 +19,5 @@
         }
     ],
     "outputs": {}
-} |
-.resources[] |= if .identity==null then del(.identity) else . end
+} | .resources[] |= if .identity==null then del(.identity) elif .identity.UserAssignedIdentities==null then del(.identity.UserAssignedIdentities) else . end | 
+ .resources[] |= if .identity.IdentityType !=null then .identity["Type"] = .identity.IdentityType | del(.identity.IdentityType) else . end
