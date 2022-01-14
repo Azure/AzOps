@@ -256,10 +256,8 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 ![Library](./Media/Pipelines/Library.PNG)
 
-<br/>
-
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
-    > Note: Make sure to create them in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
+    > Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
     
     1. \.pipelines/push.yml
     2. \.pipelines/pull.yml
