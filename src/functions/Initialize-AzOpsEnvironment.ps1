@@ -95,13 +95,21 @@
             return
         }
 
-        #region Validate root '/' permissions
-        if ($currentAzContext.Account.Type -eq "User") {
-            $rootPermissions = Get-AzRoleAssignment -UserPrincipalName $currentAzContext.Account.Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        #region Validate root '/' permissions - different methods of getting current context depending on principalType
+        switch ($currentAzContext.Account.Type) {
+            'User' {
+                $rootPermissions = Get-AzRoleAssignment -UserPrincipalName $currentAzContext.Account.Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            }
+            'ManagedService' {
+                # Get managed identity application id via IMDS (https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token)
+                $applicationId = (Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" -Headers @{ Metadata = $true }).client_id
+                $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $applicationId).Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            }
+            'ServicePrincipal' {
+                $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            }
         }
-        else {
-            $rootPermissions = Get-AzRoleAssignment -ObjectId (Get-AzADServicePrincipal -ApplicationId $currentAzContext.Account.Id).Id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-        }
+
         if (-not $rootPermissions) {
             Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
             $PartialMgDiscovery = $true
