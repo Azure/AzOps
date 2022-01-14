@@ -1,4 +1,4 @@
-## In this guide
+# In this guide
 
 - [Steps](#steps)
 - [Azure](#azure)
@@ -6,7 +6,7 @@
 
 ---
 
-### Steps
+## Steps
 
 - Create Service Principal
 - Assign Azure `Owner` role at the required root scope (/) to the Service Principal

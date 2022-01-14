@@ -1,7 +1,7 @@
 # AzOps Via Azure Pipelines
 
-  - [Prerequisites](#prerequisites)
-    - [Powershell command to create SPN](#powershell-command-to-create-spn)
+- [Prerequisites](#prerequisites)
+  - [Powershell command to create SPN](#powershell-command-to-create-spn)
     - [Powershell command to assign the Directory role permissions](#powershell-command-to-assign-the-directory-role-permissions)
     - [Powershell command to assign the RBAC role permissions](#powershell-command-to-assign-the-rbac-role-permissions)
     - [Further reading](#further-reading)
@@ -50,6 +50,7 @@ if (-not $directoryRole) {
 ```
 
 ### Powershell command to assign the RBAC role permissions
+
 ```powershell
 $servicePrincipalDisplayName = 'AzOps'
 $roleToAssign = 'Owner'
@@ -64,19 +65,18 @@ New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionId $role.Id -
 
 ### Further reading
 
-> Links to documentation for further reading:
-> * [Create the Service Principal](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-> * [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-> * [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
-> * [Create project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
+Links to documentation for further reading:
+
+> - [Create the Service Principal](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+> - [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+> - [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
+> - [Create project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
 
 ### Important Repo Link to refer
 
 | Repo                                                                | Description                                                                               |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
-
-
 
 ## Configure using Azure CLI in PowerShell
 
@@ -91,22 +91,21 @@ The PowerShell script below will set up a new project or use an existing if it a
   - Assign permissions to the built-in Buid Service account to contribute, open Pull Requests and bypass policies when completing pull requests (to bypass validation pipeline and any approval checks)
   - Assign pipeline permissions for the variable group to each of the pipelines
 
-<br/>
+</br>
 
 - Install dependent tools & extentions
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/)
-    - [DevOps Extension.](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops)
+  - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/)
+  - [DevOps Extension.](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops)
 
-<br/>
-
+</br>
 
 - Sign in to Azure CLI with an account that has access to create projects in Azure DevOps or have the owner role assigned to an existing project
-    - `az login`
+  - `az login`
 
-<br/>
-
+</br>
 
 - Before running the commands below, any `<Value>` needs to be replaced with your values
+
 ```PowerShell
 # Configuration, make sure to replace <Value> with your values
 $Organization = '<Value>'
@@ -218,7 +217,10 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 ```
 
-- Skip down to [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines) to get started
+- Skip down to [Configuration, clean up and triggering the pipelines]
+
+(#configuration-clean-up-and-triggering-the-pipelines) to get started
+
 ## Configure AzOps via Azure DevOps Portal
 
 - Import the above [AzOps-Accelerator repository](https://github.com/Azure/AzOps-Accelerator.git) to new project.
@@ -232,7 +234,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
         ![Import-Repository](./Media/Pipelines/Import-Repository.png)
 
     1. Provide the Clone URL of the AzOps Accelerator repository.
-        https://github.com/Azure/AzOps-Accelerator.git
+        `https://github.com/Azure/AzOps-Accelerator.git`
 
         ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
@@ -247,21 +249,21 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 - Add the variables from the Service Principal creation to the Variable Group.
 
-      ARM_TENANT_ID
-      ARM_SUBSCRIPTION_ID
-      ARM_CLIENT_ID
-      ARM_CLIENT_SECRET
+    ARM_TENANT_ID
+    ARM_SUBSCRIPTION_ID
+    ARM_CLIENT_ID
+    ARM_CLIENT_SECRET
 
 > Note: Change the variable type for ARM_CLIENT_SECRET to secret.
 
 ![Library](./Media/Pipelines/Library.PNG)
 
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
-    * \.pipelines/push.yml
-    * \.pipelines/pull.yml
-    * \.pipelines/validate.yml
+  - \.pipelines/push.yml
+  - \.pipelines/pull.yml
+  - \.pipelines/validate.yml
 
-    <br/><br/>
+    </br></br>
 
     **Steps to create pipelines:**
     1. Navigate to the pipeline and click on `New pipeline`.
@@ -274,7 +276,6 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
     1. Create new pipelines, selecting the existing files
     ![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
 
-
 - Rename the Pipeline `AzOps - Push`, `AzOps - Pull` and `AzOps - Validate` respectively
   (in both the YAML file, and within the pipeline after you create it).
 
@@ -282,9 +283,9 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 - Assign permissions to build service account.
   The build service account must have the following permissions on the repository.
-    * **Contribute**
-    * **Contribute to pull requests**
-    * **Create branch**
+  - **Contribute**
+  - **Contribute to pull requests**
+  - **Create branch**
 
   If you are using branch policies, you also want to give the build service right to
   **Bypass policies when completing pull requests** to be able to merge automated pull requests.
