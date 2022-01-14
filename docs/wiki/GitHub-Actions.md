@@ -29,8 +29,8 @@ Connect-AzAccount
 $servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName AzOps
 Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
 Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
-Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
-Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
+Write-Host "ARM_CLIENT_ID: $($servicePrincipal.AppId)"
+Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.PasswordCredentials.SecretText)"
 ```
 ### Powershell command to assign the Directory role permissions
 
@@ -43,7 +43,8 @@ if ($directoryRole -eq $null) {
     Write-Warning "Directory Reader role not found"
 }
 else {
-    Add-AzureADDirectoryRoleMember -ObjectId $directoryRole.ObjectId -RefObjectId $servicePrincipal.ObjectId
+    $body = @{'@odata.id' = "https://graph.microsoft.com/v1.0/directoryObjects/$($servicePrincipal.Id)"}
+    New-MgDirectoryRoleMemberByRef -DirectoryRoleId $directoryRole.id -BodyParameter $body
 }
 ```
 

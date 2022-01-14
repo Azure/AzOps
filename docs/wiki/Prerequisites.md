@@ -49,8 +49,8 @@ $servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName $
 
 Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
 Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
-Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
-Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
+Write-Host "ARM_CLIENT_ID: $($servicePrincipal.AppId)"
+Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.PasswordCredentials.SecretText)"
 ```
 
 ---
