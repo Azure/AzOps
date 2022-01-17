@@ -200,6 +200,7 @@ Describe "Repository" {
         $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:testManagementGroup.Name).toLower()).json")
         $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
         $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
+        $script:testManagementGroupDeploymentName = "AzOps-$($script:testManagementGroupPath.Name.Replace(".json",''))".Substring(0, 64)
         Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
 
         $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:platformManagementGroup.Name).toLower()).json")
@@ -215,6 +216,7 @@ Describe "Repository" {
         $script:policyAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignments.Name).toLower()).json")
         $script:policyAssignmentsDirectory = ($script:policyAssignmentsPath).Directory
         $script:policyAssignmentsFile = ($script:policyAssignmentsPath).FullName
+        $script:policyAssignmentsDeploymentName = "AzOps-$($script:policyAssignmentsPath.Name.Replace(".json",''))".Substring(0, 64)
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
         $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($script:subscription.Id).toLower()).json")
@@ -225,23 +227,38 @@ Describe "Repository" {
         $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroup.ResourceGroupName).toLower()).json")
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
+        $script:resourceGroupDeploymentName = "AzOps-$($script:resourceGroupPath.Name.Replace(".json",''))"
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
 
         $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
         $script:roleAssignmentsFile = ($script:roleAssignmentsPath).FullName
+        $script:roleAssignmentsDeploymentName = "AzOps-$($script:roleAssignmentsPath.Name.Replace(".json",''))".Substring(0, 64)
         Write-PSFMessage -Level Debug -Message "RoleAssignmentFile: $($script:roleAssignmentsFile)" -FunctionName "BeforeAll"
 
         $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$(($script:routeTable.Name).toLower()).json")
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
+        $script:routeTableDeploymentName = "AzOps-$($script:routeTablePath.Name.Replace(".json",''))"
         Write-PSFMessage -Level Debug -Message "RouteTableFile: $($script:routeTableFile)" -FunctionName "BeforeAll"
 
         $script:ruleCollectionGroupsPath = ($filePaths | Where-Object Name -eq "microsoft.network_firewallpolicies_rulecollectiongroups-testpolicy_$(($script:ruleCollectionGroups).toLower()).json")
         $script:ruleCollectionGroupsDirectory = ($script:ruleCollectionGroupsPath).Directory
         $script:ruleCollectionGroupsFile = ($script:ruleCollectionGroupsPath).FullName
+        $script:ruleCollectionDeploymentName = "AzOps-$($script:ruleCollectionGroupsPath.Name.Replace(".json",''))".Substring(0, 64)
         Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
         #endregion Paths
+
+        #Test push based on pulled resources
+        $changeSet = @(
+            "A`t$script:testManagementGroupFile"
+            "A`t$script:policyAssignmentsFile",
+            "A`t$script:roleAssignmentsFile",
+            "A`t$script:resourceGroupFile"
+            "A`t$script:routeTableFile",
+            "A`t$script:ruleCollectionGroupsFile"
+        )
+        Invoke-AzOpsPush -ChangeSet $changeSet
     }
 
     Context "Test" {
@@ -321,6 +338,10 @@ Describe "Repository" {
         It "Management Group scope property should match" {
             $fileContents = Get-Content -Path $script:testManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].scope | Should -Be "/"
+        }
+        It "Management group deployment should be successful" {
+            $script:managementGroupDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:testManagementGroup.Name -Name $script:testManagementGroupDeploymentName
+            $managementGroupDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
 
@@ -421,6 +442,10 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:policyAssignmentsFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].properties.scope | Should -Be "$($script:managementManagementGroup.Id)"
         }
+        It "Policy Assignments deployment should be successful" {
+            $script:policyAssignmentDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:managementManagementGroup.Name -Name $script:policyAssignmentsDeploymentName
+            $policyAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
         #endregion
 
         #region Scope - Subscription (./root/tenant root group/test/platform/management/subscription-0)
@@ -479,6 +504,10 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:resourceGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Resources/resourceGroups"
         }
+        It "Resource Group deployment should be successful" {
+            $script:resourceGroupDeployment = Get-AzSubscriptionDeployment -Name $script:resourceGroupDeploymentName
+            $resourceGroupDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
         #endregion
 
         #region Scope - Role Assignment (./root/tenant root group/test/platform/management/subscription-0/roleassignments)
@@ -507,6 +536,10 @@ Describe "Repository" {
         It "Role Assignment resource type should match" {
             $fileContents = Get-Content -Path $script:roleAssignmentsFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Authorization/roleAssignments"
+        }
+        It "Role Assignment deployment should be successful" {
+            $script:roleAssignmentDeployment = Get-AzSubscriptionDeployment -Name $script:roleAssignmentsDeploymentName
+            $roleAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
 
@@ -537,6 +570,10 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:routeTableFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Network/routeTables"
         }
+        It "Route Table deployment should be successful" {
+            $script:routeTableDeployment = Get-AzResourceGroupDeployment -ResourceGroupName 'Application' -Name $script:routeTableDeploymentName
+            $routeTableDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
         #endregion
 
         #region Scope - ruleCollectionGroup (./root/tenant root group/test/platform/management/subscription-0/application/testpolicy/testgroup)
@@ -565,6 +602,10 @@ Describe "Repository" {
         It "Rule Collection Group resource type should match" {
             $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Network/firewallPolicies/ruleCollectionGroups"
+        }
+        It "Rule Collection Group deployment should be successful" {
+            $script:ruleCollectionDeployment = Get-AzResourceGroupDeployment -ResourceGroupName 'Application' -Name $script:ruleCollectionDeploymentName
+            $ruleCollectionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
     }
@@ -637,6 +678,7 @@ Describe "Repository" {
 
         try {
 
+            #region remove deployed resources
             $managementGroup = Get-AzManagementGroup | Where-Object DisplayName -eq "Test"
             if ($managementGroup) {
                 Write-PSFMessage -Level Verbose -Message "Removing Management Group structure" -FunctionName "AfterAll"
@@ -656,7 +698,19 @@ Describe "Repository" {
                 Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
                 Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
             }
+            #endregion remove deployed resources
 
+            #region remove deployments
+            Write-PSFMessage -Level Verbose -Message "Removing Resource Group deployments" -FunctionName "AfterAll"
+            $script:ruleCollectionDeployment | Remove-AzResourceGroupDeployment -Confirm:$false
+            $script:routeTableDeployment | Remove-AzResourceGroupDeployment -Confirm:$false
+            Write-PSFMessage -Level Verbose -Message "Removing Subscription deployments" -FunctionName "AfterAll"
+            $script:resourceGroupDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
+            $script:roleAssignmentDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
+            Write-PSFMessage -Level Verbose -Message "Removing Management Group deployments" -FunctionName "AfterAll"
+            $script:policyAssignmentDeployment | Remove-AzManagementGroupDeployment -Confirm:$false
+            $script:managementGroupDeployment | Remove-AzManagementGroupDeployment -Confirm:$false
+            #endregion remove deployments
         }
         catch {
             Write-PSFMessage -Level Warning -Message $_ -FunctionName "AfterAll"
