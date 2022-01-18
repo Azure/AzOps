@@ -20,8 +20,5 @@
     ],
     "outputs": {}
 } | .resources[] |= if .identity==null then del(.identity) elif .identity.UserAssignedIdentities==null then del(.identity.UserAssignedIdentities) else . end | 
- .resources[] |= if .identity.IdentityType !=null then .identity["Type"] = .identity.IdentityType | del(.identity.IdentityType) else . end |
- .resources[] |= if .identity==null then del(.identity) elif .identity.UserAssignedIdentities==null then del(.identity.UserAssignedIdentities) else . end |
- .resources[] |= if .identity.UserAssignedIdentities != null then del( .identity.UserAssignedIdentities[].PrincipalId?, .identity.UserAssignedIdentities[].ClientId?, .identity.ClientId?, .identity.PrincipalId?) else . end |
- .resources[] |= if .identity.PrincipalId == null then del(.identity.PrincipalId) else . end |
- .resources[] |= if .identity.TenantId == null then del(.identity.TenantId) else . end
+.resources[] |= if .identity.IdentityType !=null then .identity["Type"] = .identity.IdentityType | del(.identity.IdentityType) else . end |
+.resources[] |= if .identity.UserAssignedIdentities != null then del(.identity.UserAssignedIdentities[].PrincipalId, .identity.UserAssignedIdentities[].ClientId, .identity.TenantId, .identity.PrincipalId) else . end
