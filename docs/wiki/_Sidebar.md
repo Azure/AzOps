@@ -2,11 +2,12 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
- 
+
 * [Services](https://github.com/azure/azops/wiki/services)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
-     * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
+    * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
+    * [Manged Identity](https://github.com/azure/azops/wiki/azure-pipelines-ManagedIdentity)
 
 **Documentation**
 
