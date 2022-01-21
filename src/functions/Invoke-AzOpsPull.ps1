@@ -83,7 +83,7 @@
             }
         }
 
-        $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
+        $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscoveryRoot
         Initialize-AzOpsEnvironment @parameters
 
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath

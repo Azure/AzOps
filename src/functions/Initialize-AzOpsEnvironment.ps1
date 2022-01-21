@@ -22,7 +22,6 @@
         .PARAMETER PartialMgDiscoveryRoot
             Custom search roots under which to detect management groups.
             Used for partial management group discovery.
-            Must be used in combination with -PartialMgDiscovery
         .EXAMPLE
             > Initialize-AzOpsEnvironment
             Initializes the default execution context of the module.
