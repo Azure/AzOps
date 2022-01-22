@@ -1,84 +1,32 @@
-# AzOps Via Azure Pipelines
+# AzOps via Azure Pipelines
 
-  - [Prerequisites](#prerequisites)
-    - [Powershell command to create SPN](#powershell-command-to-create-spn)
-    - [Powershell command to assign the Directory role permissions](#powershell-command-to-assign-the-directory-role-permissions)
-    - [Powershell command to assign the RBAC role permissions](#powershell-command-to-assign-the-rbac-role-permissions)
-    - [Further reading](#further-reading)
-    - [Important Repo Link to refer](#important-repo-link-to-refer)
-  - [Configure using Azure CLI in PowerShell](#configure-using-azure-cli-in-powershell)
-  - [Configure AzOps via Azure DevOps Portal](#configure-azops-via-azure-devops-portal)
-  - [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines)
+- [Prerequisites](#prerequisites)
+  - [Further reading](#further-reading)
+  - [Important Repo Link to refer](#important-repo-link-to-refer)
+- [Configure AzOps using Azure CLI in PowerShell](#configure-azops-using-azure-cli-in-powershell)
+- [Configure AzOps via Azure DevOps Portal](#configure-azops-via-azure-devops-portal)
+- [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines)
 
 ## Prerequisites
 
-Please check if the `Az`, `Microsoft.Graph.Identity.DirectoryManagement` and `Microsoft.Graph.Applications` modules are installed locally before executing these scripts.
-Alternatively, these command can be run within a Cloud Shell instance.
-
-### Powershell command to create SPN
-
-```powershell
-$servicePrincipalDisplayName = 'AzOps'
-
-Connect-AzAccount
-$servicePrincipal = New-AzADServicePrincipal -Role 'Owner' -Scope '/' -DisplayName $servicePrincipalDisplayName
-Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
-Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
-Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
-Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
-```
-
-### Powershell command to assign the Directory role permissions
-
-```powershell
-$servicePrincipalDisplayName = "AzOps"
-
-Install-Module Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Applications
-Connect-MgGraph -Scopes "Directory.Read.All,RoleManagement.ReadWrite.Directory"
-$servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$servicePrincipalDisplayName'"
-if (-not $servicePrincipal) {
-    Write-Error "$servicePrincipalDisplayName Service Principal not found" -ErrorAction 'Stop'
-}
-$directoryRoleDisplayName = "Directory Readers"
-$directoryRole = Get-MgDirectoryRole -Filter "DisplayName eq '$directoryRoleDisplayName'"
-if (-not $directoryRole) {
-    Write-Error "$directoryRoleDisplayName role not found" -ErrorAction 'Stop'
-} else {
-    $body = @{'@odata.id' = "https://graph.microsoft.com/v1.0/directoryObjects/$($servicePrincipal.Id)"}
-    New-MgDirectoryRoleMemberByRef -DirectoryRoleId $directoryRole.id -BodyParameter $body
-}
-```
-
-### Powershell command to assign the RBAC role permissions
-```powershell
-$servicePrincipalDisplayName = 'AzOps'
-$roleToAssign = 'Owner'
-$managementGroupName = '<ManagementGroupName>'
-
-$ErrorActionPreference = 'Stop'
-$servicePrincipal = Get-AzADServicePrincipal -SearchString $servicePrincipalDisplayName
-$role = Get-AzRoleDefinition -Name $roleToAssign
-$managementGroup = Get-AzManagementGroup -GroupName $managementGroupName
-New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionId $role.Id -Scope $managementGroup.Id
-```
+Before you start, make sure you have followed all the steps in the [prerequisites](.\Prerequisites.md) article to configure the required permissions for AzOps.
 
 ### Further reading
 
-> Links to documentation for further reading:
-> * [Create the Service Principal](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-> * [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-> * [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
-> * [Create project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
+Links to documentation for further reading:
 
-### Important Repo Link to refer
+- [Create the Service Principal](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+- [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+- [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
+- [Create Azure DevOps project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
+
+### Important Repo link to refer
 
 | Repo                                                                | Description                                                                               |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
 
-
-
-## Configure using Azure CLI in PowerShell
+## Configure AzOps using Azure CLI in PowerShell
 
 The PowerShell script below will set up a new project or use an existing if it already exists. The account used to sign in with Azure CLI need to have access to create projects in Azure DevOps or have the owner role assigned to an existing project.
 
@@ -88,25 +36,26 @@ The PowerShell script below will set up a new project or use an existing if it a
   - Create pipelines for `Push`, `Pull` and `Validate`
   - Add a build validation policy to the main branch triggering the Validate pipeline on Pull Requests
   - Add a branch policy to limit merge types to squash only
-  - Assign permissions to the built-in Buid Service account to contribute, open Pull Requests and bypass policies when completing pull requests (to bypass validation pipeline and any approval checks)
+  - Assign permissions to the built-in Build Service account to contribute, open Pull Requests and bypass policies when completing pull requests (to bypass validation pipeline and any approval checks)
   - Assign pipeline permissions for the variable group to each of the pipelines
 
 <br/>
 
-- Install dependent tools & extentions
-    - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/)
-    - [DevOps Extension.](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops)
+- Install dependent tools & extensions
+  - [Azure CLI](https://docs.microsoft.com/cli/azure/)
+  - [DevOps Extension](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops)
 
 <br/>
-
 
 - Sign in to Azure CLI with an account that has access to create projects in Azure DevOps or have the owner role assigned to an existing project
-    - `az login`
+  - `az login`
 
 <br/>
 
-
 - Before running the commands below, any `<Value>` needs to be replaced with your values
+
+> If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `$ARM_CLIENT_ID` and `$ARM_CLIENT_SECRET` to `''`.
+
 ```PowerShell
 # Configuration, make sure to replace <Value> with your values
 $Organization = '<Value>'
@@ -218,7 +167,8 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 ```
 
-- Skip down to [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines) to get started
+- Your new Project is now ready. Skip down to [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines) to get started.
+
 ## Configure AzOps via Azure DevOps Portal
 
 - Import the above [AzOps-Accelerator repository](https://github.com/Azure/AzOps-Accelerator.git) to new project.
@@ -247,44 +197,48 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 - Add the variables from the Service Principal creation to the Variable Group.
 
-      ARM_TENANT_ID
-      ARM_SUBSCRIPTION_ID
-      ARM_CLIENT_ID
-      ARM_CLIENT_SECRET
+> If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` to `null`.
+
+```shell
+ARM_TENANT_ID
+ARM_SUBSCRIPTION_ID
+ARM_CLIENT_ID
+ARM_CLIENT_SECRET
+```
 
 > Note: Change the variable type for ARM_CLIENT_SECRET to secret.
 
 ![Library](./Media/Pipelines/Library.PNG)
 
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
-    * \.pipelines/push.yml
-    * \.pipelines/pull.yml
-    * \.pipelines/validate.yml
+  - \.pipelines/push.yml
+  - \.pipelines/pull.yml
+  - \.pipelines/validate.yml
 
-    <br/><br/>
+<br/>
 
-    **Steps to create pipelines:**
-    1. Navigate to the pipeline and click on `New pipeline`.
-    ![New-Pipeline](./Media/Pipelines/New-Pipeline.PNG)
+**Steps to create pipelines:**
 
-    1. Select the `Azure Repos Git` option and choose `Existing Azure Pipelines YAML file`.
-    ![Azure-repo-git](./Media/Pipelines/Azure-repo-git.PNG)
-    ![Existing-Pipeline](./Media/Pipelines/Existing-Pipeline.PNG)
+1. Navigate to the pipeline and click on `New pipeline`.
+![New-Pipeline](./Media/Pipelines/New-Pipeline.PNG)
 
-    1. Create new pipelines, selecting the existing files
-    ![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
+1. Select the `Azure Repos Git` option and choose `Existing Azure Pipelines YAML file`.
+![Azure-repo-git](./Media/Pipelines/Azure-repo-git.PNG)
+![Existing-Pipeline](./Media/Pipelines/Existing-Pipeline.PNG)
 
+1. Create new pipelines, selecting the existing files
+![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
 
-- Rename the Pipeline `AzOps - Push`, `AzOps - Pull` and `AzOps - Validate` respectively
+- Rename the Pipelines to `AzOps - Push`, `AzOps - Pull` and `AzOps - Validate` respectively
   (in both the YAML file, and within the pipeline after you create it).
 
   ![Pipelines](./Media/Pipelines/Pipelines.PNG)
 
 - Assign permissions to build service account.
   The build service account must have the following permissions on the repository.
-    * **Contribute**
-    * **Contribute to pull requests**
-    * **Create branch**
+  - **Contribute**
+  - **Contribute to pull requests**
+  - **Create branch**
 
   If you are using branch policies, you also want to give the build service right to
   **Bypass policies when completing pull requests** to be able to merge automated pull requests.
@@ -308,11 +262,9 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
 ## Configuration, clean up and triggering the pipelines
 
-- All the configuration values can be modified within the `settings.json` file to change the default behavior of
-  AzOps.
-  The settings are documented in [Settings chapter](.\Settings.md)
+- All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps. The settings are documented in [Settings chapter](.\Settings.md)
 
-- Optionally, add the variable AZOPS_MODULE_VERSION to the variable group `credentials` to pin the version of the AzOps module to be used
+- Optionally, add the variable `AZOPS_MODULE_VERSION` to the variable group `credentials` to pin the version of the AzOps module to be used
 
 - This deployment is configured for Azure Pipelines. It is safe to
   delete the `.github` folder and any MarkDown files in the root of the repository
