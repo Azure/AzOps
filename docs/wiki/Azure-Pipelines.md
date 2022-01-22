@@ -67,10 +67,10 @@ $ARM_CLIENT_ID = '<Value>'
 $ARM_CLIENT_SECRET = '<Value>'
 
 # Create a new project
-$Project = az devops project list --query "value[?name=='$ProjectName'].{name:name, id:id}" | ConvertFrom-Json
-if($null -eq $Project) {
+$Project = az devops project list --query "value[?name=='$ProjectName'].{name:name, id:id}" --organization "https://dev.azure.com/$Organization" | ConvertFrom-Json
+if ($null -eq $Project) {
     $Project = az devops project create --name $ProjectName --organization "https://dev.azure.com/$Organization" `
-    --query "{name:name, id:id}" | ConvertFrom-Json
+        --query "{name:name, id:id}" | ConvertFrom-Json
 }
 
 # Set the defaults for the local Azure Cli shell
@@ -79,22 +79,32 @@ az devops configure `
 
 # Create a new repository from the AzOps Accelerator template repository
 $Repo = az repos list --query "[?name=='$RepoName'].{name:name, id:id}" | ConvertFrom-Json
-if($null -eq $Repo) {
+if ($null -eq $Repo) {
     $Repo = az repos create --name $RepoName --query "{name:name, id:id}" | ConvertFrom-Json
 }
 az repos import create `
     --git-url "https://github.com/Azure/AzOps-Accelerator.git" --repository "$($Repo.name)"
 
 # Add a variable group for authenticating pipelines with Azure Resource Manager and record the id output
-$VariableGroupId = az pipelines variable-group create `
-    --name 'credentials' `
-    --variables `
+if ($ARM_CLIENT_SECRET) {
+    $VariableGroupId = az pipelines variable-group create `
+        --name 'credentials' `
+        --variables `
         "ARM_TENANT_ID=$TenantId" "ARM_SUBSCRIPTION_ID=$SubscriptionId" "ARM_CLIENT_ID=$ARM_CLIENT_ID" `
-    --query 'id'
+        --query 'id'
+} else {
+    $VariableGroupId = az pipelines variable-group create `
+        --name 'credentials' `
+        --variables `
+        "ARM_TENANT_ID=$TenantId" "ARM_SUBSCRIPTION_ID=$SubscriptionId" "ARM_CLIENT_ID=$ARM_CLIENT_ID" "ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET" `
+        --query 'id'
+}
 
-# Add a secret to the variable group just created using id from above and enter the secret at the prompt
-az pipelines variable-group variable create `
-    --id $VariableGroupId --name 'ARM_CLIENT_SECRET' --secret true --value $ARM_CLIENT_SECRET
+# Add a secret to the variable group just created using id from above if using service principal
+if ($ARM_CLIENT_SECRET) {
+    az pipelines variable-group variable create `
+        --id $VariableGroupId --name 'ARM_CLIENT_SECRET' --secret true --value $ARM_CLIENT_SECRET
+}
 
 # Create three new pipelines from existing YAML manifests.
 az pipelines create --skip-first-run true `
@@ -128,16 +138,16 @@ $QueryStrings = "searchFilter=General&queryMembership=None&api-version=6.0&filte
 $Uri = "`"https://vssps.dev.azure.com/$Organization/_apis/identities?$QueryStrings`""
 $Subject = az rest --method get --uri $Uri --resource $AzureDevOpsGlobalAppId -o json | ConvertFrom-Json
 $Body = @{
-    token = "repov2/$ProjectId/$RepoId"
-    merge = $true
+    token                = "repov2/$ProjectId/$RepoId"
+    merge                = $true
     accessControlEntries = @(
         @{
             # Contribute: 4
             # CreateBranch: 16
             # Contribute to pull requests: 16384
             # Bypass policies when completing pull requests: 32768
-            allow = 4 + 16 + 16384 + 32768
-            deny = 0
+            allow      = 4 + 16 + 16384 + 32768
+            deny       = 0
             descriptor = $Subject.value.descriptor
         }
     )
@@ -151,20 +161,19 @@ $Pipelines = az pipelines list --query "[? contains(name,'AzOps')].{id:id,name:n
 $VariableGroup = az pipelines variable-group list --query "[?name=='credentials'].{id:id,name:name}" | ConvertFrom-Json
 $Uri = "`"https://dev.azure.com/$Organization/$ProjectName/_apis/pipelines/pipelinepermissions/variablegroup/$($VariableGroup.id)?api-version=6.1-preview.1`""
 $Body = @(
-  @{
-    resource = @{}
-    pipelines = @(
-      foreach($pipeline in $Pipelines) {
-        @{
-          id = $pipeline.id
-          authorized = $true
-        }
-      }
-    )
-  }
+    @{
+        resource  = @{}
+        pipelines = @(
+            foreach ($pipeline in $Pipelines) {
+                @{
+                    id         = $pipeline.id
+                    authorized = $true
+                }
+            }
+        )
+    }
 ) | ConvertTo-Json -Depth 5 -Compress | ConvertTo-Json # Convert to json twice to properly escape characters for Python interpreter
 az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppId -o json
-
 ```
 
 - Your new Project is now ready. Skip down to [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines) to get started.
