@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-Before you start, make sure you have followed all the steps in the [prerequisites](.\Prerequisites.md) article to configure the required permissions for AzOps.
+Before you start, make sure you have followed the steps in the [prerequisites](.\Prerequisites.md) article to configure the required permissions for AzOps.
 
 ### Further reading
 
