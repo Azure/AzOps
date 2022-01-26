@@ -1,4 +1,4 @@
-function Get-AzOpsCurrentPrincipal {
+﻿function Get-AzOpsCurrentPrincipal {
     <#
         .SYNOPSIS
             Gets the objectid/clientid from the current Azure context
