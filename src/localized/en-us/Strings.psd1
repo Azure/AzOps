@@ -79,8 +79,11 @@
     'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType'                         = 'Determined object type based on resourceType {0}' # $Resource.ResourceType
     'ConvertTo-AzOpsState.Jq.Remove'                                                = 'Using Jq Remove Template at path {0}'# jqRemoveTemplate
     'ConvertTo-AzOpsState.Jq.Template'                                              = 'Using Jq Json Template at path {0}'# jqRemoveTemplate
-    'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template'                  = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
-    'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting'                    = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
+    'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template'                   = 'Using Jq Json Template at path {0}' # $jqJsonTemplate
+    'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting'                     = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath'
+
+    'Get-AzOpsCurrentPrincipal.AccountType'                                         = 'Current AccountType is {0}' #$AzContext.Account.Type
+    'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group {0}' # $ScopeObject.ResourceGroup
@@ -89,9 +92,9 @@
     'Get-AzOpsPolicyDefinition.ManagementGroup'                                     = 'Retrieving custom policy definitions for Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
-    'Get-AzOpsPolicyExemption.ManagementGroup'                                     = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-AzOpsPolicyExemption.ResourceGroup'                                       = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
-    'Get-AzOpsPolicyExemption.Subscription'                                        = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyExemption.ManagementGroup'                                      = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
+    'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
+    'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
     'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -146,38 +149,38 @@
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.UsingCache'                                        = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions' #
 
-    'Invoke-AzOpsPull.Deleting.State'                                     = 'Removing state in {0}' # $StatePath
-    'Invoke-AzOpsPull.Duration'                                           = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
-    'Invoke-AzOpsPull.Initialization.Completed'                           = 'Completed preparations for the AzOps repository setup' #
-    'Invoke-AzOpsPull.Initialization.Starting'                            = 'Starting preparations for the AzOps repository setup' #
-    'Invoke-AzOpsPull.Migration.Required'                                 = 'Migration from previous repository state IS required' #
-    'Invoke-AzOpsPull.Rebuilding.State'                                   = 'Rebuilding state in {0}' # $StatePath
-    'Invoke-AzOpsPull.Tenant'                                             = 'Connected to tenant {0}' # $tenantId
-    'Invoke-AzOpsPull.TemplateParameterFileSuffix'                        = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
-    'Invoke-AzOpsPull.Validating.UserRole'                                = 'Asserting fundamental Azure access' #
-    'Invoke-AzOpsPull.Validating.UserRole.Failed'                         = 'Insufficient access to Azure user data' #
-    'Invoke-AzOpsPull.Validating.UserRole.Success'                        = 'Azure access validated' #
+    'Invoke-AzOpsPull.Deleting.State'                                               = 'Removing state in {0}' # $StatePath
+    'Invoke-AzOpsPull.Duration'                                                     = 'AzOps repository setup completed in {0}' # $stopWatch.Elapsed
+    'Invoke-AzOpsPull.Initialization.Completed'                                     = 'Completed preparations for the AzOps repository setup' #
+    'Invoke-AzOpsPull.Initialization.Starting'                                      = 'Starting preparations for the AzOps repository setup' #
+    'Invoke-AzOpsPull.Migration.Required'                                           = 'Migration from previous repository state IS required' #
+    'Invoke-AzOpsPull.Rebuilding.State'                                             = 'Rebuilding state in {0}' # $StatePath
+    'Invoke-AzOpsPull.Tenant'                                                       = 'Connected to tenant {0}' # $tenantId
+    'Invoke-AzOpsPull.TemplateParameterFileSuffix'                                  = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
+    'Invoke-AzOpsPull.Validating.UserRole'                                          = 'Asserting fundamental Azure access' #
+    'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure user data' #
+    'Invoke-AzOpsPull.Validating.UserRole.Success'                                  = 'Azure access validated' #
 
-    'Invoke-AzOpsPush.Change.AddModify'                                           = 'Adding or modifying:' #
-    'Invoke-AzOpsPush.Change.AddModify.File'                                      = '  {0}' # $item
-    'Invoke-AzOpsPush.Change.Delete'                                              = 'Deleting:' #
-    'Invoke-AzOpsPush.Change.Delete.File'                                         = '  {0}' # $item
-    'Invoke-AzOpsPush.Deploy.ProviderFeature'                                     = 'Invoking new state deployment - *.providerfeatures.json for a file {0}' # $addition
-    'Invoke-AzOpsPush.Deploy.ResourceProvider'                                    = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
-    'Invoke-AzOpsPush.Deploy.Subscription'                                        = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
-    'Invoke-AzOpsPush.Deployment.Required'                                        = 'Deployment required' #
-    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                               = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.FoundTemplate'                                      = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                 = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                   = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
-    'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                          = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
-    'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                             = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
-    'Invoke-AzOpsPush.Resolve.NoJson'                                             = 'The specified file is not a json file at all! Skipping {0}' # $fileItem.FullName
-    'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                   = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.ParameterFound'                                     = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
-    'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                  = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
-    'Invoke-AzOpsPush.Scope.Failed'                                               = 'Failed to read {0} as part of {1}' # $addition, $StatePath
-    'Invoke-AzOpsPush.Scope.NotFound'                                             = 'Skipping {0}, not part of {1}' # $addition, $StatePath
+    'Invoke-AzOpsPush.Change.AddModify'                                             = 'Adding or modifying:' #
+    'Invoke-AzOpsPush.Change.AddModify.File'                                        = '  {0}' # $item
+    'Invoke-AzOpsPush.Change.Delete'                                                = 'Deleting:' #
+    'Invoke-AzOpsPush.Change.Delete.File'                                           = '  {0}' # $item
+    'Invoke-AzOpsPush.Deploy.ProviderFeature'                                       = 'Invoking new state deployment - *.providerfeatures.json for a file {0}' # $addition
+    'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
+    'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
+    'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
+    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
+    'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
+    'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
+    'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json file at all! Skipping {0}' # $fileItem.FullName
+    'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
+    'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
+    'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
+    'Invoke-AzOpsPush.Scope.NotFound'                                               = 'Skipping {0}, not part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
     'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}' # $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE
