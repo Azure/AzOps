@@ -4,8 +4,8 @@
             Gets the objectid/clientid from the current Azure context
         .DESCRIPTION
             Gets the objectid/clientid from the current Azure context
-        .PARAMETER Cmdlet
-            The $PSCmdlet variable of the calling command.
+        .PARAMETER AzContext
+            The AzContext used when pulling the information.
         .EXAMPLE
             > Get-AzOpsCurrentPrincipal -AzContext $AzContext
     #>
