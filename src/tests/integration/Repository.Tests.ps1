@@ -259,6 +259,16 @@ Describe "Repository" {
             "A`t$script:ruleCollectionGroupsFile"
         )
         Invoke-AzOpsPush -ChangeSet $changeSet
+
+        #Test deletion of supported resources
+        $changeSet = @(
+            "D`t$script:policyAssignmentsFile",
+            "D`t$script:roleAssignmentsFile"
+        )
+        $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
     Context "Test" {
@@ -446,6 +456,10 @@ Describe "Repository" {
             $script:policyAssignmentDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:managementManagementGroup.Name -Name $script:policyAssignmentsDeploymentName
             $policyAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
         }
+        It "Policy Assignments deletion should be successful" {
+            $policyAssignmentDeletion = Get-AzPolicyAssignment -Id $script:policyAssignments.PolicyAssignmentId -ErrorAction SilentlyContinue
+            $policyAssignmentDeletion | Should -Be $Null
+        }
         #endregion
 
         #region Scope - Subscription (./root/tenant root group/test/platform/management/subscription-0)
@@ -540,6 +554,10 @@ Describe "Repository" {
         It "Role Assignment deployment should be successful" {
             $script:roleAssignmentDeployment = Get-AzSubscriptionDeployment -Name $script:roleAssignmentsDeploymentName
             $roleAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "Role Assignment deletion should be successful" {
+            $roleAssignmentDeletion = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            $roleAssignmentDeletion | Should -Be $Null
         }
         #endregion
 
