@@ -63,7 +63,7 @@
         #endregion SetContext
 
         #GetContext
-        $contextObjectId = Get-AzOpsCurrentPrincipal
+        $contextObjectId = (Get-AzOpsCurrentPrincipal).id
         #region PolicyAssignment
         if ($scopeObject.Resource -eq "policyAssignments") {
             #Validate
