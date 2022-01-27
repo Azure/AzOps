@@ -1,14 +1,16 @@
-**Getting Started**
+# Navigation
+
+## Getting started
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
- 
+
 * [Services](https://github.com/azure/azops/wiki/services)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
-     * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
+    * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 
-**Documentation**
+## Documentation
 
 * [Settings](https://github.com/azure/azops/wiki/settings)
 * [Updates](https://github.com/azure/azops/wiki/updates)
@@ -24,11 +26,12 @@
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
 
-**Contributing**
+## Contributing
+
 * [Contribution-Guide](https://github.com/azure/azops/wiki/azops-contribution)
 * [Releases](https://github.com/azure/azops/wiki/releases)
 * [Tests](https://github.com/azure/azops/wiki/tests)
-  * [Pre-release](https://github.com/azure/azops/wiki/pre-release)
+  * [Prerelease](https://github.com/azure/azops/wiki/pre-release)
 * [Debugging](https://github.com/azure/azops/wiki/debugging)
   * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
   * [PowerShell](https://github.com/azure/azops/wiki/powershell)
