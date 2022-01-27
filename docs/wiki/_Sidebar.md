@@ -31,7 +31,7 @@
 * [Contribution-Guide](https://github.com/azure/azops/wiki/azops-contribution)
 * [Releases](https://github.com/azure/azops/wiki/releases)
 * [Tests](https://github.com/azure/azops/wiki/tests)
-  * [Pre-release](https://github.com/azure/azops/wiki/pre-release)
+  * [Prerelease](https://github.com/azure/azops/wiki/pre-release)
 * [Debugging](https://github.com/azure/azops/wiki/debugging)
   * [Visual Studio Code](https://github.com/azure/azops/wiki/visual-studio-code)
   * [PowerShell](https://github.com/azure/azops/wiki/powershell)
