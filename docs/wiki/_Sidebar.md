@@ -1,4 +1,6 @@
-**Getting Started**
+# Navigation
+
+## Getting started
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
@@ -8,7 +10,7 @@
     * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
 
-**Documentation**
+## Documentation
 
 * [Settings](https://github.com/azure/azops/wiki/settings)
 * [Updates](https://github.com/azure/azops/wiki/updates)
@@ -24,7 +26,8 @@
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
 
-**Contributing**
+## Contributing
+
 * [Contribution-Guide](https://github.com/azure/azops/wiki/azops-contribution)
 * [Releases](https://github.com/azure/azops/wiki/releases)
 * [Tests](https://github.com/azure/azops/wiki/tests)
