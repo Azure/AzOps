@@ -2,10 +2,10 @@
 
 - [Prerequisites](#prerequisites)
   - [Further reading](#further-reading)
-  - [Important Repo Link to refer](#important-repo-link-to-refer)
+  - [Important Repository Link to refer](#important-repo-link-to-refer)
 - [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
 - [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
-- [Configure via command line script](#Configure-via-command-line-script)
+- [Configure via command-line script](#Configure-via-command-line-script)
 
 ## Prerequisites
 
@@ -19,20 +19,20 @@ Links to documentation for further reading:
 - [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
 - [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
 
-### Important Repo link to refer
+### Important Repository link to refer
 
-| Repo                                                                | Description                                                                               |
+| Repository                                                            | Description                                                                               |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
 
 ### Two ways to configure AzOps
 
-- via Github portal
-- Via command line script (Github )
+- via GitHub portal
+- Via command-line script (GitHub )
 
 ### Configure AzOps via Portal
 
-- AzOps Accelerator is a template repository and repository can directly created using `Use this template`.[Repo](https://github.com/Azure/AzOps-Accelerator.git)
+- AzOps Accelerator is a template repository and repository can directly created using `Use this template`.[Repository](https://github.com/Azure/AzOps-Accelerator.git)
 
     1. Click on `Use this template` Button to create new repository.
 
@@ -88,7 +88,7 @@ If you don't see the subscription you're looking for, select global subscription
 - Once, pull pipeline complete it will look like below screenshot.
 ![Root-git](./Media/Actions/Root-GIT.PNG)
 - This `root` folder contains existing state of Azure environment.
-- Now, start creating arm template to deployment more resources as shown in below screen shot.
+- Now, start creating arm template to deployment more resources as shown in below screenshot.
 ![RG](./Media/Pipelines/RG.PNG)
 
 > Note: Please follow above naming convention for parameter file creation.
@@ -96,9 +96,9 @@ If you don't see the subscription you're looking for, select global subscription
 - Run the Push pipeline to apply the update.
 ![Workflow](./Media/Actions/workflow.PNG)
 
-### Configure via command line script
+### Configure via command-line script
 
-- Create the repository from the pre-defined template
+- Create the repository from the predefined template
 
 ```git
 gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
