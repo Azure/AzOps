@@ -20,9 +20,9 @@ Links to documentation for further reading:
 - [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
 - [Create Azure DevOps project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
 
-### Important Repo link to refer
+### Important Repository link to refer
 
-| Repo                                                                | Description                                                                               |
+| Repository                                                            | Description                                                                               |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
 
@@ -186,7 +186,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
         ![Azure-DevOps-repository](./Media/Pipelines/Azure-DevOps-repository.PNG)
 
-    1. From the repo drop-down, select Import repository.
+    1. From the repository drop-down, select Import repository.
 
         ![Import-Repository](./Media/Pipelines/Import-Repository.png)
 
@@ -195,7 +195,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
 
         ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
-    1. Below Repo will be imported.
+    1. Below Repository will be imported.
 
         ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.png)
 
@@ -276,7 +276,7 @@ ARM_CLIENT_SECRET
 - Optionally, add the variable `AZOPS_MODULE_VERSION` to the variable group `credentials` to pin the version of the AzOps module to be used
 
 - This deployment is configured for Azure Pipelines. It is safe to
-  delete the `.github` folder and any MarkDown files in the root of the repository
+  delete the `.github` folder and any Markdown files in the root of the repository
 
     ![Remove-Github-Folder](./Media/Pipelines/Remove-Github-Folder.PNG)
 
@@ -289,7 +289,7 @@ ARM_CLIENT_SECRET
 
 - This `root` folder contains existing state of Azure environment
 
-- Now, start creating arm templates to deploy more resources as shown in screen shot below
+- Now, start creating arm templates to deploy more resources as shown in screenshot below
   ![RG](./Media/Pipelines/RG.PNG)
    > Note: Please follow above naming convention for parameter file creation.
 
