@@ -224,6 +224,8 @@ ARM_CLIENT_SECRET
   - \.pipelines/pull.yml
   - \.pipelines/validate.yml
 
+> Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
+
 <br/>
 
 **Steps to create pipelines:**
