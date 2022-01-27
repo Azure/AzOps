@@ -191,7 +191,7 @@ az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppI
         ![Import-Repository](./Media/Pipelines/Import-Repository.png)
 
     1. Provide the Clone URL of the AzOps Accelerator repository.
-        [https://github.com/Azure/AzOps-Accelerator.git]
+        <https://github.com/Azure/AzOps-Accelerator.git>
 
         ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
 
