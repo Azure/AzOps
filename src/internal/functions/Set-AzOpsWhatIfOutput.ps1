@@ -34,9 +34,11 @@
             New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
             New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
         }
-
+        if ($TemplatePath -match '/') {
+            $TemplatePath = ($TemplatePath -split '/')[-1]
+        }
         if ($RemoveAzOpsFlag) {
-            $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $Results
+            $mdOutput = '{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $TemplatePath
         }
         else {
             $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)

@@ -280,7 +280,7 @@
                 }
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}TemplateFile: {2}{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage, $TemplateFilePath)
+                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                 }
                 else {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMe
