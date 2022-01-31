@@ -163,14 +163,18 @@
                     $parameters.Remove('ExcludeChangeType')
                 }
                 if ($resultsError) {
-
-                    if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                    $resultsErrorMessage = $resultsError.exception.InnerException.Message
+                    if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
                         Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                         $invalidTemplate = $true
                     }
+                    elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                        Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    }
                     else {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
-                        throw $resultsError.exception.InnerException.Message
+                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                        throw $resultsErrorMessage
                     }
 
                 }
@@ -220,13 +224,18 @@
             $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
             if ($parameters.ExcludeChangeType) { $parameters.Remove('ExcludeChangeType') }
             if ($resultsError) {
-                if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                $resultsErrorMessage = $resultsError.exception.InnerException.Message
+                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                     $invalidTemplate = $true
                 }
+                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                }
                 else {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
-                    throw $resultsError.exception.InnerException.Message
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    throw $resultsErrorMessage
                 }
             }
             elseif ($results.Error) {
