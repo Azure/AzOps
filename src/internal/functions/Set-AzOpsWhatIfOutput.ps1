@@ -21,7 +21,10 @@
         $RemoveAzOpsFlag = $false,
 
         [Parameter(Mandatory = $false)]
-        $ResultSizeLimit = "64000"
+        $ResultSizeLimit = "64000",
+
+        [Parameter(Mandatory = $false)]
+        $TemplatePath
     )
 
     process {
@@ -40,10 +43,10 @@
             $resultString = $Results | Out-String
             $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
             if ($($resultStringMeasure.Characters) -gt $ResultSizeLimit) {
-                $mdOutput = 'WhatIf Results: WhatIf is too large for comment field, for more details look at PR files to determine changes.'
+                $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $TemplatePath
             }
             else {
-                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString
+                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $TemplatePath
             }
             $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json)
             if ($existingContent.count -gt 0) {
