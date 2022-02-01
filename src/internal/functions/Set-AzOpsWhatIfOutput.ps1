@@ -21,7 +21,10 @@
         $RemoveAzOpsFlag = $false,
 
         [Parameter(Mandatory = $false)]
-        $ResultSizeLimit = "64000"
+        $ResultSizeLimit = "64000",
+
+        [Parameter(Mandatory = $false)]
+        $TemplatePath
     )
 
     process {
@@ -31,19 +34,21 @@
             New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
             New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
         }
-
+        if ($TemplatePath -match '/') {
+            $TemplatePath = ($TemplatePath -split '/')[-1]
+        }
         if ($RemoveAzOpsFlag) {
-            $mdOutput = '{0}WhatIf Results: Resource Deletion:{1}{0}' -f [environment]::NewLine, $Results
+            $mdOutput = '{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $TemplatePath
         }
         else {
             $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
             $resultString = $Results | Out-String
             $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
             if ($($resultStringMeasure.Characters) -gt $ResultSizeLimit) {
-                $mdOutput = 'WhatIf Results: WhatIf is too large for comment field, for more details look at PR files to determine changes.'
+                $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $TemplatePath
             }
             else {
-                $mdOutput = 'WhatIf Results: Resource Creation:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString
+                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $TemplatePath
             }
             $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json)
             if ($existingContent.count -gt 0) {
