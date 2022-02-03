@@ -66,7 +66,7 @@ end
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "AzOps-microsoft.management_managementgroups-nested",
-      "location": "northeurope",
+      "location": "[deployment().location]",
       "properties": {
         "mode": "Incremental",
         "template": {
