@@ -4,7 +4,7 @@
 
 * [Introduction](https://github.com/azure/azops/wiki/introduction)
 * [Prerequisites](https://github.com/azure/azops/wiki/prerequisites)
-
+  * [Sovereign Clouds](https://github.com/azure/azops/wiki/sovereign-clouds)
 * [Services](https://github.com/azure/azops/wiki/services)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
     * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
@@ -28,7 +28,7 @@
 
 ## Contributing
 
-* [Contribution-Guide](https://github.com/azure/azops/wiki/azops-contribution)
+* [Contribution Guide](https://github.com/azure/azops/wiki/azops-contribution)
 * [Releases](https://github.com/azure/azops/wiki/releases)
 * [Tests](https://github.com/azure/azops/wiki/tests)
   * [Prerelease](https://github.com/azure/azops/wiki/pre-release)
