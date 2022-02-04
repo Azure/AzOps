@@ -1,89 +1,115 @@
+# Prerequisites
+
+AzOps pipelines can use either a Service Principal, or a Managed Identity if running self-hosted build agents hosted in Azure. This guide walks through the prerequisites needed to setup your AzOps pipelines.
+
 ## In this guide
 
 - [Steps](#steps)
-- [Azure](#azure)
-- [Azure Active Directory](#azure-active-directory)
+- [Create Service Principal](#create-service-principal)
+- [Azure role assignment](#azure-role-assignment)
+- [Azure AD role assignment](#azure-ad-role-assignment)
 
 ---
 
 ### Steps
 
-- Create Service Principal
-- Assign Azure `Owner` role at the required root scope (/) to the Service Principal
-- Add Service Principal to Azure Active Directory `Directory Readers` role
+- Create a Service Principal
+- Assign Azure `Owner` role at the required scope to the Service Principal/Managed Identity
+- Add Service Principal/Managed Identity to Azure AD `Directory Readers` role
 
-The Service Principal requires Azure Active Directory [Directory Readers](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#directory-readers) role to discover Azure 'roleAssignments'. These permissions are used to enrich data around the role assignments with additional Azure AD context such as ObjectType and Azure AD Object DisplayName.
+The Azure Active Directory [Directory Readers](https://docs.microsoft.com/azure/active-directory/roles/permissions-reference#directory-readers) role is required to discover Azure 'roleAssignments'. These permissions are used to enrich data around the role assignments with additional Azure AD context such as `ObjectType` and Azure AD object `DisplayName`.
 
-> Theses steps require PowerShell 7 and _Az.Accounts, Az.Resources_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
+> Theses steps require PowerShell 7 and _Az.Accounts_, _Az.Resources_, _Microsoft.Graph.Applications_ and _Microsoft.Graph.Identity.DirectoryManagement_ modules, they will be installed.
 
 ---
 
-### Azure
+### Create Service Principal
 
-> You may need to elevate your access in Azure before being able to create a root scoped assignment.
+If you intend to run AzOps with hosted agents a Service Principal is required. Perform the steps below to create the Service Principal in Azure AD. If you plan to run with self-hosted agents and want to use a managed identity skip to the next step.
 
 ```powershell
-#
 # Install module
-#
-
 Install-Module Az.Accounts, Az.Resources
 
-#
 # Connect to Azure
-#
-
 Connect-AzAccount
 
-#
-# Create Service Principal and assign
-# 'Owner' role at tenant root scope '/'
-#
-
-$servicePrincipalDisplayName = "AzOps"
-$servicePrincipal = New-AzADServicePrincipal -Role Owner -Scope / -DisplayName $servicePrincipalDisplayName
-
-#
-# Display the generated Service Principal
-#
+# Create Service Principal 
+$servicePrincipalDisplayName = "<name of service principal>"
+$servicePrincipal = New-AzADServicePrincipal -DisplayName $servicePrincipalDisplayName
 
 Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
 Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
-Write-Host "ARM_CLIENT_ID: $($servicePrincipal.ApplicationId)"
-Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.Secret | ConvertFrom-SecureString -AsPlainText)"
+Write-Host "ARM_CLIENT_ID: $($servicePrincipal.AppId)"
+Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.PasswordCredentials.SecretText)"
 ```
 
----
+> Save the output from the script for later, it will be used when creating variables for your pipelines.
 
-### Azure Active Directory
+### Azure role assignment
+
+#### Assign Azure role to root (/) scope
+
+If you want to manage your entire Azure landscape using AzOps, assign the `Owner` role at the root `(/)` scope.
 
 ```powershell
-#
 # Install module
-#
+Install-Module Az.Accounts, Az.Resources
 
+# Connect to Azure
+Connect-AzAccount
+
+# Assign permissions at root scope
+$servicePrincipalDisplayName = '<name of service principal or resource with MI enabled>'
+$roleToAssign = 'Owner'
+$ErrorActionPreference = 'Stop'
+$servicePrincipal = Get-AzADServicePrincipal -DisplayName $servicePrincipalDisplayName
+New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionName $roleToAssign -Scope '/'
+```
+
+> You may need to elevate your access in Azure before being able to create a root scoped assignment.
+
+#### Assign Azure role to management group scope
+
+If you intend to only manage a subset of your Azure landscape, you can assign permissions at management group scope instead of root. Use the script below to assign permissions at management group level.
+
+```powershell
+# Install module
+Install-Module Az.Accounts, Az.Resources
+
+# Connect to Azure
+Connect-AzAccount
+
+# Assign permissions at management group scope
+$servicePrincipalDisplayName = '<name of service principal or resource with MI enabled>'
+$roleToAssign = 'Owner'
+$managementGroupName = '<ManagementGroupName>'
+
+$ErrorActionPreference = 'Stop'
+$servicePrincipal = Get-AzADServicePrincipal -DisplayName $servicePrincipalDisplayName
+$managementGroup = Get-AzManagementGroup -GroupId $managementGroupName
+New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionName $roleToAssign -Scope $managementGroup.Id
+```
+
+### Azure AD role assignment
+
+Assign `Directory Readers` role to Service Principal/Managed Identity.
+
+```powershell
+# Install module
 Install-Module Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Applications
 
-#
 # Connect to Azure Active Directory
-#
-
 Connect-MgGraph -Scopes "Directory.Read.All,RoleManagement.ReadWrite.Directory"
 
-#
 # Get Service Principal from Azure Active Directory
-#
-
-$servicePrincipalDisplayName = "AzOps"
+$servicePrincipalDisplayName = "<name of service principal or resource with MI enabled>"
 $servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$servicePrincipalDisplayName'"
 if (-not $servicePrincipal) {
     Write-Error "$servicePrincipalDisplayName Service Principal not found"
 }
 
-#
 # Add Azure Active Directory Role Member
-#
-
 $directoryRoleDisplayName = "Directory Readers"
 $directoryRole = Get-MgDirectoryRole -Filter "DisplayName eq '$directoryRoleDisplayName'"
 if (-not $directoryRole) {
@@ -95,4 +121,4 @@ if (-not $directoryRole) {
 ```
 
 > If you receive a warning message "Directory Readers role not found."  this can occur when the role has not yet been used in your directory.
-> As a workaround, assigning the role manually to the AzOps App from the Azure portal
+> As a workaround, assign the role manually to the AzOps App from the Azure portal.
