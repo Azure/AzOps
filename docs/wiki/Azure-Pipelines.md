@@ -143,10 +143,11 @@ $Body = @{
     accessControlEntries = @(
         @{
             # Contribute: 4
+            # Force push: 8
             # CreateBranch: 16
             # Contribute to pull requests: 16384
             # Bypass policies when completing pull requests: 32768
-            allow      = 4 + 16 + 16384 + 32768
+            allow      = 4 + 8 + 16 + 16384 + 32768
             deny       = 0
             descriptor = $Subject.value.descriptor
         }
@@ -250,6 +251,7 @@ ARM_CLIENT_SECRET
   - **Contribute**
   - **Contribute to pull requests**
   - **Create branch**
+  - **Force push**
 
   If you are using branch policies, you also want to give the build service right to
   **Bypass policies when completing pull requests** to be able to merge automated pull requests.
