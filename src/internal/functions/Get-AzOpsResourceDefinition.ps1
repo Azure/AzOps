@@ -270,9 +270,8 @@
                                 $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
                             }
 
-                            $context = Get-AzContext -ListAvailable | Where-Object {
-                                $_.Subscription.id -eq $runspaceData.ScopeObject.Subscription
-                            }
+                            $context = Get-AzContext
+                            $context.Subscription.Id = $runspaceData.ScopeObject.Subscription
 
                             Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
@@ -435,7 +434,8 @@
 
         if ($scopeObject.Subscription) {
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Subscription.Found' -StringValues $scopeObject.subscriptionDisplayName, $scopeObject.subscription
-            $context = Get-AzContext -ListAvailable | Where-Object { $_.Subscription.id -eq $scopeObject.Subscription }
+            $context = Get-AzContext
+            $context.Subscription.Id = $ScopeObject.Subscription
             $odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
             Write-PSFMessage -Level Debug -String 'Get-AzOpsResourceDefinition.Subscription.OdataFilter' -StringValues $odataFilter
         }
