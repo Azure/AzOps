@@ -168,6 +168,8 @@ Describe "Repository" {
 
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
         Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
+        Set-PSFConfig -FullName AzOps.Core.DefaultDeploymentRegion -Value "northeurope"
+        $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
@@ -200,7 +202,7 @@ Describe "Repository" {
         $script:testManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:testManagementGroup.Name).toLower()).json")
         $script:testManagementGroupDirectory = ($script:testManagementGroupPath).Directory
         $script:testManagementGroupFile = ($script:testManagementGroupPath).FullName
-        $script:testManagementGroupDeploymentName = "AzOps-$($script:testManagementGroupPath.Name.Replace(".json",''))".Substring(0, 64)
+        $script:testManagementGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:testManagementGroupPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "TestManagementGroupFile: $($script:testManagementGroupFile)" -FunctionName "BeforeAll"
 
         $script:platformManagementGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:platformManagementGroup.Name).toLower()).json")
@@ -216,7 +218,7 @@ Describe "Repository" {
         $script:policyAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignments.Name).toLower()).json")
         $script:policyAssignmentsDirectory = ($script:policyAssignmentsPath).Directory
         $script:policyAssignmentsFile = ($script:policyAssignmentsPath).FullName
-        $script:policyAssignmentsDeploymentName = "AzOps-$($script:policyAssignmentsPath.Name.Replace(".json",''))".Substring(0, 64)
+        $script:policyAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
         $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($script:subscription.Id).toLower()).json")
@@ -227,25 +229,25 @@ Describe "Repository" {
         $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroup.ResourceGroupName).toLower()).json")
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
-        $script:resourceGroupDeploymentName = "AzOps-$($script:resourceGroupPath.Name.Replace(".json",''))"
+        $script:resourceGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:resourceGroupPath.Name.Replace(".json", '')), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
 
         $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
         $script:roleAssignmentsFile = ($script:roleAssignmentsPath).FullName
-        $script:roleAssignmentsDeploymentName = "AzOps-$($script:roleAssignmentsPath.Name.Replace(".json",''))".Substring(0, 64)
+        $script:roleAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:roleAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RoleAssignmentFile: $($script:roleAssignmentsFile)" -FunctionName "BeforeAll"
 
         $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$(($script:routeTable.Name).toLower()).json")
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
-        $script:routeTableDeploymentName = "AzOps-$($script:routeTablePath.Name.Replace(".json",''))"
+        $script:routeTableDeploymentName = "AzOps-{0}-{1}" -f $($script:routeTablePath.Name.Replace(".json", ''))
         Write-PSFMessage -Level Debug -Message "RouteTableFile: $($script:routeTableFile)" -FunctionName "BeforeAll"
 
         $script:ruleCollectionGroupsPath = ($filePaths | Where-Object Name -eq "microsoft.network_firewallpolicies_rulecollectiongroups-testpolicy_$(($script:ruleCollectionGroups).toLower()).json")
         $script:ruleCollectionGroupsDirectory = ($script:ruleCollectionGroupsPath).Directory
         $script:ruleCollectionGroupsFile = ($script:ruleCollectionGroupsPath).FullName
-        $script:ruleCollectionDeploymentName = "AzOps-$($script:ruleCollectionGroupsPath.Name.Replace(".json",''))".Substring(0, 64)
+        $script:ruleCollectionDeploymentName = "AzOps-{0}-{1}" -f $($script:ruleCollectionGroupsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
         #endregion Paths
 
