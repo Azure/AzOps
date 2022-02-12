@@ -24,6 +24,9 @@ Describe "Repository" {
 
         $ErrorActionPreference = "Stop"
 
+        # Suppress the breaking change warning messages in Azure PowerShell
+        Set-Item -Path  Env:\SuppressAzurePowerShellBreakingChangeWarnings -Value $true
+
         #
         # Script Isolation
         # https://github.com/pester/Pester/releases/tag/5.2.0
@@ -241,7 +244,7 @@ Describe "Repository" {
         $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$(($script:routeTable.Name).toLower()).json")
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
-        $script:routeTableDeploymentName = "AzOps-{0}-{1}" -f $($script:routeTablePath.Name.Replace(".json", ''))
+        $script:routeTableDeploymentName = "AzOps-{0}-{1}" -f $($script:routeTablePath.Name.Replace(".json", '')), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RouteTableFile: $($script:routeTableFile)" -FunctionName "BeforeAll"
 
         $script:ruleCollectionGroupsPath = ($filePaths | Where-Object Name -eq "microsoft.network_firewallpolicies_rulecollectiongroups-testpolicy_$(($script:ruleCollectionGroups).toLower()).json")
