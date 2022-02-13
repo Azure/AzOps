@@ -79,10 +79,10 @@ begin {
         } process {
             try {
                 Write-Verbose -Message "Calling $RequestUri"
-                Invoke-RestMethod @Request -ErrorAction Stop
+                Invoke-RestMethod @Request
             }
             catch {
-                throw $_
+                Write-Error $_
             }
         }
     }
