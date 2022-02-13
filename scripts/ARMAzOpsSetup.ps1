@@ -180,4 +180,6 @@ process {
         throw "Failed to trigger repository dispatch $($GitHubUserNameOrOrg)/$($NewESLZRepository)`r`n$_"
     }
     #endregion Trigger repository dispatch for AzOps-Pull job
+
+    Write-Host "Successfully bootstrapped $($GitHubUserNameOrOrg)/$($NewESLZRepository) with the $($ESLZRepository)"
 }
