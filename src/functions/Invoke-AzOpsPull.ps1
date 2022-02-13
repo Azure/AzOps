@@ -47,6 +47,9 @@
         $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
 
         [switch]
+        $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
+
+        [switch]
         $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
 
         [switch]
@@ -81,6 +84,10 @@
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
                 $SkipRole = $true
             }
+        }
+
+        if ($false -eq $SkipChildResource -or $false -eq $SkipResource -and $true -eq $SkipResourceGroup) {
+            Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed' -StringValues "`n"
         }
 
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
@@ -132,14 +139,14 @@
                 Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
                 # Discover Resource at scope recursively
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipResource, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $root @parameters
             }
         }
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipResource, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
 

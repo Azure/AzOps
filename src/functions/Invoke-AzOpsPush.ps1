@@ -71,14 +71,16 @@
                 return
             }
 
+            # Generate deterministic id for DefaultDeploymentRegion to overcome deployment issues when changing DefaultDeploymentRegion
+            $deploymentRegionId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
             #endregion Initialization Prep
 
             #region Case: Parameters File
             if ($fileItem.Name.EndsWith('.parameters.json')) {
                 $result.TemplateParameterFilePath = $fileItem.FullName
                 $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '' -replace ' ', '_'
-                if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
-                $result.DeploymentName = "AzOps-$deploymentName"
+                if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
+                $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
 
                 #region Directly Associated Template file exists
                 $templatePath = $fileItem.FullName -replace '.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
@@ -142,8 +144,8 @@
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
-            if ($deploymentName.Length -gt 58) { $deploymentName = $deploymentName.SubString(0, 58) }
-            $result.DeploymentName = "AzOps-$deploymentName"
+            if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
+            $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
 
             $result
             #endregion Case: Template File
