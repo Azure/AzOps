@@ -123,7 +123,7 @@
                 "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
             ]
         },
-        // Resource Group, Role Assignment and Route Table - Test - Platform - Management - Subscription-0 - Application
+        // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - Application
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
@@ -149,6 +149,15 @@
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
                                 "principalId": "1b993954-3377-46fd-a368-58fff7420021"
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Authorization/policyExemptions",
+                            "apiVersion": "2020-07-01-preview",
+                            "name": "PolicyExemptionTest",
+                            "properties": {
+                                "exemptionCategory": "Waiver",
+                                "policyAssignmentId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Management'), '/providers/Microsoft.Authorization/policyAssignments/TestPolicyAssignment')]"
                             }
                         },
                         {

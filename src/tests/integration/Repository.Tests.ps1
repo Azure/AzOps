@@ -154,6 +154,7 @@ Describe "Repository" {
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
 
@@ -241,6 +242,12 @@ Describe "Repository" {
         $script:roleAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:roleAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RoleAssignmentFile: $($script:roleAssignmentsFile)" -FunctionName "BeforeAll"
 
+        $script:policyExemptionsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyexemptions-$(($script:policyExemptions.Name).toLower()).json")
+        $script:policyExemptionsDirectory = ($script:policyExemptionsPath).Directory
+        $script:policyExemptionsFile = ($script:policyExemptionsPath).FullName
+        $script:policyExemptionsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyExemptionsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentFile: $($script:policyExemptionsFile)" -FunctionName "BeforeAll"
+
         $script:routeTablePath = ($filePaths | Where-Object Name -eq "microsoft.network_routetables-$(($script:routeTable.Name).toLower()).json")
         $script:routeTableDirectory = ($script:routeTablePath).Directory
         $script:routeTableFile = ($script:routeTablePath).FullName
@@ -256,10 +263,11 @@ Describe "Repository" {
 
         #Test push based on pulled resources
         $changeSet = @(
-            "A`t$script:testManagementGroupFile"
+            "A`t$script:testManagementGroupFile",
             "A`t$script:policyAssignmentsFile",
+            "A`t$script:policyExemptionsFile",
             "A`t$script:roleAssignmentsFile",
-            "A`t$script:resourceGroupFile"
+            "A`t$script:resourceGroupFile",
             "A`t$script:routeTableFile",
             "A`t$script:ruleCollectionGroupsFile"
         )
@@ -268,9 +276,12 @@ Describe "Repository" {
         #Test deletion of supported resources
         $changeSet = @(
             "D`t$script:policyAssignmentsFile",
+            "D`t$script:policyExemptionsFile",
             "D`t$script:roleAssignmentsFile"
         )
         $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
         $DeleteSetContents += '-- '
         $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
@@ -566,6 +577,43 @@ Describe "Repository" {
         }
         #endregion
 
+        #region Scope - Policy Exemptions (./root/tenant root group/test/platform/management/subscription-0/policyexemptions)
+        It "Policy Exemption directory should exist" {
+            Test-Path -Path $script:policyExemptionsDirectory | Should -BeTrue
+        }
+        It "Policy Exemption file should exist" {
+            Test-Path -Path $script:policyExemptionsFile | Should -BeTrue
+        }
+        It "Policy Exemption resource type should exist" {
+            $fileContents = Get-Content -Path $script:policyExemptionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Policy Exemption resource name should exist" {
+            $fileContents = Get-Content -Path $script:policyExemptionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Policy Exemption resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:policyExemptionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Policy Exemption resource properties should exist" {
+            $fileContents = Get-Content -Path $script:policyExemptionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Policy Exemption resource type should match" {
+            $fileContents = Get-Content -Path $script:policyExemptionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Authorization/policyExemptions"
+        }
+        It "Policy Exemption deployment should be successful" {
+            $script:policyExemptionDeployment = Get-AzSubscriptionDeployment -Name $script:policyExemptionsDeploymentName
+            $policyExemptionDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "Policy Exemption deletion should be successful" {
+            $policyExemptionDeletion = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)")
+            $policyExemptionDeletion | Should -Be $Null
+        }
+        #endregion
+
         #region Scope - Route Table (./root/tenant root group/test/platform/management/subscription-0/application/routetable)
         It "Route Table directory should exist" {
             Test-Path -Path $script:routeTableDirectory | Should -BeTrue
@@ -714,6 +762,12 @@ Describe "Repository" {
             if ($roleAssignment) {
                 Write-PSFMessage -Level Verbose -Message "Removing Role Assignment" -FunctionName "AfterAll"
                 $roleAssignment | Remove-AzRoleAssignment
+            }
+
+            $policyExemption = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)")
+            if ($policyExemption) {
+                Write-PSFMessage -Level Verbose -Message "Removing Policy Exemption" -FunctionName "AfterAll"
+                $null = $policyExemption | Remove-AzPolicyExemption -Force
             }
 
             $resourceGroup = Get-AzResourceGroup -Name "Application"
