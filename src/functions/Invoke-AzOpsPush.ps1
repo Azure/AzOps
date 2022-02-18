@@ -7,6 +7,8 @@
             Applies a change to Azure from the AzOps configuration.
         .PARAMETER ChangeSet
             Set of changes from the last execution that need to be applied.
+        .PARAMETER DeleteSetContents
+            Set of content from the deleted files in ChangeSet.
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .PARAMETER AzOpsMainTemplate
@@ -262,7 +264,7 @@
             }
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            if (-not($templateContent.resources[0].type -eq "Microsoft.Authorization/roleAssignments" -or $templateContent.resources[0].type -eq "Microsoft.Authorization/policyAssignments")) {
+            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments","Microsoft.Authorization/policyExemptions","Microsoft.Authorization/roleAssignments")) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }

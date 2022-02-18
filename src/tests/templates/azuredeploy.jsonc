@@ -113,23 +113,71 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/', guid('Management'))]"
         },
-        // Subscription - Test - Platform - Management - Subscription-0
+        // Empty 'delay' deployments to ensure roleAssignments have been replicated before submitting subscription deployments
         {
-            "type": "Microsoft.Management/managementGroups/subscriptions",
-            "name": "[concat(guid('Management'), '/', parameters('subscriptionId'))]",
-            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "[concat('delayFor', copyIndex())]",
+            "location": "[deployment().location]",
             "scope": "/",
             "dependsOn": [
                 "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
-            ]
+            ],
+            "copy": {
+                "batchSize": 1,
+                "count": 10,
+                "mode": "Serial",
+                "name": "waitingCompletion"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [],
+                    "outputs": {}
+                }
+            }
         },
-        // Resource Group, Role Assignment and Route Table - Test - Platform - Management - Subscription-0 - Application
+        // Subscription - Test - Platform - Management - Subscription-0
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "AzOps-Test-Move-Subscription",
+            "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Management'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Management/managementGroups/subscriptions",
+                            "name": "[concat(guid('Management'), '/', parameters('subscriptionId'))]",
+                            "apiVersion": "2020-05-01"
+                        }
+                    ],
+                    "outputs": {}
+                }
+            },
+            "scope": "/"
+        },
+        // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - Application
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "AzOps-Tests-Nested",
             "subscriptionId": "[parameters('subscriptionId')]",
             "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]",
+                "waitingCompletion"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -148,7 +196,20 @@
                             "name": "[guid('RoleAssignmentTest')]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-                                "principalId": "1b993954-3377-46fd-a368-58fff7420021"
+                                "principalId": "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217"
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Authorization/policyExemptions",
+                            "apiVersion": "2020-07-01-preview",
+                            "name": "PolicyExemptionTest",
+                            "properties": {
+                                "displayName": "TestPolicyAssignment - PolicyExemptionTest",
+                                "exemptionCategory": "Waiver",
+                                "expiresOn": "",
+                                "metadata": {},
+                                "policyAssignmentId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Management'), '/providers/Microsoft.Authorization/policyAssignments/TestPolicyAssignment')]",
+                                "policyDefinitionReferenceIds": []
                             }
                         },
                         {
