@@ -130,6 +130,9 @@
             "name": "AzOps-Tests-Nested",
             "subscriptionId": "[parameters('subscriptionId')]",
             "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -156,8 +159,12 @@
                             "apiVersion": "2020-07-01-preview",
                             "name": "PolicyExemptionTest",
                             "properties": {
+                                "displayName": "TestPolicyAssignment - PolicyExemptionTest",
                                 "exemptionCategory": "Waiver",
-                                "policyAssignmentId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Management'), '/providers/Microsoft.Authorization/policyAssignments/TestPolicyAssignment')]"
+                                "expiresOn": "",
+                                "metadata": {},
+                                "policyAssignmentId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Management'), '/providers/Microsoft.Authorization/policyAssignments/TestPolicyAssignment')]",
+                                "policyDefinitionReferenceIds": []
                             }
                         },
                         {

@@ -26,7 +26,7 @@ Detailed steps:
     ![ResourceDeletion_RBAC_portal](./Media/ResourceDeletion/ResourceDeletion_RBAC_portal.PNG)
     ![ResourceDeletion_azpolicy_portal](./Media/ResourceDeletion/ResourceDeletion_azpolicy_portal.PNG)
 
-3.Browse to the repository and to the `feature branch` and delete the Role or Policy assignment file or both which are required to be deleted.
+3.Browse to the repository and to the `feature branch` and delete the policyAssignments, policyExemptions or roleAssignments file.
 
 ![ResourceDeletion_RBAC_File](./Media/ResourceDeletion/ResourceDeletion_RBAC_File.PNG)
 ![ResourceDeletion_azpolicy_File](./Media/ResourceDeletion/ResourceDeletion_azpolicy_File.PNG)

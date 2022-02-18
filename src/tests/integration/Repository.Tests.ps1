@@ -154,7 +154,7 @@ Describe "Repository" {
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
-            $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
+            $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
 
@@ -609,7 +609,7 @@ Describe "Repository" {
             $policyExemptionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         It "Policy Exemption deletion should be successful" {
-            $policyExemptionDeletion = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)")
+            $policyExemptionDeletion = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId" -ErrorAction SilentlyContinue)
             $policyExemptionDeletion | Should -Be $Null
         }
         #endregion
@@ -764,7 +764,7 @@ Describe "Repository" {
                 $roleAssignment | Remove-AzRoleAssignment
             }
 
-            $policyExemption = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)")
+            $policyExemption = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId")
             if ($policyExemption) {
                 Write-PSFMessage -Level Verbose -Message "Removing Policy Exemption" -FunctionName "AfterAll"
                 $null = $policyExemption | Remove-AzPolicyExemption -Force
