@@ -264,7 +264,7 @@
             }
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments", "Microsoft.Authorization/policyExemptions","Microsoft.Authorization/roleAssignments")) {
+            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments","Microsoft.Authorization/policyExemptions","Microsoft.Authorization/roleAssignments")) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }
