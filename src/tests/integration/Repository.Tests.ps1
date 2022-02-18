@@ -764,7 +764,7 @@ Describe "Repository" {
                 $roleAssignment | Remove-AzRoleAssignment
             }
 
-            $policyExemption = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId")
+            $policyExemption = (Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId" -ErrorAction SilentlyContinue)
             if ($policyExemption) {
                 Write-PSFMessage -Level Verbose -Message "Removing Policy Exemption" -FunctionName "AfterAll"
                 $null = $policyExemption | Remove-AzPolicyExemption -Force
