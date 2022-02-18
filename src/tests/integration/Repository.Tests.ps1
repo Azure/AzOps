@@ -153,7 +153,7 @@ Describe "Repository" {
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "Application")
-            $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
@@ -572,7 +572,7 @@ Describe "Repository" {
             $roleAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         It "Role Assignment deletion should be successful" {
-            $roleAssignmentDeletion = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            $roleAssignmentDeletion = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $roleAssignmentDeletion | Should -Be $Null
         }
         #endregion
@@ -758,7 +758,7 @@ Describe "Repository" {
 
             $subscription = Get-AzSubscription -SubscriptionId $script:subscriptionId
             Set-AzContext -SubscriptionId $script:subscriptionId
-            $roleAssignment = (Get-AzRoleAssignment -ObjectId "1b993954-3377-46fd-a368-58fff7420021" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
+            $roleAssignment = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             if ($roleAssignment) {
                 Write-PSFMessage -Level Verbose -Message "Removing Role Assignment" -FunctionName "AfterAll"
                 $roleAssignment | Remove-AzRoleAssignment
@@ -784,6 +784,7 @@ Describe "Repository" {
             Write-PSFMessage -Level Verbose -Message "Removing Subscription deployments" -FunctionName "AfterAll"
             $script:resourceGroupDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
             $script:roleAssignmentDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
+            $script:policyExemptionDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
             Write-PSFMessage -Level Verbose -Message "Removing Management Group deployments" -FunctionName "AfterAll"
             $script:policyAssignmentDeployment | Remove-AzManagementGroupDeployment -Confirm:$false
             $script:managementGroupDeployment | Remove-AzManagementGroupDeployment -Confirm:$false
