@@ -33,3 +33,17 @@ This happens because because [it is unsupported in ARM](https://docs.microsoft.c
 
 To resolve the error, remove the failed deployment(s) from the target scope and re-run the failed Push pipeline. This can be done either under 'Deployments' at the particular scope in the Azure portal  or with [PowerShell](https://docs.microsoft.com/en-us/powershell/module/az.resources/remove-azmanagementgroupdeployment?view=azps-7.1.0)/[Azure CLI](https://docs.microsoft.com/en-us/cli/azure/deployment/mg?view=azure-cli-latest#az-deployment-mg-delete)/[REST](https://docs.microsoft.com/en-us/rest/api/resources/deployments/delete-at-management-group-scope).
 ![Delete Deployments at scope](./Media/FAQ/delete_deployments.png)
+
+## Pull fail with active pull request already exists error
+ 
+If you triggered the pull pipeline there might be a possibility it get failed during `Create Pull Request to automerge` task with an error as below:
+ 
+`ERROR: TF401179: An active pull request for the source and target branch already exists.`
+ 
+![Error](./Media/FAQ/existing_pr_error.png)
+ 
+This happens because because it is not supported in Azure DevOps to create a pull request when there's an existing pull request created for the same source and target branch.
+ 
+To resolve the error, [complete or abandon the existing pull request (PR)](https://docs.microsoft.com/en-us/azure/devops/repos/git/complete-pull-requests?view=azure-devops&tabs=browser) first and then rerun the pull pipeline again.
+ 
+![PR](./Media/FAQ/pr.png)![image](https://user-images.githubusercontent.com/88823550/155154844-bd77a6e0-3424-4df6-a9a0-0b5d4458e03b.png)
