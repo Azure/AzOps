@@ -46,4 +46,4 @@ This happens because because it is not supported in Azure DevOps to create a pul
  
 To resolve the error, [complete or abandon the existing pull request (PR)](https://docs.microsoft.com/en-us/azure/devops/repos/git/complete-pull-requests?view=azure-devops&tabs=browser) first and then rerun the pull pipeline again.
  
-![PR](./Media/FAQ/pr.png)![image](https://user-images.githubusercontent.com/88823550/155154844-bd77a6e0-3424-4df6-a9a0-0b5d4458e03b.png)
+![PR](./Media/FAQ/pr.png)
