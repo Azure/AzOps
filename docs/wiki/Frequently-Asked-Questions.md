@@ -35,15 +35,15 @@ To resolve the error, remove the failed deployment(s) from the target scope and 
 ![Delete Deployments at scope](./Media/FAQ/delete_deployments.png)
 
 ## Pull fail with active pull request already exists error
- 
+
 If you triggered the pull pipeline there might be a possibility it get failed during `Create Pull Request to automerge` task with an error as below:
- 
+
 `ERROR: TF401179: An active pull request for the source and target branch already exists.`
- 
+
 ![Error](./Media/FAQ/existing_pr_error.png)
- 
+
 This happens because because it is not supported in Azure DevOps to create a pull request when there's an existing pull request created for the same source and target branch.
- 
+
 To resolve the error, [complete or abandon the existing pull request (PR)](https://docs.microsoft.com/en-us/azure/devops/repos/git/complete-pull-requests?view=azure-devops&tabs=browser) first and then rerun the pull pipeline again.
- 
+
 ![PR](./Media/FAQ/pr.png)
