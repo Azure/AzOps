@@ -279,6 +279,12 @@
         }
         $WhatIfPreference = $WhatIfPreferenceState
 
+        #If addModifySet exists and no deploymentList has been generated, exit with terminating error
+        if ($addModifySet -and -not $deploymentList) {
+            Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
+            exit 1
+        }
+
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $deploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
