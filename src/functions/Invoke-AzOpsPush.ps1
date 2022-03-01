@@ -244,13 +244,11 @@
                 $addition = $transpiledTemplatePath
             }
 
-            try { $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop }
-            catch {
-                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
-                continue
+            try {
+                $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop
             }
-            if (-not $scopeObject) {
-                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $addition, $StatePath -Target $addition
+            catch {
+                Write-PSFMessage -Level Debug @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $addition, $StatePath -Target $addition -ErrorRecord $_
                 continue
             }
 
@@ -269,24 +267,29 @@
                 continue
             }
 
-            try { $scopeObject = New-AzOpsScope -Path $deletion -StatePath $StatePath -ErrorAction Stop }
+            try {
+                $scopeObject = New-AzOpsScope -Path $deletion -StatePath $StatePath -ErrorAction Stop
+            }
             catch {
-                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
+                Write-PSFMessage -Level Debug @common -String 'Invoke-AzOpsPush.Scope.Failed' -StringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
                 continue
             }
-            if (-not $scopeObject) {
-                Write-PSFMessage -Level Warning @common -String 'Invoke-AzOpsPush.Scope.NotFound' -StringValues $deletion, $StatePath -Target $deletion
-                continue
-            }
+
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
         }
         $WhatIfPreference = $WhatIfPreferenceState
+
+        #If addModifySet exists and no deploymentList has been generated, exit with terminating error
+        if ($addModifySet -and -not $deploymentList) {
+            Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
+            exit 1
+        }
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $deploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
 
-        #Removal of RoleAssignments and PolicyAssignments
+        #Removal of policyAssignment, policyExemption and roleAssignment
         $uniqueProperties = 'Scope', 'TemplateFilePath'
         $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
 

@@ -170,6 +170,7 @@
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
+    'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Exiting runtime with error code 1.'
     'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
@@ -181,7 +182,6 @@
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
-    'Invoke-AzOpsPush.Scope.NotFound'                                               = 'Skipping {0}, not part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
     'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}' # $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE
