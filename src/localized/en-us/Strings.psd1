@@ -189,7 +189,7 @@
     'Invoke-AzOpsScriptBlock.Failed.GivingUp'                                       = 'Tried unsuccessfully {0} out of {1} times, giving up.' # $count, $RetryCount
     'Invoke-AzOpsScriptBlock.Failed.WillRetry'                                      = 'Tried unsuccessfully {0} out of {1} times, keeping up the fight!' # $count, $RetryCount
 
-    'New-AzOpsScope.Creating.FromFile'                                              = 'Creating a new scope from a path' #
+    'New-AzOpsScope.Creating.FromFile'                                              = 'Creating new scope from path {0}' # $Path
     'New-AzOpsScope.Creating.FromScope'                                             = 'Creating new AzOpsScope object using scope [{0}]' # $Scope
     'New-AzOpsScope.Creating.FromParentScope'                                       = 'Creating new AzOpsScope statepath using parent scope [{0}] with child resource details' # $Scope
     'New-AzOpsScope.Path.InvalidRoot'                                               = 'Path "{0}" must be a path under "{1}" !' # $Path, $StatePath
