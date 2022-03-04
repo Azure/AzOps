@@ -28,7 +28,7 @@
                 $applicationId = (Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" -Headers @{ Metadata = $true }).client_id
                 $principalObject = Get-AzADServicePrincipal -ApplicationId $applicationId
             }
-            'ServicePrincipal' {
+            default {
                 $principalObject = Get-AzADServicePrincipal -ApplicationId $AzContext.Account.Id
             }
         }
