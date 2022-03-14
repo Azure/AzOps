@@ -258,8 +258,19 @@
                                                 ],
                                                 "firewalls": []
                                             }
+                                        },
+                                        {
+                                            "type": "Microsoft.OperationalInsights/workspaces",
+                                            "name": "thisisalongloganalyticsworkspacename123456789011121314151617181",
+                                            "apiVersion": "2017-03-15-preview",
+                                            "location": "eastus",
+                                            "tags": {},
+                                            "properties": {
+                                                "sku": {
+                                                    "name": "pergb2018"
+                                                }
+                                            }
                                         }
-
                                     ],
                                     "outputs": {
                                     }

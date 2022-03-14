@@ -117,7 +117,7 @@
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.File.UseExisting' -StringValues $objectFilePath
         }
 
-        # if the export file path ends with parameter
+        # If export file path ends with parameter
         $generateTemplateParameter = $objectFilePath.EndsWith('.parameters.json') ? $true : $false
         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplateParameter' -StringValues "$generateTemplateParameter" -FunctionName 'ConvertTo-AzOpsState'
 
