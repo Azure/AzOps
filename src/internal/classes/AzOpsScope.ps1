@@ -94,6 +94,8 @@
         #>
         $this.StateRoot = $StateRoot
         $this.ChildResource = $ChildResource.resourceProvider + '-' + $ChildResource.resourceName
+        # Check and update generated name exceeding maximum length
+        $this.ChildResource = Set-AzOpsStringLength -String $this.ChildResource
         Write-PSFMessage -Level Verbose -String 'AzOpsScope.ChildResource.InitializeMemberVariables' -StringValues $ChildResource.ResourceProvider, $ChildResource.ResourceName, $scope -FunctionName AzOpsScope -ModuleName AzOps
         $this.InitializeMemberVariables($Scope)
     }

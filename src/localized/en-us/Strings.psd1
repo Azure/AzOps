@@ -58,6 +58,7 @@
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.File.InvalidCharacter'                                    = 'The specified AzOpsState file contains invalid characters (remove any "[" or "]" characters)! Skipping {0}' # $ObjectFilePath
+    'ConvertTo-AzOpsState.File.JQError'                                             = 'Jq filter error {0}' # $Resource.ObjectFilePath
     'ConvertTo-AzOpsState.File.UseExisting'                                         = 'AzOpsState file is found. Using existing file: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.NoExportPath'                                             = 'No export path found for {0}. Ensure the original data type remains intact or specify an -ExportPath' # $Resource
     'ConvertTo-AzOpsState.Processing'                                               = 'Processing input: {0}' # $Resource
@@ -65,7 +66,6 @@
     'ConvertTo-AzOpsState.Starting'                                                 = 'Starting conversion to AzOps State object' #
     'ConvertTo-AzOpsState.StateConfig.Error'                                        = 'Cannot load {0}, is the json schema valid and does the file exist?' # (Get-PSFConfigValue -FullName 'AzOps.General.StateConfig')
     'ConvertTo-AzOpsState.StatePath'                                                = 'Resolve path to resource state {0}' # $resourceData.ObjectFilePath
-    'ConvertTo-AzOpsState.File.JQError'                                             = 'Jq filter error {0}' # $Resource.ObjectFilePath
     'ConvertTo-AzOpsState.GenerateTemplateParameter'                                = 'Generating template parameter: {0}' # $generateTemplateParameter
     'ConvertTo-AzOpsState.GenerateTemplate'                                         = 'Generating template: {0}' # $generateTemplateParameter
     'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace'                       = 'Provider namespace: {0}' # $providerNamespace
@@ -258,6 +258,13 @@
     'Save-AzOpsManagementGroupChildren.Subscription.NotFound'                       = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Set-AzOpsContext.Change'                                                       = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+
+    'Set-AzOpsStringLength.IsString'                                                = 'Is string {0}' # $String
+    'Set-AzOpsStringLength.Shortened'                                               = 'New shortened string {0} in-line with limit of {1}' # $String, $MaxStringLength
+    'Set-AzOpsStringLength.StringIsPath'                                            = 'String contains state path {0}' # $String
+    'Set-AzOpsStringLength.ToLong'                                                  = 'String {0} exceeding limit of {1} by {2} characters' # $String, $MaxStringLength, $overSize
+    'Set-AzOpsStringLength.WithInLimit'                                             = 'String {0} within limit of {1}' # $String
+
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
     'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}'
 }

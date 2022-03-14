@@ -157,6 +157,7 @@ Describe "Repository" {
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
+            $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
 
         }
         catch {
@@ -259,6 +260,11 @@ Describe "Repository" {
         $script:ruleCollectionGroupsFile = ($script:ruleCollectionGroupsPath).FullName
         $script:ruleCollectionDeploymentName = "AzOps-{0}-{1}" -f $($script:ruleCollectionGroupsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
+
+        $script:logAnalyticsWorkspaceSavedSearchesPath = ($filePaths | Where-Object Name -eq "microsoft.operationalinsights_workspaces_savedsearches-$(($script:logAnalyticsWorkspace.Name).toLower())_logmanagement(thisisalongloganalyticsworkspacename12345-ee7c6e90e26a87cec75b83b2ed548077fed5750162e50d80fdda5d8ce27f3478.json")
+        $script:logAnalyticsWorkspaceSavedSearchesDirectory = ($script:logAnalyticsWorkspaceSavedSearchesPath).Directory
+        $script:logAnalyticsWorkspaceSavedSearchesFile = ($script:logAnalyticsWorkspaceSavedSearchesPath).FullName
+        Write-PSFMessage -Level Debug -Message "logAnalyticsWorkspaceSavedSearchesFile: $($script:logAnalyticsWorkspaceSavedSearchesFile)" -FunctionName "BeforeAll"
         #endregion Paths
 
         #Test push based on pulled resources
@@ -679,6 +685,35 @@ Describe "Repository" {
             $ruleCollectionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
+
+        #region Scope - logAnalyticsWorkspaceSavedSearchesPath (./root/tenant root group/test/platform/management/subscription-0/application/thisisalongloganalyticsworkspacename123456789011121314151617181)
+        It "LogAnalyticsWorkspaceSavedSearches directory should exist" {
+            Test-Path -Path $script:logAnalyticsWorkspaceSavedSearchesDirectory | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches file should exist" {
+            Test-Path -Path $script:logAnalyticsWorkspaceSavedSearchesFile | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource type should exist" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource name should exist" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource properties should exist" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource type should match" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.OperationalInsights/workspaces/savedSearches"
+        }
+        #endregion
     }
 
     AfterAll {
@@ -781,6 +816,7 @@ Describe "Repository" {
             Write-PSFMessage -Level Verbose -Message "Removing Resource Group deployments" -FunctionName "AfterAll"
             $script:ruleCollectionDeployment | Remove-AzResourceGroupDeployment -Confirm:$false
             $script:routeTableDeployment | Remove-AzResourceGroupDeployment -Confirm:$false
+            $script:logAnalyticsWorkspaceSavedSearchesDeployment | Remove-AzResourceGroupDeployment -Confirm:$false
             Write-PSFMessage -Level Verbose -Message "Removing Subscription deployments" -FunctionName "AfterAll"
             $script:resourceGroupDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
             $script:roleAssignmentDeployment | Remove-AzSubscriptionDeployment -Confirm:$false
