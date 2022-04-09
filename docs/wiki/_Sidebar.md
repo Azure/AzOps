@@ -22,6 +22,7 @@
   * [Azure Artifacts](https://github.com/azure/azops/wiki/azure-artifacts)
   * [GitHub Packages](https://github.com/azure/azops/wiki/github-packages)
 * [Migration](https://github.com/azure/azops/wiki/migration)
+* [Self-hosted agents/runners](https://github.com/azure/azops/wiki/self-hosted)
 * [Roadmap](https://github.com/azure/azops/wiki/roadmap)
 * [Troubleshooting](https://github.com/azure/azops/wiki/troubleshooting)
 * [FAQ](https://github.com/azure/azops/wiki/frequently-asked-questions)
