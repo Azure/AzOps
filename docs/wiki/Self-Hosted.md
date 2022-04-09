@@ -25,13 +25,14 @@ If you want to build your own custom lightweight image the following software is
 
 AzOps have a couple of dependencies that are required to function properly. When building your custom image, make sure that the following tools are included in the image:
 
-| Software | Recommended version |
+| Software | Recommended minimum version |
 |:--|--|
 | `jq` | `1.6` |
 | `Git` | `2.35.1` |
 | `Azure CLI` | `2.34.1` |
 | `PowerShell` | `7.2.2` |
 | `Bicep` | `v0.5.6` |
+| `Github CLI` | `2.7.0` |
 
 > NOTE: `Bicep` is only required if you plan to deploy [Bicep](https://github.com/Azure/bicep) templates using AzOps.
 
