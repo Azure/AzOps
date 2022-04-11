@@ -89,11 +89,11 @@ Steps:
 5. Rename `<resource.provider>/<resourcetype>` folders of the newly created structure according to the new resource and resource provider test you are adding.
 6. Update the deployable `.json` or `.bicep` template files in the `deploy/*` folder to ensure it reflects your intended test.
 7. Update the `deploy.ps1` file to ensure it reflects your intended setup and associated template files.
-8. Update the `scenario.ps1` file to ensure it reflects your intended test
+8. Update the `scenario.ps1` file to ensure it reflects your intended test.
    1. First row `Describe "Scenario - <replaceMe>" {`
    2. Region path parameter `$script:functionalTestDeploy.value.parameters.<replaceMe>.value`.
    3. For all resources the test runs `Pull` and `Push` consider if `Delete` is required.
    4. Determine modifications to `#region Pull Test` section to examine specific properties `$script:fileContents.resources[0].properties.<replaceMe>`.
-9.  Ensure the `deletion.ps1` file removes both the deployed resource and any associated deployment job.
+9. Ensure the `deletion.ps1` file removes both the deployed resource and any associated deployment job.
 
 ---
