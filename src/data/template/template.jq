@@ -12,8 +12,8 @@
         {
             "type": .ResourceType,
             "name": .Name,
-            "Sku": .Sku,
-            "Kind": .Kind,
+            "sku": .Sku,
+            "kind": .Kind,
             "apiVersion": "0000-00-00",
             "location": .Location,
             "tags": .Tags,
@@ -23,5 +23,5 @@
     "outputs": {}
 } |
 .resources[].tags |= if . != null then to_entries | sort_by(.key) | from_entries else . end
-| del(.resources[].Sku | nulls) 
-| del(.resources[].Kind | nulls)
+| del(.resources[].sku | nulls) 
+| del(.resources[].kind | nulls)
