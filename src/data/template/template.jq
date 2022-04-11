@@ -23,5 +23,5 @@
     "outputs": {}
 } |
 .resources[].tags |= if . != null then to_entries | sort_by(.key) | from_entries else . end
-| del(.resources[].sku | nulls) 
+| del(.resources[].sku | nulls)
 | del(.resources[].kind | nulls)
