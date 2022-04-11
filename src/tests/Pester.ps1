@@ -3,6 +3,8 @@
 
     $TestFunctions = $false,
 
+    $TestFunctional = $true,
+
     $TestIntegration = $true,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
@@ -99,6 +101,37 @@ if ($TestFunctions) {
     }
 }
 #region Function Tests
+
+$global:__pester_data.ScriptAnalyzer | Out-Host
+
+#region Run Functional Tests
+if ($TestFunctional) {
+    Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")) {
+        if ($file.Name -notlike $Include) { continue }
+        if ($Exclude -contains $file.Name) { continue }
+
+        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.Run.Path = $file.FullName
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = $Output
+        $results = Invoke-Pester -Configuration $config
+        foreach ($result in $results) {
+            $totalRun += $result.TotalCount
+            $totalFailed += $result.FailedCount
+            $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
+                $testresults += [pscustomobject]@{
+                    Block   = $_.Block
+                    Name    = "It $($_.Name)"
+                    Result  = $_.Result
+                    Message = $_.ErrorRecord.DisplayErrorMessage
+                }
+            }
+        }
+    }
+}
+#endregion Run Functional Tests
 
 $global:__pester_data.ScriptAnalyzer | Out-Host
 

@@ -104,7 +104,7 @@ Describe "Repository" {
         #>
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
-        $script:timeOutMinutes = 25
+        $script:timeOutMinutes = 30
         $script:mgmtRun = "Run"
 
         While ($script:mgmtRun -eq "Run") {
@@ -194,10 +194,9 @@ Describe "Repository" {
         #
 
         #region Paths
-        $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
-        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $generatedRoot" -FunctionName "BeforeAll"
 
-        $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
+        $filePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:tenantId).toLower()).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
@@ -307,7 +306,7 @@ Describe "Repository" {
         #region
         # Scope - Root (./root)
         It "Root directory should exist" {
-            Test-Path -Path $script:generatedRootPath | Should -BeTrue
+            Test-Path -Path $generatedRoot | Should -BeTrue
         }
         #endregion
 
