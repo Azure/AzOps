@@ -9,7 +9,7 @@ In this folder, functional tests are placed.
   - [Functional Tests](#functional-tests)
     - [Anatomy of a AzOps functional test](#anatomy-of-a-azops-functional-test)
     - [How are tests invoked](#how-are-tests-invoked)
-    - [How to add a new functional test resource and resource provider](#how-to-add-a-new-functional-test-resource-and-resource-provider)
+    - [How to add a new functional test resource-type and resource-provider](#how-to-add-a-new-functional-test-resource-type-and-resource-provider)
 
 ---
 
@@ -25,7 +25,7 @@ Consists of a folder structure and files broken down below:
 
 Folder structure: `<resource.provider>/<resourcetype>/<deploy>`.
 
-Files: `scenario.ps1`, `deploy.ps1` and deployment templates `example.json`.
+Files: `scenario.ps1`, `deploy.ps1` and deployment templates `example.json` (*optional parameter file `example.parameters.json`*).
 
 Illustration below:
 
@@ -73,22 +73,22 @@ tests
 
 ---
 
-### How to add a new functional test resource and resource provider
+### How to add a new functional test resource-type and resource-provider
 
 Steps:
 
-1. Check the current `functional/*` hierarchy to ensure that the resource and resource provider is not already existing.
-2. Pick one of the existing resource and resource provider tests to use as the base for your addition.
-3. Copy the resource provider structure you choose in step before.
+1. Check the current `functional/*` hierarchy to ensure that the resource-type and resource-provider does not already exist.
+2. Pick one of the existing resource-type and and resource-provider tests to use as the base for your addition.
+3. Copy the and resource-provider structure you choose in step before.
 4. Paste the copied information into the `functional/*` hierarchy root.
-5. Rename `<resource.provider>/<resourcetype>` folders of the newly created structure according to the new resource and resource provider test you are adding.
+5. Rename `<resource.provider>/<resourcetype>` folders of the newly created structure according to the new resource-type and resource-provider test you are adding.
 6. Update the deployable `.json` or `.bicep` template files in the `deploy/*` folder to ensure it reflects your intended test.
 7. Update the `deploy.ps1` file to ensure it reflects your intended setup and associated template files.
 8. Update the `scenario.ps1` file to ensure it reflects your intended test.
    1. First row `Describe "Scenario - <replaceMe>" {`
-   2. Region path parameter `$script:functionalTestDeploy.value.parameters.<replaceMe>.value`.
+   2. Region path parameter `$script:functionalTestDeploy.value.parameters.<replaceMe>.value` to successfully identify the file created by `Invoke-AzOpsPull.ps1` as a result of this resource-type test.
    3. For all resources the test runs `Pull` and `Push` consider if `Delete` is required.
-   4. Determine modifications to `#region Pull Test` section to examine specific properties `$script:fileContents.resources[0].properties.<replaceMe>`.
+   4. Determine modifications required at `#region Pull Test` section to examine specific properties `$script:fileContents.resources[0].properties.<replaceMe>` to uniquely identify some resource-type property.
 9. Done
 
 ---

@@ -83,11 +83,13 @@ Describe "Functional" {
         $script:testObjects = Get-ChildItem -Path $script:functionalTestObjectPath -Recurse -Filter "deploy.ps1" -File
         Write-PSFMessage -Level Verbose -Message "Found $($script:testObjects.count) functional test objects to deploy" -FunctionName "BeforeAll"
         try {
+            $script:scriptPath = (Resolve-Path "$global:testroot/../../scripts").Path
+            . (Join-Path -Path $script:scriptPath -ChildPath New-AzOpsTestsDeploymentHelper.ps1)
             Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test objects" -FunctionName "BeforeAll"
-            $script:testObjects.VersionInfo.FileName | ForEach-Object -Process {
+            $script:testObjects.VersionInfo.FileName | ForEach-Object {
                 & $_
             }
-            Start-Sleep -s 60
+            Start-Sleep -s 30
         }
         catch {
             Write-PSFMessage -Level Warning -String "Executing functional test object failed"

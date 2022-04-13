@@ -1,15 +1,9 @@
-﻿$script:location = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
+﻿$script:runtimePath = $PSScriptRoot
 $script:deployTemplate = "deploy.bicep"
-
-$script:resourceProvider = (Resolve-Path "$PSScriptRoot/..").Path.Split('/')[-2]
-$script:resourceType = (Resolve-Path "$PSScriptRoot/..").Path.Split('/')[-1]
-
-$script:templateFile = Join-Path -Path $global:testroot -ChildPath "functional/$script:resourceProvider/$script:resourceType/deploy/$script:deployTemplate"
+$script:scope = "Tenant"
 
 try {
-    Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType starting"
-    $script:functionalTestDeploy = New-AzTenantDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $script:location
-    New-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Value $script:functionalTestDeploy -Scope Global -Force
+    New-AzOpsTestsDeploymentHelper -RuntimePath $script:runtimePath -Scope $script:scope -DeployTemplateFileName $script:deployTemplate
 
     $script:timeOutMinutes = 30
     $script:mgmtRun = "Run"
@@ -18,7 +12,7 @@ try {
         Write-PSFMessage -Level Verbose -Message "Waiting for Management Group structure consistency" -FunctionName "BeforeAll"
 
         $script:mgmt = Get-AzManagementGroup
-        $script:testManagementGroup = ($script:mgmt | Where-Object Name -eq "$($script:functionalTestDeploy.parameters.managementGroupId.value)")
+        $script:testManagementGroup = ($script:mgmt | Where-Object Name -eq "AzOpsMGMTID")
 
         if ($script:testManagementGroup -ne $null) {
             $script:mgmtRun = "Done"
@@ -31,8 +25,6 @@ try {
             break
         }
     }
-
-    Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType completed"
 }
 catch {
     Write-PSFMessage -Level Critical -Message "Deployment failed" -Exception $_.Exception
