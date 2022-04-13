@@ -77,6 +77,7 @@ Describe "Functional" {
         # which will generate a matching
         # file system hierachy
         #
+
         Write-PSFMessage -Level Verbose -Message "Getting functional test objects based on structure" -FunctionName "BeforeAll"
         $script:functionalTestObjectPath = Join-Path $global:testroot -ChildPath "functional"
         $script:testObjects = Get-ChildItem -Path $script:functionalTestObjectPath -Recurse -Filter "deploy.ps1" -File
@@ -152,12 +153,29 @@ Describe "Functional" {
 
     AfterAll {
         #region Cleanup
-        $script:testObjectsCleanup = Get-ChildItem -Path $script:functionalTestObjectPath -Recurse -Filter "deletion.ps1" -File
-        Write-PSFMessage -Level Verbose -Message "Found $($script:testObjectsCleanup.count) functional test cleanup" -FunctionName "AfterAll"
         try {
             Write-PSFMessage -Level Verbose -Message "Executing functional test cleanup" -FunctionName "AfterAll"
-            $script:testObjectsCleanup.VersionInfo.FileName | ForEach-Object -Process {
-                & $_
+            # Collect resources to cleanup
+            $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -notlike "cloud-shell-storage-*"}
+            $script:roleAssignments = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
+            $script:policyAssignments = Get-AzPolicyAssignment
+            $script:managementGroups = Get-AzManagementGroup | Where-Object {$_.DisplayName -ne "Tenant Root Group"}
+            # Cleanup resourceGroups
+            $script:resourceGroups | ForEach-Object -ThrottleLimit 20 -Parallel {
+                Write-PSFMessage -Level Verbose -Message "Executing functional test resourceGroups cleanup thread of $($_.ResourceGroupName)" -FunctionName "AfterAll"
+                $script:run = $_ | Remove-AzResourceGroup -Confirm:$false -Force
+            }
+            # Cleanup roleAssignments, policyAssignments and managementGroups
+            $script:roleAssignments | Remove-AzRoleAssignment -Confirm:$false
+            $script:policyAssignments | Remove-AzPolicyAssignment -Confirm:$false
+            foreach ($script:mgclean in $script:managementGroups) {
+                Remove-AzManagementGroup -GroupId $script:mgclean.Name -Confirm:$false
+            }
+            # Collect and cleanup deployment jobs
+            $azDeploymentJobs = Get-AzDeployment
+            $azDeploymentJobs | ForEach-Object -ThrottleLimit 20 -Parallel {
+                Write-PSFMessage -Level Verbose -Message "Executing functional test AzDeployment cleanup thread of $($_.DeploymentName)" -FunctionName "AfterAll"
+                $_ | Remove-AzDeployment -Confirm:$false
             }
         }
         catch {

@@ -25,7 +25,7 @@ Consists of a folder structure and files broken down below:
 
 Folder structure: `<resource.provider>/<resourcetype>/<deploy>`.
 
-Files: `scenario.ps1`, `deletion.ps1`, `deploy.ps1` and deployment templates `example.json`.
+Files: `scenario.ps1`, `deploy.ps1` and deployment templates `example.json`.
 
 Illustration below:
 
@@ -36,14 +36,12 @@ tests
     │   ├── resourcetypeA
     │   │   ├── scenario.ps1
     │   │   └── deploy
-    │   │       ├── deletion.ps1
     │   │       ├── example.json
     │   │       ├── example.parameters.json
     │   │       └── deploy.ps1
     │   ├── resourcetypeB
     │   │   ├── scenario.ps1
     │   │   └── deploy
-    │   │       ├── deletion.ps1
     │   │       ├── example.bicep
     │   │       ├── example.parameters.json
     │   │       └── deploy.ps1
@@ -51,7 +49,6 @@ tests
     │   ├── resourcetypeC
     │   │   ├── scenario.ps1
     │   │   └── deploy
-    │   │       ├── deletion.ps1
     │   │       ├── example.json
     │   │       ├── example.parameters.json
     │   │       └── deploy.ps1
@@ -72,9 +69,7 @@ tests
    6. Looks for all `scenario.ps1` files in the `functional/*` hierarchy.
    7. Runs all `scenario.ps1` files.
    8. Initiates `AfterAll` section.
-   9. Looks for all `deletion.ps1` files in the `functional/*` hierarchy.
-   10. Runs all `deletion.ps1` files.
-   11. Done.
+   9.  Done.
 
 ---
 
@@ -94,6 +89,6 @@ Steps:
    2. Region path parameter `$script:functionalTestDeploy.value.parameters.<replaceMe>.value`.
    3. For all resources the test runs `Pull` and `Push` consider if `Delete` is required.
    4. Determine modifications to `#region Pull Test` section to examine specific properties `$script:fileContents.resources[0].properties.<replaceMe>`.
-9. Ensure the `deletion.ps1` file removes both the deployed resource and any associated deployment job.
+9. Done
 
 ---
