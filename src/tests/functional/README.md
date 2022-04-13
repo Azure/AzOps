@@ -69,7 +69,7 @@ tests
    6. Looks for all `scenario.ps1` files in the `functional/*` hierarchy.
    7. Runs all `scenario.ps1` files.
    8. Initiates `AfterAll` section.
-   9.  Done.
+   9. Done.
 
 ---
 
