@@ -11,7 +11,7 @@
     },
     "functions": [],
     "variables": {
-        "apiVersion": "2020-05-01",
+        "apiVersion": "2021-04-01",
         "displayName": "Test"
     },
     "resources": [
@@ -111,7 +111,7 @@
                     "outputs": {}
                 }
             },
-            "scope": "[concat('Microsoft.Management/managementGroups/', guid('Management'))]"
+            "scope": "[resourceId('Microsoft.Management/managementGroups/', guid('Management'))]"
         },
         // Empty 'delay' deployments to ensure roleAssignments have been replicated before submitting subscription deployments
         {
@@ -196,7 +196,8 @@
                             "name": "[guid('RoleAssignmentTest')]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-                                "principalId": "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217"
+                                "principalId": "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217",
+                                "principalType": "ServicePrincipal"
                             }
                         },
                         {
