@@ -2,7 +2,7 @@
     about_AzOps
 
 SHORT DESCRIPTION
-    Explains how to use the AzOps powershell module
+    Explains how to use the AzOps powershell module.
 
 LONG DESCRIPTION
     <Insert Content here>
