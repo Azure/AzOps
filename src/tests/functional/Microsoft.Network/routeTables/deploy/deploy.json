@@ -1,0 +1,38 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"location": {
+			"type": "string"
+		},
+		"routeTableName": {
+			"type": "string"
+		},
+        "routeName": {
+			"type": "string"
+		},
+		"routeAddressPrefix": {
+			"type": "string"
+		}
+	},
+	"variables": {},
+	"resources": [{
+		"type": "Microsoft.Network/routeTables",
+		"apiVersion": "2019-02-01",
+		"name": "[parameters('routeTableName')]",
+		"location": "[parameters('location')]",
+		"properties": {
+			"routes": [
+				{
+					"name": "[parameters('routeName')]",
+					"properties": {
+						"addressPrefix": "[parameters('routeAddressPrefix')]",
+						"nextHopType": "None",
+						"hasBgpOverride": false
+					}
+				}
+			],
+			"disableBgpRoutePropagation": false
+		}
+	}]
+}

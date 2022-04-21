@@ -1,9 +1,11 @@
 ﻿param (
-    $TestGeneral = $true,
+    $TestGeneral = $false,
 
     $TestFunctions = $false,
 
-    $TestIntegration = $true,
+    $TestFunctional = $false,
+
+    $TestIntegration = $false,
 
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
@@ -102,6 +104,37 @@ if ($TestFunctions) {
 
 $global:__pester_data.ScriptAnalyzer | Out-Host
 
+#region Run Functional Tests
+if ($TestFunctional) {
+    Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")) {
+        if ($file.Name -notlike $Include) { continue }
+        if ($Exclude -contains $file.Name) { continue }
+
+        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.Run.Path = $file.FullName
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = $Output
+        $results = Invoke-Pester -Configuration $config
+        foreach ($result in $results) {
+            $totalRun += $result.TotalCount
+            $totalFailed += $result.FailedCount
+            $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
+                $testresults += [pscustomobject]@{
+                    Block   = $_.Block
+                    Name    = "It $($_.Name)"
+                    Result  = $_.Result
+                    Message = $_.ErrorRecord.DisplayErrorMessage
+                }
+            }
+        }
+    }
+}
+#endregion Run Functional Tests
+
+$global:__pester_data.ScriptAnalyzer | Out-Host
+
 #region Run Integration Tests
 if ($TestIntegration) {
     Write-PSFMessage -Level Important -Message "Proceeding with integration tests"
@@ -133,8 +166,12 @@ if ($TestIntegration) {
 
 $testresults | Sort-Object Describe, Context, Name, Result, Message | Format-List
 
-if ($totalFailed -eq 0) { Write-PSFMessage -Level Critical -Message "All <c='em'>$totalRun</c> tests executed without a single failure!" }
-else { Write-PSFMessage -Level Critical -Message "<c='em'>$totalFailed tests</c> out of <c='sub'>$totalRun</c> tests failed!" }
+if ($totalFailed -eq 0) {
+    Write-PSFMessage -Level Critical -Message "All <c='em'>$totalRun</c> tests executed without a single failure!"
+}
+else {
+    Write-PSFMessage -Level Critical -Message "<c='em'>$totalFailed tests</c> out of <c='sub'>$totalRun</c> tests failed!"
+}
 
 if ($totalFailed -gt 0) {
     throw "$totalFailed / $totalRun tests failed!"

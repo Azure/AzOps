@@ -7,7 +7,7 @@
 # function is invoking as expected with
 # the correct output data.
 #
-# This file must be invoked by the Tests.ps1
+# This file must be invoked by the Pester.ps1
 # file as the Global variable testroot is
 # required for invocation.
 #
@@ -104,7 +104,7 @@ Describe "Repository" {
         #>
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
-        $script:timeOutMinutes = 25
+        $script:timeOutMinutes = 30
         $script:mgmtRun = "Run"
 
         While ($script:mgmtRun -eq "Run") {
@@ -148,7 +148,7 @@ Describe "Repository" {
         #
 
         try {
-            Start-Sleep -Seconds 300
+            Start-Sleep -Seconds 120
             Set-AzContext -SubscriptionId $script:subscriptionId
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
@@ -158,7 +158,6 @@ Describe "Repository" {
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
-
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception
@@ -194,10 +193,9 @@ Describe "Repository" {
         #
 
         #region Paths
-        $script:generatedRootPath = Join-Path -Path $script:repositoryRoot -ChildPath "root"
-        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $($generatedRootPath)" -FunctionName "BeforeAll"
+        Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $generatedRoot" -FunctionName "BeforeAll"
 
-        $filePaths = (Get-ChildItem -Path $generatedRootPath -Recurse)
+        $filePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:tenantId).toLower()).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
@@ -307,7 +305,7 @@ Describe "Repository" {
         #region
         # Scope - Root (./root)
         It "Root directory should exist" {
-            Test-Path -Path $script:generatedRootPath | Should -BeTrue
+            Test-Path -Path $generatedRoot | Should -BeTrue
         }
         #endregion
 
