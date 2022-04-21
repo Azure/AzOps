@@ -7,7 +7,7 @@
 # functional test is invoking as expected with
 # the correct output data for a broad set of Azure resource providers and types.
 #
-# This file must be invoked by the Tests.ps1
+# This file must be invoked by the Pester.ps1
 # file as the Global variable testroot is
 # required for invocation.
 #

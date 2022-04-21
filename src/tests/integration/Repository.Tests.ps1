@@ -7,7 +7,7 @@
 # function is invoking as expected with
 # the correct output data.
 #
-# This file must be invoked by the Tests.ps1
+# This file must be invoked by the Pester.ps1
 # file as the Global variable testroot is
 # required for invocation.
 #
@@ -148,7 +148,7 @@ Describe "Repository" {
         #
 
         try {
-            Start-Sleep -Seconds 300
+            Start-Sleep -Seconds 120
             Set-AzContext -SubscriptionId $script:subscriptionId
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
@@ -158,7 +158,6 @@ Describe "Repository" {
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
-
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception
