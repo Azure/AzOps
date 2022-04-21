@@ -57,8 +57,28 @@ jobs:
     #     subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
     #     enable-AzPSSession: true
 
-      # Run Tests
-      - name: "Run Tests"
+      # Run General Tests
+      - name: "Run General Tests"
         shell: pwsh
         run: |
-          ./scripts/Tests.ps1
+          ./src/tests/Pester.ps1 -TestGeneral $true
+
+      # Run Functions Tests
+      - name: "Run Functions Tests"
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -TestFunctions $true
+
+      # Run Functional Tests
+      - name: "Run Functional Tests"
+        if: always()
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -TestFunctional $true
+
+      # Run Integration Tests
+      - name: "Run Integration Tests"
+        if: always()
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -TestIntegration $true

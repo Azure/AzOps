@@ -1,0 +1,29 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "northeurope"
+        },
+        "virtualNetworkName": {
+            "value": "vnet100"
+        },
+        "addressSpaces": {
+            "value": [
+                "10.1.0.0/16"
+            ]
+        },
+        "subnet0_name": {
+            "value": "default"
+        },
+        "subnet0_addressRange": {
+            "value": "10.1.0.0/24"
+        },
+        "ddosProtectionPlanEnabled": {
+            "value": false
+        },
+        "nic0_name": {
+            "value": "vnet100nic"
+        }
+    }
+}
