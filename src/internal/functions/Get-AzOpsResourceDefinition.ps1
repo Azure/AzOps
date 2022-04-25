@@ -181,6 +181,12 @@
                 $SkipResourceGroup,
 
                 [switch]
+                $SkipPolicy,
+
+                [switch]
+                $SkipRole,
+
+                [switch]
                 $SkipResource,
 
                 [string[]]
@@ -233,6 +239,8 @@
                             StatePath                       = $StatePath
                             ScopeObject                     = $ScopeObject
                             ODataFilter                     = $ODataFilter
+                            SkipPolicy                      = $SkipPolicy
+                            SkipRole                        = $SkipRole
                             SkipResource                    = $SkipResource
                             SkipChildResource               = $SkipChildResource
                             SkipResourceType                = $SkipResourceType
@@ -275,6 +283,20 @@
 
                             Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
+
+                            #region Process Policies and Roles at RG scope
+                            if (-not $using:SkipPolicy -or $using:SkipRole) {
+                                & $azOps {
+                                    $scopeObject = New-AzOpsScope -Scope $resourceGroup.ResourceId -StatePath $runspaceData.Statepath -ErrorAction Stop
+                                    if (-not $using:SkipPolicy) {
+                                        Get-AzOpsPolicy -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
+                                    }
+                                    if (-not $using:SkipRole) {
+                                        Get-AzOpsRole -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
+                                    }
+                                }
+                            }
+                            #endregion Process Policies and Roles at RG scope
 
                             if (-not $using:SkipResource) {
                                 Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
@@ -420,6 +442,8 @@
                 ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             }
         }
+
+
         #endregion Utility Functions
     }
 
@@ -443,7 +467,7 @@
         switch ($scopeObject.Type) {
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
             resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -OdataFilter $odataFilter }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -ODataFilter $odataFilter }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
@@ -454,39 +478,13 @@
 
         #region Process Policies
         if (-not $SkipPolicy) {
-            # Process policy definitions
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
-            $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $scopeObject
-            $policyDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-
-            # Process policyset definitions (initiatives))
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $scopeObject.Scope
-            $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $scopeObject
-            $policySetDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-
-            # Process policy assignments
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $scopeObject.Scope
-            $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $scopeObject
-            $policyAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-
-            # Process policy exemptions
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Exemptions', $scopeObject.Scope
-            $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
-            $policyExemptions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+            Get-AzOpsPolicy -ScopeObject $scopeObject -StatePath $StatePath
         }
         #endregion Process Policies
 
         #region Process Roles
         if (-not $SkipRole) {
-            # Process role definitions
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $scopeObject.Scope
-            $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $scopeObject
-            $roleDefinitions | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-
-            # Process role assignments
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $scopeObject.Scope
-            $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $scopeObject
-            $roleAssignments | ConvertTo-AzOpsState -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
+            Get-AzOpsRole -ScopeObject $scopeObject -StatePath $StatePath
         }
         #endregion Process Roles
 
