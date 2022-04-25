@@ -109,10 +109,10 @@ if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
     try {
         $functionalTestsScript = (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")
-        & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
+        $functionalTestDeploymentOutput = & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
     }
     catch {
-        Write-PSFMessage -Level Critical -Message "Functional tests initialization failed" -Exception $_.Exception
+        Write-PSFMessage -Level Critical -Message "Functional tests initialize failed" -Exception $_.Exception
         throw
     }
     foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" -Recurse | Where-Object Name -eq "scenario.ps1")) {
@@ -120,7 +120,12 @@ if ($TestFunctional) {
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        $container = New-PesterContainer -Path $file.FullName -Data @{
+            functionalTestFilePaths = $functionalTestDeploymentOutput.functionalTestFilePaths;
+            functionalTestDeploy = $functionalTestDeploymentOutput.functionalTestDeploy
+        }
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName)-$(Get-Random -Maximum 500).xml"
+        $config.Run.Container = $container
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output

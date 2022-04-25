@@ -8,6 +8,7 @@
 if ($setupEnvironment) {
     Write-PSFMessage -Level Verbose -Message "Initializing functional test environment" -FunctionName "BeforeAll"
     Set-PSFConfig -FullName AzOps.Core.DefaultDeploymentRegion -Value "northeurope"
+
     #
     # Set the error preference
     #
@@ -76,7 +77,7 @@ if ($setupEnvironment) {
         $script:scriptPath = (Resolve-Path "$global:testroot/../../scripts").Path
         . (Join-Path -Path $script:scriptPath -ChildPath New-AzOpsTestsDeploymentHelper.ps1)
         Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test objects" -FunctionName "BeforeAll"
-        $script:testObjects.VersionInfo.FileName | ForEach-Object {
+        $script:functionalTestDeploy = $script:testObjects.VersionInfo.FileName | ForEach-Object {
             & $_
         }
         Start-Sleep -s 30
@@ -118,7 +119,14 @@ if ($setupEnvironment) {
         throw
     }
     # Collect Pulled Files
-    $global:functionalTestFilePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
+    $script:functionalTestFilePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
+    
+    # Return Output
+    $script:return = [pscustomobject]@{
+        functionalTestDeploy    = $script:functionalTestDeploy
+        functionalTestFilePaths = $script:functionalTestFilePaths
+    }
+    return $script:return
 }
 #endregion setupEnvironment
 

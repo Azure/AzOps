@@ -41,7 +41,7 @@
     )
 
     process {
-        if (! $global:testroot) {
+        if (-not $global:testroot) {
             Write-PSFMessage -Level Critical -Message "Missing global:testroot"
             throw
         }
@@ -55,14 +55,14 @@
         }
         if ($DeployTemplateFileName) {
             $script:templateFile = Join-Path -Path $global:testroot -ChildPath "functional/$script:resourceProvider/$script:resourceType/deploy/$DeployTemplateFileName"
-            if (!(Test-Path $script:templateFile)) {
+            if (-not (Test-Path $script:templateFile)) {
                 Write-PSFMessage -Level Critical -Message "Test of path $script:templateFile failed"
                 throw
             }
         }
         if ($DeployTemplateParameterFileName) {
             $script:templateParametersFile = Join-Path -Path $global:testroot -ChildPath "functional/$script:resourceProvider/$script:resourceType/deploy/$DeployTemplateParameterFileName"
-            if (!(Test-Path $script:templateParametersFile)) {
+            if (-not (Test-Path $script:templateParametersFile)) {
                 Write-PSFMessage -Level Critical -Message "Test of path $script:templateParametersFile failed"
                 throw
             }
@@ -79,7 +79,11 @@
                     else {
                         $script:functionalTestDeploy = New-AzResourceGroupDeployment -Name ($script:resourceType + 'testdeploy') -ResourceGroupName $script:resourceGroupName -TemplateFile $script:templateFile -Confirm:$false -Force
                     }
-                    New-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Value $script:functionalTestDeploy -Scope Global -Force
+                    $script:return = [pscustomobject]@{
+                        functionalTestDeploy    = $script:functionalTestDeploy
+                        functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
+                    }
+                    return $script:return
                     Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType completed at $Scope scope."
                 }
                 catch {
@@ -96,7 +100,11 @@
                     else {
                         $script:functionalTestDeploy = New-AzSubscriptionDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location -Confirm:$false
                     }
-                    New-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Value $script:functionalTestDeploy -Scope Global -Force
+                    $script:return = [pscustomobject]@{
+                        functionalTestDeploy    = $script:functionalTestDeploy
+                        functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
+                    }
+                    return $script:return
                     Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType completed at $Scope scope."
                 }
                 catch {
@@ -113,7 +121,11 @@
                     else {
                         $script:functionalTestDeploy = New-AzTenantDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location
                     }
-                    New-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Value $script:functionalTestDeploy -Scope Global -Force
+                    $script:return = [pscustomobject]@{
+                        functionalTestDeploy    = $script:functionalTestDeploy
+                        functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
+                    }
+                    return $script:return
                     Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType completed at $Scope scope."
                 }
                 catch {
