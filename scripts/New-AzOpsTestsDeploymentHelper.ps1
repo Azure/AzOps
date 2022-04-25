@@ -79,7 +79,7 @@
                     else {
                         $script:functionalTestDeploy = New-AzResourceGroupDeployment -Name ($script:resourceType + 'testdeploy') -ResourceGroupName $script:resourceGroupName -TemplateFile $script:templateFile -Confirm:$false -Force
                     }
-                    $script:return = [pscustomobject]@{
+                    $script:return = [PSCustomObject]@{
                         functionalTestDeploy    = $script:functionalTestDeploy
                         functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
                     }
@@ -100,7 +100,7 @@
                     else {
                         $script:functionalTestDeploy = New-AzSubscriptionDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location -Confirm:$false
                     }
-                    $script:return = [pscustomobject]@{
+                    $script:return = [PSCustomObject]@{
                         functionalTestDeploy    = $script:functionalTestDeploy
                         functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
                     }
@@ -121,7 +121,7 @@
                     else {
                         $script:functionalTestDeploy = New-AzTenantDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location
                     }
-                    $script:return = [pscustomobject]@{
+                    $script:return = [PSCustomObject]@{
                         functionalTestDeploy    = $script:functionalTestDeploy
                         functionalTestDeployJob = (($script:resourceType) + 'FunctionalTestDeploy')
                     }

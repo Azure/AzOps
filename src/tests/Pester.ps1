@@ -59,7 +59,7 @@ if ($TestGeneral) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -90,7 +90,7 @@ if ($TestFunctions) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -134,7 +134,7 @@ if ($TestFunctional) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     ExpandedPath   = $_.Expandedpath
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
@@ -171,7 +171,7 @@ if ($TestIntegration) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result

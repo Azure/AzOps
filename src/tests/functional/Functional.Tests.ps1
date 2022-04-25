@@ -120,9 +120,9 @@ if ($setupEnvironment) {
     }
     # Collect Pulled Files
     $script:functionalTestFilePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
-    
+
     # Return Output
-    $script:return = [pscustomobject]@{
+    $script:return = [PSCustomObject]@{
         functionalTestDeploy    = $script:functionalTestDeploy
         functionalTestFilePaths = $script:functionalTestFilePaths
     }
