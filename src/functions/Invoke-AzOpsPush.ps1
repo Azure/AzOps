@@ -236,7 +236,7 @@
             }
 
             # Handle Bicep templates
-            if ($addition.EndsWith(".bicep")) { 
+            if ($addition.EndsWith(".bicep")) {
                 Assert-AzOpsBicepDependency -Cmdlet $PSCmdlet
                 $transpiledTemplatePath = $addition -replace '\.bicep', '.json'
                 Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
