@@ -71,7 +71,6 @@ jobs:
 
       # Run Functional Tests
       - name: "Run Functional Tests"
-        if: always()
         shell: pwsh
         run: |
           ./src/tests/Pester.ps1 -TestFunctional $true

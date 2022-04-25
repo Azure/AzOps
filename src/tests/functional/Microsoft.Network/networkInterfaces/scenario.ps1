@@ -6,8 +6,7 @@
         $script:functionalTestDeploy = Get-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Scope Global
 
         #region Paths
-        $script:filetype = (Resolve-Path "$PSScriptRoot/..").Path.Split('/')[-1]
-        $script:path = ($filePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.value.parameters.nic0_name.value).toLower()).json")
+        $script:path = ($global:functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.value.parameters.nic0_name.value).toLower()).json")
         $script:directory = ($script:path).Directory
         $script:file = ($script:path).FullName
         $script:fileContents = Get-Content -Path $script:file -Raw | ConvertFrom-Json -Depth 25

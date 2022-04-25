@@ -68,7 +68,7 @@ Describe "Repository" {
             }
         }
         else {
-            Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
+            $null = Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
         }
 
         #

@@ -15,7 +15,7 @@
     $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1")
 )
 
-Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 9
+Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 3
 
 Write-PSFMessage -Level Important -Message "Starting Tests"
 
@@ -107,12 +107,20 @@ $global:__pester_data.ScriptAnalyzer | Out-Host
 #region Run Functional Tests
 if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")) {
+    try {
+        $functionalTestsScript = (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")
+        & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
+    }
+    catch {
+        Write-PSFMessage -Level Critical -Message "Functional tests initialization failed" -Exception $_.Exception
+        throw
+    }
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" -Recurse | Where-Object Name -eq "scenario.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName)-$(Get-Random -Maximum 500).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -122,6 +130,7 @@ if ($TestFunctional) {
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
                 $testresults += [pscustomobject]@{
+                    ExpandedPath   = $_.Expandedpath
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -130,10 +139,15 @@ if ($TestFunctional) {
             }
         }
     }
+    try {
+        & $functionalTestsScript.VersionInfo.FileName -cleanupEnvironment $true
+    }
+    catch {
+        Write-PSFMessage -Level Critical -Message "Functional tests cleanup failed" -Exception $_.Exception
+        throw
+    }
 }
 #endregion Run Functional Tests
-
-$global:__pester_data.ScriptAnalyzer | Out-Host
 
 #region Run Integration Tests
 if ($TestIntegration) {

@@ -31,6 +31,7 @@ Illustration below:
 
 ```bash
 tests
+├── Pester.ps1
 └── functional
     ├── resource.provider1
     │   ├── resourcetypeA
@@ -60,16 +61,12 @@ tests
 
 ### How are tests invoked
 
-`Functional.Tests.ps1` is responsible for orchestrating functional tests *(The overall test orchestration caller is `Pester.ps1`)*.
-   1. `BeforeAll` section prepares the conditions for success and connects to Azure.
-   2. Looks for all `deploy.ps1` files in the `functional/*` hierarchy.
-   3. Runs all `deploy.ps1` files.
-   4. Pulls back resources from Azure by running `Invoke-AzOpsPull.ps1`
-   5. Initiates test section by looking for the existence of a root folder produced by previous step.
-   6. Looks for all `scenario.ps1` files in the `functional/*` hierarchy.
-   7. Runs all `scenario.ps1` files.
-   8. Initiates `AfterAll` section.
-   9. Done.
+`Functional.Tests.ps1` is responsible for preparing and cleaning up the environment for functional tests *(The overall test orchestration caller is `Pester.ps1` the tests reside in `scenario.ps1` files)*.
+   1. `Functional.Tests.ps1 -setupEnvironment $true` prepares the conditions for success and connects to Azure. Initiates tests by executing all `deploy.ps1` files in the `functional/*` hierarchy.
+   2. Pulls back resources from Azure by running `Invoke-AzOpsPull.ps1`
+   3. `Pester.ps1` Initiates tests by executing all `scenario.ps1` files in the `functional/*` hierarchy.
+   4. `Functional.Tests.ps1 -cleanupEnvironment $true` clean-up the environment from functional tests.
+   5. Done.
 
 ---
 
