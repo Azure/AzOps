@@ -26,6 +26,10 @@
         Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsWindowsLongPath.Validating'
         $hasRegKey = 1 -eq (Get-ItemPropertyValue -Path HKLM:SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled)
         $hasGitConfig = (Invoke-AzOpsNativeCommand -ScriptBlock { git config --system -l } -IgnoreExitcode | Select-String 'core.longpaths=true') -as [bool]
+        if (-not $hasGitConfig) {
+            # Check global git config if setting not found in system settings
+            $hasGitConfig = (Invoke-AzOpsNativeCommand -ScriptBlock { git config --global -l } -IgnoreExitcode | Select-String 'core.longpaths=true') -as [bool]
+        }
 
         if ($hasGitConfig -and $hasRegKey) {
             return
@@ -37,7 +41,7 @@
             Write-PSFMessage -Level Warning -String 'Assert-AzOpsWindowsLongPath.No.GitCfg'
         }
 
-        $exception = [System.InvalidOperationException]::new('Windows not configured for long paths. Please follow instructions for "Enabling long paths on Windows" on https://aka.ms/es/quickstart.')
+        $exception = [System.InvalidOperationException]::new('Windows not configured for long paths. Please follow instructions for "Enabling long paths on Windows" on https://github.com/azure/azops/wiki/troubleshooting#windows.')
         $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
         Write-PSFMessage -Level Warning -String 'Assert-AzOpsWindowsLongPath.Failed' -Tag error
         $Cmdlet.ThrowTerminatingError($errorRecord)
