@@ -114,7 +114,7 @@
             $PartialMgDiscovery = $true
             $managementGroups = @()
             foreach ($managementRoot in $PartialMgDiscoveryRoot) {
-                $managementGroups += [pscustomobject]@{ Name = $managementRoot }
+                $managementGroups += [PSCustomObject]@{ Name = $managementRoot }
                 $script:AzOpsPartialRoot += Get-AzManagementGroup -GroupId $managementRoot -Recurse -Expand -WarningAction SilentlyContinue
             }
         }
