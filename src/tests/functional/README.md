@@ -60,16 +60,12 @@ tests
 
 ### How are tests invoked
 
-`Functional.Tests.ps1` is responsible for orchestrating functional tests *(The overall test orchestration caller is `Pester.ps1`)*.
-   1. `BeforeAll` section prepares the conditions for success and connects to Azure.
-   2. Looks for all `deploy.ps1` files in the `functional/*` hierarchy.
-   3. Runs all `deploy.ps1` files.
-   4. Pulls back resources from Azure by running `Invoke-AzOpsPull.ps1`
-   5. Initiates test section by looking for the existence of a root folder produced by previous step.
-   6. Looks for all `scenario.ps1` files in the `functional/*` hierarchy.
-   7. Runs all `scenario.ps1` files.
-   8. Initiates `AfterAll` section.
-   9. Done.
+`Functional.Tests.ps1` is responsible for preparing and cleaning up the environment for functional tests *(The overall test orchestration caller is `Pester.ps1` and the actual tests reside in `scenario.ps1` files)*.
+   1. `Functional.Tests.ps1 -setupEnvironment $true` prepares the conditions for success and connects to Azure. Initiates tests by executing all `deploy.ps1` files in the `functional/*` hierarchy.
+   2. Pulls back resources from Azure by running `Invoke-AzOpsPull.ps1`
+   3. `Pester.ps1` Initiates tests by executing all `scenario.ps1` files in the `functional/*` hierarchy.
+   4. `Functional.Tests.ps1 -cleanupEnvironment $true` clean-up the environment from functional tests.
+   5. Done.
 
 ---
 
@@ -86,7 +82,7 @@ Steps:
 7. Update the `deploy.ps1` file to ensure it reflects your intended setup and associated template files.
 8. Update the `scenario.ps1` file to ensure it reflects your intended test.
    1. First row `Describe "Scenario - <replaceMe>" {`
-   2. Region path parameter `$script:functionalTestDeploy.value.parameters.<replaceMe>.value` to successfully identify the file created by `Invoke-AzOpsPull.ps1` as a result of this resource-type test.
+   2. Region path parameter `$script:functionalTestDeploy.parameters.<replaceMe>.value` to successfully identify the file created by `Invoke-AzOpsPull.ps1` as a result of this resource-type test.
    3. For all resources the test runs `Pull` and `Push` consider if `Delete` is required.
    4. Determine modifications required at `#region Pull Test` section to examine specific properties `$script:fileContents.resources[0].properties.<replaceMe>` to uniquely identify some resource-type property.
 9. Done

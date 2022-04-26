@@ -15,7 +15,7 @@
     $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1")
 )
 
-Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 9
+Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 3
 
 Write-PSFMessage -Level Important -Message "Starting Tests"
 
@@ -59,7 +59,7 @@ if ($TestGeneral) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -90,7 +90,7 @@ if ($TestFunctions) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -107,12 +107,25 @@ $global:__pester_data.ScriptAnalyzer | Out-Host
 #region Run Functional Tests
 if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
-    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")) {
+    try {
+        $functionalTestsScript = (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")
+        $functionalTestDeploymentOutput = & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
+    }
+    catch {
+        Write-PSFMessage -Level Critical -Message "Functional tests initialize failed" -Exception $_.Exception
+        throw
+    }
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" -Recurse | Where-Object Name -eq "scenario.ps1")) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
         Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
-        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $container = New-PesterContainer -Path $file.FullName -Data @{
+            functionalTestFilePaths = $functionalTestDeploymentOutput.functionalTestFilePaths;
+            functionalTestDeploy = $functionalTestDeploymentOutput.functionalTestDeploy
+        }
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName)-$(Get-Random -Maximum 500).xml"
+        $config.Run.Container = $container
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
         $config.Output.Verbosity = $Output
@@ -121,7 +134,8 @@ if ($TestFunctional) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
+                    ExpandedPath   = $_.Expandedpath
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
@@ -130,10 +144,15 @@ if ($TestFunctional) {
             }
         }
     }
+    try {
+        & $functionalTestsScript.VersionInfo.FileName -cleanupEnvironment $true
+    }
+    catch {
+        Write-PSFMessage -Level Critical -Message "Functional tests cleanup failed" -Exception $_.Exception
+        throw
+    }
 }
 #endregion Run Functional Tests
-
-$global:__pester_data.ScriptAnalyzer | Out-Host
 
 #region Run Integration Tests
 if ($TestIntegration) {
@@ -152,7 +171,7 @@ if ($TestIntegration) {
             $totalRun += $result.TotalCount
             $totalFailed += $result.FailedCount
             $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
-                $testresults += [pscustomobject]@{
+                $testresults += [PSCustomObject]@{
                     Block   = $_.Block
                     Name    = "It $($_.Name)"
                     Result  = $_.Result
