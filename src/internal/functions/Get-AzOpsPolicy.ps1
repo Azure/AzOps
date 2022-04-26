@@ -11,7 +11,7 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AzOpsScope]
+        [Object]
         $ScopeObject,
         [Parameter(Mandatory = $true)]
         $StatePath

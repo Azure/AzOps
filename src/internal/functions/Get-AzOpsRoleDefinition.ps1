@@ -16,7 +16,7 @@
     [CmdletBinding()]
     param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AzOpsScope]
+        [Object]
         $ScopeObject
     )
 
@@ -28,7 +28,7 @@
                 [AzOpsRoleDefinition]::new($roleDefinition)
             }
             else {
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsRoleDefinition.NonAuthorative' -StringValues $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsRoleDefinition.NonAuthorative' -StringValues $roledefinition, Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0] -Target $ScopeObject
             }
         }
     }

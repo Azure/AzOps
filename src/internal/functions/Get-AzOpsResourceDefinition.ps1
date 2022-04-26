@@ -287,12 +287,12 @@
                             #region Process Policies and Roles at RG scope
                             if (-not $using:SkipPolicy -or $using:SkipRole) {
                                 & $azOps {
-                                    $scopeObject = New-AzOpsScope -Scope $resourceGroup.ResourceId -StatePath $runspaceData.Statepath -ErrorAction Stop
+                                    $rgScopeObject = New-AzOpsScope -Scope $resourceGroup.ResourceId -StatePath $runspaceData.Statepath -ErrorAction Stop
                                     if (-not $using:SkipPolicy) {
-                                        Get-AzOpsPolicy -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
+                                        Get-AzOpsPolicy -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
                                     }
                                     if (-not $using:SkipRole) {
-                                        Get-AzOpsRole -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
+                                        Get-AzOpsRole -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
                                     }
                                 }
                             }
