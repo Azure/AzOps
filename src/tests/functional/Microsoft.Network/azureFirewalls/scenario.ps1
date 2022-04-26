@@ -1,12 +1,21 @@
-﻿Describe "Scenario - azureFirewalls" {
+﻿param (
+    [Parameter(Mandatory = $true)]
+    [array]
+    $functionalTestFilePaths,
+    [Parameter(Mandatory = $true)]
+    [array]
+    $functionalTestDeploy
+)
+
+Describe "Scenario - azureFirewalls" {
 
     BeforeAll {
         $script:resourceProvider = (Resolve-Path $PSScriptRoot).Path.Split('/')[-2]
         $script:resourceType = (Resolve-Path $PSScriptRoot).Path.Split('/')[-1]
-        $script:functionalTestDeploy = Get-Variable -Name (($script:resourceType) + 'FunctionalTestDeploy') -Scope Global
+        $script:functionalTestDeploy = ($functionalTestDeploy | Where-Object {$_.functionalTestDeployJob -eq (($script:resourceType) + 'FunctionalTestDeploy')}).functionalTestDeploy
 
         #region Paths
-        $script:path = ($filePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.value.parameters.azureFirewallName.value).toLower()).json")
+        $script:path = ($functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.parameters.azureFirewallName.value).toLower()).json")
         $script:directory = ($script:path).Directory
         $script:file = ($script:path).FullName
         $script:fileContents = Get-Content -Path $script:file -Raw | ConvertFrom-Json -Depth 25
@@ -52,7 +61,7 @@
             $script:fileContents.resources[0].type | Should -Be "$script:resourceProvider/$script:resourceType"
         }
         It "Deployment should be successful" {
-            $script:functionalTestDeploy.Value.ProvisioningState | Should -Be "Succeeded"
+            $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
         It "Resource properties sku should exist" {
             $script:fileContents.resources[0].properties.sku | Should -BeTrue
