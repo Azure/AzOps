@@ -16,7 +16,7 @@
     [CmdletBinding()]
     param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [AzOpsScope]
+        [Object]
         $ScopeObject
     )
 
