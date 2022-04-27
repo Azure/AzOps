@@ -442,8 +442,6 @@
                 ConvertTo-AzOpsState -Resource ($script:AzOpsAzManagementGroup | Where-Object Name -eq $ScopeObject.ManagementGroup) -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
             }
         }
-
-
         #endregion Utility Functions
     }
 

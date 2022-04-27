@@ -22,7 +22,7 @@
         $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $ScopeObject
         $policyDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
 
-        # Process policyset definitions (initiatives))
+        # Process policyset definitions (initiatives)
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $ScopeObject.Scope
         $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $ScopeObject
         $policySetDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
