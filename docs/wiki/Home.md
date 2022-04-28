@@ -1,4 +1,6 @@
-Welcome to the AzOps Wiki. These pages are used as the core documentation for the project.
+# Welcome to the AzOps Wiki
+
+These pages are used as the core documentation for the project.
 
 Please refer to the sidebar (on the right) for details on the Getting Started, Additional Documentation and Contributing Guides.
 
