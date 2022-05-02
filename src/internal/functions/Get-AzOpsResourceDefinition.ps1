@@ -190,7 +190,7 @@
                     } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
                 }
                 else {
-                    foreach ($ResourceType in  $IncludeResourceType) {
+                    foreach ($ResourceType in $IncludeResourceType) {
                         Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Resources' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName
                         Get-AzResource -ResourceType $ResourceType @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
                             New-AzOpsScope -Scope $_.ResourceId
