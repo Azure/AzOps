@@ -183,7 +183,7 @@
                     ODataQuery        = $OdataFilter
                     ExpandProperties  = $true
                 }
-                if($IncludeResourceType -eq "*") {
+                if ($IncludeResourceType -eq "*") {
                     Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Resources' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName
                     Get-AzResource @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
                         New-AzOpsScope -Scope $_.ResourceId
