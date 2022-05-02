@@ -1,3 +1,5 @@
+# AzOps Settings
+
 The following configuration values can be modified within the `settings.json` file to change the default behavior of AzOps.
 
 | ID  | Name                                 | Description                                                                                                                                                                           | Example                                                                                         |
