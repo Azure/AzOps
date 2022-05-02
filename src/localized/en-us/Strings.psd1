@@ -114,7 +114,7 @@
     'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed Resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.Subscription.OdataFilter'                          = 'Setting Odatafilter: {0}' # $odataFilter
     'Get-AzOpsResourceDefinition.Subscription.Processing'                           = 'Processing Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG'      = 'Resources in resourcegroup [{0}] is skipped due to IncludeResourcesInResourceGroup' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG'      = 'Resources in Resource Group [{0}] is skipped due to IncludeResourcesInResourceGroup' # $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
