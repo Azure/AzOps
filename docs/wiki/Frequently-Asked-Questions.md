@@ -64,6 +64,7 @@ Can AzOps settings be configured to enable this?
 
 Yes, ensure the following setting combinations are applied (replace `SubscriptionId` with your specific information)
 
+```bash
     "Core.IncludeResourcesInResourceGroup": ["*"]
 
     "Core.IncludeResourceType": ["*"]
@@ -73,6 +74,7 @@ Yes, ensure the following setting combinations are applied (replace `Subscriptio
     "Core.SkipResourceGroup": false
 
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
 
 ### **I want to discover all resources in specific resource groups in one specific subscription**
 
@@ -80,6 +82,7 @@ Can AzOps settings be configured to enable this?
 
 Yes, ensure the following setting combinations are applied (replace `rgname1`, `rgname2`, `rgname3` and `SubscriptionId` with your specific information)
 
+```bash
     "Core.IncludeResourcesInResourceGroup": ["rgname1","rgname2","rgname3"]
 
     "Core.IncludeResourceType": ["*"]
@@ -89,6 +92,7 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
     "Core.SkipResourceGroup": false
 
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
 
 ### **I want to discover a specific resource type in specific resource group in one specific subscription**
 
@@ -96,6 +100,7 @@ Can AzOps settings be configured to enable this?
 
 Yes, ensure the following setting combinations are applied (replace `rgname1`, `resource-provider/resource-type` and `SubscriptionId` with your specific information)
 
+```bash
     "Core.IncludeResourcesInResourceGroup": ["rgname1"]
 
     "Core.IncludeResourceType": ["resource-provider/resource-type"]
@@ -105,6 +110,7 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
     "Core.SkipResourceGroup": false
 
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
 
 ### **I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**
 
@@ -112,6 +118,7 @@ Can AzOps settings be configured to enable this?
 
 Yes, ensure the following setting combinations are applied (replace `rgname1`, `rgname2`, `Microsoft.Network/firewallPolicies` and `SubscriptionId1`, `SubscriptionId2` with your specific information)
 
+```bash
     "Core.IncludeResourcesInResourceGroup": ["rgname1","rgname2"]
 
     "Core.IncludeResourceType": ["Microsoft.Network/firewallPolicies"]
@@ -123,3 +130,4 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
     "Core.SkipResourceGroup": false
 
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId1","SubscriptionId2"]
+```
