@@ -279,8 +279,8 @@
         }
         $WhatIfPreference = $WhatIfPreferenceState
 
-        #If addModifySet exists and no deploymentList has been generated, exit with terminating error
-        if ($addModifySet -and -not $deploymentList) {
+        #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
+        if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory)) {
             Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
             exit 1
         }
