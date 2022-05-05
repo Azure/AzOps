@@ -31,6 +31,7 @@ Illustration below:
 
 ```bash
 tests
+├── Pester.ps1
 └── functional
     ├── resource.provider1
     │   ├── resourcetypeA
