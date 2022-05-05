@@ -4,9 +4,16 @@ This article answers frequently asked questions relating to AzOps.
 
 ## In this Section
 
-- [Subscriptions or resources not showing up in repository](#subscriptions-or-resources-not-showing-up-in-repository)
-- [Push fail with deployment already exists in location error](#push-fail-with-deployment-already-exists-in-location-error)
-- [Pull fail with active pull request already exists error](#pull-fail-with-active-pull-request-already-exists-error)
+- [AzOps FAQ](#azops-faq)
+  - [In this Section](#in-this-section)
+  - [Subscriptions or resources not showing up in repository](#subscriptions-or-resources-not-showing-up-in-repository)
+  - [Push fail with deployment already exists in location error](#push-fail-with-deployment-already-exists-in-location-error)
+  - [Pull fail with active pull request already exists error](#pull-fail-with-active-pull-request-already-exists-error)
+  - [Discovery scenarios and settings](#discovery-scenarios-and-settings)
+    - [**I want to discover all resources across all resource groups in one specific subscription**](#i-want-to-discover-all-resources-across-all-resource-groups-in-one-specific-subscription)
+    - [**I want to discover all resources in specific resource groups in one specific subscription**](#i-want-to-discover-all-resources-in-specific-resource-groups-in-one-specific-subscription)
+    - [**I want to discover a specific resource type in specific resource group in one specific subscription**](#i-want-to-discover-a-specific-resource-type-in-specific-resource-group-in-one-specific-subscription)
+    - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
 
 ## Subscriptions or resources not showing up in repository
 
@@ -48,3 +55,79 @@ This happens because it is not supported in Azure DevOps to create a pull reques
 To resolve the error, [complete or abandon the existing pull request (PR)](https://docs.microsoft.com/en-us/azure/devops/repos/git/complete-pull-requests?view=azure-devops&tabs=browser) first and then rerun the pipeline.
 
 ![PR](./Media/FAQ/pr.png)
+
+## Discovery scenarios and settings
+
+### **I want to discover all resources across all resource groups in one specific subscription**
+
+Can AzOps settings be configured to enable this?
+
+Yes, ensure the following setting combinations are applied (replace `SubscriptionId` with your specific information)
+
+```bash
+    "Core.IncludeResourcesInResourceGroup": ["*"]
+
+    "Core.IncludeResourceType": ["*"]
+
+    "Core.SkipResource": false
+
+    "Core.SkipResourceGroup": false
+
+    "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
+
+### **I want to discover all resources in specific resource groups in one specific subscription**
+
+Can AzOps settings be configured to enable this?
+
+Yes, ensure the following setting combinations are applied (replace `rgname1`, `rgname2`, `rgname3` and `SubscriptionId` with your specific information)
+
+```bash
+    "Core.IncludeResourcesInResourceGroup": ["rgname1","rgname2","rgname3"]
+
+    "Core.IncludeResourceType": ["*"]
+
+    "Core.SkipResource": false
+
+    "Core.SkipResourceGroup": false
+
+    "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
+
+### **I want to discover a specific resource type in specific resource group in one specific subscription**
+
+Can AzOps settings be configured to enable this?
+
+Yes, ensure the following setting combinations are applied (replace `rgname1`, `resource-provider/resource-type` and `SubscriptionId` with your specific information)
+
+```bash
+    "Core.IncludeResourcesInResourceGroup": ["rgname1"]
+
+    "Core.IncludeResourceType": ["resource-provider/resource-type"]
+
+    "Core.SkipResource": false
+
+    "Core.SkipResourceGroup": false
+
+    "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId"]
+```
+
+### **I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**
+
+Can AzOps settings be configured to enable this?
+
+Yes, ensure the following setting combinations are applied (replace `rgname1`, `rgname2`, `Microsoft.Network/firewallPolicies` and `SubscriptionId1`, `SubscriptionId2` with your specific information)
+
+```bash
+    "Core.IncludeResourcesInResourceGroup": ["rgname1","rgname2"]
+
+    "Core.IncludeResourceType": ["Microsoft.Network/firewallPolicies"]
+
+    "Core.SkipResource": false
+
+    "Core.SkipChildResource": false
+
+    "Core.SkipResourceGroup": false
+
+    "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId1","SubscriptionId2"]
+```

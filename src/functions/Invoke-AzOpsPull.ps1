@@ -5,6 +5,12 @@
             Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
         .DESCRIPTION
             Setup a repository for the AzOps workflow, based off templates and an existing Azure deployment.
+        .PARAMETER IncludeResourcesInResourceGroup
+            Discover only resources in these resource groups.
+        .PARAMETER IncludeResourceType
+            Discover only specific resource types.
+        .PARAMETER SkipChildResource
+            Skip childResource discovery.
         .PARAMETER SkipPolicy
             Skip discovery of policies for better performance.
         .PARAMETER SkipRole
@@ -34,20 +40,29 @@
     [CmdletBinding()]
     [Alias("Initialize-AzOpsRepository")]
     param (
+        [string[]]
+        $IncludeResourcesInResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.IncludeResourcesInResourceGroup'),
+
+        [string[]]
+        $IncludeResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.IncludeResourceType'),
+
+        [switch]
+        $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
+
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
-
-        [switch]
-        $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
-
-        [switch]
-        $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
 
         [switch]
         $SkipResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResource'),
 
         [switch]
-        $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
+        $SkipResourceGroup = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceGroup'),
+
+        [string[]]
+        $SkipResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceType'),
+
+        [switch]
+        $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
 
         [switch]
         $InvalidateCache = (Get-PSFConfigValue -FullName 'AzOps.Core.InvalidateCache'),
@@ -88,6 +103,12 @@
 
         if ($false -eq $SkipChildResource -or $false -eq $SkipResource -and $true -eq $SkipResourceGroup) {
             Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed' -StringValues "`n"
+        }
+
+        $resourceTypeDiff = Compare-Object -ReferenceObject $SkipResourceType -DifferenceObject $IncludeResourceType -ExcludeDifferent
+        if ($resourceTypeDiff) {
+            Write-PSFMessage -Level Warning -Message "SkipResourceType setting conflict found in IncludeResourceType, ignoring $($resourceTypeDiff.InputObject) from IncludeResourceType. To avoid this remove $($resourceTypeDiff.InputObject) from IncludeResourceType or SkipResourceType"
+            $IncludeResourceType = $IncludeResourceType | Where-Object {$_ -notin $resourceTypeDiff.InputObject}
         }
 
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
@@ -139,14 +160,14 @@
                 Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
                 # Discover Resource at scope recursively
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $root @parameters
             }
         }
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
 
