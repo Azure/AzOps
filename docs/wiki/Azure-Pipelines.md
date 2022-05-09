@@ -84,6 +84,7 @@ if ($null -eq $Repo) {
 }
 az repos import create `
     --git-url "https://github.com/Azure/AzOps-Accelerator.git" --repository "$($Repo.name)"
+$null = az repos update --repository $RepoName --default-branch 'main'
 
 # Add a variable group for authenticating pipelines with Azure Resource Manager and record the id output
 if ($ARM_CLIENT_SECRET) {
