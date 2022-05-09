@@ -234,16 +234,14 @@
     'Register-AzOpsResourceProvider.Processing'                                     = 'Processing resource provider {0} from {1}' # $ScopeObject, $FileName
     'Register-AzOpsResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
 
-    'Remove-AzOpsDeployment.Processing'                                             = 'Processing deployment {0} for template {1}' # $removeJobName, $TemplateFilePath
-    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'This is user defined template {0} . Resource Deletion is only defined for Azops Generated template' #$TemplateFilePath
+    'Remove-AzOpsDeployment.Processing'                                             = 'Processing removal {0} for template {1}' # $removeJobName, $TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'Detected custom template: {0} . Resource Deletion is currently only supported for AzOps Generated templates' #$TemplateFilePath
     'Remove-AzOpsDeployment.Metadata.Success'                                       = 'Processing AzOps Generated Template File {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
-    'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping deployment due to WhatIf' #
-    'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound'         = 'Unable to find Policy assignment with id {0} resulted in error {1}'# $policyAssignmentId,$resultsError
-    'Remove-AzOpsDeployment.RemovePolicyExemption.NoPolicyExemptionFound'           = 'Unable to find Policy exemption with id {0} resulted in error {1}'# $policyExemptionId,$resultsError
-    'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound'             = 'Unable to find Role assignment with id {0} resulted in error {1}'# $roleAssignmentId,$resultsError
-    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyExemptions or roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
+    'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}. Error: {2}'# $scopeObject.Resource, $scopeObject.scope, $resultsError
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyExemptions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
 
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
     'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
