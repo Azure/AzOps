@@ -240,7 +240,7 @@
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
-    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}. Error: {2}'# $scopeObject.Resource, $scopeObject.scope, $resultsError
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.scope, $resultsError
     'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyExemptions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
 
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #

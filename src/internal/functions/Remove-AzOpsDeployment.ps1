@@ -63,18 +63,21 @@
 
         #region remove supported resources
         if ($scopeObject.Resource -in 'policyAssignments', 'policyExemptions', 'roleAssignments') {
-            try {
-                if ($scopeObject.Resource -eq 'policyExemptions') {
-                    # Use Get-AzPolicyExcemption to verify excemption existance since Get-AzResource doesn't support preview APIs.
-                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction Stop
+            switch ($scopeObject.Resource) {
+                # Check resource existance through optimal path
+                'policyAssignments' {
+                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
                 }
-                else {
-                    $resourceToDelete = Get-AzResource -ResourceId $scopeObject.scope -ErrorAction Stop
+                'policyExemptions' {
+                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                }
+                'roleAssignments' {
+                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
                 }
             }
-            catch {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope, $_ -Target $scopeObject
-                $results = '{0}: What if Operation Failed: Deletion of target resource {1}. {2}' -f $removeJobName, $scopeObject.scope, $_
+            if (-not $resourceToDelete) {
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
+                $results = '{0}: What if Operation Failed: Deletion of target resource {1}. Resource could not be found in the platform' -f $removeJobName, $scopeObject.scope
                 Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 return
             }
