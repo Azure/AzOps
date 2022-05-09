@@ -77,7 +77,7 @@
             }
             if (-not $resourceToDelete) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
-                $results = '{0}: What if Operation Failed: Deletion of target resource {1}. Resource could not be found in the platform' -f $removeJobName, $scopeObject.scope
+                $results = '{0}: What if Operation Failed: Deletion of target resource {1}. Resource could not be found' -f $removeJobName, $scopeObject.scope
                 Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 return
             }
