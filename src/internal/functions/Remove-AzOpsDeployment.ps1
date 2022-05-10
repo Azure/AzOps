@@ -61,82 +61,37 @@
         Set-AzOpsContext -ScopeObject $scopeObject
         #endregion SetContext
 
-        #GetContext
-        $contextObjectId = (Get-AzOpsCurrentPrincipal).id
+        #region remove supported resources
+        if ($scopeObject.Resource -in 'policyAssignments', 'policyExemptions', 'roleAssignments') {
+            switch ($scopeObject.Resource) {
+                # Check resource existance through optimal path
+                'policyAssignments' {
+                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                }
+                'policyExemptions' {
+                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                }
+                'roleAssignments' {
+                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
+                }
+            }
+            if (-not $resourceToDelete) {
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
+                $results = '{0}: What if Operation Failed: Deletion of target resource {1}. Resource could not be found' -f $removeJobName, $scopeObject.scope
+                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                return
+            }
+            $results = '{0}: What if Successful: Performing the operation: Deletion of target resource {1}.' -f $removeJobName, $scopeObject.scope
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
+            Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
 
-        #region policyAssignments
-        if ($scopeObject.Resource -eq "policyAssignments") {
-            $policyAssignment = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction Continue -ErrorVariable resultsError
-            if (($resultsError -ne $null) -or (-not $policyAssignment)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemovePolicyAssignment.NoPolicyAssignmentFound' -StringValues $scopeObject.Scope, $resultsError -Target $scopeObject
-                $results = '{0}: What if Operation Failed: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $removeJobName, $scopeObject.scope
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-                return
-            }
-            else {
-                $results = '{0}: What if Successful: Performing the operation "Deleting the policy assignment..." on target {1}.' -f $removeJobName, $scopeObject.scope
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-            }
-            #remove resource
-            if ($PSCmdlet.ShouldProcess("RemovePolicyAssignment?")) {
-                Remove-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction Stop
+            if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
+                $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
             }
             else {
                 Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
-        #endregion policyAssignments
-        #region policyExemptions
-        if ($scopeObject.Resource -eq "policyExemptions") {
-            $policyExemption = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction Continue -ErrorVariable resultsError
-            if (($resultsError -ne $null) -or (-not $policyExemption)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemovePolicyExemption.NoPolicyExemptionFound' -StringValues $scopeObject.Scope, $resultsError -Target $scopeObject
-                $results = '{0}: What if Operation Failed: Performing the operation "Deleting the policy exemption..." on target {1}.' -f $removeJobName, $scopeObject.scope
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-                return
-            }
-            else {
-                $results = '{0}: What if Successful: Performing the operation "Deleting the policy exemption..." on target {1}.' -f $removeJobName, $scopeObject.scope
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-            }
-            #remove resource
-            if ($PSCmdlet.ShouldProcess("RemovePolicyExemption?")) {
-                $null = Remove-AzPolicyExemption -Id $scopeObject.scope -Force -ErrorAction Stop
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
-            }
-        }
-        #endregion policyExemptions
-        #region roleAssignments
-        if ($scopeObject.Resource -eq "roleAssignments") {
-            $scopeOfRoleAssignment = $scopeObject.scope
-            $scopeOfRoleAssignment = $scopeOfRoleAssignment.Substring(0, $scopeOfRoleAssignment.LastIndexOf('/providers'))
-            $roleAssignment = Get-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -scope $scopeOfRoleAssignment -ErrorAction Continue -ErrorVariable roleAssignmentError -WarningAction SilentlyContinue
-            if (($roleAssignmentError -ne $null) -or (-not $roleAssignment)) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.RemoveRoleAssignment.NoRoleAssignmentFound' -StringValues $scopeObject.Scope, $resultsError -Target $scopeObject
-                $results = '{0}: What if Failed: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $removeJobName, $templateContent.resources[0].properties.PrincipalId, $roleAssignment.Scope, $templateContent.resources[0].properties.RoleDefinitionName
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-                return
-            }
-            else {
-                $results = '{0}: What if Successful: Performing the operation Removing role assignment for AD object {1} on scope {2} with role definition {3} on target {1}' -f $removeJobName, $templateContent.resources[0].properties.PrincipalId, $roleAssignment.Scope, $templateContent.resources[0].properties.RoleDefinitionName
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
-            }
-            #Remove of Resource
-            if ($PSCmdlet.ShouldProcess("RemoveRoleAssignment?")) {
-                Remove-AzRoleAssignment -ObjectId $templateContent.resources[0].properties.PrincipalId -RoleDefinitionName $templateContent.resources[0].properties.RoleDefinitionName -Scope $roleAssignment.Scope -ErrorAction Stop
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
-            }
-        }
-        #endregion roleassignments
     }
 }
