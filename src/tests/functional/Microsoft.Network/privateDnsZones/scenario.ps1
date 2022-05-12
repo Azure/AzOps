@@ -15,7 +15,7 @@ Describe "Scenario - privateDnsZones" {
         $script:functionalTestDeploy = ($functionalTestDeploy | Where-Object {$_.functionalTestDeployJob -eq (($script:resourceType) + 'FunctionalTestDeploy')}).functionalTestDeploy
 
         #region Paths
-        $script:path = ($functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.parameters.azureFirewallName.value).toLower()).json")
+        $script:path = ($functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.parameters.privateDnsZoneName.value).toLower()).json")
         $script:directory = ($script:path).Directory
         $script:file = ($script:path).FullName
         $script:fileContents = Get-Content -Path $script:file -Raw | ConvertFrom-Json -Depth 25
@@ -62,12 +62,6 @@ Describe "Scenario - privateDnsZones" {
         }
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
-        }
-        It "Resource properties sku should exist" {
-            $script:fileContents.resources[0].properties.sku | Should -BeTrue
-        }
-        It "Resource properties ipConfigurations should exist" {
-            $script:fileContents.resources[0].properties.ipConfigurations | Should -BeTrue
         }
         #endregion Pull Test
 
