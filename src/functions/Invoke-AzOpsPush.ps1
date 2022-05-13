@@ -175,7 +175,7 @@
                 $deleteSet += $filename
                 continue
             }
-            if ($operation -in 'A', 'M', 'R' -or $operation -match '^R0[0-9][0-9]$') { $filename }
+            if ($operation -in 'A', 'M') { $filename }
             elseif ($operation -match '^R[0-9][0-9][0-9]$') {
                 $operation, $oldFileLocation, $newFileLocation = ($change -split "`t")[0, 1, 2]
                 if(-not ((Split-Path -Path $oldFileLocation) -eq (Split-Path -Path $newFileLocation))){
