@@ -72,13 +72,18 @@ If you don't see the subscription you're looking for, select global subscription
 
     > Note: If this SPN is require to be used for assigning RBAC, then Owner access.
 
-- Configure the secrets: Navigate to settings on the newly created repository, select the Secrets section to create new secret.
+- Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below
 
     ![GIT-Secret](./Media/Actions/GIT-Secret.PNG)
 
-- Select the Options sections, untick Merge commits and Rebase merging.
+- Untick `Allow merge commits` and `Allow rebase merging` under Settings -> General -> Pull Requests
 
     ![GIT-Merge](./Media/Actions/GIT-Merge.PNG)
+
+- Under Settings -> Actions -> General -> Workflow permissions, grant the workflow `Read and write permissions` as well as `Allow GitHub Actions to create and approve pull requests`
+
+    ![GIT-Permissions](./Media/Actions/GIT-ActionPermissions.PNG)
+
 - All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps.
   The settings are documented in [Settings chapter](.\Settings.md)
 
