@@ -125,6 +125,13 @@ gh api -X PATCH /repos/{owner}/{repo} -f allow_rebase_merge=false
 gh api -X PATCH /repos/{owner}/{repo} -f allow_merge_commit=false
 ```
 
+- Grant workflow "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests" permissions 
+
+```git
+gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -f default_workflow_permissions='write'
+gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -F can_approve_pull_request_reviews=true
+```
+
 - Initiate the first Pull workflow
 
 ```git
