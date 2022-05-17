@@ -54,7 +54,7 @@ Links to documentation for further reading:
     3. Select App registrations.
 
     4. Name the application. Select a supported account type, which determines who can use the application.
-    ![SPN](./Media/Pipelines/SPN.PNG)  
+    ![SPN](./Media/Pipelines/SPN.PNG)
 
 - Assign a role to the SPN
     1. In the Azure portal, select the level of scope you wish to assign the application to. For example, to assign a role at the subscription scope, search for and select Subscriptions, or select Subscriptions on the Home page.
@@ -72,18 +72,23 @@ If you don't see the subscription you're looking for, select global subscription
 
     > Note: If this SPN is require to be used for assigning RBAC, then Owner access.
 
-- Configure the secrets: Navigate to settings on the newly created repository, select the Secrets section to create new secret.
+- Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below
 
     ![GIT-Secret](./Media/Actions/GIT-Secret.PNG)
 
-- Select the Options sections, untick Merge commits and Rebase merging.
+- Untick `Allow merge commits` and `Allow rebase merging` under Settings -> General -> Pull Requests
 
     ![GIT-Merge](./Media/Actions/GIT-Merge.PNG)
+
+- Under Settings -> Actions -> General -> Workflow permissions, grant the workflow `Read and write permissions` as well as `Allow GitHub Actions to create and approve pull requests`
+
+    ![GIT-Permissions](./Media/Actions/GIT-ActionPermissions.PNG)
+
 - All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps.
   The settings are documented in [Settings chapter](.\Settings.md)
 
 - Now, We are good to trigger pull to fetch the existing Azure environment. Navigate to Actions and run `AzOps - Pull`
-![Workflow](./Media/Actions/workflow.PNG)  
+![Workflow](./Media/Actions/workflow.PNG)
 
 - Once, pull pipeline complete it will look like below screenshot.
 ![Root-git](./Media/Actions/Root-GIT.PNG)
@@ -118,6 +123,13 @@ gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>"
 ```git
 gh api -X PATCH /repos/{owner}/{repo} -f allow_rebase_merge=false
 gh api -X PATCH /repos/{owner}/{repo} -f allow_merge_commit=false
+```
+
+- Grant workflow "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests" permissions
+
+```git
+gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -f default_workflow_permissions='write'
+gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -f can_approve_pull_request_reviews=true
 ```
 
 - Initiate the first Pull workflow
