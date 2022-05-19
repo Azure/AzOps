@@ -1,5 +1,5 @@
 # See for instructions on this file https://help.github.com/articles/about-codeowners/
 
-* @azure/enterprisescale-vteam
+* @azure/azops-admins @azure/azops-extended-core-maintainers
 
-.github/CODEOWNERS @uday31in
+.github/CODEOWNERS @azure/azops-admins
