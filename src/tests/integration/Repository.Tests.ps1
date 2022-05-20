@@ -263,6 +263,10 @@ Describe "Repository" {
         $script:logAnalyticsWorkspaceSavedSearchesDirectory = ($script:logAnalyticsWorkspaceSavedSearchesPath).Directory
         $script:logAnalyticsWorkspaceSavedSearchesFile = ($script:logAnalyticsWorkspaceSavedSearchesPath).FullName
         Write-PSFMessage -Level Debug -Message "logAnalyticsWorkspaceSavedSearchesFile: $($script:logAnalyticsWorkspaceSavedSearchesFile)" -FunctionName "BeforeAll"
+
+        $script:bicepTemplatePath = Get-ChildItem -Path "$($global:testRoot)/templates/bicep*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
+        $script:bicepDeploymentName = "AzOps-{0}-{1}" -f $($script:bicepTemplatePath[0].Name.Replace(".bicep", '')), $deploymentLocationId
+        $script:bicepResourceGroupName = ((Get-Content -Path ($Script:bicepTemplatePath.FullName[1])) | ConvertFrom-Json).parameters.resourceGroupName.value
         #endregion Paths
 
         #Test push based on pulled resources
@@ -274,6 +278,7 @@ Describe "Repository" {
             "A`t$script:resourceGroupFile",
             "A`t$script:routeTableFile",
             "A`t$script:ruleCollectionGroupsFile"
+            "A`t$($script:bicepTemplatePath.FullName[0])"
         )
         Invoke-AzOpsPush -ChangeSet $changeSet
 
@@ -544,6 +549,18 @@ Describe "Repository" {
         }
         #endregion
 
+        #region Deploy Resource Group via bicep
+        It "Bicep deployment should be successful" {
+            $script:bicepDeployment = Get-AzSubscriptionDeployment -Name $script:bicepDeploymentName
+            $bicepDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+
+        It "Resource Group deployed through bicep should exist" {
+            $script:bicepResourceGroup = Get-AzResourceGroup -ResourceGroupName $script:bicepResourceGroupName
+            $bicepResourceGroup.ResourceGroupName | Should -Be $script:bicepResourceGroupName
+        }
+        #endregion
+
         #region Scope - Role Assignment (./root/tenant root group/test/platform/management/subscription-0/roleassignments)
         It "Role Assignment directory should exist" {
             Test-Path -Path $script:roleAssignmentsDirectory | Should -BeTrue
@@ -806,7 +823,7 @@ Describe "Repository" {
             $resourceGroup = Get-AzResourceGroup -Name "Application"
             if ($resourceGroup) {
                 Write-PSFMessage -Level Verbose -Message "Removing Resource Groups" -FunctionName "AfterAll"
-                Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName)
+                Remove-ResourceGroups -SubscriptionName $subscription.Name -ResourceGroupNames @($resourceGroup.ResourceGroupName, $script:bicepResourceGroupName)
             }
             #endregion remove deployed resources
 
