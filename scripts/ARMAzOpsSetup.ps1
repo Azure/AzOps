@@ -167,6 +167,20 @@ process {
     }
     #endregion Get GitHub public key and create new secrets
 
+    #region Grant workflow "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests" permissions
+    try {
+        Write-Host "Configure workflow permissions for pull requests and read/write permissions"
+        $GrantBody = @{
+            default_workflow_permissions     = 'write'
+            can_approve_pull_request_reviews = $true
+        } | ConvertTo-Json
+        Invoke-GHRequest @BaseGHRest -Method PUT -RequestBody $GrantBody -Path '/actions/permissions/workflow'
+    }
+    catch {
+        throw "Failed to configure workflow permissions for $($GitHubUserNameOrOrg)/$($NewESLZRepository)`r`n$_"
+    }
+    #endregion Grant workflow "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests" permissions
+
     #region Trigger repository dispatch for AzOps-Pull job
     try {
         Write-Host "Invoking GitHub Action to bootstrap the repository."
