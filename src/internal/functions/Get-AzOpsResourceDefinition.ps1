@@ -2,9 +2,9 @@
 
     <#
         .SYNOPSIS
-            This cmdlet recursively discovers resources (Management Groups, Subscriptions, Resource Groups, Resources, Policies, Role Assignments) from the provided input scope.
+            This cmdlet recursively discovers resources (Management Groups, Subscriptions, Resource Groups, Resources, Privileged Identity Management resources, Policies, Role Assignments) from the provided input scope.
         .DESCRIPTION
-            This cmdlet recursively discovers resources (Management Groups, Subscriptions, Resource Groups, Resources, Policies, Role Assignments) from the provided input scope.
+            This cmdlet recursively discovers resources (Management Groups, Subscriptions, Resource Groups, Resources, Privileged Identity Management resources, Policies, Role Assignments) from the provided input scope.
         .PARAMETER Scope
             Discovery Scope
         .PARAMETER IncludeResourcesInResourceGroup
@@ -13,6 +13,8 @@
             Discover only specific resource types.
         .PARAMETER SkipChildResource
             Skip childResource discovery.
+        .PARAMETER SkipPim
+            Skip discovery of Privileged Identity Management resources.
         .PARAMETER SkipPolicy
             Skip discovery of policies for better performance.
         .PARAMETER SkipResource
@@ -58,6 +60,9 @@
 
         [switch]
         $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
+
+        [switch]
+        $SkipPim = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPim'),
 
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
@@ -214,6 +219,9 @@
                 $IncludeResourceType,
 
                 [switch]
+                $SkipPim,
+
+                [switch]
                 $SkipPolicy,
 
                 [switch]
@@ -285,6 +293,7 @@
                             StatePath                         = $StatePath
                             ScopeObject                       = $ScopeObject
                             ODataFilter                       = $ODataFilter
+                            SkipPim                           = $SkipPim
                             SkipPolicy                        = $SkipPolicy
                             SkipRole                          = $SkipRole
                             SkipResource                      = $SkipResource
@@ -332,10 +341,13 @@
                             Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
-                            #region Process Policies and Roles at RG scope
-                            if (-not $using:SkipPolicy -or $using:SkipRole) {
+                            #region Process Privileged Identity Management resources, Policies and Roles at RG scope
+                            if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipRole)) {
                                 & $azOps {
                                     $rgScopeObject = New-AzOpsScope -Scope $resourceGroup.ResourceId -StatePath $runspaceData.Statepath -ErrorAction Stop
+                                    if (-not $using:SkipPim) {
+                                        Get-AzOpsPim -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
+                                    }
                                     if (-not $using:SkipPolicy) {
                                         Get-AzOpsPolicy -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
                                     }
@@ -344,7 +356,7 @@
                                     }
                                 }
                             }
-                            #endregion Process Policies and Roles at RG scope
+                            #endregion Process Privileged Identity Management resources, Policies and Roles at RG scope
 
                             if (-not $using:SkipResource) {
                                 Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
@@ -526,7 +538,7 @@
         switch ($scopeObject.Type) {
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
             resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -OdataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPim:$SkipPim -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
@@ -534,6 +546,12 @@
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Finished' -StringValues $scopeObject.Scope
             return
         }
+
+        #region Process Privileged Identity Management resources
+        if (-not $SkipPim) {
+            Get-AzOpsPim -ScopeObject $scopeObject -StatePath $StatePath
+        }
+        #endregion Process Privileged Identity Management resources
 
         #region Process Policies
         if (-not $SkipPolicy) {

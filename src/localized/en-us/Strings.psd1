@@ -130,6 +130,9 @@
     'Get-AzOpsRoleDefinition.NonAuthorative'                                        = 'Role Definition {0} exists at {1} however it is not authoritative. Current authoritative scope is {2}' # $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0]
     'Get-AzOpsRoleDefinition.Processing'                                            = 'Processing {0}' # $ScopeObject
 
+    'Get-AzOpsRoleEligibilityScheduleRequest.Processing'                            = 'Retrieving Privileged Identity Management RoleEligibilitySchedule at [{0}]' # $ScopeObject.Scope
+    'Get-AzOpsRoleEligibilityScheduleRequest.Assignment'                            = 'Found Privileged Identity Management RoleEligibilityScheduleRequest assignment [{0}]' # $roleEligibilitySchedule.Name
+
     'Get-AzOpsSubscription.Excluded.Offers'                                         = 'Excluded subscription offers: {0}' # ($ExcludedOffers -join ',')
     'Get-AzOpsSubscription.Excluded.States'                                         = 'Excluded subscription states: {0}' # ($ExcludedStates -join ',')
     'Get-AzOpsSubscription.NoSubscriptions'                                         = 'No relevant subscriptions found!' #
@@ -158,6 +161,9 @@
     'Invoke-AzOpsPull.Rebuilding.State'                                             = 'Rebuilding state in {0}' # $StatePath
     'Invoke-AzOpsPull.Tenant'                                                       = 'Connected to tenant {0}' # $tenantId
     'Invoke-AzOpsPull.TemplateParameterFileSuffix'                                  = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
+    'Invoke-AzOpsPull.Validating.AADP2'                                             = 'Asserting fundamental Azure AD P2 licensing' #
+    'Invoke-AzOpsPull.Validating.AADP2.Success'                                     = 'Azure AD P2 licensing validated' #
+    'Invoke-AzOpsPull.Validating.AADP2.Failed'                                      = 'Azure AD P2 licensing not found' #
     'Invoke-AzOpsPull.Validating.UserRole'                                          = 'Asserting fundamental Azure access' #
     'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure user data' #
     'Invoke-AzOpsPull.Validating.UserRole.Success'                                  = 'Azure access validated' #

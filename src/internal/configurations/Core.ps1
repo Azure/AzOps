@@ -14,6 +14,7 @@ Set-PSFConfig -Module AzOps -Name Core.PartialMgDiscoveryRoot -Value @() -Initia
 Set-PSFConfig -Module AzOps -Name Core.IncludeResourcesInResourceGroup -Value @('*') -Initialize -Validation stringarray -Description 'Global flag to discover only resources in these resource groups.'
 Set-PSFConfig -Module AzOps -Name Core.IncludeResourceType -Value @('*') -Initialize -Validation stringarray -Description 'Global flag to discover only specific resource types.'
 Set-PSFConfig -Module AzOps -Name Core.SkipChildResource -Value $true -Initialize -Validation bool -Description 'Global flag to indicate whether child resources should be discovered or not. Requires SkipResourceGroup and SkipResource to be false.'
+Set-PSFConfig -Module AzOps -Name Core.SkipPim -Value $true -Initialize -Validation bool -Description 'Global flag to control discovery of Privileged Identity Management resources.'
 Set-PSFConfig -Module AzOps -Name Core.SkipPolicy -Value $false -Initialize -Validation bool -Description '-'
 Set-PSFConfig -Module AzOps -Name Core.SkipResource -Value $true -Initialize -Validation bool -Description 'Global flag to indicate whether resource should be discovered or not. Requires SkipResourceGroup to be false.'
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $false -Initialize -Validation bool -Description 'Global flag to indicate whether resource group should be discovered or not'

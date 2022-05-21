@@ -109,6 +109,7 @@ if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
     try {
         $functionalTestsScript = (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")
+        & $functionalTestsScript.VersionInfo.FileName -cleanupEnvironment $true
         $functionalTestDeploymentOutput = & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
     }
     catch {

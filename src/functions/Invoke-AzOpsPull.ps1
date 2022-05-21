@@ -11,8 +11,10 @@
             Discover only specific resource types.
         .PARAMETER SkipChildResource
             Skip childResource discovery.
+        .PARAMETER SkipPim
+            Skip discovery of Privileged Identity Management resources.
         .PARAMETER SkipPolicy
-            Skip discovery of policies for better performance.
+            Skip discovery of policies.
         .PARAMETER SkipRole
             Skip discovery of role.
         .PARAMETER SkipResourceGroup
@@ -48,6 +50,9 @@
 
         [switch]
         $SkipChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipChildResource'),
+
+        [switch]
+        $SkipPim = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPim'),
 
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
@@ -89,15 +94,29 @@
     begin {
         #region Initialize & Prepare
         Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Starting'
-        if (-not $SkipRole) {
+        if ((-not $SkipRole) -or (-not $SkipPim)) {
             try {
                 Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.UserRole'
                 $null = Get-AzADUser -First 1 -ErrorAction Stop
                 Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
+                if (-not $SkipPim) {
+                    Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.AADP2'
+                    $servicePlanName = "AAD_PREMIUM_P2"
+                    $subscribedSkus = Invoke-AzRestMethod -Uri https://graph.microsoft.com/v1.0/subscribedSkus -ErrorAction Stop
+                    $subscribedSkusValue = $subscribedSkus.Content | ConvertFrom-Json -Depth 100 | Select-Object value
+                    if ($servicePlanName -in $subscribedSkusValue.value.servicePlans.servicePlanName) {
+                        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Validating.AADP2.Success'
+                    }
+                    else {
+                        Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.AADP2.Failed'
+                        $SkipPim = $true
+                    }
+                }
             }
             catch {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
                 $SkipRole = $true
+                $SkipPim = $true
             }
         }
 
@@ -160,14 +179,14 @@
                 Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
                 # Discover Resource at scope recursively
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $root @parameters
             }
         }
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
 
