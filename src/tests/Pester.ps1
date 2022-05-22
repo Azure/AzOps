@@ -49,7 +49,7 @@ if ($TestGeneral) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
-        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        Write-PSFMessage -Level Significant -Message "Executing <c='em'>$($file.Name)</c>"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
@@ -80,7 +80,7 @@ if ($TestFunctions) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
-        Write-PSFMessage -Level Significant -Message "  Executing $($file.Name)"
+        Write-PSFMessage -Level Significant -Message "Executing $($file.Name)"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
@@ -120,7 +120,7 @@ if ($TestFunctional) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
-        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        Write-PSFMessage -Level Significant -Message "Executing <c='em'>$($file.Name)</c>"
         $container = New-PesterContainer -Path $file.FullName -Data @{
             functionalTestFilePaths = $functionalTestDeploymentOutput.functionalTestFilePaths;
             functionalTestDeploy = $functionalTestDeploymentOutput.functionalTestDeploy
@@ -162,7 +162,7 @@ if ($TestIntegration) {
         if ($file.Name -notlike $Include) { continue }
         if ($Exclude -contains $file.Name) { continue }
 
-        Write-PSFMessage -Level Significant -Message "  Executing <c='em'>$($file.Name)</c>"
+        Write-PSFMessage -Level Significant -Message "Executing <c='em'>$($file.Name)</c>"
         $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
         $config.Run.Path = $file.FullName
         $config.Run.PassThru = $true
