@@ -78,9 +78,9 @@ if ($setupEnvironment) {
         . (Join-Path -Path $script:scriptPath -ChildPath New-AzOpsTestsDeploymentHelper.ps1)
         Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test objects" -FunctionName "BeforeAll"
         $script:functionalTestDeploy = $script:testObjects.VersionInfo.FileName | ForEach-Object {
+            Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test object: $_" -FunctionName "BeforeAll"
             & $_
         }
-        Start-Sleep -s 30
     }
     catch {
         Write-PSFMessage -Level Warning -String "Executing functional test object failed"
@@ -108,6 +108,7 @@ if ($setupEnvironment) {
 
     Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
     Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
+    Set-PSFConfig -FullName AzOps.Core.SkipPim -Value $false
     $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
 
     Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"

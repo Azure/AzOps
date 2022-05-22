@@ -148,7 +148,6 @@ Describe "Repository" {
         #
 
         try {
-            Start-Sleep -Seconds 120
             Set-AzContext -SubscriptionId $script:subscriptionId
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
