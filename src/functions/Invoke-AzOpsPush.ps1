@@ -183,7 +183,7 @@
             if ($operation -in 'A', 'M') { $filename }
             elseif ($operation -match '^R[0-9][0-9][0-9]$') {
                 $operation, $oldFileLocation, $newFileLocation = ($change -split "`t")[0, 1, 2]
-                if(-not ((Split-Path -Path $oldFileLocation) -eq (Split-Path -Path $newFileLocation))){
+                if (-not ((Split-Path -Path $oldFileLocation) -eq (Split-Path -Path $newFileLocation))) {
                     $deleteSet += $oldFileLocation
                 }
                 $newFileLocation
