@@ -71,7 +71,7 @@
             'ResourceGroup' {
                 try {
                     Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType starting at $Scope scope."
-                    $script:resourceGroupName = $script:resourceType + "-rg"
+                    $script:resourceGroupName = $script:resourceType + "-" + (Get-Date -UFormat "%Y%m%d%R" | ForEach-Object {$_ -replace ":", ""}) + "-rg"
                     $script:scope = New-AzResourceGroup -Name $script:resourceGroupName -Location $Location -Confirm:$false -Force
                     if ($script:templateParametersFile) {
                         $script:functionalTestDeploy = New-AzResourceGroupDeployment -Name ($script:resourceType + 'testdeploy') -ResourceGroupName $script:resourceGroupName -TemplateFile $script:templateFile -TemplateParameterFile $script:templateParametersFile -Confirm:$false -Force

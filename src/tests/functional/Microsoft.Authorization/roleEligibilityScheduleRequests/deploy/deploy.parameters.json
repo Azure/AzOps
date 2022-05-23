@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "northeurope"
+        },
+        "principalId": {
+            "value": "d110cb6a-48b3-474b-8196-255e1589ee2b"
+        },
+        "roleDefinitionId": {
+            "value": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+        }
+    }
+}
