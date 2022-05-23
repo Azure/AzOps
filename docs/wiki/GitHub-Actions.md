@@ -13,7 +13,7 @@ Before you start, make sure you have followed the steps in the [prerequisites](h
 
 If you are planning to use self-hosted runners, also verify that all [required software](https://github.com/azure/azops/wiki/self-hosted#required-software) is installed on your runners.
 
-AzOps is supported in [GitHub Enterprise Server version 3.4.0](https://docs.github.com/en/enterprise-server@3.4/admin/release-notes#github-actions-reusable-workflows-in-public-beta) or newer.
+AzOps is supported with [GitHub Enterprise Server version 3.4.0](https://docs.github.com/en/enterprise-server@3.4/admin/release-notes#github-actions-reusable-workflows-in-public-beta) or newer.
 
 ### Further reading
 
