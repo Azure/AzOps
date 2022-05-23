@@ -5,7 +5,7 @@
   - [Important Repository Link to refer](#important-repo-link-to-refer)
 - [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
 - [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
-- [Configure via command line](#Configure-via-command-line)
+- [Configure via command-line](#Configure-via-command-line)
 
 ## Prerequisites
 
@@ -31,13 +31,13 @@ Links to documentation for further reading:
 
 ### Two ways to configure AzOps
 
-- via GitHub portal
-- Via command line [GitHub CLI](https://cli.github.com/)
+- Via GitHub portal
+- Via command-line [GitHub CLI](https://cli.github.com/)
 
 ### Configure AzOps via Portal
 
 1. Navigate to the [AzOps-Accelerator](https://github.com/Azure/AzOps-Accelerator) repository and click on `Use this template` button to create new repository.
-If you are using GitHub Enterprise Server, you need to [import the repository](https://docs.github.com/en/enterprise-server/get-started/importing-your-projects-to-github/importing-source-code-to-github/importing-a-git-repository-using-the-command-line) using the command line.
+If you are using GitHub Enterprise Server, you need to [import the repository](https://docs.github.com/en/enterprise-server/get-started/importing-your-projects-to-github/importing-source-code-to-github/importing-a-git-repository-using-the-command-line) using the command-line.
 ![Import-Git](./Media/Actions/Usetemplate-GIT.PNG)
 2. Specify whether the new repository should be public or private.
 ![GIT-Project](./Media/Actions/GIT-Project.PNG)
@@ -56,7 +56,7 @@ If you are using GitHub Enterprise Server, you need to [import the repository](h
 8. The repository is now ready for use. Creating a Pull Request with changes to the `root` folder will trigger the validate pipeline. The validate pipeline will then perform a What-If deployment of the changes and post the results as a comment on the pull request.
     - Merging the pull request will rigger the push pipeline and deploy the changes to Azure.
 
-### Configure via command line
+### Configure via command-line
 
 - Create the repository from the predefined template
 
