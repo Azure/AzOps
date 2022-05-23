@@ -5,11 +5,15 @@
   - [Important Repository Link to refer](#important-repo-link-to-refer)
 - [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
 - [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
-- [Configure via command-line script](#Configure-via-command-line-script)
+- [Configure via command line](#Configure-via-command-line)
 
 ## Prerequisites
 
-Before you start, make sure you have followed the steps in the [prerequisites](.\Prerequisites.md) article to configure the required permissions for AzOps.
+Before you start, make sure you have followed the steps in the [prerequisites](https://github.com/azure/azops/wiki/prerequisites) article to configure the required permissions for AzOps.
+
+If you are planning to use self-hosted runners, also verify that all [required software](https://github.com/azure/azops/wiki/self-hosted#required-software) is installed on your runners.
+
+AzOps is supported in [GitHub Enterprise Server version 3.4.0](https://docs.github.com/en/enterprise-server@3.4/admin/release-notes#github-actions-reusable-workflows-in-public-beta) or newer.
 
 ### Further reading
 
@@ -23,85 +27,36 @@ Links to documentation for further reading:
 
 | Repository                                                            | Description                                                                               |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [AzOps Accelerator](https://github.com/Azure/AzOps-Accelerator.git) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
+| [AzOps-Accelerator](https://github.com/Azure/AzOps-Accelerator) | This template repository is for getting started with the AzOps integrated CI/CD solution. |
 
 ### Two ways to configure AzOps
 
 - via GitHub portal
-- Via command-line script (GitHub )
+- Via command line [GitHub CLI](https://cli.github.com/)
 
 ### Configure AzOps via Portal
 
-- AzOps Accelerator is a template repository and repository can directly created using `Use this template`.[Repository](https://github.com/Azure/AzOps-Accelerator.git)
-
-    1. Click on `Use this template` Button to create new repository.
-
-        ![Import-Git](./Media/Actions/Usetemplate-GIT.PNG)
-
-    2. Specify whether the new repository should be public or private.
-
-        ![GIT-Project](./Media/Actions/GIT-Project.PNG)
-
-    3. Review the information you entered, then click Begin import.
-
-        ![GIT-Repository](./Media/Actions/GIT-Repository.PNG)
-
-- Create a service principal in Azure which will further be used for deployment via AzOps.
-    1. Sign in to your Azure Account through the Azure portal.
-
-    2. Select Azure Active Directory.
-
-    3. Select App registrations.
-
-    4. Name the application. Select a supported account type, which determines who can use the application.
-    ![SPN](./Media/Pipelines/SPN.PNG)
-
-- Assign a role to the SPN
-    1. In the Azure portal, select the level of scope you wish to assign the application to. For example, to assign a role at the subscription scope, search for and select Subscriptions, or select Subscriptions on the Home page.
-    ![Subscription](./Media/Pipelines/Subscription.PNG)
-
-    2. Select the particular subscription to assign the application to.
-    ![Subcription-2](./Media/Pipelines/Subscription-2.PNG)
-If you don't see the subscription you're looking for, select global subscriptions filter. Make sure the subscription you want is selected for the portal.
-
-    3. Select Access control (IAM).
-
-    4. Select Select Add > Add role assignment to open the Add role assignment page.
-
-    5. Select the role you wish to assign to the application. For example, to allow the application to execute actions like reboot, start and stop instances, select the Contributor role.
-
-    > Note: If this SPN is require to be used for assigning RBAC, then Owner access.
-
-- Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below
-
-    ![GIT-Secret](./Media/Actions/GIT-Secret.PNG)
-
-- Untick `Allow merge commits` and `Allow rebase merging` under Settings -> General -> Pull Requests
-
-    ![GIT-Merge](./Media/Actions/GIT-Merge.PNG)
-
-- Under Settings -> Actions -> General -> Workflow permissions, grant the workflow `Read and write permissions` as well as `Allow GitHub Actions to create and approve pull requests`
-
-    ![GIT-Permissions](./Media/Actions/GIT-ActionPermissions.PNG)
-
-- All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps.
-  The settings are documented in [Settings chapter](.\Settings.md)
-
-- Now, We are good to trigger pull to fetch the existing Azure environment. Navigate to Actions and run `AzOps - Pull`
+1. Navigate to the [AzOps-Accelerator](https://github.com/Azure/AzOps-Accelerator) repository and click on `Use this template` button to create new repository.
+If you are using GitHub Enterprise Server, you need to [import the repository](https://docs.github.com/en/enterprise-server/get-started/importing-your-projects-to-github/importing-source-code-to-github/importing-a-git-repository-using-the-command-line) using the command line.
+![Import-Git](./Media/Actions/Usetemplate-GIT.PNG)
+2. Specify whether the new repository should be public or private.
+![GIT-Project](./Media/Actions/GIT-Project.PNG)
+3. Review the information you entered, then click Begin import.
+![GIT-Repository](./Media/Actions/GIT-Repository.PNG)
+4. Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below
+![GIT-Secret](./Media/Actions/GIT-Secret.PNG)
+5. Untick `Allow merge commits` and `Allow rebase merging` under Settings -> General -> Pull Requests
+![GIT-Merge](./Media/Actions/GIT-Merge.PNG)
+6. Under Settings -> Actions -> General -> Workflow permissions, grant the workflow `Read and write permissions` as well as `Allow GitHub Actions to create and approve pull requests`
+![GIT-Permissions](./Media/Actions/GIT-ActionPermissions.PNG)
+7. Navigate to Actions and run the `AzOps - Pull` workflow to create a representation of the existing Azure environment/scopes in the repository. The artifacts will by default be stored under the `root` folder.
 ![Workflow](./Media/Actions/workflow.PNG)
-
-- Once, pull pipeline complete it will look like below screenshot.
 ![Root-git](./Media/Actions/Root-GIT.PNG)
-- This `root` folder contains existing state of Azure environment.
-- Now, start creating arm template to deployment more resources as shown in below screenshot.
-![RG](./Media/Pipelines/RG.PNG)
+    > Note: All the configuration values can be modified through the `settings.json` file to change the default behavior of AzOps. The settings are documented under [settings](https://github.com/azure/azops/wiki/settings)
+8. The repository is now ready for use. Creating a Pull Request with changes to the `root` folder will trigger the validate pipeline. The validate pipeline will then perform a What-If deployment of the changes and post the results as a comment on the pull request.
+    - Merging the pull request will rigger the push pipeline and deploy the changes to Azure.
 
-> Note: Please follow above naming convention for parameter file creation.
-
-- Run the Push pipeline to apply the update.
-![Workflow](./Media/Actions/workflow.PNG)
-
-### Configure via command-line script
+### Configure via command line
 
 - Create the repository from the predefined template
 
