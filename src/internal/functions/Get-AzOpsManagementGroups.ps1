@@ -45,7 +45,7 @@
                 $script:AzOpsPartialRoot += $groupObject
             }
             if ($groupObject.Children) {
-                $groupObject.Children | Where-Object Type -eq "/providers/Microsoft.Management/managementGroups" | Foreach-Object -Process {
+                $groupObject.Children | Where-Object Type -eq "Microsoft.Management/managementGroups" | Foreach-Object -Process {
                     Get-AzOpsManagementGroups -ManagementGroup $_.Name -PartialDiscovery:$PartialDiscovery
                 }
             }
