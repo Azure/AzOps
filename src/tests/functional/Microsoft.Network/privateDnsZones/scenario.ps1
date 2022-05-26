@@ -54,9 +54,6 @@ Describe "Scenario - privateDnsZones" {
         It "Resource apiVersion should exist" {
             $script:fileContents.resources[0].apiVersion | Should -BeTrue
         }
-        It "Resource properties should exist" {
-            $script:fileContents.resources[0].properties | Should -BeTrue
-        }
         It "Resource type should match" {
             $script:fileContents.resources[0].type | Should -Be "$script:resourceProvider/$script:resourceType"
         }
