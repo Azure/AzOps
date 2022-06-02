@@ -12,26 +12,6 @@
         },
         "localGatewayPublicIpAddress": {
             "value": "8.8.8.8"
-        },
-        "localAsn": {
-            "value": "65123"
-        },
-        "localBgpPeeringAddress": {
-            "value": "192.168.1.5"
-        },
-        "fqdn": {
-            "value": "abc"
         }
-        // "roleAssignments": {
-        //     "value": [
-        //         {
-        //             "roleDefinitionIdOrName": "Desktop Virtualization User",
-        //             "principalIds": [
-        //                 "12345678-1234-1234-1234-123456789012", // object 1
-        //                 "78945612-1234-1234-1234-123456789012" // object 2
-        //             ]
-        //         }
-        //     ]
-        // }
     }
 }
