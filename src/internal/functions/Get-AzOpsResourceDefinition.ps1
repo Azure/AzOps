@@ -366,22 +366,28 @@
                                         continue
                                     }
                                 }
-                                $resources = & $azOps {
-                                    $parameters = @{
-                                        DefaultProfile = $Context | Select-Object -First 1
-                                        ODataQuery     = $runspaceData.ODataFilter
+                                try {
+                                    $resources = & $azOps {
+                                        $parameters = @{
+                                            DefaultProfile = $Context | Select-Object -First 1
+                                            ODataQuery     = $runspaceData.ODataFilter
+                                        }
+                                        if ($resourceGroup.ResourceGroupName) {
+                                            $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                                        }
+                                        Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                                            param (
+                                                $Parameters
+                                            )
+                                            $param = $Parameters | Write-Output
+                                            Get-AzResource @param -ExpandProperties -ErrorAction Stop
+                                        } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                     }
-                                    if ($resourceGroup.ResourceGroupName) {
-                                        $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
-                                    }
-                                    Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
-                                        param (
-                                            $Parameters
-                                        )
-                                        $param = $Parameters | Write-Output
-                                        Get-AzResource @param -ExpandProperties -ErrorAction Stop
-                                    } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                 }
+                                catch {
+                                    Write-PSFMessage -Level Warning -String 'Get-AzOpsResourceDefinition.Resource.Processing.Warning' -StringValues $resourceGroup.ResourceGroupName, $_
+                                }
+
                                 if ($runspaceData.IncludeResourceType -eq "*") {
                                     $resources = $resources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType }
                                 }
@@ -535,7 +541,7 @@
             $context = Get-AzContext
             $context.Subscription.Id = $ScopeObject.Subscription
             $odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
-            # Exclude resources in SkipResourceType and
+            # Exclude resources in SkipResourceType
             $SkipResourceType | Foreach-Object -Process {
                 $odataFilter = $odataFilter + " AND resourceType ne '$_'"
             }

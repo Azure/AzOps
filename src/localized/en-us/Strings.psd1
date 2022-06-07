@@ -106,6 +106,7 @@
     'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
     'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
     'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceDefinition.Resource.Processing.Warning'                       = 'Failed to get resources in resource group [{0}]. Consider excluding the resource that are causing the failure with the [Core.SkipResourceType] setting [{1}] ' # $resourceGroup.ResourceGroupName, $_
     'Get-AzOpsResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
