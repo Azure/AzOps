@@ -255,6 +255,8 @@ Describe "Repository" {
         $script:ruleCollectionGroupsPath = ($filePaths | Where-Object Name -eq "microsoft.network_firewallpolicies_rulecollectiongroups-testpolicy_$(($script:ruleCollectionGroups).toLower()).json")
         $script:ruleCollectionGroupsDirectory = ($script:ruleCollectionGroupsPath).Directory
         $script:ruleCollectionGroupsFile = ($script:ruleCollectionGroupsPath).FullName
+        # Temporary ARM workaround
+        jq --arg API "2021-08-01" '.resources[].apiVersion = $API' $script:ruleCollectionGroupsFile | Set-Content -Path $script:ruleCollectionGroupsFile -Force
         $script:ruleCollectionDeploymentName = "AzOps-{0}-{1}" -f $($script:ruleCollectionGroupsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
 
