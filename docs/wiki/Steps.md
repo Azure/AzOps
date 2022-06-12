@@ -92,7 +92,7 @@
   Authenticate the PowerShell session on the runner via Service Principal or Managed Identity.
 
 * **Configure**  
-  Setup the local git command line tools to allow to commit and push changes back to the repository.
+  Setup the local git command-line tools to allow to commit and push changes back to the repository.
 
 * **Checkout**  
   Switch branches from the main branch to a newly created automated branch.
