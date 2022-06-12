@@ -131,3 +131,10 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
 
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId1","SubscriptionId2"]
 ```
+
+### **I want to deploy a set of templates in a specific order**
+
+Can AzOps settings be configured to enable this?
+
+Yes, ensure that the variable `AZOPS_CUSTOM_SORT_ORDER` is set to `true` and create a file named `.order` in the same folder as your template files.  
+Template files listed in the order file will be deployed in the order specified in the file and before any other templates.

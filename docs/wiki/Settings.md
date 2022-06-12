@@ -29,3 +29,24 @@ The following configuration values can be modified within the `settings.json` fi
 | 23  | TemplateParameterFileSuffix          | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.TemplateParameterFileSuffix": ".json"`                                                   |
 | 24  | ThrottleLimit                        | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.ThrottleLimit": 10`                                                                      |
 | 25  | WhatifExcludedChangeTypes            | Exclude specific change types from WhatIf operations                                                                                                                                  | `"Core.WhatifExcludedChangeTypes": ["NoChange","Ignore"]`                                       |
+
+# Worflow / Pipeline Settings
+
+The following settings can be modified as variables inside GitHub or Azure DevOps and will affect how the workflow or pipeline is run.
+
+* **AZOPS_MODULE_VERSION**
+  Set this to the version of the AzOps module you want to use. If the variable is missing, the latest version will be used.  
+  Typically used to pin the version of the module to a specific version and update to new versions at a controlled manner.  
+  Make sure to have a process to continously update this variable if it is set.  
+
+* **AZOPS_CUSTOM_SORT_ORDER**
+  Set this variable to `true` to enable custom sort ordering. When enabled, create a file named `.order` in a folder where you want to control the deployment order of templates.  
+  Any file that is listed by name in `.order` will will be deployed before other files and in the order that they are listed.  
+
+## Workflow Settings in GitHub
+
+Settings in GitHub are configured as Secrets by navigating to Settings -> Secrets -> Actions as described in [GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
+
+## Pipeline Settings in Azure DevOps
+
+Settings in Azure DevOps are configured as variable groups, as described in [Azure DevOps Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups).
