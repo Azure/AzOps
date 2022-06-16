@@ -1,0 +1,147 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "azureBastionName": {
+            "type": "string",
+            "metadata": {
+                "description": "Required. Name of the Azure Bastion resource"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Optional. Location for all resources."
+            }
+        },
+        "azureBastionPipName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Specifies the name of the Public IP used by Azure Bastion. If it's not provided, a '-pip' suffix will be appended to the Bastion's name."
+            }
+        },
+        "publicIPPrefixId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Resource Id of the Public IP Prefix object. This is only needed if you want your Public IPs created in a PIP Prefix."
+            }
+        },
+        "domainNameLabel": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. DNS name of the Public IP resource. A region specific suffix will be appended to it, e.g.: your-DNS-name.westeurope.cloudapp.azure.com"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "addressSpaces": {
+            "type": "array"
+        },
+        "subnet0_name": {
+            "type": "string"
+        },
+        "subnet0_addressRange": {
+            "type": "string"
+        },
+        "ddosProtectionPlanEnabled": {
+            "type": "bool"
+        }
+    },
+    "variables": {
+        "azureBastionPipName": "[if( empty(parameters('azureBastionPipName')), concat(parameters('azureBastionName'), '-pip'), parameters('azureBastionPipName'))]",
+        "publicIPPrefix": {
+            "id": "[parameters('publicIPPrefixId')]"
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('virtualNetworkName')]",
+            "type": "Microsoft.Network/VirtualNetworks",
+            "apiVersion": "2021-01-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressSpaces')]"
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('subnet0_name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet0_addressRange')]"
+                        }
+                    }
+                ],
+                "enableDdosProtection": "[parameters('ddosProtectionPlanEnabled')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-08-01",
+            "name": "[variables('azureBastionPipName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static",
+                "publicIPPrefix": "[if(not(empty(parameters('publicIPPrefixId'))), variables('publicIPPrefix'), json('null'))]",
+                "dnsSettings": "[if(not(empty(parameters('domainNameLabel'))), json(concat('{\"domainNameLabel\": \"', parameters('domainNameLabel'), '\"}')), json('null'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/bastionHosts",
+            "name": "[parameters('azureBastionName')]",
+            "apiVersion": "2020-08-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('azureBastionPipName'))]",
+                "[resourceId('Microsoft.Network/VirtualNetworks',parameters('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('virtualNetworkName'),parameters('subnet0_name'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('azureBastionPipName')))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        }        
+    ],
+    "outputs": {
+        "azureBastionResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]",
+            "metadata": {
+                "description": "The Resource Group the Azure Bastion was deployed."
+            }
+        },
+        "azureBastionName": {
+            "type": "string",
+            "value": "[parameters('azureBastionName')]",
+            "metadata": {
+                "description": "The Name of the Azure Bastion."
+            }
+        },
+        "azureBastionResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/bastionHosts', parameters('azureBastionName'))]",
+            "metadata": {
+                "description": "The Resource Id of the Azure Bastion."
+            }
+        }
+    }
+}
