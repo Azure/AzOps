@@ -12,7 +12,9 @@
 
     $Include = "*",
 
-    $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1")
+    $Exclude = @("Help.Tests.ps1", "PSScriptAnalyzer.Tests.ps1"),
+
+    $CleanupEnvironment = $false
 )
 
 Set-PSFConfig -FullName PSFramework.Message.Info.Maximum -Value 3
@@ -109,12 +111,10 @@ if ($TestFunctional) {
     Write-PSFMessage -Level Important -Message "Proceeding with functional tests"
     try {
         $functionalTestsScript = (Get-ChildItem "$PSScriptRoot\functional" | Where-Object Name -like "*.Tests.ps1")
-        & $functionalTestsScript.VersionInfo.FileName -cleanupEnvironment $true
-        $functionalTestDeploymentOutput = & $functionalTestsScript.VersionInfo.FileName -setupEnvironment $true
+        $functionalTestDeploymentOutput = & $functionalTestsScript.VersionInfo.FileName
     }
     catch {
         Write-PSFMessage -Level Critical -Message "Functional tests initialize failed" -Exception $_.Exception
-        throw
     }
     foreach ($file in (Get-ChildItem "$PSScriptRoot\functional" -Recurse | Where-Object Name -eq "scenario.ps1")) {
         if ($file.Name -notlike $Include) { continue }
@@ -144,13 +144,6 @@ if ($TestFunctional) {
                 }
             }
         }
-    }
-    try {
-        & $functionalTestsScript.VersionInfo.FileName -cleanupEnvironment $true
-    }
-    catch {
-        Write-PSFMessage -Level Critical -Message "Functional tests cleanup failed" -Exception $_.Exception
-        throw
     }
 }
 #endregion Run Functional Tests
@@ -196,3 +189,16 @@ else {
 if ($totalFailed -gt 0) {
     throw "$totalFailed / $totalRun tests failed!"
 }
+
+#region cleanupEnvironment
+if ($CleanupEnvironment) {
+    Write-PSFMessage -Level Verbose -Message "Cleanup test environment"
+    try {
+        . "$global:testroot/../../scripts/Remove-AzOpsTestsDeployment.ps1"
+        Remove-AzOpsTestsDeployment -CleanupEnvironment $true
+    }
+    catch {
+        Write-PSFMessage -Level Critical -Message "Test environment is not clean" -Exception $_.Exception
+    }
+}
+#endregion cleanupEnvironment
