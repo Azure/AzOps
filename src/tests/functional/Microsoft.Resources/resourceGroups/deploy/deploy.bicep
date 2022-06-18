@@ -1,4 +1,4 @@
-param rgName string = 'resourceGroups-rg'
+param rgName string = 'resourceGroups-azopsrg'
 param location string = 'northeurope'
 targetScope = 'subscription'
 

@@ -57,12 +57,14 @@ tests
     ├── README.md
 
 ```
+
 ---
 
 ### How are tests invoked
 
 `Functional.Tests.ps1` is responsible for preparing and cleaning up the environment for functional tests *(The overall test orchestration caller is `Pester.ps1` and the actual tests reside in `scenario.ps1` files)*.
-   1. `Functional.Tests.ps1 -setupEnvironment $true` prepares the conditions for success and connects to Azure. Initiates tests by executing all `deploy.ps1` files in the `functional/*` hierarchy.
+
+   1. `Functional.Tests.ps1` prepares the conditions for success and connects to Azure. Initiates tests by executing all `deploy.ps1` files in the `functional/*` hierarchy.
    2. Pulls back resources from Azure by running `Invoke-AzOpsPull.ps1`
    3. `Pester.ps1` Initiates tests by executing all `scenario.ps1` files in the `functional/*` hierarchy.
    4. `Functional.Tests.ps1 -cleanupEnvironment $true` clean-up the environment from functional tests.
