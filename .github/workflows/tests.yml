@@ -69,6 +69,12 @@ jobs:
         run: |
           ./src/tests/Pester.ps1 -TestFunctions $true
 
+      # Run Environment Primer
+      - name: "Run Environment Primer"
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -CleanupEnvironment $true
+
       # Run Functional Tests
       - name: "Run Functional Tests"
         shell: pwsh
@@ -81,3 +87,9 @@ jobs:
         shell: pwsh
         run: |
           ./src/tests/Pester.ps1 -TestIntegration $true
+
+      # Run Cleanup Environment
+      - name: "Run Environment Cleanup"
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -CleanupEnvironment $true

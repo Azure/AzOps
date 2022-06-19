@@ -166,7 +166,7 @@
             },
             "scope": "/"
         },
-        // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - Application
+        // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - App1-azopsrg
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
@@ -187,7 +187,7 @@
                         {
                             "type": "Microsoft.Resources/resourceGroups",
                             "apiVersion": "2019-10-01",
-                            "name": "Application",
+                            "name": "App1-azopsrg",
                             "location": "northeurope"
                         },
                         {
@@ -217,9 +217,9 @@
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2019-10-01",
                             "name": "RouteTableAndPolicy",
-                            "resourceGroup": "Application",
+                            "resourceGroup": "App1-azopsrg",
                             "dependsOn": [
-                                "Application"
+                                "App1-azopsrg"
                             ],
                             "properties": {
                                 "mode": "Incremental",
@@ -282,7 +282,7 @@
                             "type": "Microsoft.Resources/deployments",
                             "apiVersion": "2019-10-01",
                             "name": "RuleGroupCollection",
-                            "resourceGroup": "Application",
+                            "resourceGroup": "App1-azopsrg",
                             "dependsOn": [
                                 "RouteTableAndPolicy"
                             ],
