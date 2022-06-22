@@ -1,16 +1,9 @@
 ﻿
-#
-# Repository.Tests.ps1
-#
-# The tests within this file validate
-# that the `Invoke-AzOpsPull`
-# function is invoking as expected with
-# the correct output data.
-#
-# This file must be invoked by the Pester.ps1
-# file as the Global variable testroot is
-# required for invocation.
-#
+<#
+Repository.Tests.ps1
+The tests within this file validate that the `Invoke-AzOpsPull` function is invoking as expected with the correct output data.
+This file must be invoked by the Pester.ps1 file as the Global variable testroot is required for invocation.
+#>
 
 Describe "Repository" {
 
@@ -21,20 +14,16 @@ Describe "Repository" {
         # Suppress the breaking change warning messages in Azure PowerShell
         Set-Item -Path  Env:\SuppressAzurePowerShellBreakingChangeWarnings -Value $true
 
-        #
-        # Script Isolation
-        # https://github.com/pester/Pester/releases/tag/5.2.0
-        #
+        <#
+        Script Isolation
+        https://github.com/pester/Pester/releases/tag/5.2.0
+        #>
 
         $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
-        #
-        # Validate that the runtime variables
-        # are set as they are used to authenticate
-        # the Azure session.
-        #
+        # Validate that the runtime variables are set as they are used to authenticate the Azure session.
 
         if ($null -eq $script:tenantId) {
             Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
@@ -45,11 +34,7 @@ Describe "Repository" {
             throw
         }
 
-        #
-        # Ensure PowerShell has an authenticate
-        # Azure Context which the tests can
-        # run within and generate data as needed
-        #
+        # Ensure PowerShell has an authenticate Azure Context which the tests can run within and generate data as needed
 
         Write-PSFMessage -Level Verbose -Message "Validating Azure context" -FunctionName "BeforeAll"
         $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
@@ -65,12 +50,7 @@ Describe "Repository" {
             $null = Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
         }
 
-        #
-        # Deploy the Azure environment
-        # based upon prefined resource templates
-        # which will generate a matching
-        # file system hierachy
-        #
+        # Deploy the Azure environment based upon prefined resource templates which will generate a matching file system hierachy
 
         Write-PSFMessage -Level Verbose -Message "Creating repository test environment" -FunctionName "BeforeAll"
         $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
@@ -93,9 +73,7 @@ Describe "Repository" {
             throw
         }
 
-        <#
-        Wait for Management Group structure consistency
-        #>
+        # Wait for Management Group structure consistency
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
         $script:timeOutMinutes = 30
@@ -121,25 +99,21 @@ Describe "Repository" {
             }
         }
 
-        #
-        # Ensure that the root directory
-        # does not exist before running
-        # tests.
-        #
+        # Ensure that the root directories does not exist before running tests.
 
         Write-PSFMessage -Level Verbose -Message "Testing for root directory existence" -FunctionName "BeforeAll"
         $generatedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "root"
         if (Test-Path -Path $generatedRoot) {
-            Write-PSFMessage -Level Verbose -Message "Removing root directory" -FunctionName "BeforeAll"
+            Write-PSFMessage -Level Verbose -Message "Removing $generatedRoot directory" -FunctionName "BeforeAll"
             Remove-Item -Path $generatedRoot -Recurse
         }
+        $partialMgDiscoveryRootgeneratedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "partialmgdiscoveryroot"
+        if (Test-Path -Path $partialMgDiscoveryRootgeneratedRoot) {
+            Write-PSFMessage -Level Verbose -Message "Removing $partialMgDiscoveryRootgeneratedRoot directory" -FunctionName "BeforeAll"
+            Remove-Item -Path $partialMgDiscoveryRootgeneratedRoot -Recurse
+        }
 
-        #
-        # The following values match the Resource Template
-        # which we deploy the platform services with
-        # these need to match so that the lookups within
-        # the filesystem are aligned.
-        #
+        # The following values match the Resource Template which we deploy the platform services with these need to match so that the lookups within the filesystem are aligned.
 
         try {
             Set-AzContext -SubscriptionId $script:subscriptionId
@@ -156,14 +130,25 @@ Describe "Repository" {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception -FunctionName "BeforeAll"
         }
 
-        #
-        # Invoke the Invoke-AzOpsPull
-        # function to generate the scope data which
-        # can be tested against to ensure structure
-        # is correct and data model hasn't changed.
-        #
+        # Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
+        
+        #region PartialMgDiscoveryRoot Pull
+        Set-PSFConfig -FullName AzOps.Core.PartialMgDiscoveryRoot -Value $($script:platformManagementGroup.Name)
+        Set-PSFConfig -FullName AzOps.Core.State -Value $partialMgDiscoveryRootgeneratedRoot
+        Write-PSFMessage -Level Verbose -Message "Generating folder structure for PartialMgDiscoveryRoot" -FunctionName "BeforeAll"
+        try {
+            Invoke-AzOpsPull -SkipPim:$true -SkipResourceGroup:$true -SkipPolicy:$true -SkipRole:$true -SkipChildResource:$true -SkipResource:$true
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Initialize failed for PartialMgDiscoveryRoot" -Exception $_.Exception
+            throw
+        }
+        #endregion PartialMgDiscoveryRoot Pull
 
+        #region GeneratedRoot Pull
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
+        Set-PSFConfig -FullName AzOps.Core.PartialMgDiscoveryRoot -Value @()
+        Set-PSFConfig -FullName AzOps.Core.State -Value $generatedRoot
         Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
         Set-PSFConfig -FullName AzOps.Core.DefaultDeploymentRegion -Value "northeurope"
         $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
@@ -176,19 +161,20 @@ Describe "Repository" {
             Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
             throw
         }
+        #endregion GeneratedRoot Pull
 
-        #
-        # The following values are discovering the file
-        # system paths so that they can be validate against
-        # ensuring that the data model hasn't altered.
-        # If the model has been changed these tests will
-        # need to be updated and a major version increment.
-        #
+        # The following values are discovering the file system paths so that they can be validate against ensuring that the data model behaves as intended.
 
         #region Paths
         Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $generatedRoot" -FunctionName "BeforeAll"
 
         $filePaths = (Get-ChildItem -Path $generatedRoot -Recurse)
+        $partialMgDiscoveryRootFilePaths = (Get-ChildItem -Path $partialMgDiscoveryRootgeneratedRoot -Recurse)
+
+        $script:partialMgDiscoveryRootgeneratedRootPath = ($partialMgDiscoveryRootFilePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:platformManagementGroup.Name).toLower()).json")
+        $script:partialMgDiscoveryRootgeneratedRootDirectory = ($script:partialMgDiscoveryRootgeneratedRootPath).Directory
+        $script:partialMgDiscoveryRootgeneratedRootFile = ($script:partialMgDiscoveryRootgeneratedRootPath).FullName
+        Write-PSFMessage -Level Debug -Message "partialMgDiscoveryRootgeneratedRootFile: $($script:partialMgDiscoveryRootgeneratedRootFile)" -FunctionName "BeforeAll"
 
         $script:tenantRootGroupPath = ($filePaths | Where-Object Name -eq "microsoft.management_managementgroups-$(($script:tenantId).toLower()).json")
         $script:tenantRootGroupDirectory = ($script:tenantRootGroupPath).Directory
@@ -295,6 +281,41 @@ Describe "Repository" {
         # Scope - Root (./root)
         It "Root directory should exist" {
             Test-Path -Path $generatedRoot | Should -BeTrue
+        }
+        #endregion
+
+        #region Scope - Management Group (./partialmgdiscoveryroot/platform/)
+        It "Partialmgdiscoveryroot directory should exist" {
+            Test-Path -Path $partialMgDiscoveryRootgeneratedRoot | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot directory count should be: 5, (platform, management, microsoft azops, identity and connectivity)" {
+            $partialMgDiscoveryRootFilePaths.directory.count | Should -BeExactly "5"
+        }
+        It "Partialmgdiscoveryroot Management Group directory management should exist" {
+            Test-Path -Path $script:partialMgDiscoveryRootgeneratedRootDirectory | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot Management Group file management should exist" {
+            Test-Path -Path $script:partialMgDiscoveryRootgeneratedRootFile | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot Management Group management resource type should exist" {
+            $fileContents = Get-Content -Path $script:partialMgDiscoveryRootgeneratedRootFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot Management Group management resource name should exist" {
+            $fileContents = Get-Content -Path $script:partialMgDiscoveryRootgeneratedRootFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot Management Group management resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:partialMgDiscoveryRootgeneratedRootFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Partialmgdiscoveryroot Management Group management resource type should match" {
+            $fileContents = Get-Content -Path $script:partialMgDiscoveryRootgeneratedRootFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Management/managementGroups"
+        }
+        It "Partialmgdiscoveryroot Management Group management scope property should match" {
+            $fileContents = Get-Content -Path $script:partialMgDiscoveryRootgeneratedRootFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].scope | Should -Be "/"
         }
         #endregion
 
