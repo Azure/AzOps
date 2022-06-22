@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "value": "[concat('storage', uniqueString(resourceGroup().id))]"
+        },
+        "storageAccountSku": {
+            "value": "Standard_LRS"
+        },
+        "storageAccountKind": {
+            "value": "StorageV2"
+        },
+        "storageAccountContainerName": {
+            "value": "my-container"
+        },
+        "storageConnectionName": {
+            "value": "[concat('storageconnection', uniqueString(resourceGroup().id))]"
+        },
+        "logicAppName": {
+            "value": "[concat('logicapp', uniqueString(resourceGroup().id))]"
+        },
+        "logicAppPollingIntervalInMinutes": {
+            "value": 30
+        },
+        "azureMgmtUri": {
+            "value": "https://management.azure.com:443/"
+        }
+    }
+}
