@@ -1,0 +1,122 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "alertName": {
+            "type": "string",
+            "metadata": {
+                "description": "Required. The name of the Alert."
+            }
+        },
+        "alertDescription": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional. Description of the alert."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "global",
+            "metadata": {
+                "description": "Optional. Location for all resources."
+            }
+        },
+        "enabled": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Optional. Indicates whether this alert is enabled."
+            }
+        },
+        "scopes": {
+            "type": "array",
+            "metadata": {
+                "description": "Required. the list of resource id's that this metric alert is scoped to."
+            }
+        },
+        "conditions": {
+            "type": "array",
+            "metadata": {
+                "description": "Required. The condition that will cause this alert to activate. Array of objects"
+            }
+        },
+		"actionGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Required. The name of the action group."
+            }
+        },
+		"groupShortName": {
+            "type": "string",
+            "metadata": {
+                "description": "Required. The short name of the action group."
+            }
+        },
+		"emailReceivers": {
+            "type": "array",
+            "defaultValue": [
+            ],
+            "metadata": {
+                "description": "Optional. The list of email receivers that are part of this action group."
+            }
+        }
+    },
+    "resources": [
+		{
+            "name": "[parameters('actionGroupName')]",
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "groupShortName": "[parameters('groupShortName')]",
+                "enabled": "[parameters('enabled')]",
+                "emailReceivers": "[if(empty(parameters('emailReceivers')), json('null'), parameters('emailReceivers'))]"
+            }
+        },
+        {
+            "name": "[parameters('alertName')]",
+            "type": "Microsoft.Insights/ActivityLogAlerts",
+            "location": "[parameters('location')]",
+            "apiVersion": "2017-04-01",
+            "properties": {
+                "scopes": "[parameters('scopes')]",
+                "condition": {
+                    "allOf": "[parameters('conditions')]"
+                },
+                "actions": {
+                    "actionGroups": [
+						{
+							"actionGroupId": "[resourceId('microsoft.insights/actionGroups',parameters('actionGroupName'))]"
+						}
+					]
+                },
+                "enabled": "[parameters('enabled')]",
+                "description": "[parameters('alertDescription')]"
+            }
+        }
+    ],
+    "outputs": {
+        "deploymentResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]",
+            "metadata": {
+                "description": "The name of the Resource Group the Alert was created in."
+            }
+        },
+        "alertName": {
+            "type": "string",
+            "value": "[parameters('alertName')]",
+            "metadata": {
+                "description": "The Name of the Alert."
+            }
+        },
+        "activityLogAlertResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Insights/activityLogAlerts',parameters('alertName'))]",
+            "metadata": {
+                "description": "The Resource Id of the Alert deployed."
+            }
+        }
+    }
+}
