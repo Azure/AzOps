@@ -131,7 +131,7 @@ Describe "Repository" {
         }
 
         # Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
-        
+
         #region PartialMgDiscoveryRoot Pull
         Set-PSFConfig -FullName AzOps.Core.PartialMgDiscoveryRoot -Value $($script:platformManagementGroup.Name)
         Set-PSFConfig -FullName AzOps.Core.State -Value $partialMgDiscoveryRootgeneratedRoot
