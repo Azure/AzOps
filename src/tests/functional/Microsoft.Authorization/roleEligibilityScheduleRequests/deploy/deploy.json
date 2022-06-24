@@ -1,0 +1,54 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "scheduleRequestName": {
+            "type": "string",
+            "defaultValue": "[newGuid()]",
+            "metadata": {
+                "description": "A new GUID used to identify the role assignment"
+            }
+        },
+        "principalId": {
+            "type": "string"
+        },
+        "roleDefinitionId": {
+            "type": "string"
+        },
+        "startDateTime": {
+            "type": "string",
+            "defaultValue": "[utcNow()]",
+            "metadata": {
+                "description": "Start DateTime of the role eligibility schedule"
+            }
+        }
+    },
+    "variables": {
+        "add1Year": "[dateTimeAdd(parameters('startDateTime'), 'P1Y')]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('scheduleRequestName')]",
+            "type": "Microsoft.Authorization/roleEligibilityScheduleRequests",
+            "apiVersion": "2020-10-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "RoleDefinitionId": "[concat('/providers/Microsoft.Authorization/roleDefinitions/',parameters('roleDefinitionId'))]",
+                "PrincipalId": "[parameters('principalId')]",
+                "ScheduleInfo": {
+                "Expiration": {
+                    "EndDateTime": "[variables('add1Year')]",
+                    "ExpirationType": "AfterDuration"
+                },
+                "StartDateTime": "[parameters('startDateTime')]"
+                },
+                "RequestType": "AdminAssign"
+            }
+        }
+    ]
+}

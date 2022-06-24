@@ -1,5 +1,5 @@
 param roleDefinitionResourceId string = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
-param principalId string = '023e7c1c-1fa4-4818-bb78-0a9c5e8b0217'
+param principalId string = '4dacdaa1-2044-490c-a603-36f80b6aaa0c'
 
 targetScope = 'subscription'
 
@@ -13,7 +13,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
   properties: {
     roleDefinitionId: readerRoleDefinition.id
     principalId: principalId
-    principalType: 'ServicePrincipal'
+    principalType: 'User'
   }
 }
 

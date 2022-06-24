@@ -1,0 +1,1 @@
+del((.Id), (.Properties.Condition | nulls), (.Properties.ConditionVersion | nulls), (.Properties.ScheduleInfo.Expiration.EndDateTime | nulls), (.Properties.ScheduleInfo.Expiration.Duration | nulls), (.Properties.ScheduleInfo.Expiration.ExpirationType | nulls), (.Properties.ScheduleInfo.StartDateTime | nulls))

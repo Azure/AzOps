@@ -13,6 +13,8 @@
             The root path to where the entire state is being built in.
         .PARAMETER AzOpsMainTemplate
             Path to the main template used by AzOps
+        .PARAMETER CustomSortOrder
+            Switch to honor the input ordering for ChangeSet. If not used, ChangeSet will be sorted in ascending order.
         .EXAMPLE
             > Invoke-AzOpsPush -ChangeSet changeSet -StatePath $StatePath -AzOpsMainTemplate $templatePath
             Applies a change to Azure from the AzOps configuration.
@@ -33,7 +35,10 @@
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
 
         [string]
-        $AzOpsMainTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')
+        $AzOpsMainTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
+
+        [switch]
+        $CustomSortOrder
     )
 
     begin {
@@ -175,11 +180,17 @@
                 $deleteSet += $filename
                 continue
             }
-            if ($operation -in 'A', 'M', 'R' -or $operation -match '^R0[0-9][0-9]$') { $filename }
+            if ($operation -in 'A', 'M') { $filename }
+            elseif ($operation -match '^R[0-9][0-9][0-9]$') {
+                $operation, $oldFileLocation, $newFileLocation = ($change -split "`t")[0, 1, 2]
+                if (-not ((Split-Path -Path $oldFileLocation) -eq (Split-Path -Path $newFileLocation))) {
+                    $deleteSet += $oldFileLocation
+                }
+                $newFileLocation
+            }
         }
-        if ($deleteSet) { $deleteSet = $deleteSet | Sort-Object }
-        if ($addModifySet) { $addModifySet = $addModifySet | Sort-Object }
-        # TODO: Clarify what happens with the deletes - not used after reporting them
+        if ($deleteSet -and -not $CustomSortOrder) { $deleteSet = $deleteSet | Sort-Object }
+        if ($addModifySet -and -not $CustomSortOrder) { $addModifySet = $addModifySet | Sort-Object }
 
         Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify'
         foreach ($item in $addModifySet) {
@@ -239,7 +250,7 @@
             if ($addition.EndsWith(".bicep")) {
                 Assert-AzOpsBicepDependency -Cmdlet $PSCmdlet
                 $transpiledTemplatePath = $addition -replace '\.bicep', '.json'
-                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addModifySet, $transpiledTemplatePath
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addition, $transpiledTemplatePath
                 Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $addition --outfile $transpiledTemplatePath }
                 $addition = $transpiledTemplatePath
             }
@@ -262,7 +273,7 @@
             }
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments","Microsoft.Authorization/policyExemptions","Microsoft.Authorization/roleAssignments")) {
+            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments", "Microsoft.Authorization/policyExemptions", "Microsoft.Authorization/roleAssignments")) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }
@@ -287,7 +298,7 @@
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $deploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        $deploymentList | Select-Object $uniqueProperties -Unique | New-AzOpsDeployment -WhatIf:$WhatIfPreference
 
         #Removal of policyAssignment, policyExemption and roleAssignment
         $uniqueProperties = 'Scope', 'TemplateFilePath'

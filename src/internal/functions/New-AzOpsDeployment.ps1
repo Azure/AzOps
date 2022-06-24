@@ -63,6 +63,7 @@
             else {
                 $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
             }
+            $scopeFound = $true
         }
         catch {
             Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Failed' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath -ErrorRecord $_
@@ -84,288 +85,95 @@
         #endregion
 
         #region Process Scope
-        #region Resource Group
-        if ($scopeObject.resourcegroup) {
+        # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
+        $parameters = @{
+            'TemplateFile'                = $TemplateFilePath
+            'SkipTemplateParameterPrompt' = $true
+            'Location'                    = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
+        }
+        # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
+        if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
+            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
-            if ($templateContent.resources[0].type -eq 'Microsoft.Resources/resourceGroups') {
-                # Since this is a deployment for resource group, it must be invoked at subscription scope
-                $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-
-                $parameters = @{
-                    'TemplateFile'                = $TemplateFilePath
-                    'Location'                    = $defaultDeploymentRegion
-                    'SkipTemplateParameterPrompt' = $true
-                }
-                if ($TemplateParameterFilePath) {
-                    $parameters.TemplateParameterFile = $TemplateParameterFilePath
-                }
-
-                if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
-                    Set-AzOpsContext -ScopeObject $scopeObject
-                }
-                if ($WhatifExcludedChangeTypes) {
-                    $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
-                }
-                # Validate Template
-                $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-                if ($parameters.ExcludeChangeType) {
-                    $parameters.Remove('ExcludeChangeType')
-                }
-                if ($resultsError) {
-                    if ($resultsError.exception.InnerException.Message -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                        $invalidTemplate = $true
-                    }
-                    else {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsError.exception.InnerException.Message
-                        throw $resultsError.exception.InnerException.Message
-                    }
-
-                }
-                elseif ($results.Error) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                    return
-                }
-                else {
-                    Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
-                }
-
-                $parameters.Name = $DeploymentName
-                if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                    if (-not $invalidTemplate) {
-                        New-AzSubscriptionDeployment @parameters
-                    }
-                }
-                else {
-                    # Exit deployment
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
-                }
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
-
-                $parameters = @{
-                    'TemplateFile'                = $TemplateFilePath
-                    'SkipTemplateParameterPrompt' = $true
-                    'ResourceGroupName'           = $scopeObject.resourcegroup
-                }
-                if ($TemplateParameterFilePath) {
-                    $parameters.TemplateParameterFile = $TemplateParameterFilePath
-                }
-                if ($WhatifExcludedChangeTypes) {
-                    $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
-                }
-                $results = Get-AzResourceGroupDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-                if ($parameters.ExcludeChangeType) {
-                    $parameters.Remove('ExcludeChangeType')
-                }
-                if ($resultsError) {
-                    $resultsErrorMessage = $resultsError.exception.InnerException.Message
-                    if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                        $invalidTemplate = $true
-                    }
-                    elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                        Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
-                    }
-                    else {
-                        Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                        throw $resultsErrorMessage
-                    }
-
-                }
-                elseif ($results.Error) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                    return
-                }
-                else {
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
-                }
-
-                $parameters.Name = $DeploymentName
-                if ($PSCmdlet.ShouldProcess("Start ResourceGroup Deployment?")) {
-                    if (-not $invalidTemplate) {
-                        New-AzResourceGroupDeployment @parameters
-                    }
-                }
-                else {
-                    # Exit deployment
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
-                }
-            }
+            $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
+            $deploymentCommand = 'New-AzResourceGroupDeployment'
+            $parameters.ResourceGroupName = $scopeObject.resourcegroup
+            $parameters.Remove('Location')
         }
-        #endregion Resource Group
-        #region Subscription
+        # Subscriptions
         elseif ($scopeObject.subscription) {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-
-            if ((Get-AzContext).Subscription.Id -ne $scopeObject.subscription) {
-                Set-AzOpsContext -ScopeObject $scopeObject
-            }
-
-            $parameters = @{
-                'TemplateFile'                = $TemplateFilePath
-                'Location'                    = $defaultDeploymentRegion
-                'SkipTemplateParameterPrompt' = $true
-            }
-            if ($TemplateParameterFilePath) {
-                $parameters.TemplateParameterFile = $TemplateParameterFilePath
-            }
-            if ($WhatifExcludedChangeTypes) {
-                $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
-            }
-            $results = Get-AzSubscriptionDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($parameters.ExcludeChangeType) { $parameters.Remove('ExcludeChangeType') }
-            if ($resultsError) {
-                $resultsErrorMessage = $resultsError.exception.InnerException.Message
-                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                    $invalidTemplate = $true
-                }
-                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
-                }
-                else {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    throw $resultsErrorMessage
-                }
-            }
-            elseif ($results.Error) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
-            }
-
-            $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start Subscription Deployment?")) {
-                if (-not $invalidTemplate) {
-                    New-AzSubscriptionDeployment @parameters
-                }
-            }
-            else {
-                # Exit deployment
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
-            }
+            Set-AzOpsContext -ScopeObject $scopeObject
+            $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
+            $deploymentCommand = 'New-AzSubscriptionDeployment'
         }
-        #endregion Subscription
-        #region Management Group
+        # Management Groups
         elseif ($scopeObject.managementGroup) {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-
-            $parameters = @{
-                'TemplateFile'                = $TemplateFilePath
-                'Location'                    = $defaultDeploymentRegion
-                'ManagementGroupId'           = $scopeObject.managementgroup
-                'SkipTemplateParameterPrompt' = $true
-            }
-            if ($TemplateParameterFilePath) {
-                $parameters.TemplateParameterFile = $TemplateParameterFilePath
-            }
-            if ($WhatifExcludedChangeTypes) {
-                $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
-            }
-            $results = Get-AzManagementGroupDeploymentWhatIfResult @parameters -ErrorAction SilentlyContinue -ErrorVariable resultsError
-            if ($parameters.ExcludeChangeType) {
-                $parameters.Remove('ExcludeChangeType')
-            }
-            if ($resultsError) {
-                $resultsErrorMessage = $resultsError.exception.InnerException.Message
-                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                    $invalidTemplate = $true
-                }
-                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
-                }
-                else {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMe
-                    throw $resultsErrorMessage
-                }
-            }
-            elseif ($results.Error) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
-            }
-
-            $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start ManagementGroup Deployment?")) {
-                if (-not $invalidTemplate) {
-                    New-AzManagementGroupDeployment @parameters
-                }
-            }
-            else {
-                # Exit deployment
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
-            }
+            $parameters.ManagementGroupId = $scopeObject.managementgroup
+            $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
+            $deploymentCommand = 'New-AzManagementGroupDeployment'
         }
-        #endregion Management Group
-        #region Root
+        # Tenant deployments
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
-            $defaultDeploymentRegion = Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion'
             Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-
-            $parameters = @{
-                'TemplateFile'                = $TemplateFilePath
-                'location'                    = $defaultDeploymentRegion
-                'SkipTemplateParameterPrompt' = $true
-            }
-            if ($TemplateParameterFilePath) {
-                $parameters.TemplateParameterFile = $TemplateParameterFilePath
-            }
-            if ($WhatifExcludedChangeTypes) {
-                $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
-            }
-            $results = Get-AzTenantDeploymentWhatIfResult @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($parameters.ExcludeChangeType) {
-                $parameters.Remove('ExcludeChangeType')
-            }
-            if ($resultsError) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -StringValues $resultsError.Exception.Message -Target $scopeObject
-            }
-            elseif ($results.Error) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
-            else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
-            }
-
-            $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start Tenant Deployment?")) {
-                New-AzTenantDeployment @parameters
-            }
-            else {
-                # Exit deployment
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
-            }
+            $whatIfCommand = 'Get-AzTenantDeploymentWhatIfResult'
+            $deploymentCommand = 'New-AzTenantDeployment'
         }
-        #endregion Root
-        #region Unidentified
         else {
             Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Unidentified' -Target $scopeObject -StringValues $scopeObject
+            $scopeFound = $false
         }
-        #endregion Unidentified
-        #endregion Process Scope
+        # Proceed with WhatIf or Deployment if scope was found
+        if ($scopeFound) {
+            if ($TemplateParameterFilePath) {
+                $parameters.TemplateParameterFile = $TemplateParameterFilePath
+            }
+            if ($WhatifExcludedChangeTypes) {
+                $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
+            }
+            # Get predictive deployment results from WhatIf API
+            $results = & $whatIfCommand @parameters -ErrorAction Continue -ErrorVariable resultsError
+            if ($resultsError) {
+                $resultsErrorMessage = $resultsError.exception.InnerException.Message
+                # Ignore errors for bicep modules
+                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                    $invalidTemplate = $true
+                }
+                # Handle WhatIf prediction errors
+                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                }
+                else {
+                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    throw $resultsErrorMessage
+                }
+            }
+            elseif ($results.Error) {
+                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                return
+            }
+            else {
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
+            }
+            # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
+            if ($parameters.ExcludeChangeType) {
+                $parameters.Remove('ExcludeChangeType')
+            }
+            $parameters.Name = $DeploymentName
+            if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
+                if (-not $invalidTemplate) {
+                    & $deploymentCommand @parameters
+                }
+            }
+            else {
+                # Exit deployment
+                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+            }
+        }
     }
 }

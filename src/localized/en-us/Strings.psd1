@@ -106,6 +106,7 @@
     'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
     'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
     'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceDefinition.Resource.Processing.Warning'                       = 'Failed to get resources in Resource Group [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting [{1}]' # $resourceGroup.ResourceGroupName, $_
     'Get-AzOpsResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -129,6 +130,9 @@
 
     'Get-AzOpsRoleDefinition.NonAuthorative'                                        = 'Role Definition {0} exists at {1} however it is not authoritative. Current authoritative scope is {2}' # $roledefinition,Id, $ScopeObject.Scope, $roledefinition.AssignableScopes[0]
     'Get-AzOpsRoleDefinition.Processing'                                            = 'Processing {0}' # $ScopeObject
+
+    'Get-AzOpsRoleEligibilityScheduleRequest.Processing'                            = 'Retrieving Privileged Identity Management RoleEligibilitySchedule at [{0}]' # $ScopeObject.Scope
+    'Get-AzOpsRoleEligibilityScheduleRequest.Assignment'                            = 'Found Privileged Identity Management RoleEligibilityScheduleRequest assignment [{0}]' # $roleEligibilitySchedule.Name
 
     'Get-AzOpsSubscription.Excluded.Offers'                                         = 'Excluded subscription offers: {0}' # ($ExcludedOffers -join ',')
     'Get-AzOpsSubscription.Excluded.States'                                         = 'Excluded subscription states: {0}' # ($ExcludedStates -join ',')
@@ -158,6 +162,9 @@
     'Invoke-AzOpsPull.Rebuilding.State'                                             = 'Rebuilding state in {0}' # $StatePath
     'Invoke-AzOpsPull.Tenant'                                                       = 'Connected to tenant {0}' # $tenantId
     'Invoke-AzOpsPull.TemplateParameterFileSuffix'                                  = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
+    'Invoke-AzOpsPull.Validating.AADP2'                                             = 'Asserting fundamental Azure AD P2 licensing' #
+    'Invoke-AzOpsPull.Validating.AADP2.Success'                                     = 'Azure AD P2 licensing validated' #
+    'Invoke-AzOpsPull.Validating.AADP2.Failed'                                      = 'Azure AD P2 licensing not found' #
     'Invoke-AzOpsPull.Validating.UserRole'                                          = 'Asserting fundamental Azure access' #
     'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure user data' #
     'Invoke-AzOpsPull.Validating.UserRole.Success'                                  = 'Azure access validated' #
@@ -172,7 +179,7 @@
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Exiting runtime with error code 1.'
-    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $addition, $transpiledTemplatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
