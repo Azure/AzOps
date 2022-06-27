@@ -77,7 +77,7 @@
 
             $jqJsonTemplate = Join-Path $JqTemplatePath -ChildPath "templateChildResource.jq"
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template' -StringValues $jqJsonTemplate
-            $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+            $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
 
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting' -StringValues $objectFilePath
             ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
@@ -190,7 +190,7 @@
             )
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Remove' -StringValues $jqRemoveTemplate -FunctionName 'ConvertTo-AzOpsState'
             # If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
-            $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
+            $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
 
             if ($ReturnObject) {
                 return $object
@@ -204,7 +204,7 @@
                     (Join-Path $JqTemplatePath -ChildPath "template.parameters.jq")
 
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
-                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
                 }
                 else {
@@ -215,7 +215,7 @@
                     (Join-Path $JqTemplatePath -ChildPath "template.jq")
 
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
-                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
 
                     #region Replace Resource Type and API Version
