@@ -190,7 +190,7 @@
             )
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Remove' -StringValues $jqRemoveTemplate -FunctionName 'ConvertTo-AzOpsState'
             # If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
-            $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
+            $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
 
             if ($ReturnObject) {
                 return $object
