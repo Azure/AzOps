@@ -60,9 +60,6 @@ Describe "Scenario - workflows" {
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
-        It "Resource properties routes should exist" {
-            $script:fileContents.resources[0].properties.routes | Should -BeTrue
-        }
         #endregion Pull Test
 
         #region Push Test

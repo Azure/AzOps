@@ -20,9 +20,6 @@
     "vpnType": {
       "value": "RouteBased"
     },
-    "vpnGatewayGeneration": {
-      "value": "Generation1"
-    },
     "activeActive": {
       "value": false
     },

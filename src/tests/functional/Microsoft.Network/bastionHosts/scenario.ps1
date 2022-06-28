@@ -63,9 +63,6 @@ Describe "Scenario - bastionHosts" {
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
-        It "Resource properties sku should exist" {
-            $script:fileContents.resources[0].properties.sku | Should -BeTrue
-        }
         It "Resource properties ipConfigurations should exist" {
             $script:fileContents.resources[0].properties.ipConfigurations | Should -BeTrue
         }

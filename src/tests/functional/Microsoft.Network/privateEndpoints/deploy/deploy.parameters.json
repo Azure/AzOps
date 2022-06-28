@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "privateEndpointName": {
-            "value": "iacs-keyvault-endpoint"
+            "value": "azops-keyvault-endpoint"
         },
         "groupId": {
             "value":  ["vault"]
@@ -26,7 +26,7 @@
             "value": false
         },
         "keyVaultName": {
-            "value": "sxx-az-kv-weu-x-055"
+            "value": "sxx-az-kv-weu-x-155"
         }
     }
 }
