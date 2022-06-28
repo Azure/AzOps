@@ -9,11 +9,7 @@ $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
 $script:tenantId = $env:ARM_TENANT_ID
 $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
 
-#
-# Validate that the runtime variables
-# are set as they are used to authenticate
-# the Azure session.
-#
+# Validate that the runtime variables are set as they are used to authenticate the Azure session.
 
 if ($null -eq $script:tenantId) {
     Write-PSFMessage -Level Critical -Message "Unable to validate environment variable ARM_TENANT_ID"
@@ -24,11 +20,7 @@ if ($null -eq $script:subscriptionId) {
     throw
 }
 
-#
-# Ensure PowerShell has an authenticate
-# Azure Context which the tests can
-# run within and generate data as needed
-#
+# Ensure PowerShell has an authenticate Azure Context which the tests can run within and generate data as needed
 
 Write-PSFMessage -Level Verbose -Message "Validating Azure context" -FunctionName "BeforeAll"
 $tenant = (Get-AzContext -ListAvailable -ErrorAction SilentlyContinue).Tenant.Id
@@ -44,12 +36,7 @@ else {
     $null = Set-AzContext -TenantId $script:tenantId -SubscriptionId $script:subscriptionId
 }
 
-#
-# Deploy the Azure environment
-# based upon prefined resource templates
-# which will generate a matching
-# file system hierachy
-#
+# Deploy the Azure environment based upon prefined resource templates which will generate a matching file system hierachy
 
 Write-PSFMessage -Level Verbose -Message "Getting functional test objects based on structure" -FunctionName "BeforeAll"
 $script:functionalTestObjectPath = Join-Path $global:testroot -ChildPath "functional"
@@ -68,11 +55,7 @@ catch {
     Write-PSFMessage -Level Warning -String "Executing functional test object failed"
 }
 
-#
-# Ensure that the root directory
-# does not exist before running
-# tests.
-#
+# Ensure that the root directories does not exist before running tests.
 
 Write-PSFMessage -Level Verbose -Message "Testing for root directory existence" -FunctionName "BeforeAll"
 $generatedRoot = Join-Path -Path $script:repositoryRoot -ChildPath "root"
@@ -81,12 +64,7 @@ if (Test-Path -Path $generatedRoot) {
     Remove-Item -Path $generatedRoot -Recurse
 }
 
-#
-# Invoke the Invoke-AzOpsPull
-# function to generate the scope data which
-# can be tested against to ensure structure
-# is correct and data model hasn't changed.
-#
+# Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
 
 Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
 Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
