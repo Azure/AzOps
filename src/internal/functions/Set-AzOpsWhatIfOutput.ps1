@@ -40,9 +40,6 @@
 
     process {
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
-
-        $WhatIfIsLargeMsg = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.'
-
         if (-not (Test-Path -Path '/tmp/OUTPUT.md')) {
             New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
             New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
@@ -54,7 +51,6 @@
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
         $resultString = $Results | Out-String
         $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
-        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $Results
         # Measure current /tmp/OUTPUT.md content
         $existingContentMd = Get-Content -Path '/tmp/OUTPUT.md' -Raw
         $existingContentStringMd = $existingContentMd | Out-String
@@ -63,7 +59,7 @@
         $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json -Depth 100)
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($($existingContentStringMeasureMd.Characters) + $($resultStringMeasure.Characters)) -gt $ResultSizeLimit) {
-            $mdOutput = $WhatIfIsLargeMsg -f [environment]::NewLine, $TemplatePath
+            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $TemplatePath
         }
         else {
             if ($RemoveAzOpsFlag) {
