@@ -15,7 +15,7 @@ Describe "Scenario - userAssignedIdentities" {
         $script:functionalTestDeploy = ($functionalTestDeploy | Where-Object {$_.functionalTestDeployJob -eq (($script:resourceType) + 'FunctionalTestDeploy')}).functionalTestDeploy
 
         #region Paths
-        $script:path = ($functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.parameters.userAssignedIdentityName.value).toLower()).json")
+        $script:path = ($functionalTestFilePaths | Where-Object Name -eq "$($script:resourceProvider)_$($script:resourceType)-$(($script:functionalTestDeploy.parameters.userMsiName.value).toLower()).json")
         $script:directory = ($script:path).Directory
         $script:file = ($script:path).FullName
         $script:fileContents = Get-Content -Path $script:file -Raw | ConvertFrom-Json -Depth 25
