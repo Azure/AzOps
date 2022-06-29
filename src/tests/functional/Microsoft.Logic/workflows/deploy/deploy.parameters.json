@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "storageAccountName": {
-            "value": "[concat('storage', uniqueString(resourceGroup().id))]"
+            "value": "stgazops101"
         },
         "storageAccountSku": {
             "value": "Standard_LRS"
@@ -15,10 +15,10 @@
             "value": "my-container"
         },
         "storageConnectionName": {
-            "value": "[concat('storageconnection', uniqueString(resourceGroup().id))]"
+            "value": "storageconnectionName"
         },
         "logicAppName": {
-            "value": "[concat('logicapp', uniqueString(resourceGroup().id))]"
+            "value": "logicappazops"
         },
         "logicAppPollingIntervalInMinutes": {
             "value": 30
