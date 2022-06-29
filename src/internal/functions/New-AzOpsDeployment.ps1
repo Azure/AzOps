@@ -86,10 +86,11 @@
 
         #region Process Scope
         # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
+        $defaultDeploymentRegion = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
         $parameters = @{
             'TemplateFile'                = $TemplateFilePath
             'SkipTemplateParameterPrompt' = $true
-            'Location'                    = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
+            'Location'                    = $defaultDeploymentRegion
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
