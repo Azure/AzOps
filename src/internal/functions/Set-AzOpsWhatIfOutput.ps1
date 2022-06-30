@@ -13,8 +13,8 @@
             The character limit allowed for comments 64,000
         .PARAMETER ResultSizeMaxLimit
             The maximum upper character limit allowed for comments 64,600
-        .PARAMETER TemplatePath
-            Associated Template file
+        .PARAMETER StatePath
+            File in scope of WhatIf
         .EXAMPLE
             > Set-AzOpsWhatIfOutput -Results $results
             > Set-AzOpsWhatIfOutput -Results $results -RemoveAzOpsFlag $true
@@ -35,7 +35,7 @@
         $ResultSizeMaxLimit = "64600",
 
         [Parameter(Mandatory = $false)]
-        $TemplatePath
+        $StatePath
     )
 
     process {
@@ -44,8 +44,8 @@
             New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
             New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
         }
-        if ($TemplatePath -match '/') {
-            $TemplatePath = ($TemplatePath -split '/')[-1]
+        if ($StatePath -match '/') {
+            $StatePath = ($StatePath -split '/')[-1]
         }
         # Measure input $Results.Changes content
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
@@ -60,11 +60,11 @@
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($($existingContentStringMeasureMd.Characters) + $($resultStringMeasure.Characters)) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
-            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $TemplatePath
+            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $StatePath
         }
         else {
             if ($RemoveAzOpsFlag) {
-                $mdOutput = '{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $TemplatePath
+                $mdOutput = '{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $StatePath
             }
             else {
                 if ($existingContent.count -gt 0) {
@@ -74,7 +74,7 @@
                 else {
                     $existingContent = $resultJson
                 }
-                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $TemplatePath
+                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $StatePath
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
                 Set-Content -Path '/tmp/OUTPUT.json' -Value $existingContent -WhatIf:$false
             }
