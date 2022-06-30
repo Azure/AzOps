@@ -58,7 +58,7 @@
         # Gather current /tmp/OUTPUT.json content
         $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json -Depth 100)
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
-        if (($($existingContentStringMeasureMd.Characters) + $($resultStringMeasure.Characters)) -gt $ResultSizeLimit) {
+        if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
             $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $StatePath
         }
@@ -79,7 +79,7 @@
                 Set-Content -Path '/tmp/OUTPUT.json' -Value $existingContent -WhatIf:$false
             }
         }
-        if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $($existingContentStringMeasureMd.Characters)) -le $ResultSizeMaxLimit) {
+        if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $existingContentStringMeasureMd.Characters) -le $ResultSizeMaxLimit) {
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'
             Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
         }
