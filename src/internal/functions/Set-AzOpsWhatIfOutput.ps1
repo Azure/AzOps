@@ -84,7 +84,7 @@
             Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
         }
         else {
-            Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeMaxLimit
+            Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfMessageMax' -StringValues $ResultSizeMaxLimit
         }
     }
 }
