@@ -78,13 +78,13 @@
             if (-not $resourceToDelete) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
                 $results = '{0}: What if Operation Failed: Deletion of target resource {1}. Resource could not be found' -f $removeJobName, $scopeObject.scope
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -TemplatePath $scopeObject -Results $results -RemoveAzOpsFlag $true
                 return
             }
             $results = '{0}: What if Successful: Performing the operation: Deletion of target resource {1}.' -f $removeJobName, $scopeObject.scope
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-            Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+            Set-AzOpsWhatIfOutput -TemplatePath $scopeObject -Results $results -RemoveAzOpsFlag $true
 
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
