@@ -145,7 +145,7 @@
                 # Handle WhatIf prediction errors
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -TemplatePath $scopeObject -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    Set-AzOpsWhatIfOutput -TemplatePath $scopeObject.StatePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                 }
                 else {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
@@ -159,7 +159,7 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $scopeObject -Results $results
+                Set-AzOpsWhatIfOutput -TemplatePath $scopeObject.StatePath -Results $results
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
             if ($parameters.ExcludeChangeType) {
