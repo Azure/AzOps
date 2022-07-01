@@ -86,10 +86,11 @@
 
         #region Process Scope
         # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
+        $defaultDeploymentRegion = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
         $parameters = @{
             'TemplateFile'                = $TemplateFilePath
             'SkipTemplateParameterPrompt' = $true
-            'Location'                    = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
+            'Location'                    = $defaultDeploymentRegion
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
@@ -144,7 +145,7 @@
                 # Handle WhatIf prediction errors
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                 }
                 else {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
@@ -158,7 +159,7 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -TemplatePath $TemplateFilePath -Results $results
+                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
             if ($parameters.ExcludeChangeType) {
