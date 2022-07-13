@@ -272,5 +272,9 @@
     'Set-AzOpsStringLength.WithInLimit'                                             = 'String {0} within limit of {1}' # $String
 
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
-    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}'
+    'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'                                    = 'Adding content to WhatIf json file' #
+    'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'                                      = 'Adding content to WhatIf markdown file' #
+    'Set-AzOpsWhatIfOutput.WhatIfFileMax'                                           = 'WhatIf markdown and json files have reached character limit, unable to append more information to files. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
+    'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf have reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
+    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results
 }
