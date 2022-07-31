@@ -40,6 +40,7 @@ jobs:
         shell: pwsh
         run: |
           ./scripts/Dependencies.ps1
+          echo -e 'ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}'
 
       # Connect to Azure - TEMPORARY until 2.7.0 credential expiration issue is fixed
       - name: "Connect"
