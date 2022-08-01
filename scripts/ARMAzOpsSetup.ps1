@@ -123,7 +123,7 @@ process {
 
     if ([string]::IsNullOrEmpty($RepoExists)) {
         try {
-            Write-Host "Moving on; creating the repository :-)"
+            Write-Host "Moving on; creating the repository $NewESLZRepository in $GitHubUserNameOrOrg"
             Get-GitHubRepository -OwnerName $ESLZGitHubOrg `
                 -RepositoryName $ESLZRepository | New-GitHubRepositoryFromTemplate `
                 -TargetRepositoryName $NewESLZRepository `
@@ -141,8 +141,14 @@ process {
 
     #region Get GitHub public key and create new secrets
     try {
-        Write-host "Getting GitHub Public Key to create new secrets..."
-        $GitHubPublicKey = Invoke-GHRequest @BaseGHRest -Path "/actions/secrets/public-key" -Method Get
+        # Simple retry to handle eventual consistency of the public keys
+        $keyCount = 0
+        do {
+            Start-Sleep -Seconds 10
+            $keyCount++
+            Write-host "Attempt $keyCount; Getting GitHub Public Key to create new secrets... "
+            $GitHubPublicKey = Invoke-GHRequest @BaseGHRest -Path "/actions/secrets/public-key" -Method Get -ErrorAction SilentlyContinue
+        } until ($GitHubPublicKey.key -or $keyCount -eq 10)
 
         #Convert secrets to sodium with public key
         $Secrets = @{
