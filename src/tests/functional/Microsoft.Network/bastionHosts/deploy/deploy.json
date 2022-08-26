@@ -17,7 +17,6 @@
         },
         "azureBastionPipName": {
             "type": "string",
-            "defaultValue": "",
             "metadata": {
                 "description": "Optional. Specifies the name of the Public IP used by Azure Bastion. If it's not provided, a '-pip' suffix will be appended to the Bastion's name."
             }

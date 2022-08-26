@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "azureBastionName": {
-            "value": "sxx-az-bas-weu-x-001"
+            "value": "sxx-az-bas-x-001"
         },
         "azureBastionPipName": {
-            "value": "sxx-az-baspip-weu-x-001-pip"
+            "value": "sxx-az-baspip-x-001-pip"
         },
         "virtualNetworkName": {
-            "value": "vnet101"
+            "value": "vnet156"
         },
         "addressSpaces": {
             "value": [

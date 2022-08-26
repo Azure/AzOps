@@ -35,18 +35,6 @@
                 }
             ]
         },
-        "publicIpAddressName": {
-            "value": "vm01-ip"
-        },
-        "publicIpAddressType": {
-            "value": "Dynamic"
-        },
-        "publicIpAddressSku": {
-            "value": "Basic"
-        },
-        "pipDeleteOption": {
-            "value": "Detach"
-        },
         "virtualMachineName": {
             "value": "vm01"
         },
@@ -67,9 +55,6 @@
         },
         "adminUsername": {
             "value": "adminuser"
-        },
-        "adminPassword": {
-            "value": "test@1234567"
         },
         "patchMode": {
             "value": "AutomaticByOS"

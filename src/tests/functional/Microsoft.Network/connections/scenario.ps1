@@ -7,7 +7,7 @@ param (
     $functionalTestDeploy
 )
 
-Describe "Scenario - connectionName" {
+Describe "Scenario - connections" {
 
     BeforeAll {
         $script:resourceProvider = (Resolve-Path $PSScriptRoot).Path.Split('/')[-2]

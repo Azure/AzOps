@@ -31,6 +31,7 @@
         },
         "scopes": {
             "type": "array",
+            "defaultValue": ["[subscription().id]"],
             "metadata": {
                 "description": "Required. the list of resource id's that this metric alert is scoped to."
             }
@@ -55,8 +56,6 @@
         },
 		"emailReceivers": {
             "type": "array",
-            "defaultValue": [
-            ],
             "metadata": {
                 "description": "Optional. The list of email receivers that are part of this action group."
             }

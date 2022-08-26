@@ -37,7 +37,8 @@
             "type": "bool"
         },
         "keyVaultName": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "[uniqueString(resourceGroup().id)]"
         },
         "accessPolicies": {
             "type": "array",

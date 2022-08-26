@@ -24,9 +24,6 @@
         },
         "ddosProtectionPlanEnabled": {
             "value": false
-        },
-        "keyVaultName": {
-            "value": "sxx-az-kv-weu-x-155"
         }
     }
 }

@@ -54,15 +54,6 @@ Describe "Scenario - activityLogAlerts" {
         It "Resource apiVersion should exist" {
             $script:fileContents.resources[0].apiVersion | Should -BeTrue
         }
-        It "Resource action should exist" {
-            $script:fileContents.resources[0].properties.actions | Should -BeTrue
-        }
-        It "Resource condition should exist" {
-            $script:fileContents.resources[0].properties.condition.allOf | Should -BeTrue
-        }
-        It "Resource scopes should exist" {
-            $script:fileContents.resources[0].properties.scopes | Should -BeTrue
-        }
         It "Resource action group Id should exist" {
             $script:fileContents.resources[0].properties.actions.actionGroups.actionGroupId | Should -BeTrue
         }
@@ -72,8 +63,14 @@ Describe "Scenario - activityLogAlerts" {
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
-        It "Resource properties routes should exist" {
-            $script:fileContents.resources[0].properties.routes | Should -BeTrue
+        It "Resource action should exist" {
+            $script:fileContents.resources[0].properties.actions | Should -BeTrue
+        }
+        It "Resource condition should exist" {
+            $script:fileContents.resources[0].properties.condition | Should -BeTrue
+        }
+        It "Resource scopes should exist" {
+            $script:fileContents.resources[0].properties.scopes | Should -BeTrue
         }
         #endregion Pull Test
 

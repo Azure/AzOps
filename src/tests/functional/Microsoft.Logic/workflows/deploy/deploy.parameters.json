@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccountName": {
-            "value": "stgazops101"
-        },
         "storageAccountSku": {
             "value": "Standard_LRS"
         },
@@ -13,12 +10,6 @@
         },
         "storageAccountContainerName": {
             "value": "my-container"
-        },
-        "storageConnectionName": {
-            "value": "storageconnectionName"
-        },
-        "logicAppName": {
-            "value": "logicappazops"
         },
         "logicAppPollingIntervalInMinutes": {
             "value": 30

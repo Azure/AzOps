@@ -26,18 +26,6 @@
         "subnets": {
             "type": "array"
         },
-        "publicIpAddressName": {
-            "type": "string"
-        },
-        "publicIpAddressType": {
-            "type": "string"
-        },
-        "publicIpAddressSku": {
-            "type": "string"
-        },
-        "pipDeleteOption": {
-            "type": "string"
-        },
         "virtualMachineName": {
             "type": "string"
         },
@@ -60,6 +48,7 @@
             "type": "string"
         },
         "adminPassword": {
+            "defaultValue": "[guid(resourceGroup().id)]",
             "type": "secureString"
         },
         "patchMode": {
@@ -82,8 +71,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -93,13 +81,7 @@
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             },
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]",
-                                "properties": {
-                                    "deleteOption": "[parameters('pipDeleteOption')]"
-                                }
-                            }
+                            "privateIPAllocationMethod": "Dynamic"
                         }
                     }
                 ],
@@ -130,18 +112,6 @@
             }
         },
         {
-            "name": "[parameters('publicIpAddressName')]",
-            "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2020-08-01",
-            "location": "[parameters('location')]",
-            "properties": {
-                "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
-            },
-            "sku": {
-                "name": "[parameters('publicIpAddressSku')]"
-            }
-        },
-        {
             "name": "[parameters('virtualMachineName')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-07-01",
@@ -164,7 +134,7 @@
                     "imageReference": {
                         "publisher": "MicrosoftWindowsServer",
                         "offer": "WindowsServer",
-                        "sku": "2016-Datacenter",
+                        "sku": "2022-datacenter-azure-edition",
                         "version": "latest"
                     }
                 },

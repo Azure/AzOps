@@ -63,6 +63,9 @@ Describe "Scenario - userAssignedIdentities" {
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
+        It "Resource principalId should exist" {
+            $script:fileContents.resources[0].properties.principalId | Should -BeTrue
+        }
         #endregion Pull Test
 
         #region Push Test

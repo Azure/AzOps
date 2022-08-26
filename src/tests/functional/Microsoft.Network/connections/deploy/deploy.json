@@ -3,23 +3,18 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "connectionName": {
-            "defaultValue": "sxx-connection",
             "type": "String"
         },
         "virtualNetworkName": {
-            "defaultValue": "sxx-az-vnet-weu-x-004",
             "type": "String"
         },
         "localNetworkGatewayName": {
-            "defaultValue": "sxx-az-lng-weu-x-001",
             "type": "String"
         },
         "virtualNetworkGatewayName": {
-            "defaultValue": "sxx-az-vnet-vpn-gw-weu-p-001",
             "type": "String"
         },
         "publicIPAddressesName": {
-            "defaultValue": "sxx-az-vnet-vpn-gw-weu-p-001-pip-03",
             "type": "String"
         }
     },

@@ -60,6 +60,12 @@ Describe "Scenario - privateEndpoints" {
         It "Deployment should be successful" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
+        It "Resource properties customDnsConfigs should exist" {
+            $script:fileContents.resources[0].properties.customDnsConfigs | Should -BeTrue
+        }
+        It "Resource properties networkInterfaces should exist" {
+            $script:fileContents.resources[0].properties.networkInterfaces | Should -BeTrue
+        }
         #endregion Pull Test
 
         #region Push Test

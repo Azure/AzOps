@@ -4,19 +4,16 @@
     "parameters": {
         "storageAccountName": {
             "type": "string",
-            "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]"
+            "defaultValue": "[concat('azops', uniqueString(resourceGroup().id))]"
         },
         "storageAccountSku": {
-            "type": "string",
-            "defaultValue": "Standard_LRS"
+            "type": "string"
         },
         "storageAccountKind": {
-            "type": "string",
-            "defaultValue": "StorageV2"
+            "type": "string"
         },
         "storageAccountContainerName": {
-            "type": "string",
-            "defaultValue": "my-container"
+            "type": "string"
         },
         "storageConnectionName": {
             "type": "string",
@@ -35,8 +32,7 @@
             "defaultValue": "[resourceGroup().location]"
         },
         "azureMgmtUri": {
-            "type": "string",
-            "defaultValue": "https://management.azure.com:443/"
+            "type": "string"
         }
     },
     "variables": {
