@@ -1,4 +1,4 @@
-$script:runtimePath = $PSScriptRoot
+﻿$script:runtimePath = $PSScriptRoot
 $script:deployTemplate = "deploy.json"
 $script:deployTemplateParameter = "deploy.parameters.json"
 $script:scope = "ResourceGroup"

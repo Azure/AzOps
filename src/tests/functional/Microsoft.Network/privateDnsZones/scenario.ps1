@@ -1,4 +1,4 @@
-param (
+﻿param (
     [Parameter(Mandatory = $true)]
     [array]
     $functionalTestFilePaths,
