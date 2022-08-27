@@ -1,0 +1,17 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "localNetworkGatewayName": {
+            "value": "sxx-az-lng-x-001"
+        },
+        "localAddressPrefixes": {
+            "value": [
+                "192.168.1.0/24"
+            ]
+        },
+        "localGatewayPublicIpAddress": {
+            "value": "8.8.8.8"
+        }
+    }
+}

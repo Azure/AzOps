@@ -1,0 +1,177 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "connectionName": {
+            "type": "String"
+        },
+        "virtualNetworkName": {
+            "type": "String"
+        },
+        "localNetworkGatewayName": {
+            "type": "String"
+        },
+        "virtualNetworkGatewayName": {
+            "type": "String"
+        },
+        "publicIPAddressesName": {
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/localNetworkGateways",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('localNetworkGatewayName')]",
+            "location": "centralindia",
+            "properties": {
+                "localNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "192.168.1.0/24"
+                    ]
+                },
+                "gatewayIpAddress": "8.8.8.8"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('publicIPAddressesName')]",
+            "location": "centralindia",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "20.219.217.108",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('publicIPAddressesName')]",
+                    "fqdn": "[concat(parameters('publicIPAddressesName'), '.centralindia.cloudapp.azure.com')]"
+                },
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "centralindia",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/24"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.1.0.0/26",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('virtualNetworkName'), '/GatewaySubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.0.0/26",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+      
+        {
+            "type": "Microsoft.Network/connections",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('connectionName')]",
+            "location": "centralindia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGatewayName'))]",
+                "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localNetworkGatewayName'))]"
+            ],
+            "properties": {
+                "virtualNetworkGateway1": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGatewayName'))]"
+                },
+                "localNetworkGateway2": {
+                    "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localNetworkGatewayName'))]"
+                },
+                "connectionType": "IPsec",
+                "connectionProtocol": "IKEv2",
+                "routingWeight": 0,
+                "sharedKey": "rest1002",
+                "enableBgp": false,
+                "useLocalAzureIpAddress": false,
+                "usePolicyBasedTrafficSelectors": false,
+                "ipsecPolicies": [],
+                "trafficSelectorPolicies": [],
+                "expressRouteGatewayBypass": false,
+                "dpdTimeoutSeconds": 0,
+                "connectionMode": "Default"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworkGateways",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('virtualNetworkGatewayName')]",
+            "location": "centralindia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressesName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'GatewaySubnet')]"
+            ],
+            "properties": {
+                "enablePrivateIpAddress": false,
+                "ipConfigurations": [
+                    {
+                        "name": "vNetGatewayConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressesName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'GatewaySubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "sku": {
+                    "name": "VpnGw3",
+                    "tier": "VpnGw3"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": true,
+                "activeActive": false,
+                "bgpSettings": {
+                    "asn": 65815,
+                    "bgpPeeringAddress": "10.1.0.62",
+                    "peerWeight": 0,
+                    "bgpPeeringAddresses": [
+                        {
+                            "ipconfigurationId": "[concat(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGatewayName')), '/ipConfigurations/vNetGatewayConfig1')]",
+                            "customBgpIpAddresses": []
+                        }
+                    ]
+                },
+                "vpnGatewayGeneration": "Generation1"
+            }
+        }
+    ]
+}

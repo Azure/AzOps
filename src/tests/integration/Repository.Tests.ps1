@@ -700,12 +700,10 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:ruleCollectionGroupsFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.Network/firewallPolicies/ruleCollectionGroups"
         }
-        <# Commenting out due to apiVersion issue
         It "Rule Collection Group deployment should be successful" {
             $script:ruleCollectionDeployment = Get-AzResourceGroupDeployment -ResourceGroupName 'App1-azopsrg' -Name $script:ruleCollectionDeploymentName
             $ruleCollectionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
-        #>
         #endregion
 
         #region Scope - logAnalyticsWorkspaceSavedSearchesPath (./root/tenant root group/test/platform/management/subscription-0/App1-azopsrg/thisisalongloganalyticsworkspacename123456789011121314151617181)
