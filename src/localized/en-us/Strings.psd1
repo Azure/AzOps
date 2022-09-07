@@ -106,6 +106,7 @@
     'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
     'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
     'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceDefinition.Resource.Processing.Warning'                       = 'Failed to get resources in Resource Group [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting [{1}]' # $resourceGroup.ResourceGroupName, $_
     'Get-AzOpsResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
@@ -178,7 +179,7 @@
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Exiting runtime with error code 1.'
-    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $addition, $transpiledTemplatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
@@ -271,5 +272,9 @@
     'Set-AzOpsStringLength.WithInLimit'                                             = 'String {0} within limit of {1}' # $String
 
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
-    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}'
+    'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'                                    = 'Adding content to WhatIf json file' #
+    'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'                                      = 'Adding content to WhatIf markdown file' #
+    'Set-AzOpsWhatIfOutput.WhatIfFileMax'                                           = 'WhatIf markdown and json files have reached character limit, unable to append more information to files. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
+    'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf have reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
+    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results
 }

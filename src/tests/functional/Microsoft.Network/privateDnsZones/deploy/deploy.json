@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "privateDnsZoneName": {
+            "type": "string",
+            "metadata": {
+                "description": "Required. Private DNS zone name."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "global",
+            "metadata": {
+                "description": "Optional. The location of the PrivateDNSZone. Should be global."
+            }
+        },
+        "tags": {
+            "type": "object",
+            "defaultValue": {
+            },
+            "metadata": {
+                "description": "Optional. Tags of the resource."
+            }
+        }        
+    },
+    "variables": { },
+    "resources": [
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2018-09-01",
+            "name": "[parameters('privateDnsZoneName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]"
+        }
+    ],
+    "outputs": {
+        "privateDnsZoneResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]",
+            "metadata": {
+                "description": "The name of the Resource Group the resources was deployed to."
+            }
+        },
+        "privateDnsZoneName": {
+            "type": "string",
+            "value": "[parameters('privateDnsZoneName')]",
+            "metadata": {
+                "description": "The Name of the private DNS zone."
+            }
+        },
+        "privateDnsZoneResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZoneName'))]",
+            "metadata": {
+                "description": "The Resource Id of the private DNS zone."
+            }
+        }
+    }
+}

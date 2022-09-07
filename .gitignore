@@ -30,6 +30,7 @@ publish/*
 # Generated
 azops/*
 root/*
+partialmgdiscoveryroot/*
 
 # Debug
 **.private**

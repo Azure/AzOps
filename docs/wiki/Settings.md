@@ -56,3 +56,4 @@ Settings in GitHub are configured as Secrets by navigating to Settings -> Secret
 ### Pipeline Settings in Azure DevOps
 
 Settings in Azure DevOps are configured as variable groups, as described in [Azure DevOps Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups).
+

@@ -19,7 +19,7 @@ Describe "Scenario - serverfarms" {
         $script:directory = ($script:path).Directory
         $script:file = ($script:path).FullName
         $script:fileContents = Get-Content -Path $script:file -Raw | ConvertFrom-Json -Depth 25
-        Write-PSFMessage -Level Debug -Message "TestResoucePath: $($script:file)" -FunctionName "Functional Tests"
+        Write-PSFMessage -Level Debug -Message "TestResourcePath: $($script:file)" -FunctionName "Functional Tests"
         #endregion Paths
 
         #region Push Primer

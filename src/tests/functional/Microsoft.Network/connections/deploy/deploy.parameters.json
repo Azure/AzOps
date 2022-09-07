@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "connectionName": {
+            "value": "sxx-connection"
+        },
+        "virtualNetworkName": {
+            "value": "sxx-az-vnet-weu-x-004"
+        },
+        "localNetworkGatewayName": {
+            "value": "sxx-az-lng-weu-x-001"
+        },
+        "virtualNetworkGatewayName": {
+            "value": "sxx-az-vnet-vpn-gw-weu-p-001"
+        },
+        "publicIPAddressesName": {
+            "value": "sxx-az-vnet-vpn-gw-weu-p-001-pip-03"
+        }
+    }
+}

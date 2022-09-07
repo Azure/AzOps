@@ -471,7 +471,7 @@
         if ($this.Subscription) {
             foreach ($managementGroup in $script:AzOpsAzManagementGroup) {
                 foreach ($child in $managementGroup.Children) {
-                    if ($child.DisplayName -eq $this.subscriptionDisplayName) {
+                    if ($child.Type -eq '/subscriptions' -and $child.DisplayName -eq $this.subscriptionDisplayName) {
                         return $managementGroup.DisplayName
                     }
                 }

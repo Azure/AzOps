@@ -289,25 +289,25 @@
 
                         #region Prepare Input Data for parallel processing
                         $runspaceData = @{
-                            AzOpsPath                         = "$($script:ModuleRoot)\AzOps.psd1"
-                            StatePath                         = $StatePath
-                            ScopeObject                       = $ScopeObject
-                            ODataFilter                       = $ODataFilter
-                            SkipPim                           = $SkipPim
-                            SkipPolicy                        = $SkipPolicy
-                            SkipRole                          = $SkipRole
-                            SkipResource                      = $SkipResource
-                            SkipChildResource                 = $SkipChildResource
-                            SkipResourceType                  = $SkipResourceType
-                            IncludeResourcesInResourceGroup   = $IncludeResourcesInResourceGroup
-                            IncludeResourceType               = $IncludeResourceType
-                            MaxRetryCount                     = $maxRetryCount
-                            BackoffMultiplier                 = $backoffMultiplier
-                            ExportRawTemplate                 = $ExportRawTemplate
-                            runspace_AzOpsAzManagementGroup   = $script:AzOpsAzManagementGroup
-                            runspace_AzOpsSubscriptions       = $script:AzOpsSubscriptions
-                            runspace_AzOpsPartialRoot         = $script:AzOpsPartialRoot
-                            runspace_AzOpsResourceProvider    = $script:AzOpsResourceProvider
+                            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                            StatePath                       = $StatePath
+                            ScopeObject                     = $ScopeObject
+                            ODataFilter                     = $ODataFilter
+                            SkipPim                         = $SkipPim
+                            SkipPolicy                      = $SkipPolicy
+                            SkipRole                        = $SkipRole
+                            SkipResource                    = $SkipResource
+                            SkipChildResource               = $SkipChildResource
+                            SkipResourceType                = $SkipResourceType
+                            IncludeResourcesInResourceGroup = $IncludeResourcesInResourceGroup
+                            IncludeResourceType             = $IncludeResourceType
+                            MaxRetryCount                   = $maxRetryCount
+                            BackoffMultiplier               = $backoffMultiplier
+                            ExportRawTemplate               = $ExportRawTemplate
+                            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
+                            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
                         }
                         #endregion Prepare Input Data for parallel processing
 
@@ -366,22 +366,28 @@
                                         continue
                                     }
                                 }
-                                $resources = & $azOps {
-                                    $parameters = @{
-                                        DefaultProfile = $Context | Select-Object -First 1
-                                        ODataQuery     = $runspaceData.ODataFilter
+                                try {
+                                    $resources = & $azOps {
+                                        $parameters = @{
+                                            DefaultProfile = $Context | Select-Object -First 1
+                                            ODataQuery     = $runspaceData.ODataFilter
+                                        }
+                                        if ($resourceGroup.ResourceGroupName) {
+                                            $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
+                                        }
+                                        Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                                            param (
+                                                $Parameters
+                                            )
+                                            $param = $Parameters | Write-Output
+                                            Get-AzResource @param -ExpandProperties -ErrorAction Stop
+                                        } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                     }
-                                    if ($resourceGroup.ResourceGroupName) {
-                                        $parameters.ResourceGroupName = $resourceGroup.ResourceGroupName
-                                    }
-                                    Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
-                                        param (
-                                            $Parameters
-                                        )
-                                        $param = $Parameters | Write-Output
-                                        Get-AzResource @param -ExpandProperties -ErrorAction Stop
-                                    } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                 }
+                                catch {
+                                    Write-PSFMessage -Level Warning -String 'Get-AzOpsResourceDefinition.Resource.Processing.Warning' -StringValues $resourceGroup.ResourceGroupName, $_
+                                }
+
                                 if ($runspaceData.IncludeResourceType -eq "*") {
                                     $resources = $resources | Where-Object { $_.Type -notin $runspaceData.SkipResourceType }
                                 }
@@ -535,6 +541,14 @@
             $context = Get-AzContext
             $context.Subscription.Id = $ScopeObject.Subscription
             $odataFilter = "`$filter=subscriptionId eq '$($scopeObject.subscription)'"
+            # Exclude resources in SkipResourceType
+            $SkipResourceType | Foreach-Object -Process {
+                $odataFilter = $odataFilter + " AND resourceType ne '$_'"
+            }
+            # Include resources from if changed from '*'
+            $IncludeResourceType | Where-Object { $_ -ne '*' } | Foreach-Object -Process {
+                $odataFilter = $odataFilter + " AND resourceType eq '$_'"
+            }
             Write-PSFMessage -Level Debug -String 'Get-AzOpsResourceDefinition.Subscription.OdataFilter' -StringValues $odataFilter
         }
 
