@@ -40,9 +40,10 @@
 
     process {
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
-        if (-not (Test-Path -Path '/tmp/OUTPUT.md')) {
-            New-Item -Path '/tmp/OUTPUT.md' -WhatIf:$false
-            New-Item -Path '/tmp/OUTPUT.json' -WhatIf:$false
+        $tempPath = [System.IO.Path]::GetTempPath()
+        if (-not (Test-Path -Path ($tempPath + "OUTPUT.md"))) {
+            New-Item -Path ($tempPath + "OUTPUT.md") -WhatIf:$false
+            New-Item -Path ($tempPath + "OUTPUT.json") -WhatIf:$false
         }
         if ($StatePath -match '/') {
             $StatePath = ($StatePath -split '/')[-1]
@@ -51,12 +52,12 @@
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
         $resultString = $Results | Out-String
         $resultStringMeasure = $resultString | Measure-Object -Line -Character -Word
-        # Measure current /tmp/OUTPUT.md content
-        $existingContentMd = Get-Content -Path '/tmp/OUTPUT.md' -Raw
+        # Measure current OUTPUT.md content
+        $existingContentMd = Get-Content -Path ($tempPath + "OUTPUT.md") -Raw
         $existingContentStringMd = $existingContentMd | Out-String
         $existingContentStringMeasureMd = $existingContentStringMd | Measure-Object -Line -Character -Word
-        # Gather current /tmp/OUTPUT.json content
-        $existingContent = @(Get-Content -Path '/tmp/OUTPUT.json' -Raw | ConvertFrom-Json -Depth 100)
+        # Gather current OUTPUT.json content
+        $existingContent = @(Get-Content -Path ($tempPath + "OUTPUT.json") -Raw | ConvertFrom-Json -Depth 100)
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
@@ -76,12 +77,12 @@
                 }
                 $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $StatePath
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
-                Set-Content -Path '/tmp/OUTPUT.json' -Value $existingContent -WhatIf:$false
+                Set-Content -Path ($tempPath + "OUTPUT.json") -Value $existingContent -WhatIf:$false
             }
         }
         if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $existingContentStringMeasureMd.Characters) -le $ResultSizeMaxLimit) {
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'
-            Add-Content -Path '/tmp/OUTPUT.md' -Value $mdOutput -WhatIf:$false
+            Add-Content -Path ($tempPath + "OUTPUT.md") -Value $mdOutput -WhatIf:$false
         }
         else {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfMessageMax' -StringValues $ResultSizeMaxLimit

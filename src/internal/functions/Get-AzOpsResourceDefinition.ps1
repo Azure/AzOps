@@ -397,7 +397,7 @@
                                 if (-not $resources) {
                                     Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.NoResources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                                 }
-                                $tempExportPath = "/tmp/" + $resourceGroup.ResourceGroupName + ".json"
+                                $tempExportPath = [System.IO.Path]::GetTempPath() + $resourceGroup.ResourceGroupName + ".json"
                                 # Loop through resources and convert them to AzOpsState
                                 foreach ($resource in $resources) {
                                     # Convert resources to AzOpsState
