@@ -101,6 +101,12 @@ if ($ARM_CLIENT_SECRET) {
         --query 'id'
 }
 
+$ConfigVariableGroupId = az pipelines variable-group create `
+        --name 'azops' `
+        --variables `
+        "AZOPS_MODULE_VERSION=" "AZOPS_CUSTOM_SORT_ORDER=false" `
+        --query 'id'
+
 # Add a secret to the variable group just created using id from above if using service principal
 if ($ARM_CLIENT_SECRET) {
     az pipelines variable-group variable create `
@@ -157,11 +163,9 @@ $Body = @{
 $Uri = "`"https://dev.azure.com/$Organization/_apis/accesscontrolentries/${AzureReposSecurityNamespaceId}?api-version=6.0`""
 az rest --method post --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppId -o json
 
-# Add pipeline permissions for all three pipelines to the credentials Variable Group
+# Add pipeline permissions for all three pipelines to the credentials Variable Groups
 $AzureDevOpsGlobalAppId = '499b84ac-1321-427f-aa17-267ca6975798'
 $Pipelines = az pipelines list --query "[? contains(name,'AzOps')].{id:id,name:name}" | ConvertFrom-Json
-$VariableGroup = az pipelines variable-group list --query "[?name=='credentials'].{id:id,name:name}" | ConvertFrom-Json
-$Uri = "`"https://dev.azure.com/$Organization/$ProjectName/_apis/pipelines/pipelinepermissions/variablegroup/$($VariableGroup.id)?api-version=6.1-preview.1`""
 $Body = @(
     @{
         resource  = @{}
@@ -175,7 +179,11 @@ $Body = @(
         )
     }
 ) | ConvertTo-Json -Depth 5 -Compress | ConvertTo-Json # Convert to json twice to properly escape characters for Python interpreter
-az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppId -o json
+foreach($groupName in 'credentials','azops') {
+  $VariableGroup = az pipelines variable-group list --query "[?name=='$groupName'].{id:id,name:name}" | ConvertFrom-Json
+  $Uri = "`"https://dev.azure.com/$Organization/$ProjectName/_apis/pipelines/pipelinepermissions/variablegroup/$($VariableGroup.id)?api-version=6.1-preview.1`""
+  az rest --method patch --uri $Uri --body $Body --resource $AzureDevOpsGlobalAppId -o json
+}
 ```
 
 - Your new Project is now ready. Skip down to [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines) to get started.
