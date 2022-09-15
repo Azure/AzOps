@@ -77,7 +77,7 @@
                 }
                 $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $StatePath
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
-                Set-Content -Path ($tempPath + 'UTPUT.json') -Value $existingContent -WhatIf:$false
+                Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
             }
         }
         if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $existingContentStringMeasureMd.Characters) -le $ResultSizeMaxLimit) {
