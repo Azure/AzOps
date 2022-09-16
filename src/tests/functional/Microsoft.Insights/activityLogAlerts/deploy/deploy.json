@@ -77,7 +77,8 @@
             "name": "[parameters('alertName')]",
             "type": "Microsoft.Insights/ActivityLogAlerts",
             "location": "[parameters('location')]",
-            "apiVersion": "2017-04-01",
+            "dependsOn": ["[resourceId('microsoft.insights/actionGroups',parameters('actionGroupName'))]"],
+            "apiVersion": "2020-10-01",
             "properties": {
                 "scopes": "[parameters('scopes')]",
                 "condition": {
