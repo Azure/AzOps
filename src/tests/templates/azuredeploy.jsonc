@@ -125,7 +125,7 @@
             ],
             "copy": {
                 "batchSize": 1,
-                "count": 25,
+                "count": 30,
                 "mode": "Serial",
                 "name": "waitingCompletion"
             },
