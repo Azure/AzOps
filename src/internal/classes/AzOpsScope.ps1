@@ -412,7 +412,7 @@
 
         if ($this.GetManagementGroupName()) {
             foreach ($mgmt in $script:AzOpsAzManagementGroup) {
-                if ($mgmt.DisplayName -eq $this.GetManagementGroupName()) {
+                if ($mgmt.Name -eq $this.GetManagementGroupName()) {
                     return $mgmt.Name
                 }
             }
@@ -457,7 +457,7 @@
             $mgId = $this.Scope -split $this.regex_managementgroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
 
             if ($mgId) {
-                $mgDisplayName = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $mgId).DisplayName
+                $mgDisplayName = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $mgId).Name
                 if ($mgDisplayName) {
                     #Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
                     return $mgDisplayName
@@ -472,7 +472,7 @@
             foreach ($managementGroup in $script:AzOpsAzManagementGroup) {
                 foreach ($child in $managementGroup.Children) {
                     if ($child.Type -eq '/subscriptions' -and $child.DisplayName -eq $this.subscriptionDisplayName) {
-                        return $managementGroup.DisplayName
+                        return $managementGroup.Name
                     }
                 }
             }
