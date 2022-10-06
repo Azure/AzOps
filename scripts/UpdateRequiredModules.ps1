@@ -5,8 +5,10 @@ $newmodule = @()
 $updated = $false
 $data.RequiredModules | ForEach-Object {
     $moduleVersion = $_.RequiredVersion
+    [int]$moduleVersionInt = $moduleVersion.Replace('.',',')
     $galleryVersion = (Find-Module -Name $_.ModuleName).Version
-    if ($moduleVersion -lt $galleryVersion) {
+    [int]$galleryVersionInt = $galleryVersion.Replace('.',',')
+    if ($moduleVersionInt -lt $galleryVersionInt) {
         $newmodule = @{
             "ModuleName" = $_.ModuleName
             "RequiredVersion" = $galleryVersion
