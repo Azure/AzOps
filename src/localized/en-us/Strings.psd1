@@ -178,7 +178,8 @@
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
-    'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Exiting runtime with error code 1.'
+    'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
+    'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate'                                 = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $addition, $transpiledTemplatePath
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
@@ -247,8 +248,10 @@
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
+    'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'Resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
+    'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
     'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.scope, $resultsError
-    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyExemptions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
 
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
     'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory

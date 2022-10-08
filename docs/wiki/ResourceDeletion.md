@@ -5,11 +5,11 @@
 
 ## Introduction
 
-**AzOps Resource Deletion** performs deletion of policyAssignments, policyExemptions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
+**AzOps Resource Deletion** performs deletion of policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
 
 - For any other resource type **deletion** is **not** supported by AzOps at this time.
 
-By removing a AzOps generated file representing an policyAssignment, policyExemption or a roleAssignment AzOps removes the corresponding resource in Azure.
+By removing a AzOps generated file of a supported resource type AzOps removes the corresponding resource in Azure.
 
 **_Please Note_**
 
@@ -25,12 +25,32 @@ By removing a AzOps generated file representing an policyAssignment, policyExemp
     Microsoft.Authorization/* OR  * (For everything)
 ```
 
+- For Azure Policy Definition removal
+
+```bash
+    Microsoft.Authorization/policyDefinitions/delete
+                            OR
+    Microsoft.Authorization/policyDefinitions/*
+                            OR
+    Microsoft.Authorization/* OR  * (For everything)
+```
+
 - For Azure Policy Exemption removal
 
 ```bash
     Microsoft.Authorization/policyExemptions/delete
                             OR
     Microsoft.Authorization/policyExemptions/*
+                            OR
+    Microsoft.Authorization/* OR  * (For everything)
+```
+
+- For Azure Policy SetDefinition removal
+
+```bash
+    Microsoft.Authorization/policySetDefinitions/delete
+                            OR
+    Microsoft.Authorization/policySetDefinitions/*
                             OR
     Microsoft.Authorization/* OR  * (For everything)
 ```

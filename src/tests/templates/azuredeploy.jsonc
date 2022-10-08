@@ -30,6 +30,319 @@
                 }
             }
         },
+        // Policy Definition and SetDefinition - Test Root
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "Test-Policy-Definition-Nested",
+            "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Management/managementGroups', guid('Test'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                        	"type": "Microsoft.Authorization/policyDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicyDefinition",
+                        	"properties": {
+                        		"displayName": "AzOps - Deploy network watcher when virtual networks are created",
+                        		"policyType": "Custom",
+                        		"mode": "Indexed",
+                        		"description": "AzOps - This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"parameters": {},
+                        		"policyRule": {
+                        			"if": {
+                        				"field": "type",
+                        				"equals": "Microsoft.Network/virtualNetworks"
+                        			},
+                        			"then": {
+                        				"effect": "DeployIfNotExists",
+                        				"details": {
+                        					"type": "Microsoft.Network/networkWatchers",
+                        					"resourceGroupName": "networkWatcherRG",
+                        					"existenceCondition": {
+                        						"field": "location",
+                        						"equals": "westeurope"
+                        					},
+                        					"roleDefinitionIds": [
+                        						"/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+                        					],
+                        					"deployment": {
+                        						"properties": {
+                        							"mode": "incremental",
+                        							"template": {
+                        								"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                        								"contentVersion": "1.0.0.0",
+                        								"parameters": {},
+                        								"resources": [{
+                        									"apiVersion": "2016-09-01",
+                        									"type": "Microsoft.Network/networkWatchers",
+                        									"name": "azops-networkwatcher",
+                        									"location": "westeurope"
+                        								}]
+                        							},
+                        							"parameters": {
+                        								"location": {
+                        									"value": "westeurope"
+                        								}
+                        							}
+                        						}
+                        					}
+                        				}
+                        			}
+                        		}
+                        	}
+                        },
+                        {
+                        	"type": "Microsoft.Authorization/policySetDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicySetDefinition",
+                        	"properties": {
+                        		"displayName": "AzOps - Flow logs should be configured and enabled for every network security group",
+                        		"description": "AzOps - Audit for network security groups to verify if flow logs are configured and if flow log status is enabled. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.",
+                        		"policyType": "Custom",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"policyDefinitions": [{
+                        				"policyDefinitionReferenceId": "NetworkSecurityGroup_FlowLog_Audit",
+                        				"policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/c251913d-7d24-4958-af87-478ed3b9ba41",
+                        				"parameters": {
+                        					"effect": {
+                        						"value": "Audit"
+                        					}
+                        				},
+                        				"groupNames": []
+                        			},
+                        			{
+                        				"policyDefinitionReferenceId": "NetworkWatcherFlowLog_Enabled_Audit",
+                        				"policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/27960feb-a23c-4577-8d36-ef8b5f35e0be",
+                        				"parameters": {
+                        					"effect": {
+                        						"value": "Audit"
+                        					}
+                        				},
+                        				"groupNames": []
+                        			}
+                        		],
+                        		"policyDefinitionGroups": []
+                        	}
+                        },
+                        {
+                        	"type": "Microsoft.Authorization/policyDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicyDefinitionDep",
+                        	"properties": {
+                        		"displayName": "AzOpsDep - Deploy network watcher when virtual networks are created",
+                        		"policyType": "Custom",
+                        		"mode": "Indexed",
+                        		"description": "AzOpsDep - This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"parameters": {},
+                        		"policyRule": {
+                        			"if": {
+                        				"field": "type",
+                        				"equals": "Microsoft.Network/virtualNetworks"
+                        			},
+                        			"then": {
+                        				"effect": "DeployIfNotExists",
+                        				"details": {
+                        					"type": "Microsoft.Network/networkWatchers",
+                        					"resourceGroupName": "networkWatcherRG",
+                        					"existenceCondition": {
+                        						"field": "location",
+                        						"equals": "northeurope"
+                        					},
+                        					"roleDefinitionIds": [
+                        						"/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+                        					],
+                        					"deployment": {
+                        						"properties": {
+                        							"mode": "incremental",
+                        							"template": {
+                        								"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                        								"contentVersion": "1.0.0.0",
+                        								"parameters": {},
+                        								"resources": [{
+                        									"apiVersion": "2016-09-01",
+                        									"type": "Microsoft.Network/networkWatchers",
+                        									"name": "azopsDep-networkwatcher",
+                        									"location": "westeurope"
+                        								}]
+                        							},
+                        							"parameters": {
+                        								"location": {
+                        									"value": "westeurope"
+                        								}
+                        							}
+                        						}
+                        					}
+                        				}
+                        			}
+                        		}
+                        	}
+                        },
+                        {
+                            "type": "Microsoft.Authorization/policyAssignments",
+                            "apiVersion": "2021-06-01",
+                            "name": "TestPolicyAssignmentDep",
+                            "location": "westeurope",
+                            "identity": {
+                                "type": "SystemAssigned"
+                            },
+                            "properties": {
+                                "policyDefinitionId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Test'), '/providers/Microsoft.Authorization/policyDefinitions/TestPolicyDefinitionDep')]"
+                            },
+                            "dependsOn": [
+                                "TestPolicyDefinition"
+                            ]
+                        },
+                        {
+                        	"type": "Microsoft.Authorization/policySetDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicySetDefinitionDep",
+                        	"properties": {
+                        		"displayName": "AzOpsDep - Flow logs should be configured and enabled for every network security group",
+                        		"description": "AzOpsDep - Audit for network security groups to verify if flow logs are configured and if flow log status is enabled. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.",
+                        		"policyType": "Custom",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"policyDefinitions": [{
+                        				"policyDefinitionReferenceId": "NetworkSecurityGroup_FlowLog_Audit",
+                        				"policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/c251913d-7d24-4958-af87-478ed3b9ba41",
+                        				"parameters": {
+                        					"effect": {
+                        						"value": "Audit"
+                        					}
+                        				},
+                        				"groupNames": []
+                        			},
+                        			{
+                        				"policyDefinitionReferenceId": "NetworkWatcherFlowLog_Enabled_Audit",
+                        				"policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/27960feb-a23c-4577-8d36-ef8b5f35e0be",
+                        				"parameters": {
+                        					"effect": {
+                        						"value": "Audit"
+                        					}
+                        				},
+                        				"groupNames": []
+                        			}
+                        		],
+                        		"policyDefinitionGroups": []
+                        	}
+                        },
+                        {
+                            "type": "Microsoft.Authorization/policyAssignments",
+                            "apiVersion": "2021-06-01",
+                            "name": "TestPolicyAssDepDef",
+                            "properties": {
+                                "policyDefinitionId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Test'), '/providers/Microsoft.Authorization/policySetDefinitions/TestPolicySetDefinitionDep')]"
+                            },
+                            "dependsOn": [
+                                "TestPolicySetDefinitionDep"
+                            ]
+                        },
+                        {
+                        	"type": "Microsoft.Authorization/policyDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicyDefinitionDe2",
+                        	"properties": {
+                        		"displayName": "AzOpsDep2 - Deploy network watcher when virtual networks are created",
+                        		"policyType": "Custom",
+                        		"mode": "Indexed",
+                        		"description": "AzOpsDep2 - This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"parameters": {},
+                        		"policyRule": {
+                        			"if": {
+                        				"field": "type",
+                        				"equals": "Microsoft.Network/virtualNetworks"
+                        			},
+                        			"then": {
+                        				"effect": "DeployIfNotExists",
+                        				"details": {
+                        					"type": "Microsoft.Network/networkWatchers",
+                        					"resourceGroupName": "networkWatcherRG",
+                        					"existenceCondition": {
+                        						"field": "location",
+                        						"equals": "northeurope"
+                        					},
+                        					"roleDefinitionIds": [
+                        						"/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+                        					],
+                        					"deployment": {
+                        						"properties": {
+                        							"mode": "incremental",
+                        							"template": {
+                        								"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                        								"contentVersion": "1.0.0.0",
+                        								"parameters": {},
+                        								"resources": [{
+                        									"apiVersion": "2016-09-01",
+                        									"type": "Microsoft.Network/networkWatchers",
+                        									"name": "azopsDep-networkwatcher",
+                        									"location": "westeurope"
+                        								}]
+                        							},
+                        							"parameters": {
+                        								"location": {
+                        									"value": "westeurope"
+                        								}
+                        							}
+                        						}
+                        					}
+                        				}
+                        			}
+                        		}
+                        	}
+                        },
+                        {
+                        	"type": "Microsoft.Authorization/policySetDefinitions",
+                        	"apiVersion": "2021-06-01",
+                        	"name": "TestPolicySetDefinitionDe2",
+                            "dependsOn": [
+                                "TestPolicyDefinitionDe2"
+                            ],
+                        	"properties": {
+                        		"displayName": "AzOpsDep2 - Flow logs should be configured and enabled for every network security group",
+                        		"description": "AzOpsDep2 - Audit for network security groups to verify if flow logs are configured and if flow log status is enabled. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.",
+                        		"policyType": "Custom",
+                        		"metadata": {
+                        			"version": "1.0.0",
+                        			"category": "Network"
+                        		},
+                        		"policyDefinitions": [{
+                        				"policyDefinitionId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Test'), '/providers/Microsoft.Authorization/policyDefinitions/TestPolicyDefinitionDe2')]",
+                        				"groupNames": []
+                        			}
+                        		],
+                        		"policyDefinitionGroups": []
+                        	}
+                        }
+                    ],
+                    "outputs": {}
+                }
+            },
+            "scope": "[resourceId('Microsoft.Management/managementGroups/', guid('Test'))]"
+        },
         // Management Group - Test - Platform
         {
             "type": "Microsoft.Management/managementGroups",

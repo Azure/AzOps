@@ -66,6 +66,8 @@
                 $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -like "*-azopsrg"}
                 $script:roleAssignments = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
                 $script:policyAssignments = Get-AzPolicyAssignment
+                $script:policyDefinitions = Get-AzPolicyDefinition -Custom
+                $script:policySetDefinitions = Get-AzPolicySetDefinition -Custom
                 $script:policyExemptions = Get-AzPolicyExemption -ErrorAction SilentlyContinue
                 # Cleanup resourceGroups
                 $script:resourceGroups | ForEach-Object -ThrottleLimit 20 -Parallel {
@@ -74,8 +76,10 @@
                 }
                 # Cleanup roleAssignments and policyAssignments
                 $script:roleAssignments | Remove-AzRoleAssignment -Confirm:$false -ErrorAction SilentlyContinue
-                $script:policyExemptions | Remove-AzPolicyExemption -Force -Confirm:$false
-                $script:policyAssignments | Remove-AzPolicyAssignment -Confirm:$false
+                $script:policyExemptions | Remove-AzPolicyExemption -Force -Confirm:$false -ErrorAction SilentlyContinue
+                $script:policyAssignments | Remove-AzPolicyAssignment -Confirm:$false -ErrorAction SilentlyContinue
+                $script:policyDefinitions | Remove-AzPolicyDefinition -Force -Confirm:$false -ErrorAction SilentlyContinue
+                $script:policySetDefinitions | Remove-AzPolicySetDefinition -Force -Confirm:$false -ErrorAction SilentlyContinue
                 # Collect and cleanup deployment jobs
                 $azTenantDeploymentJobs = Get-AzTenantDeployment
                 $azTenantDeploymentJobs | ForEach-Object -ThrottleLimit 20 -Parallel {
