@@ -1,7 +1,7 @@
 # AzOps Resource Deletion
 
-- [Introduction](#Introduction)
-- [Integration with AzOps Accelerator](#Integration-with-AzOps-Accelerator)
+- [Introduction](#introduction)
+- [Integration with AzOps Accelerator](#integration-with-azops-accelerator)
 
 ## Introduction
 
