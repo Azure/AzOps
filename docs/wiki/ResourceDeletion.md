@@ -2,9 +2,9 @@
 
 - [Introduction](#introduction)
 - [Deletion dependency validation](#deletion-dependency-validation)
-    - [Deletion dependency validation scenario](#deletion-dependency-validation-scenario)
+  - [Deletion dependency validation scenario](#deletion-dependency-validation-scenario)
 - [Integration with AzOps Accelerator](#integration-with-azops-accelerator)
-    - [How to Add AzOps Resource Deletion to existing AzOps Push](#how-to-add-azops-resource-deletion-to-existing-azops-push-and-validate-pipelines)
+  - [How to Add AzOps Resource Deletion to existing AzOps Push](#how-to-add-azops-resource-deletion-to-existing-azops-push-and-validate-pipelines)
 
 ## Introduction
 
@@ -82,13 +82,13 @@ Ensure the results job "if" logic exists in your [validate.yml](https://github.c
 Scenario: Deletion of a policy definition and policy assignment where the assignment is referencing the policy definition.
 
 - Create branch
-    - Delete policy definition file from branch.
+  - Delete policy definition file from branch.
 - Create pull request
-    - Validation pipeline evaluates input and discovers there is a policy assignment with dependency towards the definition and the assignment is not part of the pull request.
-    - Validation pipelines throws and posts results back to pull request conversation for user remediation.
+  - Validation pipeline evaluates input and discovers there is a policy assignment with dependency towards the definition and the assignment is not part of the pull request.
+  - Validation pipelines throws and posts results back to pull request conversation for user remediation.
 - Two options:
-    -   a) In the branch delete the dependent file corresponding to the resulting error.
-    -   b) Delete the dependency in Azure and re-run validation.
+  - a) In the branch delete the dependent file corresponding to the resulting error.
+  - b) Delete the dependency in Azure and re-run validation.
 
 ## Integration with AzOps Accelerator
 
