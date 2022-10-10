@@ -54,6 +54,7 @@
                         $query = "PolicyResources | where type == 'microsoft.authorization/policyassignments' and properties.policyDefinitionId == '$($resourceToDelete.PolicySetDefinitionId)' | order by id asc"
                         $depPolicyAssignment = Search-AzGraphDeletionDependency -query $query
                         if ($depPolicyAssignment) {
+                            #Loop through each return from graph cache and validate resource is still present in Azure
                             $depPolicyAssignment = foreach ($policyAssignment in $depPolicyAssignment) {Get-AzPolicyAssignment -Id $policyAssignment.Id -ErrorAction SilentlyContinue}
                         }
                     }
@@ -70,6 +71,7 @@
                         $depSystemAssignedRoleAssignment = Get-AzRoleAssignment -ObjectId $policyAssignment.Identity.PrincipalId -Scope $policyAssignment.Properties.Scope
                         if ($depSystemAssignedRoleAssignment) {
                             foreach ($roleAssignmentId in $depSystemAssignedRoleAssignment.RoleAssignmentId) {
+                                #Filter through each return and validate resource is not at child resource scope
                                 if ($roleAssignmentId -notlike '*/resourcegroups/*/providers/*/providers/*') {
                                     $dependency += [PSCustomObject]@{
                                         ResourceType = 'roleAssignments'
@@ -99,6 +101,7 @@
                 $depPolicySetDefinition = Search-AzGraphDeletionDependency -query $query
                 if ($depPolicySetDefinition) {
                     $depPolicySetDefinition = foreach ($policySetDefinition in $depPolicySetDefinition) {
+                        #Loop through each return from graph cache and validate resource is still present in Azure
                         $policy = Get-AzPolicySetDefinition -Id $policySetDefinition.Id -ErrorAction SilentlyContinue
                         if ($policy) {
                             $dependency += [PSCustomObject]@{
@@ -159,7 +162,7 @@
                 return $results
             }
         }
-        $script:dependencyMissing = $null
+        $dependencyMissing = $null
         #Adjust TemplateParameterFilePath to compensate for policyDefinitions and policySetDefinitions usage of parameters.json
         if ($TemplateParameterFilePath) {
             $TemplateFilePath = $TemplateParameterFilePath
@@ -233,36 +236,36 @@
             }
             if (-not $resourceToDelete) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
-                $script:results = 'What if Operation Failed: Deletion of target resource {0}. Resource could not be found' -f $scopeObject.scope
-                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $script:results -RemoveAzOpsFlag $true
+                $results = 'What if Operation Failed: Deletion of target resource {0}. Resource could not be found' -f $scopeObject.scope
+                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results -RemoveAzOpsFlag $true
                 return
             }
             if ($dependency) {
                 foreach ($resource in $dependency) {
                     if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
                         Write-PSFMessage -Level Critical -String 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -StringValues $resource.ResourceId, $scopeObject.Scope -Target $scopeObject
-                        $script:results = 'Missing resource dependency {0} for successful deletion of {1}. Please add missing resource and retry.' -f $resource.ResourceId, $scopeObject.scope
-                        Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $script:results -RemoveAzOpsFlag $true
-                        $script:dependencyMissing = [PSCustomObject]@{
+                        $results = 'Missing resource dependency {0} for successful deletion of {1}. Please add missing resource and retry.' -f $resource.ResourceId, $scopeObject.scope
+                        Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results -RemoveAzOpsFlag $true
+                        $dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
                         }
                     }
                 }
             }
             else {
-                $script:results = 'What if Successful: Performing the operation: Deletion of target resource {0}.' -f $scopeObject.scope
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $script:results -Target $scopeObject
+                $results = 'What if Successful: Performing the operation: Deletion of target resource {0}.' -f $scopeObject.scope
+                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $script:results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results -RemoveAzOpsFlag $true
             }
-            if ($script:dependencyMissing) {
-                return $script:dependencyMissing
+            if ($dependencyMissing) {
+                return $dependencyMissing
             }
             elseif ($dependency) {
-                $script:results = 'What if Successful: Performing the operation: Deletion of target resource {0}.' -f $scopeObject.scope
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $script:results -Target $scopeObject
+                $results = 'What if Successful: Performing the operation: Deletion of target resource {0}.' -f $scopeObject.scope
+                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $script:results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
