@@ -38,7 +38,7 @@
         },
         "keyVaultName": {
             "type": "string",
-            "defaultValue": "[uniqueString(resourceGroup().id)]"
+            "defaultValue": "[concat('kvazopstest', uniqueString(resourceGroup().id))]"
         },
         "accessPolicies": {
             "type": "array",
