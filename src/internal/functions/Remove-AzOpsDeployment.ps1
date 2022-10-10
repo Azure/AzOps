@@ -244,7 +244,7 @@
                 foreach ($resource in $dependency) {
                     if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
                         Write-PSFMessage -Level Critical -String 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -StringValues $resource.ResourceId, $scopeObject.Scope -Target $scopeObject
-                        $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}**Please add dependent resource to pull request and retry.**' -f $resource.ResourceId, $scopeObject.scope, [environment]::NewLine
+                        $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.ResourceId, $scopeObject.scope, [environment]::NewLine
                         Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $results -RemoveAzOpsFlag $true
                         $dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
