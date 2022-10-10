@@ -122,12 +122,12 @@
                 $PartialMgDiscoveryRoot = (Get-PSFConfigValue -FullName 'AzOps.Core.PartialMgDiscoveryRoot')
             )
             $results = @()
-            if($PartialMgDiscoveryRoot) {
+            if ($PartialMgDiscoveryRoot) {
                 foreach ($managementRoot in $PartialMgDiscoveryRoot) {
                     $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot
                     if ($processing) {
                         $results += $processing
-                        DO {
+                        do {
                             if ($processing.SkipToken) {
                                 $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot -SkipToken $processing.SkipToken
                                 $results += $processing
@@ -135,7 +135,7 @@
                             else {
                                 $done = $true
                             }
-                        } While ($done -ne $true)
+                        } while ($done -ne $true)
                     }
                 }
             }
@@ -143,7 +143,7 @@
                 $processing = Search-AzGraph -Query $query -UseTenantScope
                 if ($processing) {
                     $results += $processing
-                    DO {
+                    do {
                         if ($processing.SkipToken) {
                             $processing = Search-AzGraph -Query $query -UseTenantScope -SkipToken $processing.SkipToken
                             $results += $processing
@@ -151,7 +151,7 @@
                         else {
                             $done = $true
                         }
-                    } While ($done -ne $true)
+                    } while ($done -ne $true)
                 }
             }
             if ($results) {
@@ -241,7 +241,7 @@
                 foreach ($resource in $dependency) {
                     if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
                         Write-PSFMessage -Level Critical -String 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -StringValues $resource.ResourceId, $scopeObject.Scope -Target $scopeObject
-                        $script:results = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.' -f $resource.ResourceId, $scopeObject.scope
+                        $script:results = 'Missing resource dependency {0} for successful deletion of {1}. Please add missing resource and retry.' -f $resource.ResourceId, $scopeObject.scope
                         Set-AzOpsWhatIfOutput -StatePath $scopeObject.StatePath -Results $script:results -RemoveAzOpsFlag $true
                         $script:dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
