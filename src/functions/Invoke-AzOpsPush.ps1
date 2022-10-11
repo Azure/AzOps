@@ -128,11 +128,11 @@
                 # Check if generic template is supporting the resource type for the deployment.
                 if ($effectiveResourceType -and
                     (Get-Content $mainTemplateItem.FullName | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.Keys -contains $effectiveResourceType) {
-                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName
+                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -StringValues $effectiveResourceType, $mainTemplateItem.FullName
                     $result.TemplateFilePath = $mainTemplateItem.FullName
                     return $result
                 }
-                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported' -StringValues $effectiveResourceType, $AzOpsMainTemplate.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
+                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported' -StringValues $effectiveResourceType, $mainTemplateItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
                 #endregion Check in the main template file for a match
                 # All Code paths end the command
@@ -170,7 +170,8 @@
 
     process {
         if (-not $ChangeSet) { return }
-
+        #Supported resource types for deletion
+        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
         #region Categorize Input
         Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Deployment.Required'
         $deleteSet = @()
@@ -268,12 +269,17 @@
 
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
 
-            if ($deletion.EndsWith(".parameters.json") -or $deletion.EndsWith(".bicep")) {
+            if ($deletion.EndsWith(".bicep")) {
                 continue
             }
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            if (-not($templateContent.resources[0].type -in "Microsoft.Authorization/policyAssignments", "Microsoft.Authorization/policyExemptions", "Microsoft.Authorization/roleAssignments")) {
+            $schemavalue = '$schema'
+            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.ResourceType -in $DeletionSupportedResourceType))) {
+                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
+                continue
+            }
+            elseif ($templateContent.$schemavalue -like "*deploymentTemplate.json#" -and (-not($templateContent.resources[0].type -in $DeletionSupportedResourceType))) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }
@@ -288,22 +294,32 @@
 
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
         }
+        #Required order for deletion
+        $deletionListPriority = @(
+            "policyExemptions",
+            "policyAssignments",
+            "policySetDefinitions",
+            "policyDefinitions"
+        )
+        $deletionList = $deletionList | Sort-Object {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
         $WhatIfPreference = $WhatIfPreferenceState
 
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
         if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory)) {
             Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
-            exit 1
+            throw
         }
 
         #Starting Tenant Deployment
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $deploymentList | Select-Object $uniqueProperties -Unique | New-AzOpsDeployment -WhatIf:$WhatIfPreference
 
-        #Removal of policyAssignment, policyExemption and roleAssignment
-        $uniqueProperties = 'Scope', 'TemplateFilePath'
-        $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
-
+        #Removal of Supported resourceTypes
+        $uniqueProperties = 'Scope', 'TemplateFilePath', 'TemplateParameterFilePath'
+        $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
+        if ($removalJob.dependencyMissing -eq $true) {
+            Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.Dependency.Missing'
+            throw
+        }
     }
-
 }

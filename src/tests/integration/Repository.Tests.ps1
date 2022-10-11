@@ -66,6 +66,7 @@ Describe "Repository" {
             Location                = "northeurope"
         }
         try {
+            New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep"
             New-AzManagementGroupDeployment @params
         }
         catch {
@@ -118,6 +119,12 @@ Describe "Repository" {
         try {
             Set-AzContext -SubscriptionId $script:subscriptionId
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
+            $script:policyAssignmentsDep = Get-AzPolicyAssignment -Name "AzOpsDep2 - audit-vm-manageddisks"
+            $script:policyDefinitions = Get-AzPolicyDefinition -Name 'TestPolicyDefinition' -ManagementGroupName $($script:testManagementGroup.Name)
+            $script:policyDefinitionsDep = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
+            $script:policyDefinitionsDep2 = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDe2' -ManagementGroupName $($script:testManagementGroup.Name)
+            $script:policySetDefinitions = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinition' -ManagementGroupName $($script:testManagementGroup.Name)
+            $script:policySetDefinitionsDep = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "App1-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
@@ -203,6 +210,42 @@ Describe "Repository" {
         $script:policyAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
+        $script:policyAssignmentsDepPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDep.Name).toLower()).json")
+        $script:policyAssignmentsDepDirectory = ($script:policyAssignmentsDepPath).Directory
+        $script:policyAssignmentsDepFile = ($script:policyAssignmentsDepPath).FullName
+        $script:policyAssignmentsDepDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsDepPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsDepFile)" -FunctionName "BeforeAll"
+
+        $script:policyDefinitionsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policydefinitions-$(($script:policyDefinitions.Name).toLower()).parameters.json")
+        $script:policyDefinitionsDirectory = ($script:policyDefinitionsPath).Directory
+        $script:policyDefinitionsFile = ($script:policyDefinitionsPath).FullName
+        $script:policyDefinitionsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyDefinitionsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyDefinitionsFile: $($script:policyDefinitionsFile)" -FunctionName "BeforeAll"
+
+        $script:policyDefinitionsDepPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policydefinitions-$(($script:policyDefinitionsDep.Name).toLower()).parameters.json")
+        $script:policyDefinitionsDepDirectory = ($script:policyDefinitionsDepPath).Directory
+        $script:policyDefinitionsDepFile = ($script:policyDefinitionsDepPath).FullName
+        $script:policyDefinitionsDepDeploymentName = "AzOps-{0}-{1}" -f $($script:policyDefinitionsDepPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyDefinitionsFile: $($script:policyDefinitionsDepFile)" -FunctionName "BeforeAll"
+
+        $script:policyDefinitionsDep2Path = ($filePaths | Where-Object Name -eq "microsoft.authorization_policydefinitions-$(($script:policyDefinitionsDep2.Name).toLower()).parameters.json")
+        $script:policyDefinitionsDep2Directory = ($script:policyDefinitionsDep2Path).Directory
+        $script:policyDefinitionsDep2File = ($script:policyDefinitionsDep2Path).FullName
+        $script:policyDefinitionsDep2DeploymentName = "AzOps-{0}-{1}" -f $($script:policyDefinitionsDep2Path.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyDefinitionsFile: $($script:policyDefinitionsDep2File)" -FunctionName "BeforeAll"
+
+        $script:policySetDefinitionsDepPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policysetdefinitions-$(($script:policySetDefinitionsDep.Name).toLower()).parameters.json")
+        $script:policySetDefinitionsDepDirectory = ($script:policySetDefinitionsDepPath).Directory
+        $script:policySetDefinitionsDepFile = ($script:policySetDefinitionsDepPath).FullName
+        $script:policySetDefinitionsDepDeploymentName = "AzOps-{0}-{1}" -f $($script:policySetDefinitionsDepPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicySetDefinitionsFile: $($script:policySetDefinitionsDepFile)" -FunctionName "BeforeAll"
+
+        $script:policySetDefinitionsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policysetdefinitions-$(($script:policySetDefinitions.Name).toLower()).parameters.json")
+        $script:policySetDefinitionsDirectory = ($script:policySetDefinitionsPath).Directory
+        $script:policySetDefinitionsFile = ($script:policySetDefinitionsPath).FullName
+        $script:policySetDefinitionsDeploymentName = "AzOps-{0}-{1}" -f $($script:policySetDefinitionsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicySetDefinitionsFile: $($script:policySetDefinitionsFile)" -FunctionName "BeforeAll"
+
         $script:subscriptionPath = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($script:subscription.Id).toLower()).json")
         $script:subscriptionDirectory = ($script:subscriptionPath).Directory
         $script:subscriptionFile = ($script:subscriptionPath).FullName
@@ -243,20 +286,23 @@ Describe "Repository" {
         $script:logAnalyticsWorkspaceSavedSearchesFile = ($script:logAnalyticsWorkspaceSavedSearchesPath).FullName
         Write-PSFMessage -Level Debug -Message "logAnalyticsWorkspaceSavedSearchesFile: $($script:logAnalyticsWorkspaceSavedSearchesFile)" -FunctionName "BeforeAll"
 
-        $script:bicepTemplatePath = Get-ChildItem -Path "$($global:testRoot)/templates/bicep*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
+        $script:bicepTemplatePath = Get-ChildItem -Path "$($global:testRoot)/templates/biceptest*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
         $script:bicepDeploymentName = "AzOps-{0}-{1}" -f $($script:bicepTemplatePath[0].Name.Replace(".bicep", '')), $deploymentLocationId
         $script:bicepResourceGroupName = ((Get-Content -Path ($Script:bicepTemplatePath.FullName[1])) | ConvertFrom-Json).parameters.resourceGroupName.value
+
         #endregion Paths
 
         #Test push based on pulled resources
         $changeSet = @(
             "A`t$script:testManagementGroupFile",
             "A`t$script:policyAssignmentsFile",
+            "A`t$script:policyDefinitionsFile",
+            "A`t$script:policySetDefinitionsFile",
             "A`t$script:policyExemptionsFile",
             "A`t$script:roleAssignmentsFile",
             "A`t$script:resourceGroupFile",
             "A`t$script:routeTableFile",
-            "A`t$script:ruleCollectionGroupsFile"
+            "A`t$script:ruleCollectionGroupsFile",
             "A`t$($script:bicepTemplatePath.FullName[0])"
         )
         Invoke-AzOpsPush -ChangeSet $changeSet
@@ -264,10 +310,16 @@ Describe "Repository" {
         #Test deletion of supported resources
         $changeSet = @(
             "D`t$script:policyAssignmentsFile",
+            "D`t$script:policyDefinitionsFile",
+            "D`t$script:policySetDefinitionsFile",
             "D`t$script:policyExemptionsFile",
             "D`t$script:roleAssignmentsFile"
         )
         $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += (Get-Content $Script:policyDefinitionsFile)
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
         $DeleteSetContents += '-- '
         $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
         $DeleteSetContents += '-- '
@@ -489,6 +541,82 @@ Describe "Repository" {
         It "Policy Assignments deletion should be successful" {
             $policyAssignmentDeletion = Get-AzPolicyAssignment -Id $script:policyAssignments.PolicyAssignmentId -ErrorAction SilentlyContinue
             $policyAssignmentDeletion | Should -Be $Null
+        }
+        #endregion
+
+        #region Scope = PolicyDefinition (./root/tenant root group/test/PolicyDefinition)
+        It "Policy Definitions directory should exist" {
+            Test-Path -Path $script:policyDefinitionsDirectory | Should -BeTrue
+        }
+        It "Policy Definitions file should exist" {
+            Test-Path -Path $script:policyDefinitionsFile | Should -BeTrue
+        }
+        It "Policy Definitions resource type should exist" {
+            $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.ResourceType | Should -BeTrue
+        }
+        It "Policy Definitions resource name should exist" {
+            $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.name | Should -BeTrue
+        }
+        It "Policy Definitions resource properties should exist" {
+            $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.properties | Should -BeTrue
+        }
+        It "Policy Definitions resource type should match" {
+            $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.ResourceType | Should -Be "Microsoft.Authorization/policyDefinitions"
+        }
+        It "Policy Definitions deployment should be successful" {
+            $script:policyDefinitionDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:testManagementGroup.Name -Name $script:policyDefinitionsDeploymentName
+            $policyDefinitionDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "Policy Definitions deletion should be successful" {
+            $policyDefinitionDeletion = Get-AzPolicyDefinition -Id $script:policyDefinitions.PolicyDefinitionId -ErrorAction SilentlyContinue
+            if ($policyDefinitionDeletion) {
+                $policyDefinitionDeletion.PolicyDefinitionId[0] | Should -Not -Be $script:policyDefinitions.PolicyDefinitionId
+            }
+            else {
+                $policyDefinitionDeletion | Should -Be $Null
+            }
+        }
+        #endregion
+
+        #region Scope = PolicySetDefinition (./root/tenant root group/test/PolicySetDefinition)
+        It "PolicySetDefinitions directory should exist" {
+            Test-Path -Path $script:policySetDefinitionsDirectory | Should -BeTrue
+        }
+        It "PolicySetDefinitions file should exist" {
+            Test-Path -Path $script:policySetDefinitionsFile | Should -BeTrue
+        }
+        It "PolicySetDefinitions resource type should exist" {
+            $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.ResourceType | Should -BeTrue
+        }
+        It "PolicySetDefinitions resource name should exist" {
+            $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.name | Should -BeTrue
+        }
+        It "PolicySetDefinitions resource properties should exist" {
+            $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.properties | Should -BeTrue
+        }
+        It "PolicySetDefinitions resource type should match" {
+            $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.parameters.input.value.ResourceType | Should -Be "Microsoft.Authorization/policySetDefinitions"
+        }
+        It "PolicySetDefinitions deployment should be successful" {
+            $script:policySetDefinitionDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:testManagementGroup.Name -Name $script:policySetDefinitionsDeploymentName
+            $policySetDefinitionDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "PolicySetDefinitions deletion should be successful" {
+            $policySetDefinitionDeletion = Get-AzPolicySetDefinition -Id $script:policySetDefinitions.PolicySetDefinitionId -ErrorAction SilentlyContinue
+            if ($policySetDefinitionDeletion) {
+                $policySetDefinitionDeletion.PolicySetDefinitionId[0] | Should -Not -Be $script:policySetDefinitions.PolicySetDefinitionId
+            }
+            else {
+                $policySetDefinitionDeletion | Should -Be $Null
+            }
         }
         #endregion
 
@@ -732,6 +860,37 @@ Describe "Repository" {
         It "LogAnalyticsWorkspaceSavedSearches resource type should match" {
             $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -Be "Microsoft.OperationalInsights/workspaces/savedSearches"
+        }
+        #endregion
+
+        #region Scope - Policy DeletionDependency
+        It "Deletion of policyDefinitionsFile with assignment dependency should fail" {
+            $changeSet = @(
+                "D`t$script:policyDefinitionsDepFile"
+            )
+            $DeleteSetContents = (Get-Content $Script:policyDefinitionsDepFile)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
+        }
+        It "Deletion of policySetDefinitionsFile with assignment dependency should fail" {
+            $changeSet = @(
+                "D`t$script:policySetDefinitionsDepFile"
+            )
+            $DeleteSetContents = (Get-Content $Script:policySetDefinitionsDepFile)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
+        }
+        It "Deletion of policyDefinitionsFile with setDefinition dependency should fail" {
+            $changeSet = @(
+                "D`t$script:policyDefinitionsDep2File"
+            )
+            $DeleteSetContents = (Get-Content $script:policyDefinitionsDep2File)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
+        }
+        It "Deletion of policyAssignmentFile with role assignment dependency should fail" {
+            $changeSet = @(
+                "D`t$script:policyAssignmentsDepFile"
+            )
+            $DeleteSetContents = (Get-Content $script:policyAssignmentsDepFile)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         #endregion
     }
