@@ -2,7 +2,7 @@
 
 - [Prerequisites](#prerequisites)
   - [Further reading](#further-reading)
-  - [Important Repository Link to refer](#important-repo-link-to-refer)
+  - [Important Repository Link to refer](#important-repository-link-to-refer)
 - [Configure AzOps using Azure CLI in PowerShell](#configure-azops-using-azure-cli-in-powershell)
 - [Configure AzOps via Azure DevOps Portal](#configure-azops-via-azure-devops-portal)
 - [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines)
