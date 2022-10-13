@@ -235,11 +235,10 @@ ARM_TENANT_ID
 ![Library](./Media/Pipelines/Library.png)
 
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
+  > Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
   - \.pipelines/push.yml
   - \.pipelines/pull.yml
   - \.pipelines/validate.yml
-
-> Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
 
 > Note: It is advised to set `Pipeline permissions` with `Restrict permission` and only allow each pipeline access to the `Variable group`.
 
