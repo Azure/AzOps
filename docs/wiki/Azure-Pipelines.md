@@ -2,7 +2,7 @@
 
 - [Prerequisites](#prerequisites)
   - [Further reading](#further-reading)
-  - [Important Repository Link to refer](#important-repo-link-to-refer)
+  - [Important Repository Link to refer](#important-repository-link-to-refer)
 - [Configure AzOps using Azure CLI in PowerShell](#configure-azops-using-azure-cli-in-powershell)
 - [Configure AzOps via Azure DevOps Portal](#configure-azops-via-azure-devops-portal)
 - [Configuration, clean up and triggering the pipelines](#configuration-clean-up-and-triggering-the-pipelines)
@@ -192,77 +192,101 @@ foreach($groupName in 'credentials','azops') {
 
 - Import the above [AzOps-Accelerator repository](https://github.com/Azure/AzOps-Accelerator.git) to new project.
 
-    1. Go to `Repos` and then `Files`.
+    1. `Repos` and then `Files`.
 
         ![Azure-DevOps-repository](./Media/Pipelines/Azure-DevOps-repository.PNG)
 
-    1. From the repository drop-down, select Import repository.
+    1. Select Import.
 
-        ![Import-Repository](./Media/Pipelines/Import-Repository.png)
+        ![Import-Repository](./Media/Pipelines/Import.png)
 
-    1. Provide the Clone URL of the AzOps Accelerator repository.
+    1. Provide the Clone URL of the AzOps Accelerator repository and import:
         <https://github.com/Azure/AzOps-Accelerator.git>
 
-        ![Azure-DevOps-repository-URL](./Media/Pipelines/Azure-DevOps-repository-URL.PNG)
+        ![Azure-DevOps-repository-URL](./Media/Pipelines/Import-Repository.png)
 
-    1. Below Repository will be imported.
+    1. Set default branch. Go to `Repos` and then `Branches` select `main` and `Set as default branch`
+
+        ![Azure-DevOps-SwitchBranch-URL](./Media/Pipelines/SwitchBranch.png)
+
+    1. Once done it looks something like this (on `main` branch).
 
         ![Azure-DevOps-repository-2](./Media/Pipelines/Azure-DevOps-repository-2.png)
 
-- Create a new Variable Group by navigating to `Library`
+- Create two new Variable groups by navigating to `Pipelines` then `Library`
 
-- Set the name of Variable Groups to `Credentials`. This can be altered but the value in the
-  `.pipelines\.templates\vars.yml` then need to be updated as well.
+  ![Azure-DevOps-Var](./Media/Pipelines/Var.png)
 
-- Add the variables from the Service Principal creation to the Variable Group.
+  - Set the first `Variable group name` to `credentials`. This can be altered but the value in the
+    `.pipelines\.templates\vars.yml` then need to be updated as well.
 
-> If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` to `null`.
+  - Add the variables from the `Service Principal` creation to the `credentials Variable group`.
 
-```shell
-ARM_TENANT_ID
-ARM_SUBSCRIPTION_ID
-ARM_CLIENT_ID
-ARM_CLIENT_SECRET
-```
+    > If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` to `null`.
 
-> Note: Change the variable type for ARM_CLIENT_SECRET to secret.
+    ```shell
+    ARM_CLIENT_ID
+    ARM_CLIENT_SECRET
+    ARM_SUBSCRIPTION_ID
+    ARM_TENANT_ID
+    ```
 
-![Library](./Media/Pipelines/Library.PNG)
+    > Note: Change the variable type for ARM_CLIENT_SECRET to secret.
+
+    ![Library](./Media/Pipelines/Library.png)
+
+  - Set the second `Variable group name` to `azops`. This can be altered but the value in the
+    `.pipelines\.templates\vars.yml` then need to be updated as well.
+
+    ```shell
+    AZOPS_CUSTOM_SORT_ORDER
+    AZOPS_MODULE_VERSION
+    ```
+
+    > Note: Set the variable `AZOPS_CUSTOM_SORT_ORDER` value to `false`.
+
+    ![Library](./Media/Pipelines/azopslib.png)
 
 - Configure pipelines: Create three new pipelines (without running them), selecting the existing files in the following order:
+  > Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
   - \.pipelines/push.yml
   - \.pipelines/pull.yml
   - \.pipelines/validate.yml
 
-> Note: Make sure to create the pipelines in the correct order, otherwise the pull pipeline will not be triggered by the push pipeline.
+  > Note: It is advised to set `Pipeline permissions` with `Restrict permission` and only allow each pipeline access to each `Variable group`.
+
 
 <br/>
 
 **Steps to create pipelines:**
 
-1. Navigate to the pipeline and click on `New pipeline`.
-![New-Pipeline](./Media/Pipelines/New-Pipeline.PNG)
+1. Navigate to `Pipelines` and click on `Create pipeline`.
+
+    ![New-Pipeline](./Media/Pipelines/CreatePipeline.png)
 
 1. Select the `Azure Repos Git` option and choose `Existing Azure Pipelines YAML file`.
-![Azure-repo-git](./Media/Pipelines/Azure-repo-git.PNG)
-![Existing-Pipeline](./Media/Pipelines/Existing-Pipeline.PNG)
+
+    ![Azure-repo-git](./Media/Pipelines/Azure-repo-git.PNG)
+
+    ![Existing-Pipeline](./Media/Pipelines/Existing-Pipeline.PNG)
 
 1. Create new pipelines, selecting the existing files
-![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
+
+    ![Pull-Push-Pipeline](./Media/Pipelines/Pull-Push-Pipeline.PNG)
 
 - Rename the Pipelines to `AzOps - Push`, `AzOps - Pull` and `AzOps - Validate` respectively
   (in both the YAML file, and within the pipeline after you create it).
 
   ![Pipelines](./Media/Pipelines/Pipelines.PNG)
 
-- Assign permissions to build service account.
+- Assign permissions to build service account at repository scope.
   The build service account must have the following permissions on the repository.
   - **Contribute**
   - **Contribute to pull requests**
   - **Create branch**
   - **Force push**
 
-  If you are using branch policies, you also want to give the build service right to
+  When using branch policies, also add the build service permission to
   **Bypass policies when completing pull requests** to be able to merge automated pull requests.
 
   1. Navigate to the project settings, within the Repos section, select Repositories, select the newly created
@@ -284,9 +308,9 @@ ARM_CLIENT_SECRET
 
 ## Configuration, clean up and triggering the pipelines
 
-- All the configuration values can be modified within the `settings.json` file to change the default behavior of AzOps. The settings are documented in [Settings chapter](.\Settings.md)
+- Configuration values can be modified within the `settings.json` file to change the default behavior of AzOps. The settings are documented in [Settings chapter](.\Settings.md)
 
-- Optionally, add the variable `AZOPS_MODULE_VERSION` to the variable group `credentials` to pin the version of the AzOps module to be used
+- Optionally, add the variable `AZOPS_MODULE_VERSION` to the `Variable group` `azops` to pin the version of the AzOps module to be used
 
 - This deployment is configured for Azure Pipelines. It is safe to
   delete the `.github` folder and any Markdown files in the root of the repository
@@ -298,15 +322,18 @@ ARM_CLIENT_SECRET
   ![Pipelines](./Media/Pipelines/Pipelines.PNG)
 
 - Once pull pipeline completes it will look like the screenshot below
+
   ![Pull](./Media/Pipelines/Pull.PNG)
 
 - This `root` folder contains existing state of Azure environment
 
 - Now, start creating arm templates to deploy more resources as shown in screenshot below
+
   ![RG](./Media/Pipelines/RG.PNG)
    > Note: Please follow above naming convention for parameter file creation.
 
 - Creating a Pull Request with changes to the `root` folder will trigger a validate pipeline. The validate pipeline will perform a What-If deployment of the changes and post the results as a comment om the pull request
 
 - Merge the Pull Request to trigger the push pipeline and deploy the changes
+
   ![Pipelines](./Media/Pipelines/Pipelines.PNG)
