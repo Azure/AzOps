@@ -161,7 +161,7 @@
     'Invoke-AzOpsPull.Migration.Required'                                           = 'Migration from previous repository state IS required' #
     'Invoke-AzOpsPull.Rebuilding.State'                                             = 'Rebuilding state in {0}' # $StatePath
     'Invoke-AzOpsPull.Tenant'                                                       = 'Connected to tenant {0}' # $tenantId
-    'Invoke-AzOpsPull.TemplateParameterFileSuffix'                                  = 'Connected to tenant {0}' # $TemplateParameterFileSuffix
+    'Invoke-AzOpsPull.TemplateParameterFileSuffix'                                  = 'Template parameter file suffix {0}' # $TemplateParameterFileSuffix
     'Invoke-AzOpsPull.Validating.AADP2'                                             = 'Asserting fundamental Azure AD P2 licensing' #
     'Invoke-AzOpsPull.Validating.AADP2.Success'                                     = 'Azure AD P2 licensing validated' #
     'Invoke-AzOpsPull.Validating.AADP2.Failed'                                      = 'Azure AD P2 licensing not found' #
@@ -252,6 +252,10 @@
     'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
     'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.scope, $resultsError
     'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
+
+    'Remove-AzOpsInvalidCharacters.Completed'                                       = 'Valid string: {0}'# $String
+    'Remove-AzOpsInvalidCharacters.Invalid'                                         = 'Invalid character detected in string: {0}, further processing initiated'# $String
+    'Remove-AzOpsInvalidCharacters.Removal'                                         = 'Removed invalid character: {0} from string: {1}'# $character, $String
 
     'Save-AzOpsManagementGroupChildren.Creating.Scope'                              = 'Creating scope object' #
     'Save-AzOpsManagementGroupChildren.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory

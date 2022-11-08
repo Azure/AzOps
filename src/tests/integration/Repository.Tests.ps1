@@ -281,7 +281,7 @@ Describe "Repository" {
         $script:ruleCollectionDeploymentName = "AzOps-{0}-{1}" -f $($script:ruleCollectionGroupsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "RuleCollectionGroupsFile: $($script:ruleCollectionGroupsFile)" -FunctionName "BeforeAll"
 
-        $script:logAnalyticsWorkspaceSavedSearchesPath = ($filePaths | Where-Object Name -eq "microsoft.operationalinsights_workspaces_savedsearches-$(($script:logAnalyticsWorkspace.Name).toLower())_logmanagement(thisisalongloganalyticsworkspacename12345-ee7c6e90e26a87cec75b83b2ed548077fed5750162e50d80fdda5d8ce27f3478.json")
+        $script:logAnalyticsWorkspaceSavedSearchesPath = ($filePaths | Where-Object Name -eq "microsoft.operationalinsights_workspaces_savedsearches-$(($script:logAnalyticsWorkspace.Name).toLower())_logmanagement(thisisalongloganalyticsworkspacename123456789011121314151617181)_generalstalecomputers.json")
         $script:logAnalyticsWorkspaceSavedSearchesDirectory = ($script:logAnalyticsWorkspaceSavedSearchesPath).Directory
         $script:logAnalyticsWorkspaceSavedSearchesFile = ($script:logAnalyticsWorkspaceSavedSearchesPath).FullName
         Write-PSFMessage -Level Debug -Message "logAnalyticsWorkspaceSavedSearchesFile: $($script:logAnalyticsWorkspaceSavedSearchesFile)" -FunctionName "BeforeAll"
@@ -841,6 +841,9 @@ Describe "Repository" {
         It "LogAnalyticsWorkspaceSavedSearches file should exist" {
             Test-Path -Path $script:logAnalyticsWorkspaceSavedSearchesFile | Should -BeTrue
         }
+        It "LogAnalyticsWorkspaceSavedSearches filename should not have invalid character '|'" {
+            $script:logAnalyticsWorkspaceSavedSearchesFile | Should -Not -BeLike "*|*"
+        }
         It "LogAnalyticsWorkspaceSavedSearches resource type should exist" {
             $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].type | Should -BeTrue
@@ -848,6 +851,10 @@ Describe "Repository" {
         It "LogAnalyticsWorkspaceSavedSearches resource name should exist" {
             $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "LogAnalyticsWorkspaceSavedSearches resource name should have invalid character '|'" {
+            $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeLike "*|*"
         }
         It "LogAnalyticsWorkspaceSavedSearches resource apiVersion should exist" {
             $fileContents = Get-Content -Path $script:logAnalyticsWorkspaceSavedSearchesFile -Raw | ConvertFrom-Json -Depth 25

@@ -18,7 +18,7 @@
 
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $String,
         [Parameter(Mandatory = $false)]
