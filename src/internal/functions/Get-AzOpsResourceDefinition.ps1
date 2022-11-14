@@ -404,31 +404,36 @@
                                     Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.Resource' -StringValues $resource.Name, $resourceGroup.ResourceGroupName -Target $resource
                                     & $azOps { ConvertTo-AzOpsState -Resource $resource -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
                                     if (-not $using:SkipChildResource) {
-                                        $exportParameters = @{
-                                            Resource                = $resource.ResourceId
-                                            ResourceGroupName       = $resourceGroup.ResourceGroupName
-                                            SkipAllParameterization = $true
-                                            Path                    = $tempExportPath
-                                            DefaultProfile          = $Context | Select-Object -First 1
-                                        }
-                                        Export-AzResourceGroup @exportParameters -Confirm:$false -Force | Out-Null
-                                        $exportResources = (Get-Content -Path $tempExportPath | ConvertFrom-Json).resources
-                                        foreach ($exportResource in $exportResources) {
-                                            if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
-                                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
-                                                $ChildResource = @{
-                                                    resourceProvider = $exportResource.type -replace '/', '_'
-                                                    resourceName     = $exportResource.name -replace '/', '_'
-                                                    parentResourceId = $resourceGroup.ResourceId
-                                                }
-                                                if (Get-Member -InputObject $exportResource -name 'dependsOn') {
-                                                    $exportResource.PsObject.Members.Remove('dependsOn')
-                                                }
-                                                $resourceHash = @{resources = @($exportResource) }
-                                                & $azOps {
-                                                    ConvertTo-AzOpsState -Resource $resourceHash -ChildResource $ChildResource -StatePath $runspaceData.Statepath
+                                        try {
+                                            $exportParameters = @{
+                                                Resource                = $resource.ResourceId
+                                                ResourceGroupName       = $resourceGroup.ResourceGroupName
+                                                SkipAllParameterization = $true
+                                                Path                    = $tempExportPath
+                                                DefaultProfile          = $Context | Select-Object -First 1
+                                            }
+                                            Export-AzResourceGroup @exportParameters -Confirm:$false -Force -ErrorAction Stop | Out-Null
+                                            $exportResources = (Get-Content -Path $tempExportPath | ConvertFrom-Json).resources
+                                            foreach ($exportResource in $exportResources) {
+                                                if (-not(($resource.Name -eq $exportResource.name) -and ($resource.ResourceType -eq $exportResource.type))) {
+                                                    Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource' -StringValues $exportResource.Name, $resourceGroup.ResourceGroupName -Target $exportResource
+                                                    $ChildResource = @{
+                                                        resourceProvider = $exportResource.type -replace '/', '_'
+                                                        resourceName     = $exportResource.name -replace '/', '_'
+                                                        parentResourceId = $resourceGroup.ResourceId
+                                                    }
+                                                    if (Get-Member -InputObject $exportResource -name 'dependsOn') {
+                                                        $exportResource.PsObject.Members.Remove('dependsOn')
+                                                    }
+                                                    $resourceHash = @{resources = @($exportResource) }
+                                                    & $azOps {
+                                                        ConvertTo-AzOpsState -Resource $resourceHash -ChildResource $ChildResource -StatePath $runspaceData.Statepath
+                                                    }
                                                 }
                                             }
+                                        }
+                                        catch {
+                                            Write-PSFMessage -Level Warning -String 'Get-AzOpsResourceDefinition.ChildResource.Warning' -StringValues $resourceGroup.ResourceGroupName, $_
                                         }
                                     }
                                     else {
