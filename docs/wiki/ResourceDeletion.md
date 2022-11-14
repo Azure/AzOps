@@ -16,7 +16,7 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
 
 **_Please Note_**
 
-- SPN used for deletion/change action, requires below actions in its role definition. You need to choose which combination best suites your implementation.
+- SPN used for deletion/change action, requires below actions in its role definition. Choose which combination best suites your implementation.
 
 ```bash
     Microsoft.Authorization/* OR  * (For everything)
