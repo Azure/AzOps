@@ -307,7 +307,10 @@
         #If locks are in 'deletionList' ensure list is sorted ascending by 'ScopeObject.ResourceGroup', enabling top-down deletion of inherited locks (Subscription level first and then ResourceGroup).
         if ($deletionList.ScopeObject.Resource -contains 'locks') {
             $deletionListLocks = $deletionList | Where-Object {$_.ScopeObject.Resource -eq 'locks'} | Sort-Object -Property {$_.ScopeObject.ResourceGroup}
-            $deletionList = $deletionListLocks + $deletionList | Sort-Object -Unique {$_.ScopeObject} | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+            $delcomboList = @()
+            $delcomboList += $deletionListLocks
+            $delcomboList += $deletionList
+            $deletionList = $delcomboList | Sort-Object -Unique {$_.ScopeObject} | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
         }
         else {
         #Sort 'deletionList' based on 'deletionListPriority'

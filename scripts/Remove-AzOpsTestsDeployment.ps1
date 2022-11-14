@@ -63,6 +63,7 @@
                     Remove-ManagementGroups -DisplayName $script:mgclean.DisplayName -Name $script:mgclean.Name -RootName (Get-AzTenant).TenantId
                 }
                 # Collect resources to cleanup
+                Get-AzResourceLock | Remove-AzResourceLock -Force
                 $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -like "*-azopsrg"}
                 $script:roleAssignments = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
                 $script:policyAssignments = Get-AzPolicyAssignment
