@@ -38,7 +38,7 @@
             }
         }
         # Gather resource locks at scopeObject
-        $resourceLocks = Get-AzResourceLock -Scope $ScopeObject.Scope -AtScope -WarningAction SilentlyContinue | Where-Object {$($_.ResourceID.Substring(0, $_.ResourceId.LastIndexOf('/'))) -Like ("$($ScopeObject.scope)/providers/Microsoft.Authorization/locks")}
+        $resourceLocks = Get-AzResourceLock -Scope $ScopeObject.Scope -AtScope -ErrorAction SilentlyContinue | Where-Object {$($_.ResourceID.Substring(0, $_.ResourceId.LastIndexOf('/'))) -Like ("$($ScopeObject.scope)/providers/Microsoft.Authorization/locks")}
         if ($resourceLocks) {
             # Process each resource lock
             foreach ($lock in $resourceLocks) {

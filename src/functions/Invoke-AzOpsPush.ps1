@@ -294,14 +294,26 @@
 
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
         }
-        #Required order for deletion
+
+        #Required deletion order
         $deletionListPriority = @(
+            "locks",
             "policyExemptions",
             "policyAssignments",
             "policySetDefinitions",
             "policyDefinitions"
         )
-        $deletionList = $deletionList | Sort-Object {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+
+        #If locks are in 'deletionList' ensure list is sorted ascending by 'ScopeObject.ResourceGroup', enabling top-down deletion of inherited locks (Subscription level first and then ResourceGroup).
+        if ($deletionList.ScopeObject.Resource -contains 'locks') {
+            $deletionListLocks = $deletionList | Where-Object {$_.ScopeObject.Resource -eq 'locks'} | Sort-Object -Property {$_.ScopeObject.ResourceGroup}
+            $deletionList = $deletionListLocks + $deletionList | Sort-Object -Unique {$_.ScopeObject} | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+        }
+        else {
+        #Sort 'deletionList' based on 'deletionListPriority'
+        $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+        }
+
         $WhatIfPreference = $WhatIfPreferenceState
 
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
