@@ -47,14 +47,12 @@
                     $depLock = Get-AzResourceLock -Scope "/subscriptions/$($resourceToDelete.SubscriptionId)"
                     if ($depLock) {
                         foreach ($lock in $depLock) {
-                            if ($lock.ResourceGroupName -and $resourceToDelete.ResourceGroupName) {
-                                if ($lock.ResourceGroupName -eq $resourceToDelete.ResourceGroupName) {
-                                    #Filter through each return and validate resource is not at child resource scope
-                                    if ($lock.ResourceId -notlike '*/resourcegroups/*/providers/*/providers/*') {
-                                        $dependency += [PSCustomObject]@{
-                                            ResourceType = 'locks'
-                                            ResourceId = $lock.ResourceId
-                                        }
+                            if ($lock.ResourceGroupName -eq $resourceToDelete.ResourceGroupName) {
+                                #Filter through each return and validate resource is not at child resource scope
+                                if ($lock.ResourceId -notlike '*/resourcegroups/*/providers/*/providers/*') {
+                                    $dependency += [PSCustomObject]@{
+                                        ResourceType = 'locks'
+                                        ResourceId = $lock.ResourceId
                                     }
                                 }
                             }

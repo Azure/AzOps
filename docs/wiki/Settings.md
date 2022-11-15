@@ -1,4 +1,4 @@
-## In this guide
+# In this guide
 - [AzOps Settings](#azops-settings)
 - [Workflow / Pipeline Settings](#workflow--pipeline-settings)
   - [Workflow Settings in GitHub](#workflow-settings-in-github)
@@ -19,7 +19,7 @@ The following configuration values can be modified within the `settings.json` fi
 | 07  | ExportRawTemplate                    | Export generic templates without embedding them in the parameter block                                                                                                                | `"Core.ExportRawTemplate": true`                                                                |
 | 08  | IgnoreContextCheck                   | Skip Azure PowerShell context validation. *Not recommended to change*                                                                                                                 | `"Core.IgnoreContextCheck": false`                                                              |
 | 09  | IncludeResourcesInResourceGroup      | Discover only resources in these resource groups                                                                                                                                      | `"Core.IncludeResourcesInResourceGroup": ["rg1","rg2"]`                                         |
-| 10  | IncludeResourceType                  | Discover only specific resource types [Resource Types](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.IncludeResourceType": ["Microsoft.Network/privateDnsZones","Microsoft.Network/firewallPolicies"]` |
+| 10  | IncludeResourceType                  | Discover only specific resource types [Resource Types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.IncludeResourceType": ["Microsoft.Network/privateDnsZones","Microsoft.Network/firewallPolicies"]` |
 | 11  | InvalidateCache                      | Invalidate cached Subscriptions and Management Groups and do a full discovery. *Not recommended to change*                                                                            | `"Core.InvalidateCache": false`                                                                 |
 | 12  | OfferType                            | Default offer type for Subscription creation                                                                                                                                          | `"Core.OfferType": "MS-AZR-0017P"`                                                              |
 | 13  | PartialMgDiscoveryRoot               | Generate folder hierachy for specific Management Groups                                                                                                                               | `"Core.PartialMgDiscoveryRoot": []`                                                             |
@@ -29,7 +29,7 @@ The following configuration values can be modified within the `settings.json` fi
 | 17  | SkipResource                         | Do not include Resources within Resource Groups                                                                                                                                       | `"Core.SkipResource": false`                                                                    |
 | 18  | SkipChildResource                    | Do not include Azure child resources                                                                                                                                                  | `"Core.SkipChildResource": false`                                                               |
 | 19  | SkipResourceGroup                    | Do not include Resource Groups in pull                                                                                                                                                | `"Core.SkipResourceGroup": false`                                                               |
-| 20  | SkipResourceType                     | Skip specific [Resource Types](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.SkipResourceType": ["Microsoft.VSOnline/plans"]`                                         |
+| 20  | SkipResourceType                     | Skip specific [Resource Types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.SkipResourceType": ["Microsoft.VSOnline/plans"]`                                        |
 | 21  | SkipRole                             | Do not include Role types in pull                                                                                                                                                     | `"Core.SkipRole": false`                                                                        |
 | 22  | State                                | Folder to store AzOpsState artefact, defaults to `root`                                                                                                                               | `"Core.State: "/root"`                                                                          |
 | 23  | SubscriptionsToIncludeResourceGroups | Filter which Subscriptions should include Resource Groups in pull                                                                                                                     | `"Core.SubscriptionsToIncludeResourceGroups": ["*"]`                                            |
@@ -42,13 +42,13 @@ The following configuration values can be modified within the `settings.json` fi
 The following settings can be modified as variables inside GitHub or Azure DevOps and will affect how the workflow or pipeline is run.
 
 * **AZOPS_MODULE_VERSION**
-  Set this to the version of the AzOps module you want to use. If the variable is missing, the latest version will be used.  
-  Typically used to pin the version of the module to a specific version and update to new versions at a controlled manner.  
-  Make sure to have a process to continously update this variable if it is set.  
+  Set this to the version of the AzOps module you want to use. If the variable is missing, the latest version will be used.
+  Typically used to pin the version of the module to a specific version and update to new versions at a controlled manner.
+  Make sure to have a process to continously update this variable if it is set.
 
 * **AZOPS_CUSTOM_SORT_ORDER**
-  Set this variable to `true` to enable custom sort ordering. When enabled, create a file named `.order` in a folder where you want to control the deployment order of templates.  
-  Any file that is listed by name in `.order` will will be deployed before other files and in the order that they are listed.  
+  Set this variable to `true` to enable custom sort ordering. When enabled, create a file named `.order` in a folder where you want to control the deployment order of templates.
+  Any file that is listed by name in `.order` will will be deployed before other files and in the order that they are listed.
 
 ### Workflow Settings in GitHub
 
@@ -56,5 +56,5 @@ Settings in GitHub are configured as Secrets by navigating to Settings -> Secret
 
 ### Pipeline Settings in Azure DevOps
 
-Settings in Azure DevOps are configured as variable groups, as described in [Azure DevOps Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups).
+Settings in Azure DevOps are configured as variable groups, as described in [Azure DevOps Variable Groups](https://learn.microsoft.com/azure/devops/pipelines/library/variable-groups).
 
