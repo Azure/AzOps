@@ -11,11 +11,11 @@ The AzOps pipelines/actions are running on Microsoft-hosted agents or GitHub Act
 AzOps have full support for the use of self-hosted agents/runners and this article outlines the requirements needed.
 
 For more information about using GitHub Actions self-hosted runners see, [About self-hosted runners](https://docs.github.com/actions/hosting-your-own-runners/about-self-hosted-runners).
-For more information about using Azure DevOps self-hosted agents see, [Azure Pipelines agents](https://docs.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=browser).
+For more information about using Azure DevOps self-hosted agents see, [Azure Pipelines agents](https://learn.microsoft.com/azure/devops/pipelines/agents/agents?view=azure-devops&tabs=browser).
 
 ## Virtual Machine Scale Sets (VMSS)
 
-Virtual Machine Scale Sets are optimal for hosting your self-hosted agents/runners. They are easy to create and manage and will automatically scale as resource demand changes. To learn more about Virtual Machine Scale Sets see, [Virtual Machine Scale Sets documentation](https://docs.microsoft.com/azure/virtual-machine-scale-sets/).
+Virtual Machine Scale Sets are optimal for hosting your self-hosted agents/runners. They are easy to create and manage and will automatically scale as resource demand changes. To learn more about Virtual Machine Scale Sets see, [Virtual Machine Scale Sets documentation](https://learn.microsoft.com/azure/virtual-machine-scale-sets/).
 
 ## Image
 

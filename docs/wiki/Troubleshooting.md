@@ -28,7 +28,7 @@ To enable debug logging within GitHub Actions workflows, please visit the [Produ
 
 ## Azure Pipelines
 
-To enable debug logging within Azure Pipelines, please visit the [Product Documentation](https://docs.microsoft.com/en-us/azure/devops/pipelines/troubleshooting/review-logs?view=azure-devops).
+To enable debug logging within Azure Pipelines, please visit the [Product Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/troubleshooting/review-logs?view=azure-devops).
 
 TF401027: You need the Git 'ForcePush' permission to perform this action
 As part of Step 4, you need to either allow the Build Service, or the Contributor group Force Push on the main branch.

@@ -3,7 +3,7 @@ param principalId string = '4dacdaa1-2044-490c-a603-36f80b6aaa0c'
 
 targetScope = 'subscription'
 
-@description('This is the built-in Reader role. See https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader')
+@description('This is the built-in Reader role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader')
 resource readerRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   name: roleDefinitionResourceId
 }
