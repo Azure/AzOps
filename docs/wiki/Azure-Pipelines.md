@@ -15,10 +15,10 @@ Before you start, make sure you have followed the steps in the [prerequisites](.
 
 Links to documentation for further reading:
 
-- [Create the Service Principal](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-- [Assign the permissions at the required scope (/)](https://docs.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
-- [Assign the Directory role permissions](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
-- [Create Azure DevOps project](https://docs.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
+- [Create the Service Principal](https://learn.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+- [Assign the permissions at the required scope (/)](https://learn.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal)
+- [Assign the Directory role permissions](https://learn.microsoft.com/azure/active-directory/roles/manage-roles-portal)
+- [Create Azure DevOps project](https://learn.microsoft.com/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page)
 
 ### Important Repository link to refer
 
@@ -42,8 +42,8 @@ The PowerShell script below will set up a new project or use an existing if it a
 <br/>
 
 - Install dependent tools & extensions
-  - [Azure CLI](https://docs.microsoft.com/cli/azure/)
-  - [DevOps Extension](https://docs.microsoft.com/azure/devops/cli/?view=azure-devops)
+  - [Azure CLI](https://learn.microsoft.com/cli/azure/)
+  - [DevOps Extension](https://learn.microsoft.com/azure/devops/cli/?view=azure-devops)
 
 <br/>
 

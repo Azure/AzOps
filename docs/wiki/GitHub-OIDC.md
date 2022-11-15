@@ -59,5 +59,5 @@ Before you start to configure the workload federation feature in Azure AD and ch
 ## Resources
 Read more about the functionality in the official docs below: 
 
-* [Azure AD Workload identity federation](https://docs.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation)
+* [Azure AD Workload identity federation](https://learn.microsoft.com/en-us/azure/active-directory/develop/workload-identity-federation)
 * [GitHub Actions: Secure cloud deployments with OpenID Connect](https://github.blog/changelog/2021-10-27-github-actions-secure-cloud-deployments-with-openid-connect/)
