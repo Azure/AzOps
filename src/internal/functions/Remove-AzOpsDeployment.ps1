@@ -245,9 +245,6 @@
                 # Check resource existance through optimal path
                 'locks' {
                     $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object {$_.ResourceID -eq $ScopeObject.scope}
-                    if ($resourceToDelete) {
-                        $dependency = Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
-                    }
                 }
                 'policyAssignments' {
                     $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
