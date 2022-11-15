@@ -102,6 +102,7 @@
     'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
+    'Get-AzOpsResourceDefinition.ChildResource.Warning'                             = 'Failed to export childResources in [{0}]. Warning: [{1}]' # $resourceGroup.ResourceGroupName, $_
     'Get-AzOpsResourceDefinition.Finished'                                          = 'Finished processing scope [{0}]' # $scopeObject.Scope
     'Get-AzOpsResourceDefinition.ManagementGroup.Processing'                        = 'Processing Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsResourceDefinition.ManagementGroup.Subscription.NotFound'             = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
