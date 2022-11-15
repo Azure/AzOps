@@ -26,7 +26,7 @@ Connect-AzAccount -Credential $Credential -Tenant xxxx-xxx-xxxx-xxxx-xxx -Servic
 
 ### Making a change
 
-Running `Debug.ps1` in the last step leaves us on a [nested prompt](https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshost.enternestedprompt). We're now able to feed in new Powershell commands at the command prompt to run in the correct context.
+Running `Debug.ps1` in the last step leaves us on a [nested prompt](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshost.enternestedprompt). We're now able to feed in new Powershell commands at the command prompt to run in the correct context.
 
 In this example, we're going to provide a new ARM template at a specific scope. The Arm template is the [Create New Subscription](https://github.com/Azure/Enterprise-Scale/blob/main/examples/landing-zones/empty-subscription/emptySubscription.json)
  template from the Enterprise Scale repo, it has had default values provided for each of the parameters. The file is being dropped it inside the file structure that was created in the last step, inside the `Sandboxes` directory; `root\myorg (myorg)\myorg-sandboxes (myorg-sandboxes`).

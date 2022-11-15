@@ -21,8 +21,8 @@ For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://g
 
 ## Need help?
 
-For introduction guidance visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
-For reference documentation visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
+For introduction guidance, visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
+For reference documentation, visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
 For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/azops/wiki/debug)  
 For information on migrating to the new version, visit the [Migration Guide](https://github.com/azure/azops/wiki/migration)  
@@ -32,7 +32,7 @@ File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choo
 
 AzOps is rooted in the principle that everything in Azure is a resource and to operate at-scale, it should be managed declaratively to determine target goal state of the overall platform.
 
-This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://docs.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionality the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting (Pull) composite templates from ARM and placing them within the repository.
+This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://learn.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionality the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting (Pull) composite templates from ARM and placing them within the repository.
 
 ```bash
 root

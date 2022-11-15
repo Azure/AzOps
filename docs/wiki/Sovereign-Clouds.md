@@ -3,7 +3,7 @@ In addition to Public Azure Cloud that most of us are familiar with, there’s a
 
 To use AzOps with one of the sovereign clouds, the following additional configuration is required.
 
-1) Create the `ARM_ENVIRONMENT` variable/secret with the sovereign cloud [environment name](https://docs.microsoft.com/en-us/powershell/module/az.accounts/get-azenvironment?view=azps-7.1.0#example-1--getting-all-azure-environments) as value, for example `AzureUSGovernment` or `AzureChinaCloud`.  
+1) Create the `ARM_ENVIRONMENT` variable/secret with the sovereign cloud [environment name](https://learn.microsoft.com/en-us/powershell/module/az.accounts/get-azenvironment?view=azps-7.1.0#example-1--getting-all-azure-environments) as value, for example `AzureUSGovernment` or `AzureChinaCloud`.  
 **GitHub Actions**
 ![Add GH Action Secret](./Media/Actions/github_environment_secret.png)
 **Azure DevOps**
