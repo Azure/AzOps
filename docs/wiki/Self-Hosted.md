@@ -19,7 +19,7 @@ Virtual Machine Scale Sets are optimal for hosting your self-hosted agents/runne
 
 ## Image
 
-To setup a VMSS for your self-hosted agents/runners you need an image with all the required software installed. The pipelines and actions provided in the [AzOps-Accelerator](https://github.com/Azure/AzOps-Accelerator) repository are using the GitHub Actions Virtual Environments [`ubuntu-20.04`](https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md) image by default. The images includes multiple tools and software including all AzOps requirements.
+To setup a VMSS for your self-hosted agents/runners you need an image with all the required software installed. The pipelines and actions provided in the [AzOps-Accelerator](https://github.com/Azure/AzOps-Accelerator) repository are using the GitHub Actions Virtual Environments [`ubuntu-latest`](https://github.com/actions/runner-images/tree/main/images/linux) image by default. The images includes multiple tools and software including all AzOps requirements.
 
 ### Build an image using GitHub Actions Virtual Environments
 

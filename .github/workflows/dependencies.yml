@@ -21,10 +21,10 @@ env:
 jobs:
   dependencies:
     name: "Automated Dependencies"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Configure"
         run: |
