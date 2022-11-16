@@ -17,7 +17,7 @@ permissions:
 jobs:
   tests:
     name: "Tests"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: test
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
