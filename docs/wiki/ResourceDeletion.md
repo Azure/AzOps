@@ -8,7 +8,7 @@
 
 ## Introduction
 
-**AzOps Resource Deletion** performs deletion of policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
+**AzOps Resource Deletion** performs deletion of locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
 
 - For any other resource type **deletion** is **not** supported by AzOps at this time.
 
@@ -16,16 +16,31 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
 
 **_Please Note_**
 
-- SPN used for deletion/change action, requires the below actions in its role definition.
+- SPN used for deletion/change action, requires below actions in its role definition. Choose which combination best suites your implementation.
+
+```bash
+    Microsoft.Authorization/* OR  * (For everything)
+```
+- For Azure Locks removal
+
+```bash
+    Microsoft.Authorization/locks/delete
+                            OR
+    Microsoft.Authorization/locks/*
+```
 
 - For Azure Policy Assignment removal
+
+```bash
+    Microsoft.Authorization/locks/delete
+                            OR
+    Microsoft.Authorization/locks/*
+```
 
 ```bash
     Microsoft.Authorization/policyAssignments/delete
                             OR
     Microsoft.Authorization/policyAssignments/*
-                            OR
-    Microsoft.Authorization/* OR  * (For everything)
 ```
 
 - For Azure Policy Definition removal
@@ -34,8 +49,6 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
     Microsoft.Authorization/policyDefinitions/delete
                             OR
     Microsoft.Authorization/policyDefinitions/*
-                            OR
-    Microsoft.Authorization/* OR  * (For everything)
 ```
 
 - For Azure Policy Exemption removal
@@ -44,8 +57,6 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
     Microsoft.Authorization/policyExemptions/delete
                             OR
     Microsoft.Authorization/policyExemptions/*
-                            OR
-    Microsoft.Authorization/* OR  * (For everything)
 ```
 
 - For Azure Policy SetDefinition removal
@@ -54,8 +65,6 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
     Microsoft.Authorization/policySetDefinitions/delete
                             OR
     Microsoft.Authorization/policySetDefinitions/*
-                            OR
-    Microsoft.Authorization/* OR  * (For everything)
 ```
 
 - For Azure Role Assignment removal
@@ -64,8 +73,6 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
     Microsoft.Authorization/roleAssignments/delete
                             OR
     Microsoft.Authorization/roleAssignments/*
-                            OR
-    Microsoft.Authorization/* OR  * (For everything)
 ```
 ## Deletion dependency validation
 When deletion of a supported object is sent to AzOps it evaluates to ensure resource dependencies are included in the deletion job. If a dependency is missing the module will throw (exit with error) and post the result of missing dependencies to the pull request conversation asking you to add it and try again.

@@ -1,4 +1,4 @@
-## In this guide
+# In this guide
 - [AzOps Settings](#azops-settings)
 - [Workflow / Pipeline Settings](#workflow--pipeline-settings)
   - [Workflow Settings in GitHub](#workflow-settings-in-github)
@@ -23,31 +23,32 @@ The following configuration values can be modified within the `settings.json` fi
 | 11  | InvalidateCache                      | Invalidate cached Subscriptions and Management Groups and do a full discovery. *Not recommended to change*                                                                            | `"Core.InvalidateCache": false`                                                                 |
 | 12  | OfferType                            | Default offer type for Subscription creation                                                                                                                                          | `"Core.OfferType": "MS-AZR-0017P"`                                                              |
 | 13  | PartialMgDiscoveryRoot               | Generate folder hierachy for specific Management Groups                                                                                                                               | `"Core.PartialMgDiscoveryRoot": []`                                                             |
-| 14  | SkipPim                              | Do not include Privileged Identity Management resources in pull                                                                                                                       | `"Core.SkipPim": true`                                                                         |
-| 15  | SkipPolicy                           | Do not include Azure Policy state in pull                                                                                                                                             | `"Core.SkipPolicy": false`                                                                      |
-| 16  | SkipResource                         | Do not include Resources within Resource Groups                                                                                                                                       | `"Core.SkipResource": false`                                                                    |
-| 17  | SkipChildResource                    | Do not include Azure child resources                                                                                                                                                  | `"Core.SkipChildResource": false`                                                               |
-| 18  | SkipResourceGroup                    | Do not include Resource Groups in pull                                                                                                                                                | `"Core.SkipResourceGroup": false`                                                               |
-| 19  | SkipResourceType                     | Skip specific [Resource Types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.SkipResourceType": ["Microsoft.VSOnline/plans"]`                                         |
-| 20  | SkipRole                             | Do not include Role types in pull                                                                                                                                                     | `"Core.SkipRole": false`                                                                        |
-| 21  | State                                | Folder to store AzOpsState artefact, defaults to `root`                                                                                                                               | `"Core.State: "/root"`                                                                          |
-| 22  | SubscriptionsToIncludeResourceGroups | Filter which Subscriptions should include Resource Groups in pull                                                                                                                     | `"Core.SubscriptionsToIncludeResourceGroups": ["*"]`                                            |
-| 23  | TemplateParameterFileSuffix          | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.TemplateParameterFileSuffix": ".json"`                                                   |
-| 24  | ThrottleLimit                        | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.ThrottleLimit": 10`                                                                      |
-| 25  | WhatifExcludedChangeTypes            | Exclude specific change types from WhatIf operations                                                                                                                                  | `"Core.WhatifExcludedChangeTypes": ["NoChange","Ignore"]`                                       |
+| 14  | SkipPim                              | Do not include Privileged Identity Management resources in pull                                                                                                                       | `"Core.SkipPim": true`                                                                          |
+| 15  | SkipLock                             | Do not include ResourceLock resources in pull                                                                                                                                         | `"Core.SkipLock": true`                                                                         |
+| 16  | SkipPolicy                           | Do not include Azure Policy state in pull                                                                                                                                             | `"Core.SkipPolicy": false`                                                                      |
+| 17  | SkipResource                         | Do not include Resources within Resource Groups                                                                                                                                       | `"Core.SkipResource": false`                                                                    |
+| 18  | SkipChildResource                    | Do not include Azure child resources                                                                                                                                                  | `"Core.SkipChildResource": false`                                                               |
+| 19  | SkipResourceGroup                    | Do not include Resource Groups in pull                                                                                                                                                | `"Core.SkipResourceGroup": false`                                                               |
+| 20  | SkipResourceType                     | Skip specific [Resource Types](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types)  (only targets Resource Group scoped resources) | `"Core.SkipResourceType": ["Microsoft.VSOnline/plans"]`                                        |
+| 21  | SkipRole                             | Do not include Role types in pull                                                                                                                                                     | `"Core.SkipRole": false`                                                                        |
+| 22  | State                                | Folder to store AzOpsState artefact, defaults to `root`                                                                                                                               | `"Core.State: "/root"`                                                                          |
+| 23  | SubscriptionsToIncludeResourceGroups | Filter which Subscriptions should include Resource Groups in pull                                                                                                                     | `"Core.SubscriptionsToIncludeResourceGroups": ["*"]`                                            |
+| 24  | TemplateParameterFileSuffix          | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.TemplateParameterFileSuffix": ".json"`                                                   |
+| 25  | ThrottleLimit                        | Default template file suffix. *Not recommended to change*                                                                                                                             | `"Core.ThrottleLimit": 10`                                                                      |
+| 26  | WhatifExcludedChangeTypes            | Exclude specific change types from WhatIf operations                                                                                                                                  | `"Core.WhatifExcludedChangeTypes": ["NoChange","Ignore"]`                                       |
 
 ## Workflow / Pipeline Settings
 
 The following settings can be modified as variables inside GitHub or Azure DevOps and will affect how the workflow or pipeline is run.
 
 * **AZOPS_MODULE_VERSION**
-  Set this to the version of the AzOps module you want to use. If the variable is missing, the latest version will be used.  
-  Typically used to pin the version of the module to a specific version and update to new versions at a controlled manner.  
-  Make sure to have a process to continously update this variable if it is set.  
+  Set this to the version of the AzOps module you want to use. If the variable is missing, the latest version will be used.
+  Typically used to pin the version of the module to a specific version and update to new versions at a controlled manner.
+  Make sure to have a process to continously update this variable if it is set.
 
 * **AZOPS_CUSTOM_SORT_ORDER**
-  Set this variable to `true` to enable custom sort ordering. When enabled, create a file named `.order` in a folder where you want to control the deployment order of templates.  
-  Any file that is listed by name in `.order` will will be deployed before other files and in the order that they are listed.  
+  Set this variable to `true` to enable custom sort ordering. When enabled, create a file named `.order` in a folder where you want to control the deployment order of templates.
+  Any file that is listed by name in `.order` will will be deployed before other files and in the order that they are listed.
 
 ### Workflow Settings in GitHub
 

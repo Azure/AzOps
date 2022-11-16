@@ -118,8 +118,10 @@ Describe "Repository" {
 
         try {
             Set-AzContext -SubscriptionId $script:subscriptionId
+            $script:locks = Get-AzResourceLock -ResourceGroupName "Lock1-azopsrg"
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:policyAssignmentsDep = Get-AzPolicyAssignment -Name "AzOpsDep2 - audit-vm-manageddisks"
+            $script:policyAssignmentsDep2 = Get-AzPolicyAssignment -Name "TestPolicyAssignment2" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/Lock2-azopsrg"
             $script:policyDefinitions = Get-AzPolicyDefinition -Name 'TestPolicyDefinition' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:policyDefinitionsDep = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:policyDefinitionsDep2 = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDe2' -ManagementGroupName $($script:testManagementGroup.Name)
@@ -144,7 +146,7 @@ Describe "Repository" {
         Set-PSFConfig -FullName AzOps.Core.State -Value $partialMgDiscoveryRootgeneratedRoot
         Write-PSFMessage -Level Verbose -Message "Generating folder structure for PartialMgDiscoveryRoot" -FunctionName "BeforeAll"
         try {
-            Invoke-AzOpsPull -SkipPim:$true -SkipResourceGroup:$true -SkipPolicy:$true -SkipRole:$true -SkipChildResource:$true -SkipResource:$true
+            Invoke-AzOpsPull -SkipLock:$true -SkipPim:$true -SkipResourceGroup:$true -SkipPolicy:$true -SkipRole:$true -SkipChildResource:$true -SkipResource:$true
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Initialize failed for PartialMgDiscoveryRoot" -Exception $_.Exception
@@ -156,13 +158,14 @@ Describe "Repository" {
         Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
         Set-PSFConfig -FullName AzOps.Core.PartialMgDiscoveryRoot -Value @()
         Set-PSFConfig -FullName AzOps.Core.State -Value $generatedRoot
+        Set-PSFConfig -FullName AzOps.Core.SkipLock -Value $false
         Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
         Set-PSFConfig -FullName AzOps.Core.DefaultDeploymentRegion -Value "northeurope"
         $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
-            Invoke-AzOpsPull -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
+            Invoke-AzOpsPull -SkipLock:$false -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Initialize failed" -Exception $_.Exception
@@ -204,6 +207,12 @@ Describe "Repository" {
         $script:managementManagementGroupFile = ($script:managementManagementGroupPath).FullName
         Write-PSFMessage -Level Debug -Message "ManagementManagementGroupFile: $($script:managementManagementGroupFile)" -FunctionName "BeforeAll"
 
+        $script:locksPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_locks-$(($script:locks.Name).toLower()).json")
+        $script:locksDirectory = ($script:locksPath).Directory
+        $script:locksFile = ($script:locksPath).FullName
+        $script:locksDeploymentName = "AzOps-{0}-{1}" -f $($script:locksPath.Name.Replace(".json", '')).Substring(0, 35), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "LockFile: $($script:locksFile)" -FunctionName "BeforeAll"
+
         $script:policyAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignments.Name).toLower()).json")
         $script:policyAssignmentsDirectory = ($script:policyAssignmentsPath).Directory
         $script:policyAssignmentsFile = ($script:policyAssignmentsPath).FullName
@@ -215,6 +224,12 @@ Describe "Repository" {
         $script:policyAssignmentsDepFile = ($script:policyAssignmentsDepPath).FullName
         $script:policyAssignmentsDepDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsDepPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsDepFile)" -FunctionName "BeforeAll"
+
+        $script:policyAssignmentsDep2Path = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDep2.Name).toLower()).json")
+        $script:policyAssignmentsDep2Directory = ($script:policyAssignmentsDep2Path).Directory
+        $script:policyAssignmentsDep2File = ($script:policyAssignmentsDep2Path).FullName
+        $script:policyAssignmentsDep2DeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsDep2Path.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsDep2File)" -FunctionName "BeforeAll"
 
         $script:policyDefinitionsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policydefinitions-$(($script:policyDefinitions.Name).toLower()).parameters.json")
         $script:policyDefinitionsDirectory = ($script:policyDefinitionsPath).Directory
@@ -303,6 +318,7 @@ Describe "Repository" {
             "A`t$script:resourceGroupFile",
             "A`t$script:routeTableFile",
             "A`t$script:ruleCollectionGroupsFile",
+            "A`t$script:locksFile",
             "A`t$($script:bicepTemplatePath.FullName[0])"
         )
         Invoke-AzOpsPush -ChangeSet $changeSet
@@ -313,7 +329,8 @@ Describe "Repository" {
             "D`t$script:policyDefinitionsFile",
             "D`t$script:policySetDefinitionsFile",
             "D`t$script:policyExemptionsFile",
-            "D`t$script:roleAssignmentsFile"
+            "D`t$script:roleAssignmentsFile",
+            "D`t$script:locksFile"
         )
         $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
         $DeleteSetContents += '-- '
@@ -324,6 +341,8 @@ Describe "Repository" {
         $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
         $DeleteSetContents += '-- '
         $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += (Get-Content $Script:locksFile)
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
@@ -500,6 +519,47 @@ Describe "Repository" {
         It "Management Group scope property should match" {
             $fileContents = Get-Content -Path $script:managementManagementGroupFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].scope | Should -Be "/"
+        }
+        #endregion
+
+        #region Scope = Locks (./root/tenant root group/test/platform/management/subscription-0/Lock1-azopsrg/Locks/Lock)
+        It "Locks directory should exist" {
+            Test-Path -Path $script:locksDirectory | Should -BeTrue
+        }
+        It "Locks file should exist" {
+            Test-Path -Path $script:locksFile | Should -BeTrue
+        }
+        It "Locks resource type should exist" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Locks resource name should exist" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Locks resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Locks resource properties should exist" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Locks resource type should match" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Authorization/locks"
+        }
+        It "Locks level property should match" {
+            $fileContents = Get-Content -Path $script:locksFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties.level | Should -Be "CanNotDelete"
+        }
+        It "Locks deployment should be successful" {
+            $script:locksDeployment = Get-AzResourceGroupDeployment -Name $script:locksDeploymentName -ResourceGroupName $script:locks.ResourceGroupName
+            $script:locksDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "Locks deletion should be successful" {
+            $locksDeletion = Get-AzResourceLock -ResourceGroupName $script:locks.ResourceGroupName -ErrorAction SilentlyContinue
+            $locksDeletion | Should -Be $Null
         }
         #endregion
 
@@ -897,6 +957,13 @@ Describe "Repository" {
                 "D`t$script:policyAssignmentsDepFile"
             )
             $DeleteSetContents = (Get-Content $script:policyAssignmentsDepFile)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
+        }
+        It "Deletion of policyAssignmentFile with lock dependency should fail" {
+            $changeSet = @(
+                "D`t$script:policyAssignmentsDep2File"
+            )
+            $DeleteSetContents = (Get-Content $script:policyAssignmentsDep2File)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         #endregion

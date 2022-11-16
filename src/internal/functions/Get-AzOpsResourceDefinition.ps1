@@ -14,9 +14,11 @@
         .PARAMETER SkipChildResource
             Skip childResource discovery.
         .PARAMETER SkipPim
-            Skip discovery of Privileged Identity Management resources.
+            Skip discovery of Privileged Identity Management.
+        .PARAMETER SkipLock
+            Skip discovery of resourceLock.
         .PARAMETER SkipPolicy
-            Skip discovery of policies for better performance.
+            Skip discovery of policies.
         .PARAMETER SkipResource
             Skip discovery of resources inside resource groups.
         .PARAMETER SkipResourceGroup
@@ -63,6 +65,9 @@
 
         [switch]
         $SkipPim = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPim'),
+
+        [switch]
+        $SkipLock = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipLock'),
 
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
@@ -222,6 +227,9 @@
                 $SkipPim,
 
                 [switch]
+                $SkipLock,
+
+                [switch]
                 $SkipPolicy,
 
                 [switch]
@@ -294,6 +302,7 @@
                             ScopeObject                     = $ScopeObject
                             ODataFilter                     = $ODataFilter
                             SkipPim                         = $SkipPim
+                            SkipLock                        = $SkipLock
                             SkipPolicy                      = $SkipPolicy
                             SkipRole                        = $SkipRole
                             SkipResource                    = $SkipResource
@@ -341,10 +350,13 @@
                             Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
                             & $azOps { ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$runspaceData.ExportRawTemplate -StatePath $runspaceData.Statepath }
 
-                            #region Process Privileged Identity Management resources, Policies and Roles at RG scope
-                            if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipRole)) {
+                            #region Process Privileged Identity Management resources, Policies, Locks and Roles at RG scope
+                            if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipRole) -or (-not $using:SkipLock)) {
                                 & $azOps {
                                     $rgScopeObject = New-AzOpsScope -Scope $resourceGroup.ResourceId -StatePath $runspaceData.Statepath -ErrorAction Stop
+                                    if (-not $using:SkipLock) {
+                                        Get-AzOpsResourceLock -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
+                                    }
                                     if (-not $using:SkipPim) {
                                         Get-AzOpsPim -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
                                     }
@@ -560,7 +572,7 @@
         switch ($scopeObject.Type) {
             resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
             resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -OdataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPim:$SkipPim -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPim:$SkipPim -SkipLock:$SkipLock -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPim:$SkipPim -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 
@@ -574,6 +586,12 @@
             Get-AzOpsPim -ScopeObject $scopeObject -StatePath $StatePath
         }
         #endregion Process Privileged Identity Management resources
+
+        #region Process ResourceLock
+        if (-not $SkipLock) {
+            Get-AzOpsResourceLock -ScopeObject $scopeObject -StatePath $StatePath
+        }
+        #endregion Process ResourceLock
 
         #region Process Policies
         if (-not $SkipPolicy) {

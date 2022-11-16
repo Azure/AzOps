@@ -294,15 +294,18 @@
 
             Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
         }
-        #Required order for deletion
+
+        #Required deletion order
         $deletionListPriority = @(
+            "locks",
             "policyExemptions",
             "policyAssignments",
             "policySetDefinitions",
             "policyDefinitions"
         )
-        $deletionList = $deletionList | Sort-Object {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
-        $WhatIfPreference = $WhatIfPreferenceState
+
+        #Sort 'deletionList' based on 'deletionListPriority'
+        $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
 
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
         if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory)) {
@@ -311,6 +314,7 @@
         }
 
         #Starting Tenant Deployment
+        $WhatIfPreference = $WhatIfPreferenceState
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
         $deploymentList | Select-Object $uniqueProperties -Unique | New-AzOpsDeployment -WhatIf:$WhatIfPreference
 

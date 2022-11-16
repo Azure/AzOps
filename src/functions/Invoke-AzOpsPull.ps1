@@ -13,6 +13,8 @@
             Skip childResource discovery.
         .PARAMETER SkipPim
             Skip discovery of Privileged Identity Management resources.
+        .PARAMETER SkipLock
+            Skip discovery of resource lock resources.
         .PARAMETER SkipPolicy
             Skip discovery of policies.
         .PARAMETER SkipRole
@@ -53,6 +55,9 @@
 
         [switch]
         $SkipPim = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPim'),
+
+        [switch]
+        $SkipLock = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipLock'),
 
         [switch]
         $SkipPolicy = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipPolicy'),
@@ -179,14 +184,14 @@
                 Save-AzOpsManagementGroupChildren -Scope $root -StatePath $StatePath
 
                 # Discover Resource at scope recursively
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipLock, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $root @parameters
             }
         }
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
-                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
+                $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipLock, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, ExportRawTemplate, StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
 

@@ -37,6 +37,40 @@
     )
 
     process {
+        function Get-AzLocksDeletionDependency {
+            param (
+                $resourceToDelete
+            )
+            $dependency = @()
+            if ($resourceToDelete.ResourceType -in $DeletionSupportedResourceType) {
+                if ($resourceToDelete.SubscriptionId) {
+                    $depLock = Get-AzResourceLock -Scope "/subscriptions/$($resourceToDelete.SubscriptionId)"
+                    if ($depLock) {
+                        foreach ($lock in $depLock) {
+                            if ($lock.ResourceGroupName -eq $resourceToDelete.ResourceGroupName) {
+                                #Filter through each return and validate resource is not at child resource scope
+                                if ($lock.ResourceId -notlike '*/resourcegroups/*/providers/*/providers/*') {
+                                    $dependency += [PSCustomObject]@{
+                                        ResourceType = 'locks'
+                                        ResourceId = $lock.ResourceId
+                                    }
+                                }
+                            }
+                            elseif ($lock.ResourceId -notlike '*/resourcegroups/*') {
+                                $dependency += [PSCustomObject]@{
+                                    ResourceType = 'locks'
+                                    ResourceId = $lock.ResourceId
+                                }
+                            }
+                        }
+                    }
+                    if ($dependency) {
+                        $dependency = $dependency | Sort-Object ResourceId -Unique
+                        return $dependency
+                    }
+                }
+            }
+        }
         function Get-AzPolicyAssignmentDeletionDependency {
             param (
                 $resourceToDelete
@@ -207,10 +241,14 @@
         if ($scopeObject.Resource -in $DeletionSupportedResourceType) {
             switch ($scopeObject.Resource) {
                 # Check resource existance through optimal path
+                'locks' {
+                    $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object {$_.ResourceID -eq $ScopeObject.scope}
+                }
                 'policyAssignments' {
                     $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency = Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policyDefinitions' {
@@ -219,21 +257,30 @@
                         $dependency = @()
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzPolicyDefinitionDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policyExemptions' {
                     $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    if ($resourceToDelete) {
+                        $dependency = Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                    }
                 }
                 'policySetDefinitions' {
                     $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency = Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'roleAssignments' {
                     $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
+                    if ($resourceToDelete) {
+                        $dependency = Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                    }
                 }
             }
+            # If no resource to delete was found return
             if (-not $resourceToDelete) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
