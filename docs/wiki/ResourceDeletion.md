@@ -32,12 +32,6 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
 - For Azure Policy Assignment removal
 
 ```bash
-    Microsoft.Authorization/locks/delete
-                            OR
-    Microsoft.Authorization/locks/*
-```
-
-```bash
     Microsoft.Authorization/policyAssignments/delete
                             OR
     Microsoft.Authorization/policyAssignments/*
