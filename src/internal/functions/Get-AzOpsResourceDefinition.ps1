@@ -165,15 +165,9 @@
                 Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
                 try {
-                    if ($IncludeResourcesInResourceGroup -eq "*") {
+                    if (($IncludeResourcesInResourceGroup | Foreach-Object { $ScopeObject.ResourceGroup -like $_ }) -contains $true) {
                         Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
                         $resourceGroup = Get-AzResourceGroup -Name $ScopeObject.ResourceGroup -DefaultProfile $Context -ErrorAction Stop
-                    }
-                    else {
-                        if ($ScopeObject.ResourceGroup -in $IncludeResourcesInResourceGroup) {
-                            Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-                            $resourceGroup = Get-AzResourceGroup -Name $ScopeObject.ResourceGroup -DefaultProfile $Context -ErrorAction Stop
-                        }
                     }
                 }
                 catch {
@@ -372,11 +366,9 @@
 
                             if (-not $using:SkipResource) {
                                 Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.SubScription.Processing.ResourceGroup.Resources' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                                if ($runspaceData.IncludeResourcesInResourceGroup -ne "*") {
-                                    if ($resourceGroup.ResourceGroupName -notin $runspaceData.IncludeResourcesInResourceGroup) {
-                                        Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
-                                        continue
-                                    }
+                                if (($runspaceData.IncludeResourcesInResourceGroup | Foreach-Object { $resourceGroup.ResourceGroupName -like $_ }) -notcontains $true) {
+                                    Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG' -StringValues $resourceGroup.ResourceGroupName -Target $resourceGroup
+                                    continue
                                 }
                                 try {
                                     $resources = & $azOps {
