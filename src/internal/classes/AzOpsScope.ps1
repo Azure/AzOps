@@ -390,7 +390,6 @@
         return $null
     }
     [string] IsResource() {
-
         if ($this.Scope -match $this.regex_managementgroupResource) {
             return ($this.regex_managementgroupResource.Split($this.Scope) | Select-Object -last 1)
         }
@@ -409,12 +408,17 @@
         Should Return Management Group Name
     #>
     [string] GetManagementGroup() {
-
         if ($this.GetManagementGroupName()) {
             foreach ($mgmt in $script:AzOpsAzManagementGroup) {
                 if ($mgmt.Name -eq $this.GetManagementGroupName()) {
+                    $private:mgmtHit = $true
                     return $mgmt.Name
                 }
+            }
+            if (-not $private:mgmtHit) {
+                $mgId = $this.Scope -split $this.regex_managementgroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
+                Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroup.NotFound' -StringValues $mgId -FunctionName AzOpsScope -ModuleName AzOps
+                return $mgId
             }
         }
         if ($this.Subscription) {
@@ -445,7 +449,8 @@
         }
         else {
             Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.GetAzOpsManagementGroupPath.NotFound' -StringValues $managementgroupName -FunctionName AzOpsScope -ModuleName AzOps
-            throw "Management Group not found: $managementgroupName"
+            $assumenewresource = "azopsscope-assume-new-resource_$managementgroupName"
+            return $assumenewresource.ToLower()
         }
     }
 
@@ -455,11 +460,10 @@
     [string] GetManagementGroupName() {
         if ($this.Scope -match $this.regex_managementgroupExtract) {
             $mgId = $this.Scope -split $this.regex_managementgroupExtract -split '/' | Where-Object { $_ } | Select-Object -First 1
-
             if ($mgId) {
                 $mgDisplayName = ($script:AzOpsAzManagementGroup | Where-Object Name -eq $mgId).Name
                 if ($mgDisplayName) {
-                    #Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
+                    Write-PSFMessage -Level Debug -String 'AzOpsScope.GetManagementGroupName.Found.Azure' -StringValues $mgDisplayName -FunctionName AzOpsScope -ModuleName AzOps
                     return $mgDisplayName
                 }
                 else {

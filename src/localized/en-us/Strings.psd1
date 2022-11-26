@@ -17,11 +17,12 @@
     'Assert-AzOpsBicepDependency.Success'                                           = 'Bicep found in current path' #
     'Assert-AzOpsBicepDependency.NotFound'                                          = 'Unable to locate bicep binary. Will not be able to deploy bicep templates.' #
 
-    'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group not found: {0}' # $managementgroupName
+    'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group path not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
     'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting Resource path for: {0}' # $this.Scope
     'AzOpsScope.GetManagementGroupName.Found.Azure'                                 = 'Management Group found in Azure: {0}' # $mgDisplayName
-    'AzOpsScope.GetManagementGroupName.NotFound'                                    = 'Management Group not found in Azure. Using directory name instead: {0}' # $mgId
+    'AzOpsScope.GetManagementGroup.NotFound'                                        = 'Management Group does not match any existing in Azure. Assume new resource, using directory name: {0}' # $mgId
+    'AzOpsScope.GetManagementGroupName.NotFound'                                    = 'Management Group not found in Azure. Trying with directory name instead: {0}' # $mgId
     'AzOpsScope.GetSubscription.Found'                                              = 'SubscriptionId found in Azure: {0}' # $sub.Id
     'AzOpsScope.GetSubscription.NotFound'                                           = 'SubscriptionId not found in Azure. Using directory name instead: {0}' # $subId
     'AzOpsScope.GetSubscriptionDisplayName.Found'                                   = 'Subscription DisplayName found in Azure: {0}' # $sub.displayName
@@ -223,6 +224,9 @@
     'New-AzOpsDeployment.WhatIfResults'                                             = 'WhatIf Results: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfFile'                                                = 'Creating WhatIf Results file'
     'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to WhatIf' #
+    'New-AzOpsDeployment.Parent.NotFound'                                           = 'Failed to find parent {0} for template {1}' # $parentDir, $addition
+    'New-AzOpsDeployment.Directory.NotFound'                                        = 'Directory name {0} does not match expected {1} or file name {2} does not match expected {3}' # $pathDirName, $expectedDirName, $filename, $expectedFileName
+    'New-AzOpsDeployment.Metadata.Failed'                                           = 'Detected custom template: {0}. Please align formatting based on AzOps generated templates.' #$scopeObject
 
     'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
     'New-AzOpsStateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $cfgEnrollmentAccount
