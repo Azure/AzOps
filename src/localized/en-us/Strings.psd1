@@ -225,8 +225,7 @@
     'New-AzOpsDeployment.WhatIfFile'                                                = 'Creating WhatIf Results file'
     'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to WhatIf' #
     'New-AzOpsDeployment.Parent.NotFound'                                           = 'Failed to find parent {0} for template {1}' # $parentDir, $addition
-    'New-AzOpsDeployment.Directory.NotFound'                                        = 'Directory name {0} does not match expected {1} or file name {2} does not match expected {3}' # $pathDirName, $expectedDirName, $filename, $expectedFileName
-    'New-AzOpsDeployment.Metadata.Failed'                                           = 'Detected custom template: {0}. Please align formatting based on AzOps generated templates.' #$scopeObject
+    'New-AzOpsDeployment.Directory.NotFound'                                        = 'Directory name {0} does not match expected {1} does not match expected {1}' # $pathDirName, $expectedDirName
 
     'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
     'New-AzOpsStateDeployment.EnrollmentAccount.Selected'                           = 'Using the defined enrollment account {0}' # $cfgEnrollmentAccount
