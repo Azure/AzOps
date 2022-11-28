@@ -140,6 +140,8 @@
                 # Validate directory name match resource information
                 if ($pathDirName -eq $expectedDirName) {
                     Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+                    $whatIfCommand = 'Get-AzTenantDeploymentWhatIfResult'
+                    $deploymentCommand = 'New-AzTenantDeployment'
                 }
                 # Invalid directory name
                 else {

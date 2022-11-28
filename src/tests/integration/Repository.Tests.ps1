@@ -306,7 +306,7 @@ Describe "Repository" {
         $script:bicepResourceGroupName = ((Get-Content -Path ($Script:bicepTemplatePath.FullName[1])) | ConvertFrom-Json).parameters.resourceGroupName.value
 
         $script:pushmgmttest1idManagementGroupTemplatePath = Get-Item "$($global:testroot)/templates/pushmgmttest1displayname (pushmgmttest1id)" | Copy-Item -Destination $script:testManagementGroupDirectory -Recurse -PassThru -Force
-        $script:pushmgmttest1idManagementGroupDeploymentName = "AzOps-{0}-{1}" -f 'pushmgmttest1id', $deploymentLocationId
+        $script:pushmgmttest1idManagementGroupDeploymentName = "AzOps-{0}-{1}" -f "$($script:pushmgmttest1idManagementGroupTemplatePath[1].Name.Replace(".json", ''))", $deploymentLocationId
         $script:pushmgmttest1idName = ((Get-Content -Path ($script:pushmgmttest1idManagementGroupTemplatePath.FullName[1])) | ConvertFrom-Json).resources.name[0]
 
         $script:pushmgmttest2idManagementGroupTemplatePath = Get-Item "$($global:testroot)/templates/pushmgmttest1displayname (pushmgmttest1id)" | Copy-Item -Destination $script:platformManagementGroupDirectory -Recurse -PassThru -Force
@@ -325,7 +325,7 @@ Describe "Repository" {
             "A`t$script:ruleCollectionGroupsFile",
             "A`t$script:locksFile",
             "A`t$($script:bicepTemplatePath.FullName[0])",
-            "A`t$($script:pushmgmttest1idManagementGroupTemplatePath.FullName[0])"
+            "A`t$($script:pushmgmttest1idManagementGroupTemplatePath.FullName[1])"
         )
         Invoke-AzOpsPush -ChangeSet $changeSet
 
@@ -938,17 +938,16 @@ Describe "Repository" {
 
         #region Deploy Management Group using folder structure and file
         It "ManagementGroup deployment using folder structure and file should be successful" {
-            $script:pushmgmttest1Deployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:pushmgmttest1idName -Name $script:pushmgmttest1idManagementGroupDeploymentName
+            $script:pushmgmttest1Deployment = Get-AzTenantDeployment -Name $script:pushmgmttest1idManagementGroupDeploymentName
             $pushmgmttest1Deployment.ProvisioningState | Should -Be "Succeeded"
         }
-
         It "ManagementGroup deployed using folder structure and file should exist" {
             $script:pushmgmttest1Mg = Get-AzManagementGroup -GroupName $script:pushmgmttest1idName
             $pushmgmttest1Mg.Name | Should -Be $script:pushmgmttest1idName
         }
-        It "ManagementGroup deployment using folder structure and file at folder scope not matching content parent should fail" {
+        It "ManagementGroup deployed using folder structure and file at folder scope not matching content parent should fail" {
             $changeSet = @(
-                "A`t$($script:pushmgmttest12dManagementGroupTemplatePath.FullName[0])"
+                "A`t$($script:pushmgmttest2idManagementGroupTemplatePath.FullName[1])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet -WhatIf:$true} | Should -Throw
         }
