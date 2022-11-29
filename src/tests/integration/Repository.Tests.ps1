@@ -309,7 +309,7 @@ Describe "Repository" {
         $script:pushmgmttest1idManagementGroupDeploymentName = "AzOps-{0}-{1}" -f "$($script:pushmgmttest1idManagementGroupTemplatePath[1].Name.Replace(".json", ''))", $deploymentLocationId
         $script:pushmgmttest1idName = ((Get-Content -Path ($script:pushmgmttest1idManagementGroupTemplatePath.FullName[1])) | ConvertFrom-Json).resources.name[0]
 
-        $script:pushmgmttest2idManagementGroupTemplatePath = Get-Item "$($global:testroot)/templates/pushmgmttest1displayname (pushmgmttest1id)" | Copy-Item -Destination $script:platformManagementGroupDirectory -Recurse -PassThru -Force
+        $script:pushmgmttest2idManagementGroupTemplatePath = Get-Item "$($global:testroot)/templates/pushmgmttest2displayname (pushmgmttest2id)" | Copy-Item -Destination $script:platformManagementGroupDirectory -Recurse -PassThru -Force
         #endregion Paths
 
         #Test push based on pulled resources
