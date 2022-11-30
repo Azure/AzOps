@@ -449,8 +449,8 @@
         }
         else {
             Write-PSFMessage -Level Warning -Tag error -String 'AzOpsScope.GetAzOpsManagementGroupPath.NotFound' -StringValues $managementgroupName -FunctionName AzOpsScope -ModuleName AzOps
-            $assumenewresource = "azopsscope-assume-new-resource_$managementgroupName"
-            return $assumenewresource.ToLower()
+            $assumeNewResource = "azopsscope-assume-new-resource_$managementgroupName"
+            return $assumeNewResource.ToLower()
         }
     }
 
