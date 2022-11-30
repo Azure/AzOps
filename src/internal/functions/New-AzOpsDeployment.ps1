@@ -147,7 +147,7 @@
             }
             # Parent missing
             else {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.Parent.NotFound' -Target $scopeObject -Tag Error -StringValues (Split-Path -Path $pathDir), $addition
+                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.Parent.NotFound' -Target $scopeObject -Tag Error -StringValues $addition
                 throw
             }
         }

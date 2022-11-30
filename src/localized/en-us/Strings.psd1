@@ -224,7 +224,7 @@
     'New-AzOpsDeployment.WhatIfResults'                                             = 'WhatIf Results: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfFile'                                                = 'Creating WhatIf Results file'
     'New-AzOpsDeployment.SkipDueToWhatIf'                                           = 'Skipping deployment due to WhatIf' #
-    'New-AzOpsDeployment.Parent.NotFound'                                           = 'Failed to find parent {0} for template {1}' # $parentDir, $addition
+    'New-AzOpsDeployment.Parent.NotFound'                                           = 'Failed to find parent scope for template {0}' # $addition
     'New-AzOpsDeployment.Directory.NotFound'                                        = 'Directory name {0} does not match expected {1}' # (Get-Item -Path $pathDir).Name, "$($resource.properties.displayName) ($($resource.name))"
 
     'New-AzOpsStateDeployment.EnrollmentAccount.First'                              = 'No enrollment account defined, using the first account found: {0}' # @($enrollmentAccounts)[0].PrincipalName
