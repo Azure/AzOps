@@ -45,8 +45,10 @@
             New-Item -Path ($tempPath + 'OUTPUT.md') -WhatIf:$false
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
         }
-        if ($StatePath -match '/') {
-            $StatePath = ($StatePath -split '/')[-1]
+
+        $ResultHeadline = ($results.changes.scope | Select-Object -Unique) -join "`n"
+        if ([string]::IsNullOrEmpty($ResultHeadline)) {
+            $ResultHeadline = $StatePath.split('/')[-1]
         }
         # Measure input $Results.Changes content
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
@@ -61,18 +63,18 @@
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
-            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $StatePath
+            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $ResultHeadline
         }
         else {
             if ($RemoveAzOpsFlag) {
                 if ($Results -match 'Missing resource dependency' ) {
-                    $mdOutput = ':x: **Action Required**{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $StatePath
+                    $mdOutput = ':x: **Action Required**{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
                 }
                 elseif ($Results -match 'What if operation failed') {
-                    $mdOutput = ':warning: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $StatePath
+                    $mdOutput = ':warning: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
                 }
                 else {
-                    $mdOutput = ':white_check_mark: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $StatePath
+                    $mdOutput = ':white_check_mark: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
                 }
             }
             else {
@@ -83,7 +85,7 @@
                 else {
                     $existingContent = $resultJson
                 }
-                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $StatePath
+                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $ResultHeadline
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
                 Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
             }
