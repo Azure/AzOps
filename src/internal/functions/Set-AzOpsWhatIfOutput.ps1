@@ -48,7 +48,7 @@
         }
 
         $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
-        
+
         # Measure input $Results.Changes content
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
         $resultString = $Results | Out-String
