@@ -13,11 +13,12 @@
             The character limit allowed for comments 64,000
         .PARAMETER ResultSizeMaxLimit
             The maximum upper character limit allowed for comments 64,600
-        .PARAMETER StatePath
+        .PARAMETER Filename
             File in scope of WhatIf
         .EXAMPLE
             > Set-AzOpsWhatIfOutput -Results $results
             > Set-AzOpsWhatIfOutput -Results $results -RemoveAzOpsFlag $true
+            > Set-AzOpsWhatIfOutput -Filename '/templates/root/myresource.bicep' -Results $results -RemoveAzOpsFlag $true
     #>
 
     [CmdletBinding()]
@@ -35,7 +36,7 @@
         $ResultSizeMaxLimit = "64600",
 
         [Parameter(Mandatory = $false)]
-        $StatePath
+        $Filename
     )
 
     process {
@@ -46,10 +47,8 @@
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
         }
 
-        $ResultHeadline = ($results.changes.scope | Select-Object -Unique) -join "`n"
-        if ([string]::IsNullOrEmpty($ResultHeadline)) {
-            $ResultHeadline = $StatePath.split('/')[-1]
-        }
+        $ResultHeadline = $Filename.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+        
         # Measure input $Results.Changes content
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
         $resultString = $Results | Out-String
