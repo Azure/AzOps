@@ -13,12 +13,12 @@
             The character limit allowed for comments 64,000
         .PARAMETER ResultSizeMaxLimit
             The maximum upper character limit allowed for comments 64,600
-        .PARAMETER Filename
+        .PARAMETER FilePath
             File in scope of WhatIf
         .EXAMPLE
             > Set-AzOpsWhatIfOutput -Results $results
             > Set-AzOpsWhatIfOutput -Results $results -RemoveAzOpsFlag $true
-            > Set-AzOpsWhatIfOutput -Filename '/templates/root/myresource.bicep' -Results $results -RemoveAzOpsFlag $true
+            > Set-AzOpsWhatIfOutput -FilePath '/templates/root/myresource.bicep' -Results $results -RemoveAzOpsFlag $true
     #>
 
     [CmdletBinding()]
@@ -36,7 +36,7 @@
         $ResultSizeMaxLimit = "64600",
 
         [Parameter(Mandatory = $false)]
-        $Filename
+        $FilePath
     )
 
     process {
@@ -47,7 +47,7 @@
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
         }
 
-        $ResultHeadline = $Filename.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+        $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
         
         # Measure input $Results.Changes content
         $resultJson = ($Results.Changes | ConvertTo-Json -Depth 100)
@@ -62,18 +62,18 @@
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
-            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $ResultHeadline
+            $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $resultHeadline
         }
         else {
             if ($RemoveAzOpsFlag) {
                 if ($Results -match 'Missing resource dependency' ) {
-                    $mdOutput = ':x: **Action Required**{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
+                    $mdOutput = ':x: **Action Required**{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $resultHeadline
                 }
                 elseif ($Results -match 'What if operation failed') {
-                    $mdOutput = ':warning: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
+                    $mdOutput = ':warning: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $resultHeadline
                 }
                 else {
-                    $mdOutput = ':white_check_mark: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $ResultHeadline
+                    $mdOutput = ':white_check_mark: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $Results, $resultHeadline
                 }
             }
             else {
@@ -84,7 +84,7 @@
                 else {
                     $existingContent = $resultJson
                 }
-                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $ResultHeadline
+                $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $resultHeadline
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
                 Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
             }

@@ -284,7 +284,7 @@
             if (-not $resourceToDelete) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
-                Set-AzOpsWhatIfOutput -Name $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 return
             }
             if ($dependency) {
@@ -292,7 +292,7 @@
                     if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
                         Write-PSFMessage -Level Critical -String 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -StringValues $resource.ResourceId, $scopeObject.Scope -Target $scopeObject
                         $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.ResourceId, $scopeObject.scope, [environment]::NewLine
-                        Set-AzOpsWhatIfOutput -Name $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         $dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
                         }
@@ -303,7 +303,7 @@
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -Name $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($dependencyMissing) {
                 return $dependencyMissing
@@ -312,7 +312,7 @@
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -Name $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
