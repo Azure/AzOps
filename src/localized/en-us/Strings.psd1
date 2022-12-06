@@ -171,7 +171,7 @@
     'Invoke-AzOpsPull.Validating.AADP2.Success'                                     = 'Azure AD P2 licensing validated' #
     'Invoke-AzOpsPull.Validating.AADP2.Failed'                                      = 'Azure AD P2 licensing not found' #
     'Invoke-AzOpsPull.Validating.UserRole'                                          = 'Asserting fundamental Azure access' #
-    'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure user data' #
+    'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure AD. Role Assignments will be pulled, but not enriched with additional data such as DisplayName and ObjectType' #
     'Invoke-AzOpsPull.Validating.UserRole.Success'                                  = 'Azure access validated' #
     'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed'                     = 'SkipResource set to false or SkipChildResource set to false requires SkipResourceGroup to be set to false. Change value for SkipResourceGroup and retry operation. {0} https://github.com/azure/azops/wiki/settings' #
 

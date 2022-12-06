@@ -34,7 +34,7 @@ Install-Module Az.Accounts, Az.Resources
 # Connect to Azure
 Connect-AzAccount
 
-# Create Service Principal 
+# Create Service Principal
 $servicePrincipalDisplayName = "<name of service principal>"
 $servicePrincipal = New-AzADServicePrincipal -DisplayName $servicePrincipalDisplayName
 
@@ -67,7 +67,7 @@ $servicePrincipal = Get-AzADServicePrincipal -DisplayName $servicePrincipalDispl
 New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionName $roleToAssign -Scope '/'
 ```
 
-> You may need to elevate your access in Azure before being able to create a root scoped assignment.
+> You may need to [elevate your access](https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin) in Azure before being able to create a root scoped assignment.
 
 #### Assign Azure role to management group scope
 
@@ -93,7 +93,9 @@ New-AzRoleAssignment -ObjectId $servicePrincipal.Id -RoleDefinitionName $roleToA
 
 ### Azure AD role assignment
 
-Assign `Directory Readers` role to Service Principal/Managed Identity.
+If you intend to pull back roleAssignments or roleEligibilityScheduleRequests (PIM eligible assignments), assign the `Directory Readers` role to the Service Principal or Managed Identity.
+
+> Note: Since AzOps [release 1.9.2](https://github.com/Azure/AzOps/releases/tag/1.9.1), roleAssignments without the enriched properties `DisplayName` and `ObjectType` will be pulled without the `Directory Readers` Azure AD role assigned.
 
 ```powershell
 # Install module
