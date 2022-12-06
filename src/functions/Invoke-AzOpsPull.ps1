@@ -120,7 +120,6 @@
             }
             catch {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
-                $SkipRole = $true
                 $SkipPim = $true
             }
         }
@@ -132,7 +131,7 @@
         $resourceTypeDiff = Compare-Object -ReferenceObject $SkipResourceType -DifferenceObject $IncludeResourceType -ExcludeDifferent
         if ($resourceTypeDiff) {
             Write-PSFMessage -Level Warning -Message "SkipResourceType setting conflict found in IncludeResourceType, ignoring $($resourceTypeDiff.InputObject) from IncludeResourceType. To avoid this remove $($resourceTypeDiff.InputObject) from IncludeResourceType or SkipResourceType"
-            $IncludeResourceType = $IncludeResourceType | Where-Object {$_ -notin $resourceTypeDiff.InputObject}
+            $IncludeResourceType = $IncludeResourceType | Where-Object { $_ -notin $resourceTypeDiff.InputObject }
         }
 
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include InvalidateCache, PartialMgDiscovery, PartialMgDiscoveryRoot
