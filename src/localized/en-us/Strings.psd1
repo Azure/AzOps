@@ -20,7 +20,7 @@
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group path not found: {0}' # $managementgroupName
     'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
     'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting Resource path for: {0}' # $this.Scope
-    'AzOpsScope.GetManagementGroupName.Found.Azure'                                 = 'Management Group found in Azure: {0}' # $mgDisplayName
+    'AzOpsScope.GetManagementGroupName.Found.Azure'                                 = 'Management Group found in Azure: {0}' # $mgName
     'AzOpsScope.GetManagementGroup.NotFound'                                        = 'Management Group does not match any existing in Azure. Assume new resource, using directory name: {0}' # $mgId
     'AzOpsScope.GetManagementGroupName.NotFound'                                    = 'Management Group not found in Azure. Trying with directory name instead: {0}' # $mgId
     'AzOpsScope.GetSubscription.Found'                                              = 'SubscriptionId found in Azure: {0}' # $sub.Id
