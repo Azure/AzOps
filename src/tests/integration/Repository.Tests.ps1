@@ -949,7 +949,7 @@ Describe "Repository" {
             $changeSet = @(
                 "A`t$($script:pushmgmttest2idManagementGroupTemplatePath.FullName[1])"
             )
-            {Invoke-AzOpsPush -ChangeSet $changeSet -WhatIf:$true} | Should -Throw
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Throw
         }
         #endregion
 
