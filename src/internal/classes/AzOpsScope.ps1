@@ -247,7 +247,11 @@
                     break
                 }
                 Default {
-                    Write-PSFMessage -Level Warning  -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                    # Only show warning about parameter file if parameter file doesn't have deploymentParameters schema defined
+                    if ($resourcePath.'$schema' -notmatch 'deploymentParameters.json') {
+                        Write-PSFMessage -Level Warning -String 'AzOpsScope.Input.BadData.TemplateParameterFile' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
+                    }
+
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromDirectory' -StringValues $Path -FunctionName AzOpsScope -ModuleName AzOps
                     $this.InitializeMemberVariablesFromDirectory($Path.Directory)
                 }
