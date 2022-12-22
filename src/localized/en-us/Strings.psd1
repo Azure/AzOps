@@ -55,7 +55,7 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on Resource Type {0} and Resource Name {1}' # ResourceType and #Resource Name
     'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on Resource Type {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
 
-    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $addition, $transpiledTemplatePath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
 
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
@@ -188,7 +188,7 @@
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
-    'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $templatePath
+    'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $bicepTemplatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
