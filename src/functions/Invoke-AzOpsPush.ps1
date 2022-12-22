@@ -102,7 +102,8 @@
                 $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
                 if (Test-Path $bicepTemplatePath) {
                     Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                    $result.TemplateFilePath = $bicepTemplatePath
+                    $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                    $result.TemplateFilePath = $transpiledTemplatePath
                     return $result
                 }
                 #endregion Directly Associated bicep template exists
@@ -249,10 +250,7 @@
 
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
-                Assert-AzOpsBicepDependency -Cmdlet $PSCmdlet
-                $transpiledTemplatePath = $addition -replace '\.bicep', '.json'
-                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ConvertBicepTemplate' -StringValues $addition, $transpiledTemplatePath
-                Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $addition --outfile $transpiledTemplatePath }
+                $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition
                 $addition = $transpiledTemplatePath
             }
 
