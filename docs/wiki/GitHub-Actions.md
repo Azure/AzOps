@@ -1,12 +1,11 @@
 # AzOps Via GitHub
 
-- [AzOps Via GitHub](#azops-via-github)
-  - [Prerequisites](#prerequisites)
-    - [Further reading](#further-reading)
-    - [Important Repository link to refer](#important-repository-link-to-refer)
-    - [Two ways to configure AzOps](#two-ways-to-configure-azops)
-    - [Configure AzOps via Portal](#configure-azops-via-portal)
-    - [Configure via command-line](#configure-via-command-line)
+- [Prerequisites](#prerequisites)
+  - [Further reading](#further-reading)
+  - [Important Repository Link to refer](#important-repository-link-to-refer)
+- [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
+- [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
+- [Configure via command-line](#Configure-via-command-line)
 
 ## Prerequisites
 
