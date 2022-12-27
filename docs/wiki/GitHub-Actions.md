@@ -2,7 +2,7 @@
 
 - [Prerequisites](#prerequisites)
   - [Further reading](#further-reading)
-  - [Important Repository Link to refer](#important-repo-link-to-refer)
+  - [Important Repository Link to refer](#important-repository-link-to-refer)
 - [Two ways to configure AzOps](#Two-ways-to-configure-AzOps)
 - [Configure AzOps via Portal](#Configure-AzOps-via-Portal)
 - [Configure via command-line](#Configure-via-command-line)
@@ -84,7 +84,7 @@ gh api -X PATCH /repos/{owner}/{repo} -f allow_merge_commit=false
 
 ```git
 gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -f default_workflow_permissions='write'
-gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -f can_approve_pull_request_reviews=true
+gh api -X PUT /repos/{owner}/{repo}/actions/permissions/workflow -F can_approve_pull_request_reviews=true
 ```
 
 - Initiate the first Pull workflow
