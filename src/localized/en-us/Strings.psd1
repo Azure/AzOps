@@ -18,8 +18,8 @@
     'Assert-AzOpsBicepDependency.NotFound'                                          = 'Unable to locate bicep binary. Will not be able to deploy bicep templates.' #
 
     'AzOpsScope.GetAzOpsManagementGroupPath.NotFound'                               = 'Management Group path not found: {0}' # $managementgroupName
-    'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine Resource Scope for: {0}' # $this.Scope
-    'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting Resource path for: {0}' # $this.Scope
+    'AzOpsScope.GetAzOpsResourcePath.NotFound'                                      = 'Unable to determine resource Scope for: {0}' # $this.Scope
+    'AzOpsScope.GetAzOpsResourcePath.Retrieving'                                    = 'Getting resource path for: {0}' # $this.Scope
     'AzOpsScope.GetManagementGroupName.Found.Azure'                                 = 'Management Group found in Azure: {0}' # $mgName
     'AzOpsScope.GetManagementGroup.NotFound'                                        = 'Management Group does not match any existing in Azure. Assume new resource, using directory name: {0}' # $mgId
     'AzOpsScope.GetManagementGroupName.NotFound'                                    = 'Management Group not found in Azure. Trying with directory name instead: {0}' # $mgId
@@ -31,7 +31,7 @@
     'AzOpsScope.Input.FromFileName.Subscription'                                    = 'Determining subscription name from file name {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.FromFileName.ResourceGroup'                                   = 'Determining resource group name from file name {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.ManagementGroup'                                      = '{0} does not contain .parameters.input.value.Id' # ($children.FullName -join ', ')
-    'AzOpsScope.Input.BadData.ResourceGroup'                                        = 'Invalid Resource Group Data! Validate integrity of {0}' # ($children.FullName -join ', ')
+    'AzOpsScope.Input.BadData.ResourceGroup'                                        = 'Invalid resource Group Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.Subscription'                                         = 'Invalid Subscription Data! Validate integrity of {0}' # ($children.FullName -join ', ')
     'AzOpsScope.Input.BadData.UnknownType'                                          = 'Invalid File Structure! Cannot find Management Group / Subscription / Resource Group files in {0}!' # $Path
     'AzOpsScope.Input.BadData.TemplateParameterFile'                                = 'Unable to determine type from Template or Template Parameter file: {0}' # filename
@@ -52,8 +52,8 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.managementgroups'                 = 'Determine scope based on ResourceType managementgroups {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.subscriptions'                    = 'Determine scope based on ResourceType subscriptions {0}' # ResourceType
     'AzOpsScope.InitializeMemberVariablesFromFile.resourceGroups'                   = 'Determine scope based on ResourceType resourceGroups {0}' # ResourceType
-    'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on Resource Type {0} and Resource Name {1}' # ResourceType and #Resource Name
-    'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on Resource Type {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
+    'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on ResourceType {0} and Resource Name {1}' # ResourceType and #Resource Name
+    'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on ResourceType {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
 
     'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
 
@@ -112,26 +112,29 @@
     'Get-AzOpsResourceDefinition.Processing'                                        = 'Processing scope: [{0}]' # $Scope
     'Get-AzOpsResourceDefinition.Processing.Detail'                                 = 'Processing detail: {0} for [{1}]' # 'Policy Definitions', $scopeObject.Scope
     'Get-AzOpsResourceDefinition.Processing.NotFound'                               = 'Scope [{0}] not found in Azure or it is excluded' # $Scope
-    'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing Resource [{0}] in Resource Group [{1}]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
-    'Get-AzOpsResourceDefinition.Resource.Processing.Warning'                       = 'Failed to get resources in Resource Group [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting [{1}]' # $resourceGroup.ResourceGroupName, $_
-    'Get-AzOpsResourceDefinition.Resource.Processing.Failed'                        = 'Unable to process Resource [{0}] in Resource Group [{1]' # $ScopeObject.Resource, $ScopeObject.ResourceGroup
-    'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access Resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.Resource.Processing'                               = 'Processing resource [{0}] in resource Group [{1}]' # $ScopeObject.resource, $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceDefinition.resource.Processing.Warning'                       = 'Failed to get resources in resource Group [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting [{1}]' # $resourceGroup.ResourceGroupName, $_
+    'Get-AzOpsResourceDefinition.resource.Processing.Failed'                        = 'Unable to process resource [{0}] in resource Group [{1]' # $ScopeObject.resource, $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceDefinition.ResourceGroup.Processing'                          = 'Processing resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error'                    = 'Failed to access resource Group [{0}] in Subscription [{1}] ({2})' # $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned'                    = 'Skipping {0} as it is managed by {1}' # $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
     'Get-AzOpsResourceDefinition.Subscription.Found'                                = 'Found Subscription: {0} ({1})' # $scopeObject.subscriptionDisplayName, $scopeObject.subscription
-    'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed Resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsResourceDefinition.Subscription.NoResourceGroup'                      = 'No non-managed resource Group found in Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
     'Get-AzOpsResourceDefinition.Subscription.OdataFilter'                          = 'Setting Odatafilter: {0}' # $odataFilter
     'Get-AzOpsResourceDefinition.Subscription.Processing'                           = 'Processing Subscription [{0}] ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-    'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG'      = 'Resources in Resource Group [{0}] is skipped due to IncludeResourcesInResourceGroup' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.Processing.Resource'                  = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup'             = 'Processing Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.NoResources' = 'No resources found in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.Resources'   = 'Searching for resources in Resource Group [{0}]' # $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping Resource Group discovery' #
+    'Get-AzOpsResourceDefinition.Subscription.Processing.IncludeResourcesInRG'      = 'resources in resource Group [{0}] is skipped due to IncludeResourcesInResourceGroup' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.resource'                  = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.resource.Discovery'        = 'Searching for resources in Subscription [{0}]' # $ScopeObject.SubscriptionDisplayName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.resource.Discovery.NotF'   = 'No resources found in Subscription [{0}]' # $ScopeObject.SubscriptionDisplayName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.resource.Warning'          = 'Failed to get resources in Subscription [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $ScopeObject.SubscriptionDisplayName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup'             = 'Processing resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.NoResources' = 'No resources found in ResourceGroup [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ResourceGroup.Resources'   = 'Searching for resources in resource Group [{0}]' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.SkippingResourceGroup'                = 'SkipResourceGroup switch used, skipping resource Group discovery' #
     'Get-AzOpsResourceDefinition.Subscription.ExcludeResourceGroup'                 = 'Subscription is skipped due to SubscriptionsToIncludeResourceGroups' #
     'Get-AzOpsResourceDefinition.Subscription.SkippingResources'                    = 'Resources are skipped in resource group due to SkipResource.' #
-    'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource'             = 'Processing Resource [{0}] in Resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource'                = 'Child Resources are skipped in resource group {0} due to SkipChildResource' # $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource'             = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource'                = 'Child resources are skipped in resource group {0} due to SkipChildResource' # $resourceGroup.ResourceGroupName
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
@@ -213,7 +216,7 @@
 
     'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
-    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [Resource Group] deployment for {0}' # $scopeObject
+    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for {0}' # $scopeObject
     'New-AzOpsDeployment.Root.Processing'                                           = 'Attempting [Tenant Scope] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.Scope.Empty'                                               = 'Unable to determine the scope of template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
@@ -251,14 +254,14 @@
     'Register-AzOpsResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
 
     'Remove-AzOpsDeployment.Processing'                                             = 'Processing removal {0} for template {1}' # $removeJobName, $TemplateFilePath
-    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'Detected custom template: {0} . Resource Deletion is currently only supported for AzOps Generated templates' #$TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'Detected custom template: {0} . resource Deletion is currently only supported for AzOps Generated templates' #$TemplateFilePath
     'Remove-AzOpsDeployment.Metadata.Success'                                       = 'Processing AzOps Generated Template File {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
-    'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'Resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
+    'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
     'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
-    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.scope, $resultsError
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.resource, $scopeObject.scope, $resultsError
     'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
 
     'Remove-AzOpsInvalidCharacters.Completed'                                       = 'Valid string: {0}'# $String

@@ -1,0 +1,1 @@
+del(.properties.provisioningState)

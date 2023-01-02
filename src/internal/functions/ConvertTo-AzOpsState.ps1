@@ -158,6 +158,16 @@
                 Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues  "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 break
             }
+            { $_.type } {
+                if ( $_.type -eq 'microsoft.resources/subscriptions/resourcegroups') {
+                    $resourceType = 'microsoft.resources/resourcegroups'
+                }
+                else {
+                    $resourceType = $_.type
+                }
+                Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
+                break
+            }
             Default {
                 Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'  -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 break
