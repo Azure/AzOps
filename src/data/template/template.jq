@@ -26,3 +26,4 @@
 .resources[].tags |= if . != null then to_entries | sort_by(.key) | from_entries else . end
 | del(.. | select(. == null))
 | del(.. | select(. == ""))
+| del (.resources[].properties.extended)
