@@ -251,7 +251,9 @@
             )
 
             begin {
-
+                # Set variables for retry with exponential backoff
+                $backoffMultiplier = 2
+                $maxRetryCount = 6
             }
 
             process {
@@ -338,6 +340,8 @@
                             SkipResourceType                = $SkipResourceType
                             IncludeResourcesInResourceGroup = $IncludeResourcesInResourceGroup
                             IncludeResourceType             = $IncludeResourceType
+                            MaxRetryCount                   = $maxRetryCount
+                            BackoffMultiplier               = $backoffMultiplier
                             runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
                             runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
                             runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
@@ -396,22 +400,30 @@
                             if (-not $using:SkipResource -and -not $using:SkipChildResource) {
                                 $resources = $runspaceData.resources | Where-Object {$_.resourceGroup -eq $resourceGroup.name}
                                 $tempExportPath = [System.IO.Path]::GetTempPath() + $resourceGroup.name + '.json'
-                                # Loop through resources and convert them to AzOpsState
+                                # Loop through resources and convert to AzOpsState
                                 foreach ($resource in $resources) {
                                     # Convert resources to AzOpsState
                                     try {
-                                        $exportParameters = @{
-                                            Resource                = $resource.ResourceId
-                                            ResourceGroupName       = $resourceGroup.name
-                                            SkipAllParameterization = $true
-                                            Path                    = $tempExportPath
-                                            DefaultProfile          = $Context | Select-Object -First 1
+                                        & $azOps {
+                                            $exportParameters = @{
+                                                Resource                = $resource.ResourceId
+                                                ResourceGroupName       = $resourceGroup.name
+                                                SkipAllParameterization = $true
+                                                Path                    = $tempExportPath
+                                                DefaultProfile          = $Context | Select-Object -First 1
+                                            }
+                                            Invoke-AzOpsScriptBlock -ArgumentList $exportParameters -ScriptBlock {
+                                                param (
+                                                    $ExportParameters
+                                                )
+                                                $param = $ExportParameters | Write-Output
+                                                Export-AzResourceGroup @param -Confirm:$false -Force -ErrorAction Stop | Out-Null
+                                            } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                                         }
-                                        Export-AzResourceGroup @exportParameters -Confirm:$false -Force -ErrorAction Stop | Out-Null
                                         $exportResources = (Get-Content -Path $tempExportPath | ConvertFrom-Json).resources
                                         foreach ($exportResource in $exportResources) {
                                             if (-not(($resource.name -eq $exportResource.name) -and ($resource.type -eq $exportResource.type))) {
-                                                Write-PSFMessage -Level Verbose $msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource' -StringValues $exportResource.name, $resourceGroup.name -Target $exportResource
+                                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.Processing.ChildResource' -StringValues $exportResource.name, $resourceGroup.name -Target $exportResource
                                                 $ChildResource = @{
                                                     resourceProvider = $exportResource.type -replace '/', '_'
                                                     resourceName     = $exportResource.name -replace '/', '_'
@@ -428,7 +440,7 @@
                                         }
                                     }
                                     catch {
-                                        Write-PSFMessage -Level Warning $msgCommon -String 'Get-AzOpsResourceDefinition.ChildResource.Warning' -StringValues $resourceGroup.ResourceGroupName, $_
+                                        Write-PSFMessage -Level Warning @msgCommon -String 'Get-AzOpsResourceDefinition.ChildResource.Warning' -StringValues $resourceGroup.name, $_
                                     }
                                 }
                                 if (Test-Path -Path $tempExportPath) {
@@ -436,7 +448,7 @@
                                 }
                             }
                             else {
-                                Write-PSFMessage -Level Verbose $msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource' -StringValues $resourceGroup.name
+                                Write-PSFMessage -Level Verbose @msgCommon -String 'Get-AzOpsResourceDefinition.Subscription.SkippingChildResource' -StringValues $resourceGroup.name
                             }
                         }
                         #endregion Discover child resources, pim, policies and roles in resource groups in parallel
