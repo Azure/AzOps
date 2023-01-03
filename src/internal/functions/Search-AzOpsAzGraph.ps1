@@ -21,23 +21,18 @@
     process {
         Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing' -StringValues $Query, $Context.Subscription.Id
         $results = @()
-        $processing = Search-AzGraph -DefaultProfile $Context -Subscription $Context.Subscription.Id -Query $Query -ErrorAction Stop
-        if ($processing) {
+        do {
+            $processing = Search-AzGraph -DefaultProfile $Context -Subscription $Context.Subscription.Id -Query $Query -SkipToken $processing.SkipToken -ErrorAction Stop
             $results += $processing
-            do {
-                if ($processing.SkipToken) {
-                    Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing.Paging' -StringValues $Context.Subscription.Id
-                    $processing = Search-AzGraph -DefaultProfile $Context -Subscription $Context.Subscription.Id -Query $Query -SkipToken $processing.SkipToken -ErrorAction Stop
-                    $results += $processing
-                }
-                else {
-                    $done = $true
-                }
-            } while ($done -ne $true)
         }
+        while ($processing.SkipToken)
+
         if ($results) {
             Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing.Done' -StringValues $Query, $Context.Subscription.Id
             return $results
+        }
+        else {
+            Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing.NoResult' -StringValues $Query, $Context.Subscription.Id
         }
     }
 }

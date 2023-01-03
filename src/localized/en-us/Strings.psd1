@@ -276,8 +276,8 @@
     'Save-AzOpsManagementGroupChildren.Subscription.NotFound'                       = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Search-AzOpsAzGraph.Processing'                                                = 'AzGraph processing query: [{0}] at context: {1}' # $Query, $Context.Subscription.Id
-    'Search-AzOpsAzGraph.Processing.Paging'                                         = 'AzGraph processing additional paging results at context: {1}' # $Context.Subscription.Id
     'Search-AzOpsAzGraph.Processing.Done'                                           = 'AzGraph completed processing of query: [{0}] at context: {1}' # $Query, $Context.Subscription.Id
+    'Search-AzOpsAzGraph.Processing.NoResult'                                       = 'AzGraph found nothing with query: [{0}] at context: {1}' # $Query, $Context.Subscription.Id
 
     'Set-AzOpsContext.Change'                                                       = 'Changing active subscription from {0} to {1} ({2})' # $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
