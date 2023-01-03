@@ -305,7 +305,7 @@
                                                 ResourceGroupName       = $resourceGroup.name
                                                 SkipAllParameterization = $true
                                                 Path                    = $tempExportPath
-                                                DefaultProfile          = $Context | Select-Object -First 1
+                                                DefaultProfile          = $context | Select-Object -First 1
                                             }
                                             Invoke-AzOpsScriptBlock -ArgumentList $exportParameters -ScriptBlock {
                                                 param (
