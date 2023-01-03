@@ -25,6 +25,8 @@
             Skip discovery of resource groups.
         .PARAMETER SkipResourceType
             Skip discovery of specific resource types.
+        .PARAMETER SkipUnsupportedChildResourceType
+            Skip discovery of unsupported child resource types.
         .PARAMETER SkipRole
             Skip discovery of roles for better performance.
         .PARAMETER ExportRawTemplate
@@ -81,6 +83,9 @@
         [string[]]
         $SkipResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipResourceType'),
 
+        [string[]]
+        $SkipUnsupportedChildResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipUnsupportedChildResourceType'),
+
         [switch]
         $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
 
@@ -124,6 +129,9 @@
 
                 [string[]]
                 $SkipResourceType,
+
+                [string[]]
+                $SkipUnsupportedChildResourceType,
 
                 [switch]
                 $SkipRole,
@@ -216,9 +224,9 @@
                         }
                         #endregion Discover all direct resources at scope (excluding child resources)
 
-                        # Remove unsupported resource types from further processing if ChildResource discovery is enabled
+                        # Filter out SkipUnsupportedChildResourceType from further processing if SkipChildResource is false
                         if (-not $SkipChildResource) {
-                            $resources = $resources | Where-Object { $_.type -ne 'microsoft.network/connections'}
+                            $resources = $resources | Where-Object { $_.type -notin $SkipUnsupportedChildResourceType }
                         }
 
                         #region Prepare Input Data for parallel processing
