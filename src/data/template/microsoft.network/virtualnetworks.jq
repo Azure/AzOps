@@ -1,1 +1,1 @@
-del(.. | .id?, .resourceGuid?, .resourceId?, .identity?, .kind?, .resourceName?, .extensionResourceName?, .parentResource?, .plan?, .etag? , .provisioningState?)
+del(.. | .resourceGuid?, .resourceId?, .identity?, .kind?, .resourceName?, .extensionResourceName?, .parentResource?, .plan?, .etag? , .provisioningState?)
