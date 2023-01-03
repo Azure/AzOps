@@ -217,7 +217,7 @@
                         #endregion Discover all direct resources at scope (excluding child resources)
 
                         # Remove unsupported resource types from further processing if ChildResource discovery is enabled
-                        if (-not $using:SkipChildResource) {
+                        if (-not $SkipChildResource) {
                             $resources = $resources | Where-Object { $_.type -ne 'microsoft.network/connections'}
                         }
 
