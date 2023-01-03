@@ -61,6 +61,9 @@
         },
         "enableHotpatching": {
             "value": false
+        },
+        "zone": {
+            "value": "2"
         }
     }
 }

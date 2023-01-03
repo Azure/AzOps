@@ -94,116 +94,6 @@
 
     begin {
         #region Utility Functions
-        function ConvertFrom-TypeResource {
-            [CmdletBinding()]
-            param (
-                [Parameter(ValueFromPipeline = $true)]
-                [AzOpsScope]
-                $ScopeObject,
-
-                [string]
-                $StatePath,
-
-                [switch]
-                $ExportRawTemplate
-            )
-
-            process {
-                $common = @{
-                    FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target       = $ScopeObject
-                }
-
-                Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Resource.Processing' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup
-                try {
-                    $resource = Get-AzResource -ResourceId $ScopeObject.scope -ErrorAction Stop
-                    ConvertTo-AzOpsState -Resource $resource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
-                }
-                catch {
-                    Write-PSFMessage -Level Warning @common -String 'Get-AzOpsResourceDefinition.Resource.Processing.Failed' -StringValues $ScopeObject.Resource, $ScopeObject.ResourceGroup -ErrorRecord $_
-                }
-            }
-        }
-
-        function ConvertFrom-TypeResourceGroup {
-            [CmdletBinding()]
-            param (
-                [Parameter(ValueFromPipeline = $true)]
-                [AzOpsScope]
-                $ScopeObject,
-
-                [string[]]
-                $IncludeResourcesInResourceGroup,
-
-                [string[]]
-                $IncludeResourceType,
-
-                [switch]
-                $SkipResource,
-
-                [string[]]
-                $SkipResourceType,
-
-                [string]
-                $StatePath,
-
-                [switch]
-                $ExportRawTemplate,
-
-                $Context,
-
-                [string]
-                $OdataFilter
-            )
-
-            process {
-                $common = @{
-                    FunctionName = 'Get-AzOpsResourceDefinition'
-                    Target       = $ScopeObject
-                }
-
-                Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-
-                try {
-                    if (($IncludeResourcesInResourceGroup | Foreach-Object { $ScopeObject.ResourceGroup -like $_ }) -contains $true) {
-                        Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
-                        $resourceGroup = Get-AzResourceGroup -Name $ScopeObject.ResourceGroup -DefaultProfile $Context -ErrorAction Stop
-                    }
-                }
-                catch {
-                    Write-PSFMessage -Level Warning @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Error' -StringValues $ScopeObject.Resourcegroup, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -ErrorRecord $_
-                    return
-                }
-                if ($resourceGroup.ManagedBy) {
-                    Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Owned' -StringValues $resourceGroup.ResourceGroupName, $resourceGroup.ManagedBy
-                    return
-                }
-                ConvertTo-AzOpsState -Resource $resourceGroup -ExportRawTemplate:$ExportRawTemplate -StatePath $StatePath
-
-                # Get all resources in resource groups
-                $paramGetAzResource = @{
-                    DefaultProfile    = $Context
-                    ResourceGroupName = $resourceGroup.ResourceGroupName
-                    ODataQuery        = $OdataFilter
-                    ExpandProperties  = $true
-                }
-                if ($IncludeResourceType -eq "*") {
-                    Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Resources' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName
-                    Get-AzResource @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
-                        New-AzOpsScope -Scope $_.ResourceId
-                    } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
-                }
-                else {
-                    foreach ($ResourceType in $IncludeResourceType) {
-                        Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.ResourceGroup.Processing.Resources' -StringValues $resourceGroup.ResourceGroupName, $ScopeObject.SubscriptionDisplayName
-                        Get-AzResource -ResourceType $ResourceType @paramGetAzResource | Where-Object { $_.Type -notin $SkipResourceType } | ForEach-Object {
-                            New-AzOpsScope -Scope $_.ResourceId
-                        } | ConvertFrom-TypeResource -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate
-                    }
-                }
-            }
-        }
-
         function ConvertFrom-TypeSubscription {
             [CmdletBinding()]
             param (
@@ -276,7 +166,7 @@
                     ) {
                         #region Discover all resource groups at scope
                         $resourceGroupsQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions/resourcegroups' | where managedBy == '' | order by ['resourceGroup'] asc"
-                        $resourceGroups = Search-AzGraph -DefaultProfile $Context -Subscription $Context.Subscription.Id -Query $resourceGroupsQuery -ErrorAction Stop
+                        $resourceGroups = Search-AzOpsAzGraph -Context $Context -Query $resourceGroupsQuery -ErrorAction Stop
                         if ($IncludeResourcesInResourceGroup -ne "*") {
                             $resourceGroups = $resourceGroups | Where-Object { $_.name -notin $IncludeResourcesInResourceGroup }
                         }
@@ -296,7 +186,7 @@
                             Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing.Resource.Discovery' -StringValues $ScopeObject.SubscriptionDisplayName
                             try {
                                 $resourcesQuery = "resources | order by ['resourceGroup'] asc"
-                                $resources = Search-AzGraph -DefaultProfile $Context -Subscription $Context.Subscription.Id -Query $resourcesQuery -ErrorAction Stop
+                                $resources = Search-AzOpsAzGraph -Context $Context -Query $resourcesQuery -ErrorAction Stop
                                 if ($IncludeResourcesInResourceGroup -ne "*") {
                                     # Filter away resources not matching previous resource group results
                                     $resources = $resources | Where-Object {$_.resourceGroup -in $resourceGroups.name}
@@ -561,8 +451,6 @@
         }
 
         switch ($scopeObject.Type) {
-            #resource { ConvertFrom-TypeResource -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate }
-            #resourcegroups { ConvertFrom-TypeResourceGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -OdataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
             subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPim:$SkipPim -SkipLock:$SkipLock -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPim:$SkipPim -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
