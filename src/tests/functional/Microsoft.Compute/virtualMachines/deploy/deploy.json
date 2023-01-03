@@ -58,7 +58,7 @@
             "type": "bool"
         },
         "zone": {
-            "type": "string"
+            "type": "array"
         }
     },
     "variables": {
