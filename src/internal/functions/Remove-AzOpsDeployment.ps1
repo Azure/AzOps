@@ -161,35 +161,17 @@
             $results = @()
             if ($PartialMgDiscoveryRoot) {
                 foreach ($managementRoot in $PartialMgDiscoveryRoot) {
-                    $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot
-                    if ($processing) {
+                    do {
+                        $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot -SkipToken $processing.SkipToken
                         $results += $processing
-                        do {
-                            if ($processing.SkipToken) {
-                                $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot -SkipToken $processing.SkipToken
-                                $results += $processing
-                            }
-                            else {
-                                $done = $true
-                            }
-                        } while ($done -ne $true)
-                    }
+                    } while ($processing.SkipToken)
                 }
             }
             else {
-                $processing = Search-AzGraph -Query $query -UseTenantScope
-                if ($processing) {
+                do {
+                    $processing = Search-AzGraph -Query $query -UseTenantScope -SkipToken $processing.SkipToken
                     $results += $processing
-                    do {
-                        if ($processing.SkipToken) {
-                            $processing = Search-AzGraph -Query $query -UseTenantScope -SkipToken $processing.SkipToken
-                            $results += $processing
-                        }
-                        else {
-                            $done = $true
-                        }
-                    } while ($done -ne $true)
-                }
+                } while ($processing.SkipToken)
             }
             if ($results) {
                 $results = $results | Sort-Object Id -Unique

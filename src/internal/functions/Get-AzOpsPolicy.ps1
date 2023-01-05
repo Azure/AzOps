@@ -18,11 +18,12 @@
     )
 
     process {
+        # Process policy definitions
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
         $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $ScopeObject
         $policyDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
 
-        # Process policyset definitions (initiatives)
+        # Process policyset set definitions (initiatives)
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'PolicySet Definitions', $ScopeObject.Scope
         $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $ScopeObject
         $policySetDefinitions | ConvertTo-AzOpsState -StatePath $StatePath

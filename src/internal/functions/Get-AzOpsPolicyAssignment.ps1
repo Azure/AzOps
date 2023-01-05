@@ -21,7 +21,6 @@
     )
 
     process {
-        #TODO: Discuss dropping resourcegroups, as no action is taken ever
         if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
             return
         }
@@ -29,15 +28,20 @@
         switch ($ScopeObject.Type) {
             managementGroups {
                 Write-PSFMessage -Level Important -String 'Get-AzOpsPolicyAssignment.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+                $query = "policyresources | where type == 'microsoft.authorization/policyassignments' and resourceGroup == '' and subscriptionId == '' | where id startswith '$($ScopeObject.Scope)' | order by ['id'] asc"
+                Search-AzOpsAzGraph -ManagementGroup $ScopeObject.Name -Query $query -ErrorAction Stop
             }
             subscriptions {
                 Write-PSFMessage -Level Important -String 'Get-AzOpsPolicyAssignment.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                $query = "policyresources | where type == 'microsoft.authorization/policyassignments' and resourceGroup == '' and subscriptionId == '$($ScopeObject.Name)' | where id startswith '$($ScopeObject.Scope)' | order by ['id'] asc"
+                Search-AzOpsAzGraph -SubscriptionId $ScopeObject.Name -Query $query -ErrorAction Stop
             }
             resourcegroups {
                 Write-PSFMessage -Level Important -String 'Get-AzOpsPolicyAssignment.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                $query = "policyresources | where type == 'microsoft.authorization/policyassignments' and resourceGroup == '$($ScopeObject.Name.Tolower())' and subscriptionId == '$($ScopeObject.Subscription)' | where id startswith '$($ScopeObject.Scope)' | order by ['id'] asc"
+                Search-AzOpsAzGraph -SubscriptionId $ScopeObject.Subscription -Query $query -ErrorAction Stop
             }
         }
-        Get-AzPolicyAssignment -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object PolicyAssignmentId -match $ScopeObject.scope
     }
 
 }

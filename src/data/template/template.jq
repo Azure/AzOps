@@ -16,6 +16,7 @@
             "kind": .kind,
             "apiVersion": "0000-00-00",
             "location": .location,
+            "identity": .identity,
             "tags": .tags,
             "properties": .properties,
             "zones": .zones

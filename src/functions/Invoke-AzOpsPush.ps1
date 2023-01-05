@@ -117,9 +117,13 @@
                 $templateParameterFileHashtable = Get-Content -Path $fileItem.FullName | ConvertFrom-Json -AsHashtable
                 $effectiveResourceType = $null
                 if ($templateParameterFileHashtable.Keys -contains "`$schema") {
-                    if ($templateParameterFileHashtable.parameters.input.value.Keys -contains "Type") {
+                    if ($templateParameterFileHashtable.parameters.input.value.Keys -ccontains "Type") {
                         # ManagementGroup and Subscription
                         $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.Type
+                    }
+                    elseif ($templateParameterFileHashtable.parameters.input.value.Keys -ccontains "type") {
+                        # ManagementGroup and Subscription
+                        $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.type
                     }
                     elseif ($templateParameterFileHashtable.parameters.input.value.Keys -contains "ResourceType") {
                         # Resource
@@ -273,7 +277,7 @@
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
             $schemavalue = '$schema'
-            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.ResourceType -in $DeletionSupportedResourceType))) {
+            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.type -in $DeletionSupportedResourceType))) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }

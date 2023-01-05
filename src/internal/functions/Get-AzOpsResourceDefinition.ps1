@@ -174,7 +174,7 @@
                     ) {
                         #region Discover all resource groups at scope
                         $resourceGroupsQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions/resourcegroups' | where managedBy == '' | order by ['resourceGroup'] asc"
-                        $resourceGroups = Search-AzOpsAzGraph -Context $Context -Query $resourceGroupsQuery -ErrorAction Stop
+                        $resourceGroups = Search-AzOpsAzGraph -SubscriptionId $ScopeObject.Subscription -Query $resourceGroupsQuery -ErrorAction Stop
                         if ($IncludeResourcesInResourceGroup -ne "*") {
                             $resourceGroups = $resourceGroups | Where-Object { $_.name -notin $IncludeResourcesInResourceGroup }
                         }
@@ -194,7 +194,7 @@
                             Write-PSFMessage -Level Verbose @common -String 'Get-AzOpsResourceDefinition.Subscription.Processing.Resource.Discovery' -StringValues $ScopeObject.SubscriptionDisplayName
                             try {
                                 $resourcesQuery = "resources | order by ['resourceGroup'] asc"
-                                $resources = Search-AzOpsAzGraph -Context $Context -Query $resourcesQuery -ErrorAction Stop
+                                $resources = Search-AzOpsAzGraph -SubscriptionId $ScopeObject.Subscription -Query $resourcesQuery -ErrorAction Stop
                                 if ($IncludeResourcesInResourceGroup -ne "*") {
                                     # Filter away resources not matching previous resource group results
                                     $resources = $resources | Where-Object {$_.resourceGroup -in $resourceGroups.name}
@@ -464,7 +464,7 @@
         }
 
         switch ($scopeObject.Type) {
-            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipPim:$SkipPim -SkipLock:$SkipLock -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
+            subscriptions { ConvertFrom-TypeSubscription -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -Context $context -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource -SkipResourceType:$SkipResourceType -SkipUnsupportedChildResourceType $SkipUnsupportedChildResourceType -SkipPim:$SkipPim -SkipLock:$SkipLock -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -ODataFilter $odataFilter -IncludeResourceType $IncludeResourceType -IncludeResourcesInResourceGroup $IncludeResourcesInResourceGroup }
             managementGroups { ConvertFrom-TypeManagementGroup -ScopeObject $scopeObject -StatePath $StatePath -ExportRawTemplate:$ExportRawTemplate -SkipPim:$SkipPim -SkipPolicy:$SkipPolicy -SkipRole:$SkipRole -SkipResourceGroup:$SkipResourceGroup -SkipResource:$SkipResource }
         }
 

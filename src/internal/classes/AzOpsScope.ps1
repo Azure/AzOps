@@ -186,7 +186,7 @@
                     $this.InitializeMemberVariables($resourcePath.parameters.input.value.Id)
                     break
                 }
-                { $_.parameters.input.value.Keys -contains "Type" } {
+                { $_.parameters.input.value.Keys -ccontains "Type" } {
                     # Parameter Files - Determine Resource Type and Name (Management group)
                     # Management group resource id do contain '/provider'
                     Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.Type' -StringValues ("$($resourcePath.parameters.input.value.Type)/$($resourcePath.parameters.input.value.Name)") -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
@@ -200,6 +200,15 @@
 
                     # Creating Resource Id based on current scope, resource Type and Name of the resource
                     $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($resourcePath.parameters.input.value.ResourceType)/$($resourcePath.parameters.input.value.Name)")
+                    break
+                }
+                { $_.parameters.input.value.Keys -ccontains "type" } {
+                    # Parameter Files - Determine resource type and name (Any ResourceType except management group)
+                    Write-PSFMessage -Level Verbose -String 'AzOpsScope.InitializeMemberVariablesFromFile.ResourceType' -StringValues ($resourcePath.parameters.input.value.type) -FunctionName InitializeMemberVariablesFromFile -ModuleName AzOps
+                    $currentScope = New-AzOpsScope -Path ($Path.Directory)
+
+                    # Creating Resource Id based on current scope, resource type and name of the resource
+                    $this.InitializeMemberVariables("$($currentScope.scope)/providers/$($resourcePath.parameters.input.value.type)/$($resourcePath.parameters.input.value.name)")
                     break
                 }
                 { $_.resources -and

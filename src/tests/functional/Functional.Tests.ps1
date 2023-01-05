@@ -50,6 +50,8 @@ try {
         Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test object: $_" -FunctionName "BeforeAll"
         & $_
     }
+    # Pause for resource consistency
+    Start-Sleep -Seconds 120
 }
 catch {
     Write-PSFMessage -Level Warning -String "Executing functional test object failed"

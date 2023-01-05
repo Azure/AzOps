@@ -2,9 +2,9 @@
 
     <#
         .SYNOPSIS
-            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions or resource groups)
+            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions)
         .DESCRIPTION
-            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions or resource groups)
+            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions)
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policyset definitions for.
         .EXAMPLE
@@ -21,19 +21,20 @@
     )
 
     process {
-        #TODO: Discuss dropping resourcegroups, as no action is taken ever
-        if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
+        if ($ScopeObject.Type -notin 'subscriptions', 'managementGroups') {
             return
         }
 
         switch ($ScopeObject.Type) {
             managementGroups {
                 Write-PSFMessage -Level Important -String 'Get-AzOpsPolicySetDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
-                Get-AzPolicySetDefinition -Custom -ManagementGroupName $ScopeObject.Name | Where-Object ResourceId -match $ScopeObject.Scope
+                $query = "policyresources | where type == 'microsoft.authorization/policysetdefinitions' and subscriptionId == '' and properties.policyType == 'Custom' | where id startswith '$($ScopeObject.Scope)' | order by ['id'] asc"
+                Search-AzOpsAzGraph -ManagementGroup $ScopeObject.Name -Query $query -ErrorAction Stop
             }
             subscriptions {
                 Write-PSFMessage -Level Important -String 'Get-AzOpsPolicySetDefinition.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
-                Get-AzPolicySetDefinition -Custom -SubscriptionId $ScopeObject.Scope.Split('/')[2] | Where-Object SubscriptionId -eq $ScopeObject.Name
+                $query = "policyresources | where type == 'microsoft.authorization/policysetdefinitions' and subscriptionId == '$($ScopeObject.Name)' and properties.policyType == 'Custom' | where id startswith '$($ScopeObject.Scope)' | order by ['id'] asc"
+                Search-AzOpsAzGraph -SubscriptionId $ScopeObject.Name -Query $query -ErrorAction Stop
             }
         }
     }

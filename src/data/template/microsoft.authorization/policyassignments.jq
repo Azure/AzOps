@@ -1,0 +1,1 @@
+del(.ResourceId, .properties.metadata, .resourceGroup, .subscriptionId)
