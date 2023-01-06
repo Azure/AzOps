@@ -2,9 +2,9 @@
 
     <#
         .SYNOPSIS
-            Discover all custom policy definitions at the provided scope (Management Groups, subscriptions)
+            Discover all custom policy definitions at the provided scope (Management Groups or subscriptions)
         .DESCRIPTION
-            Discover all custom policy definitions at the provided scope (Management Groups, subscriptions)
+            Discover all custom policy definitions at the provided scope (Management Groups or subscriptions)
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policy definitions for.
         .EXAMPLE
