@@ -11,7 +11,7 @@ In the context of AzOps, this means we can allow the AzOps pipeline SPNs to acce
 
 This wiki explains how this feature can be configured and used in the AzOps GitHub Actions.
 
-> **Important**: To make this feature work with the current implementation of Workload identities, we take a dependency on [Environments for Github Actions](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment). *Environments are only available in public repositories for free. Access to environments in private repositories requires [GitHub Enterprise](https://docs.github.com/en/get-started/learning-about-github/githubs-products#github-enterprise).*
+> **Important**: To make this feature work with the current implementation of Workload identities, we take a dependency on [Environments for GitHub Actions](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment). *Environments are only available in public repositories for free. Access to environments in private repositories requires [GitHub Enterprise](https://docs.github.com/en/get-started/learning-about-github/githubs-products#github-enterprise).*
 
 ## Configure
 
