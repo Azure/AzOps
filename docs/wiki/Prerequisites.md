@@ -26,6 +26,7 @@ The Azure Active Directory [Directory Readers](https://learn.microsoft.com/azure
 ### Create Service Principal
 
 If you intend to run AzOps with hosted agents a Service Principal is required. Perform the steps below to create the Service Principal in Azure AD. If you plan to run with self-hosted agents and want to use a managed identity skip to the next step.
+If using GitHub Enterprise Cloud, consider using [federated credentials](https://github.com/azure/azops/wiki/github-oidc) to eliminate secrets management.
 
 ```powershell
 # Install module
@@ -41,7 +42,7 @@ $servicePrincipal = New-AzADServicePrincipal -DisplayName $servicePrincipalDispl
 Write-Host "ARM_TENANT_ID: $((Get-AzContext).Tenant.Id)"
 Write-Host "ARM_SUBSCRIPTION_ID: $((Get-AzContext).Subscription.Id)"
 Write-Host "ARM_CLIENT_ID: $($servicePrincipal.AppId)"
-Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.PasswordCredentials.SecretText)"
+Write-Host "ARM_CLIENT_SECRET: $($servicePrincipal.PasswordCredentials.SecretText)" # Not required when using federated credentials or managed identities
 ```
 
 > Save the output from the script for later, it will be used when creating variables for your pipelines.
