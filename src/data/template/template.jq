@@ -10,18 +10,21 @@
     "variables": {},
     "resources": [
         {
-            "type": .ResourceType,
-            "name": .Name,
-            "sku": .Sku,
-            "kind": .Kind,
+            "type": .type,
+            "name": .name,
+            "sku": .sku,
+            "kind": .kind,
             "apiVersion": "0000-00-00",
-            "location": .Location,
-            "tags": .Tags,
-            "properties": .Properties
+            "location": .location,
+            "identity": .identity,
+            "tags": .tags,
+            "properties": .properties,
+            "zones": .zones
         }
     ],
     "outputs": {}
 } |
 .resources[].tags |= if . != null then to_entries | sort_by(.key) | from_entries else . end
-| del(.resources[].sku | nulls)
-| del(.resources[].kind | nulls)
+| del(.. | select(. == null))
+| del(.. | select(. == ""))
+| del (.resources[].properties.extended)

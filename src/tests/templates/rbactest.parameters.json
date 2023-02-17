@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyAssignmentName": {
+            "value": "AzOpsDep2 - audit-vm-manageddisks"
+        },
+        "policyDefinitionID": {
+            "value": "/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d"
+        },
+        "location": {
+            "value": "northeurope"
+        },
+        "roleDefinitionId": {
+            "value": "/providers/microsoft.authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7"
+        }
+    }
+}

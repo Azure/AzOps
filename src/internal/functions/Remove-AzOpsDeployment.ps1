@@ -131,7 +131,7 @@
             )
             if ($resourceToDelete.ResourceType -eq 'Microsoft.Authorization/policyDefinitions') {
                 $dependency = @()
-                $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | project id, policyDefinitions = (properties.policyDefinitions) | mv-expand policyDefinitions | project id, policyDefinitionId = tostring(policyDefinitions.policyDefinitionId) | where policyDefinitionId == '$($resourceToDelete.PolicyDefinitionId)' | order by policyDefinitionId asc | order by id asc"
+                $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | project id, type, policyDefinitions = (properties.policyDefinitions) | mv-expand policyDefinitions | project id, type, policyDefinitionId = tostring(policyDefinitions.policyDefinitionId) | where policyDefinitionId == '$($resourceToDelete.PolicyDefinitionId)' | order by policyDefinitionId asc | order by id asc"
                 $depPolicySetDefinition = Search-AzGraphDeletionDependency -query $query
                 if ($depPolicySetDefinition) {
                     $depPolicySetDefinition = foreach ($policySetDefinition in $depPolicySetDefinition) {
@@ -161,35 +161,15 @@
             $results = @()
             if ($PartialMgDiscoveryRoot) {
                 foreach ($managementRoot in $PartialMgDiscoveryRoot) {
-                    $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot
-                    if ($processing) {
-                        $results += $processing
-                        do {
-                            if ($processing.SkipToken) {
-                                $processing = Search-AzGraph -Query $query -ManagementGroup $managementRoot -SkipToken $processing.SkipToken
-                                $results += $processing
-                            }
-                            else {
-                                $done = $true
-                            }
-                        } while ($done -ne $true)
+                    $subscriptions = Get-AzOpsNestedSubscription -Scope $managementRoot
+                    $results += Search-AzOpsAzGraph -ManagementGroupName $managementRoot -Query $query -ErrorAction Stop
+                    if ($subscriptions) {
+                        $results += Search-AzOpsAzGraph -Subscription $subscriptions -Query $query -ErrorAction Stop
                     }
                 }
             }
             else {
-                $processing = Search-AzGraph -Query $query -UseTenantScope
-                if ($processing) {
-                    $results += $processing
-                    do {
-                        if ($processing.SkipToken) {
-                            $processing = Search-AzGraph -Query $query -UseTenantScope -SkipToken $processing.SkipToken
-                            $results += $processing
-                        }
-                        else {
-                            $done = $true
-                        }
-                    } while ($done -ne $true)
-                }
+                $results = Search-AzOpsAzGraph -Query $query -UseTenantScope -ErrorAction Stop
             }
             if ($results) {
                 $results = $results | Sort-Object Id -Unique
@@ -239,6 +219,7 @@
 
         #region remove supported resources
         if ($scopeObject.Resource -in $DeletionSupportedResourceType) {
+            $dependency = @()
             switch ($scopeObject.Resource) {
                 # Check resource existance through optimal path
                 'locks' {
@@ -247,14 +228,13 @@
                 'policyAssignments' {
                     $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
-                        $dependency = Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policyDefinitions' {
                     $resourceToDelete = Get-AzPolicyDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
-                        $dependency = @()
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzPolicyDefinitionDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
@@ -263,20 +243,20 @@
                 'policyExemptions' {
                     $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
-                        $dependency = Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policySetDefinitions' {
                     $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
-                        $dependency = Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'roleAssignments' {
                     $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
                     if ($resourceToDelete) {
-                        $dependency = Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
             }

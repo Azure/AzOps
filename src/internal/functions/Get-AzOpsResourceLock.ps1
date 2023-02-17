@@ -24,17 +24,17 @@
     )
 
     process {
-        if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions') {
+        if ($ScopeObject.Type -notin 'resourceGroups', 'subscriptions') {
             return
         }
         switch ($ScopeObject.Type) {
             subscriptions {
                 # ScopeObject is a subscription
-                Write-PSFMessage -Level Important -String 'Get-AzOpsResourceLock.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceLock.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
             }
             resourcegroups {
                 # ScopeObject is a resourcegroup
-                Write-PSFMessage -Level Important -String 'Get-AzOpsResourceLock.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceLock.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
         # Gather resource locks at scopeObject

@@ -1,4 +1,4 @@
-﻿function Get-AzOpsManagementGroups {
+﻿function Get-AzOpsManagementGroup {
 
     <#
         .SYNOPSIS
@@ -11,7 +11,7 @@
         .PARAMETER PartialDiscovery
             Whether to recursively grab all Management Groups and add them to the partial root cache
         .EXAMPLE
-            Get-AzOpsManagementGroups -ManagementGroup Tailspin
+            Get-AzOpsManagementGroup -ManagementGroup Tailspin
             Id                : /providers/Microsoft.Management/managementGroups/Tailspin
             Type              : /providers/Microsoft.Management/managementGroups
             Name              : Tailspin
@@ -46,7 +46,7 @@
             }
             if ($groupObject.Children) {
                 $groupObject.Children | Where-Object Type -eq "Microsoft.Management/managementGroups" | Foreach-Object -Process {
-                    Get-AzOpsManagementGroups -ManagementGroup $_.Name -PartialDiscovery:$PartialDiscovery
+                    Get-AzOpsManagementGroup -ManagementGroup $_.Name -PartialDiscovery:$PartialDiscovery
                 }
             }
         }

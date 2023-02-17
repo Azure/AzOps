@@ -15,8 +15,6 @@
             Used if to return object in pipeline instead of exporting file
         .PARAMETER ChildResource
             The ChildResource contains details of the child resource
-        .PARAMETER ExportRawTemplate
-            Used in cases you want to return the template without the custom parameters json schema
         .PARAMETER StatePath
             The root path to where the entire state is being built in.
         .EXAMPLE
@@ -42,7 +40,6 @@
     [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [Alias('MG', 'Role', 'Assignment', 'CustomObject', 'ResourceGroup')]
         $Resource,
 
         [string]
@@ -53,9 +50,6 @@
 
         [hashtable]
         $ChildResource,
-
-        [switch]
-        $ExportRawTemplate,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
@@ -158,6 +152,16 @@
                 Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues  "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 break
             }
+            { $_.type } {
+                if ( $_.type -eq 'Microsoft.Resources/subscriptions/resourceGroups') {
+                    $resourceType = 'Microsoft.Resources/resourceGroups'
+                }
+                else {
+                    $resourceType = $_.type
+                }
+                Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
+                break
+            }
             Default {
                 Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'  -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 break
@@ -204,7 +208,7 @@
                     (Join-Path $JqTemplatePath -ChildPath "template.parameters.jq")
 
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
-                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
+                    $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
                 }
                 else {

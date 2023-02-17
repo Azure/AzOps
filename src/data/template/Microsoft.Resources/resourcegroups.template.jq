@@ -10,11 +10,11 @@
   "variables": {},
   "resources": [
     {
-      "type": "Microsoft.Resources/resourceGroups",
-      "name": .ResourceGroupName,
+      "type": "microsoft.resources/resourcegroups",
+      "name": .name,
       "apiVersion": "0000-00-00",
-      "location": .Location,
-      "tags": .Tags,
+      "location": .location,
+      "tags": .tags,
       "properties": {}
     }
   ],

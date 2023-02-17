@@ -1,10 +1,12 @@
-﻿param policyAssignmentName string = 'AzOpsDep2 - audit-vm-manageddisks'
-param policyDefinitionID string = '/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d'
+﻿param policyAssignmentName string
+param policyDefinitionID string
+param location string
+param roleDefinitionId string
 targetScope = 'subscription'
 
 resource assignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
     name: policyAssignmentName
-    location: 'northeurope'
+    location: location
     identity: {
       type: 'SystemAssigned'
   }
@@ -18,6 +20,6 @@ resource roleassignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   properties: {
     principalId: assignment.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: '/providers/microsoft.authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
+    roleDefinitionId: roleDefinitionId
   }
 }

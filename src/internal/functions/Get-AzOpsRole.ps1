@@ -21,11 +21,15 @@
         # Process role definitions
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $ScopeObject.Scope
         $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $ScopeObject
-        $roleDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+        if ($roleDefinitions) {
+            $roleDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+        }
 
         # Process role assignments
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $ScopeObject.Scope
         $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $ScopeObject
-        $roleAssignments | ConvertTo-AzOpsState -StatePath $StatePath
+        if ($roleAssignments) {
+            $roleAssignments | ConvertTo-AzOpsState -StatePath $StatePath
+        }
     }
 }

@@ -117,9 +117,13 @@
                 $templateParameterFileHashtable = Get-Content -Path $fileItem.FullName | ConvertFrom-Json -AsHashtable
                 $effectiveResourceType = $null
                 if ($templateParameterFileHashtable.Keys -contains "`$schema") {
-                    if ($templateParameterFileHashtable.parameters.input.value.Keys -contains "Type") {
+                    if ($templateParameterFileHashtable.parameters.input.value.Keys -ccontains "Type") {
                         # ManagementGroup and Subscription
                         $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.Type
+                    }
+                    elseif ($templateParameterFileHashtable.parameters.input.value.Keys -ccontains "type") {
+                        # ManagementGroup and Subscription
+                        $effectiveResourceType = $templateParameterFileHashtable.parameters.input.value.type
                     }
                     elseif ($templateParameterFileHashtable.parameters.input.value.Keys -contains "ResourceType") {
                         # Resource
@@ -171,6 +175,7 @@
 
     process {
         if (-not $ChangeSet) { return }
+        Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
         #Supported resource types for deletion
         $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
         #region Categorize Input
@@ -194,12 +199,14 @@
         if ($deleteSet -and -not $CustomSortOrder) { $deleteSet = $deleteSet | Sort-Object }
         if ($addModifySet -and -not $CustomSortOrder) { $addModifySet = $addModifySet | Sort-Object }
 
-        Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify'
-        foreach ($item in $addModifySet) {
-            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify.File' -StringValues $item
+        if ($addModifySet) {
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify'
+            foreach ($item in $addModifySet) {
+                Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.AddModify.File' -StringValues $item
+            }
         }
-        Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete'
         if ($DeleteSetContents -and $deleteSet) {
+            Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete'
             $DeleteSetContents = $DeleteSetContents -join "" -split "-- " | Where-Object { $_ }
             foreach ($item in $deleteSet) {
                 Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
@@ -273,7 +280,7 @@
 
             $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
             $schemavalue = '$schema'
-            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.ResourceType -in $DeletionSupportedResourceType))) {
+            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.type -in $DeletionSupportedResourceType))) {
                 Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.SkipUnsupportedResource' -StringValues $deletion -Target $scopeObject
                 continue
             }

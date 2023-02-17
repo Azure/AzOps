@@ -24,7 +24,7 @@
             "type": "Microsoft.Network/localNetworkGateways",
             "apiVersion": "2020-11-01",
             "name": "[parameters('localNetworkGatewayName')]",
-            "location": "centralindia",
+            "location": "northeurope",
             "properties": {
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
@@ -38,7 +38,7 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-11-01",
             "name": "[parameters('publicIPAddressesName')]",
-            "location": "centralindia",
+            "location": "northeurope",
             "sku": {
                 "name": "Basic",
                 "tier": "Regional"
@@ -50,7 +50,7 @@
                 "idleTimeoutInMinutes": 4,
                 "dnsSettings": {
                     "domainNameLabel": "[parameters('publicIPAddressesName')]",
-                    "fqdn": "[concat(parameters('publicIPAddressesName'), '.centralindia.cloudapp.azure.com')]"
+                    "fqdn": "[concat(parameters('publicIPAddressesName'), '.northeurope.cloudapp.azure.com')]"
                 },
                 "ipTags": []
             }
@@ -59,7 +59,7 @@
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-11-01",
             "name": "[parameters('virtualNetworkName')]",
-            "location": "centralindia",
+            "location": "northeurope",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -95,12 +95,11 @@
                 "privateLinkServiceNetworkPolicies": "Enabled"
             }
         },
-      
         {
             "type": "Microsoft.Network/connections",
             "apiVersion": "2020-11-01",
             "name": "[parameters('connectionName')]",
-            "location": "centralindia",
+            "location": "northeurope",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGatewayName'))]",
                 "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localNetworkGatewayName'))]"
@@ -130,7 +129,7 @@
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2020-11-01",
             "name": "[parameters('virtualNetworkGatewayName')]",
-            "location": "centralindia",
+            "location": "northeurope",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressesName'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'GatewaySubnet')]"

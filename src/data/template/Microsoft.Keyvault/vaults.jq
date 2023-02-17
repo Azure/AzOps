@@ -1,0 +1,1 @@
+del(.id, .resourceId, .identity, .kind, .resourceName, .extensionResourceName, .parentResource, .plan, .properties.provisioningState, .properties.vaultUri)

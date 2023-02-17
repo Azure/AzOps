@@ -1,1 +1,1 @@
-del(.ResourceId, .Properties.Metadata, .ResourceGroupName, .SubscriptionId, .SystemData)
+del(.ResourceId, .ResourceGroupName, .SubscriptionId, .SystemData, .Properties.CreatedOn, .Properties.UpdatedOn, .Properties.CreatedBy, .Properties.CreatedBy, .Properties.UpdatedBy)

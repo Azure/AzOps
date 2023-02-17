@@ -12,7 +12,6 @@
             Discover all custom role assignments deployed at Management Group scope
     #>
 
-    [OutputType([AzOpsRoleAssignment])]
     [CmdletBinding()]
     param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -21,10 +20,26 @@
     )
 
     process {
-        Write-PSFMessage -Level Important -String 'Get-AzOpsRoleAssignment.Processing' -StringValues $ScopeObject -Target $ScopeObject
-        foreach ($roleAssignment in Get-AzRoleAssignment -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object Scope -eq $ScopeObject.Scope) {
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsRoleAssignment.Assignment' -StringValues $roleAssignment.DisplayName, $roleAssignment.RoleDefinitionName -Target $ScopeObject
-            [AzOpsRoleAssignment]::new($roleAssignment)
+        Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleAssignment.Processing' -StringValues $ScopeObject -Target $ScopeObject
+        $apiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.Authorization'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'roleAssignments'}).ApiVersions | Select-Object -First 1
+        $path = "$($scopeObject.Scope)/providers/Microsoft.Authorization/roleAssignments?api-version=$apiVersion&`$filter=atScope()"
+        $roleAssignments = Invoke-AzOpsRestMethod -Path $path -Method GET
+        if ($roleAssignments) {
+            $roleAssignmentMatch = @()
+            foreach ($roleAssignment in $roleAssignments) {
+                if ($roleAssignment.properties.scope -eq $ScopeObject.Scope) {
+                    Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleAssignment.Assignment' -StringValues $roleAssignment.id, $roleAssignment.properties.roleDefinitionId -Target $ScopeObject
+                    $roleAssignmentMatch += [PSCustomObject]@{
+                        id = $roleAssignment.id
+                        name = $roleAssignment.name
+                        properties = $roleAssignment.properties
+                        type = $roleAssignment.type
+                     }
+                }
+            }
+            if ($roleAssignmentMatch) {
+                return $roleAssignmentMatch
+            }
         }
     }
 

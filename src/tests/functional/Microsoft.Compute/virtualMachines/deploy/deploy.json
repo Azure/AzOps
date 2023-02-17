@@ -1,5 +1,5 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -56,6 +56,9 @@
         },
         "enableHotpatching": {
             "type": "bool"
+        },
+        "zone": {
+            "type": "array"
         }
     },
     "variables": {
@@ -116,6 +119,7 @@
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-07-01",
             "location": "[parameters('location')]",
+            "zones": "[parameters('zone')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
             ],

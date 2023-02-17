@@ -79,10 +79,7 @@ Describe "Scenario - roleAssignments" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
         It "Resource properties RoleDefinitionId should exist" {
-            $script:fileContents.resources[0].properties.RoleDefinitionId | Should -BeTrue
-        }
-        It "Resource properties RoleDefinitionName should exist" {
-            $script:fileContents.resources[0].properties.RoleDefinitionName | Should -BeTrue
+            $script:fileContents.resources[0].properties.roleDefinitionId | Should -BeTrue
         }
         #endregion Pull Test
 

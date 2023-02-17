@@ -2,11 +2,13 @@
 
     <#
         .SYNOPSIS
-            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions or resource groups)
+            Discover all custom policyset definitions at the provided scope (Management Groups or subscriptions)
         .DESCRIPTION
-            Discover all custom policyset definitions at the provided scope (Management Groups, subscriptions or resource groups)
+            Discover all custom policyset definitions at the provided scope (Management Groups or subscriptions)
         .PARAMETER ScopeObject
             The scope object representing the azure entity to retrieve policyset definitions for.
+        .PARAMETER Subscription
+            Complete Subscription list
         .EXAMPLE
             > Get-AzOpsPolicySetDefinition -ScopeObject (New-AzOpsScope -Scope /providers/Microsoft.Management/managementGroups/contoso -StatePath $StatePath)
             Discover all custom policyset definitions deployed at Management Group scope
@@ -16,25 +18,26 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [Object]
-        $ScopeObject
+        [object]
+        $ScopeObject,
+        [Parameter(Mandatory = $false)]
+        [object]
+        $Subscription
     )
 
     process {
-        #TODO: Discuss dropping resourcegroups, as no action is taken ever
-        if ($ScopeObject.Type -notin 'resourcegroups', 'subscriptions', 'managementGroups') {
+        if ($ScopeObject.Type -notin 'subscriptions', 'managementGroups') {
             return
         }
-
-        switch ($ScopeObject.Type) {
-            managementGroups {
-                Write-PSFMessage -Level Important -String 'Get-AzOpsPolicySetDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
-                Get-AzPolicySetDefinition -Custom -ManagementGroupName $ScopeObject.Name | Where-Object ResourceId -match $ScopeObject.Scope
-            }
-            subscriptions {
-                Write-PSFMessage -Level Important -String 'Get-AzOpsPolicySetDefinition.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
-                Get-AzPolicySetDefinition -Custom -SubscriptionId $ScopeObject.Scope.Split('/')[2] | Where-Object SubscriptionId -eq $ScopeObject.Name
-            }
+        if ($ScopeObject.Type -eq 'managementGroups') {
+            Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicySetDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+            $query = "policyresources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' and subscriptionId == '' | order by ['id'] asc"
+            Search-AzOpsAzGraph -ManagementGroupName $ScopeObject.Name -Query $query -ErrorAction Stop
+        }
+        if ($Subscription) {
+            Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicySetDefinition.Subscription' -StringValues $Subscription.count -Target $ScopeObject
+            $query = "policyresources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | order by ['id'] asc"
+            Search-AzOpsAzGraph -Subscription $Subscription -Query $query -ErrorAction Stop
         }
     }
 
