@@ -4,6 +4,9 @@
     "parameters": {
         "resourceGroupName": {
             "value": "bicepTest-azopsrg"
+        },
+        "location": {
+            "value": "northeurope"
         }
     }
 }

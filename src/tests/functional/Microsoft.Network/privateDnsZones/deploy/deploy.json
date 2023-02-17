@@ -14,15 +14,7 @@
             "metadata": {
                 "description": "Optional. The location of the PrivateDNSZone. Should be global."
             }
-        },
-        "tags": {
-            "type": "object",
-            "defaultValue": {
-            },
-            "metadata": {
-                "description": "Optional. Tags of the resource."
-            }
-        }        
+        }
     },
     "variables": { },
     "resources": [
@@ -30,8 +22,7 @@
             "type": "Microsoft.Network/privateDnsZones",
             "apiVersion": "2018-09-01",
             "name": "[parameters('privateDnsZoneName')]",
-            "location": "[parameters('location')]",
-            "tags": "[parameters('tags')]"
+            "location": "[parameters('location')]"
         }
     ],
     "outputs": {

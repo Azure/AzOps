@@ -79,7 +79,7 @@ Describe "Scenario - policyAssignments" {
             $script:functionalTestDeploy.ProvisioningState | Should -Be "Succeeded"
         }
         It "Resource properties PolicyDefinitionId should exist" {
-            $script:fileContents.resources[0].properties.PolicyDefinitionId | Should -BeTrue
+            $script:fileContents.resources[0].properties.policyDefinitionId | Should -BeTrue
         }
         #endregion Pull Test
 

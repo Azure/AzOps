@@ -50,6 +50,8 @@ try {
         Write-PSFMessage -Level Verbose -Message "Executing deploy of functional test object: $_" -FunctionName "BeforeAll"
         & $_
     }
+    # Pause for resource consistency
+    Start-Sleep -Seconds 120
 }
 catch {
     Write-PSFMessage -Level Warning -String "Executing functional test object failed"
@@ -73,6 +75,7 @@ $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.Memory
 
 Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
 try {
+    Initialize-AzOpsEnvironment
     Invoke-AzOpsPull -SkipRole:$false -SkipPolicy:$false -SkipResource:$false -SkipResourceGroup:$false
 }
 catch {

@@ -54,6 +54,9 @@ Describe "Scenario - azureFirewalls" {
         It "Resource apiVersion should exist" {
             $script:fileContents.resources[0].apiVersion | Should -BeTrue
         }
+        It "Resource zones should exist" {
+            $script:fileContents.resources[0].zones | Should -BeTrue
+        }
         It "Resource properties should exist" {
             $script:fileContents.resources[0].properties | Should -BeTrue
         }

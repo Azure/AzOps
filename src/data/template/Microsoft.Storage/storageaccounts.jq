@@ -1,0 +1,9 @@
+del(.id,
+    .properties.creationTime,
+    .properties.primaryEndpoints,
+    .properties.encryption.services.file.lastEnabledTime,
+    .properties.encryption.services.blob.lastEnabledTime,
+    .properties.provisioningState,
+    .properties.primaryLocation,
+    .properties.statusOfPrimary
+    )

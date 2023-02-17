@@ -122,7 +122,7 @@
             $deploymentCommand = 'New-AzTenantDeployment'
         }
         # If Management Group resource was not found, validate and prepare for first time deployment of resource
-        elseif (($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_')) {
+        elseif ($scopeObject.managementGroup -and (($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
             $resourceScopeFileContent = Get-Content -Path $addition | ConvertFrom-Json -Depth 100
             $resource = ($resourceScopeFileContent.resources | Where-Object {$_.type -eq 'Microsoft.Management/managementGroups'} | Select-Object -First 1)
             $pathDir = (Get-Item -Path $addition).Directory | Resolve-Path -Relative

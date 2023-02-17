@@ -17,6 +17,7 @@
     #>
 
     [CmdletBinding()]
+    [OutputType([System.String])]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]

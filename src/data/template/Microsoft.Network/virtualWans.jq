@@ -1,1 +1,0 @@
-del(.Properties.provisioningState)

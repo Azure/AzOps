@@ -1,2 +1,1 @@
-del(.Id)| .Properties |=
-{DisplayName, ObjectType, PrincipalId, RoleDefinitionId, RoleDefinitionName}
+del(.properties.createdOn, .properties.updatedOn, .properties.createdBy, .properties.createdBy, .properties.updatedBy)

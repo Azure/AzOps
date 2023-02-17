@@ -16,16 +16,15 @@ For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://g
 
 - [Az.Accounts](https://github.com/azure/azure-powershell)
 - [Az.Billing](https://github.com/azure/azure-powershell)
+- [Az.ResourceGraph](https://github.com/azure/azure-powershell)
 - [Az.Resources](https://github.com/azure/azure-powershell)
 - [PSFramework](https://github.com/PowershellFrameworkCollective/psframework)
 
 ## Need help?
 
 For introduction guidance, visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
-For reference documentation, visit the [Enterprise-Scale](https://github.com/azure/enterprise-scale)  
 For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/azops/wiki/debug)  
-For information on migrating to the new version, visit the [Migration Guide](https://github.com/azure/azops/wiki/migration)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
 ## Output

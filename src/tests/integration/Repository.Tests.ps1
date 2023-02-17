@@ -1,5 +1,4 @@
-﻿
-<#
+﻿<#
 Repository.Tests.ps1
 The tests within this file validate that the `Invoke-AzOpsPull` function is invoking as expected with the correct output data.
 This file must be invoked by the Pester.ps1 file as the Global variable testroot is required for invocation.
@@ -66,8 +65,10 @@ Describe "Repository" {
             Location                = "northeurope"
         }
         try {
-            New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep"
+            New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
             New-AzManagementGroupDeployment @params
+            # Pause for resource consistency
+            Start-Sleep -Seconds 120
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Deployment of repository test failed" -Exception $_.Exception
@@ -146,6 +147,7 @@ Describe "Repository" {
         Set-PSFConfig -FullName AzOps.Core.State -Value $partialMgDiscoveryRootgeneratedRoot
         Write-PSFMessage -Level Verbose -Message "Generating folder structure for PartialMgDiscoveryRoot" -FunctionName "BeforeAll"
         try {
+            Initialize-AzOpsEnvironment
             Invoke-AzOpsPull -SkipLock:$true -SkipPim:$true -SkipResourceGroup:$true -SkipPolicy:$true -SkipRole:$true -SkipChildResource:$true -SkipResource:$true
         }
         catch {
@@ -165,6 +167,7 @@ Describe "Repository" {
 
         Write-PSFMessage -Level Verbose -Message "Generating folder structure" -FunctionName "BeforeAll"
         try {
+            Initialize-AzOpsEnvironment
             Invoke-AzOpsPull -SkipLock:$false -SkipRole:$false -SkipPolicy:$false -SkipResource:$false
         }
         catch {
@@ -600,6 +603,10 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:policyAssignmentsFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].properties.scope | Should -Be "$($script:managementManagementGroup.Id)"
         }
+        It "Policy Assignments custom metadata property should exist" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties.metadata.customkey | Should -BeTrue
+        }
         It "Policy Assignments deployment should be successful" {
             $script:policyAssignmentDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:managementManagementGroup.Name -Name $script:policyAssignmentsDeploymentName
             $policyAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
@@ -619,7 +626,7 @@ Describe "Repository" {
         }
         It "Policy Definitions resource type should exist" {
             $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
-            $fileContents.parameters.input.value.ResourceType | Should -BeTrue
+            $fileContents.parameters.input.value.type | Should -BeTrue
         }
         It "Policy Definitions resource name should exist" {
             $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
@@ -631,7 +638,7 @@ Describe "Repository" {
         }
         It "Policy Definitions resource type should match" {
             $fileContents = Get-Content -Path $script:policyDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
-            $fileContents.parameters.input.value.ResourceType | Should -Be "Microsoft.Authorization/policyDefinitions"
+            $fileContents.parameters.input.value.type | Should -Be "Microsoft.Authorization/policyDefinitions"
         }
         It "Policy Definitions deployment should be successful" {
             $script:policyDefinitionDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:testManagementGroup.Name -Name $script:policyDefinitionsDeploymentName
@@ -657,7 +664,7 @@ Describe "Repository" {
         }
         It "PolicySetDefinitions resource type should exist" {
             $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
-            $fileContents.parameters.input.value.ResourceType | Should -BeTrue
+            $fileContents.parameters.input.value.type | Should -BeTrue
         }
         It "PolicySetDefinitions resource name should exist" {
             $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
@@ -669,7 +676,7 @@ Describe "Repository" {
         }
         It "PolicySetDefinitions resource type should match" {
             $fileContents = Get-Content -Path $script:policySetDefinitionsFile -Raw | ConvertFrom-Json -Depth 25
-            $fileContents.parameters.input.value.ResourceType | Should -Be "Microsoft.Authorization/policySetDefinitions"
+            $fileContents.parameters.input.value.type | Should -Be "Microsoft.Authorization/policySetDefinitions"
         }
         It "PolicySetDefinitions deployment should be successful" {
             $script:policySetDefinitionDeployment = Get-AzManagementGroupDeployment -ManagementGroupId $script:testManagementGroup.Name -Name $script:policySetDefinitionsDeploymentName
