@@ -38,7 +38,12 @@
             # Process policy definitions
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
             $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $ScopeObject -Subscription $Subscription
-            $policyDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
+            $policyDefinitionsClean = @()
+            foreach ($policyDefinition in $policyDefinitions) {
+                $policyDefinitionClean = $policyDefinition | ConvertTo-Json -Depth 100
+                $policyDefinitionsClean += $policyDefinitionClean -replace 'T00:00:00Z' | ConvertFrom-Json -Depth 100
+            }
+            $policyDefinitionsClean | ConvertTo-AzOpsState -StatePath $StatePath
 
             # Process policy set definitions (initiatives)
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Set Definitions', $ScopeObject.Scope
