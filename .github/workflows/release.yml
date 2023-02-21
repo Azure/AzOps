@@ -44,40 +44,40 @@ jobs:
           ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
         shell: pwsh
 
-      - name: "Add"
-        run: |
-          git add src/AzOps.psd1
-
-      - name: "Commit"
-        run: |
-          git commit -m 'Update AzOps.psd1'
-
-      - name: "Push"
-        run: |
-          git push origin release
-
-      - name: "Merge"
-        run: |
-          gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release'
-          COUNTER=0
-          while : ; do
-              DECISION=$(gh pr status --json reviewDecision --jq '.currentBranch.reviewDecision')
-              if [ "$DECISION" == "APPROVED" ]; then
-                  gh pr merge 'release' --squash --delete-branch
-                  break
-              else
-                  if [ $COUNTER -lt 300 ]; then
-                      echo "Pending pull request approval - $COUNTER seconds"
-                      sleep 30s
-                      COUNTER=$(( $COUNTER + 30 ))
-                  else
-                      echo "Expired pull request approval"
-                      exit 1
-                  fi
-              fi
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #- name: "Add"
+      #  run: |
+      #    git add src/AzOps.psd1
+#
+      #- name: "Commit"
+      #  run: |
+      #    git commit -m 'Update AzOps.psd1'
+#
+      #- name: "Push"
+      #  run: |
+      #    git push origin release
+#
+      #- name: "Merge"
+      #  run: |
+      #    gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release'
+      #    COUNTER=0
+      #    while : ; do
+      #        DECISION=$(gh pr status --json reviewDecision --jq '.currentBranch.reviewDecision')
+      #        if [ "$DECISION" == "APPROVED" ]; then
+      #            gh pr merge 'release' --squash --delete-branch
+      #            break
+      #        else
+      #            if [ $COUNTER -lt 300 ]; then
+      #                echo "Pending pull request approval - $COUNTER seconds"
+      #                sleep 30s
+      #                COUNTER=$(( $COUNTER + 30 ))
+      #            else
+      #                echo "Expired pull request approval"
+      #                exit 1
+      #            fi
+      #        fi
+      #    done
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Release"
         run: |
