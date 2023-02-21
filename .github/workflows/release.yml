@@ -44,18 +44,18 @@ jobs:
           ./scripts/Release.ps1 -ApiKey ${{ secrets.PWSH_GALLERY }}
         shell: pwsh
 
-      #- name: "Add"
-      #  run: |
-      #    git add src/AzOps.psd1
-#
-      #- name: "Commit"
-      #  run: |
-      #    git commit -m 'Update AzOps.psd1'
-#
-      #- name: "Push"
-      #  run: |
-      #    git push origin release
-#
+      - name: "Add"
+        run: |
+          git add src/AzOps.psd1
+
+      - name: "Commit"
+        run: |
+          git commit -m 'Update AzOps.psd1'
+
+      - name: "Push"
+        run: |
+          git push origin release
+
       #- name: "Merge"
       #  run: |
       #    gh pr create --base 'main' --head 'release' --title 'Release v${{ steps.version.outputs.version }}' --body '' --label 'release'
