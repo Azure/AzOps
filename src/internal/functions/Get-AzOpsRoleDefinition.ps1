@@ -23,7 +23,19 @@
         Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
         $apiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.Authorization'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'roleDefinitions'}).ApiVersions | Select-Object -First 1
         $path = "$($scopeObject.Scope)/providers/Microsoft.Authorization/roleDefinitions?api-version=$apiVersion&`$filter=type+eq+'CustomRole'"
-        $roleDefinitions = Invoke-AzOpsRestMethod -Path $path -Method GET
+        try {
+            $parameters = @{
+                Path = $path
+                Method = 'GET'
+            }
+            # Gather roleDefinitions with retry and backoff support from Invoke-AzOpsScriptBlock
+            $roleDefinitions = Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                Invoke-AzOpsRestMethod @parameters -ErrorAction Stop
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsRoleDefinition"
+        }
         if ($roleDefinitions) {
             $roleDefinitionsMatch = @()
             foreach ($roleDefinition in $roleDefinitions) {

@@ -23,7 +23,19 @@
         Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleAssignment.Processing' -StringValues $ScopeObject -Target $ScopeObject
         $apiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.Authorization'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'roleAssignments'}).ApiVersions | Select-Object -First 1
         $path = "$($scopeObject.Scope)/providers/Microsoft.Authorization/roleAssignments?api-version=$apiVersion&`$filter=atScope()"
-        $roleAssignments = Invoke-AzOpsRestMethod -Path $path -Method GET
+        try {
+            $parameters = @{
+                Path = $path
+                Method = 'GET'
+            }
+            # Gather roleAssignment with retry and backoff support from Invoke-AzOpsScriptBlock
+            $roleAssignments = Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                Invoke-AzOpsRestMethod @parameters -ErrorAction Stop
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsRoleAssignment"
+        }
         if ($roleAssignments) {
             $roleAssignmentMatch = @()
             foreach ($roleAssignment in $roleAssignments) {

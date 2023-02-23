@@ -162,7 +162,7 @@
     'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed'                     = 'SkipResource set to false or SkipChildResource set to false requires SkipResourceGroup to be set to false. Change value for SkipResourceGroup and retry operation. {0} https://github.com/azure/azops/wiki/settings' #
 
     'Invoke-AzOpsRestMethod.Processing'                                             = 'Invoke-AzRestMethod processing path: [{0}]' # $Path
-    'Invoke-AzOpsRestMethod.Processing.Warning'                                     = 'Invoke-AzRestMethod received [{0}] while processing: [{1}]' # $_, $Path
+    'Invoke-AzOpsRestMethod.Processing.Error'                                       = 'Invoke-AzRestMethod received [{0}] while processing: [{1}]' # $_, $Path
     'Invoke-AzOpsRestMethod.Processing.RateLimit'                                   = 'Invoke-AzRestMethod is throttled while processing: [{0}], going to sleep for {1} seconds' # $Path, $_.value
 
     'Invoke-AzOpsPush.Change.AddModify'                                             = 'Adding or modifying:' #

@@ -156,7 +156,9 @@
                                 }
                                 if (-not $using:SkipPolicy) {
                                     $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $ScopeObject
-                                    $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                                    if ($policyExemptions) {
+                                        $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                                    }
                                 }
                                 if (-not $using:SkipRole) {
                                     Get-AzOpsRole -ScopeObject $ScopeObject -StatePath $runspaceData.Statepath
@@ -197,7 +199,9 @@
                         }
                         if (-not $using:SkipPolicy) {
                             $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
-                            $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                            if ($policyExemptions) {
+                                $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                            }
                         }
                         if (-not $using:SkipLock) {
                             Get-AzOpsResourceLock -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
@@ -262,7 +266,9 @@
                             }
                             if (-not $using:SkipPolicy) {
                                 $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $rgScopeObject
-                                $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                                if ($policyExemptions) {
+                                    $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
+                                }
                             }
                             if (-not $using:SkipRole) {
                                 Get-AzOpsRole -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
