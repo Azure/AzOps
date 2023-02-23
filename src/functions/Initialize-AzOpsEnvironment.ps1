@@ -61,6 +61,14 @@
         if (-not $IgnoreContextCheck -and $azContextTenants.Count -gt 1) {
             Stop-PSFFunction -String 'Initialize-AzOpsEnvironment.AzureContext.TooMany' -StringValues $azContextTenants.Count, ($azContextTenants -join ',') -EnableException $true -Cmdlet $PSCmdlet
         }
+
+        # Adjust ThrottleLimit from previously default 10 to 5 if system has less than 2 cores
+        $cpuCores = if ($IsWindows) { $env:NUMBER_OF_PROCESSORS } else { Invoke-AzOpsNativeCommand -ScriptBlock { nproc --all } }
+        $throttleLimit = (Get-PSFConfig -Module AzOps -Name Core.ThrottleLimit).Value
+        if (-not[string]::IsNullOrEmpty($cpuCores) -and $cpuCores -le 2 -and $throttleLimit -gt 5) {
+            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -StringValues $throttleLimit, $cpuCores
+            Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5
+        }
     }
 
     process {
