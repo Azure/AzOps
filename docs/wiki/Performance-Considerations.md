@@ -13,7 +13,7 @@ The performance of AzOps **pull operations** can vary greatly depending on sever
 
 The default configuration of AzOps includes a set of settings (`settings.json`) that determine what is pulled, as well as a PowerShell [throttle limit](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/foreach-object?view=powershell-7.2#-throttlelimit) of 5, which restricts the number of operations that can be performed in parallel.
 
-**_NOTE:_** AzOps [2.0.0](https://github.com/Azure/AzOps/releases/tag/2.0.0) introduced changes to improve performance, including increased usage of parallel threads compared to previous versions.
+  > **_NOTE:_** AzOps [2.0.0](https://github.com/Azure/AzOps/releases/tag/2.0.0) introduced changes to improve performance, including increased usage of parallel threads compared to previous versions.
 
 ## Smaller Azure environment with less than 100 subscriptions
 
