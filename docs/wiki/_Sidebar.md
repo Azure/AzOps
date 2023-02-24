@@ -13,6 +13,7 @@
 ## Documentation
 
 * [Settings](https://github.com/azure/azops/wiki/settings)
+  * [Performance Considerations](https://github.com/azure/azops/wiki/performance-considerations)
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Steps](https://github.com/azure/azops/wiki/steps)
 * [Deployments](https://github.com/Azure/Enterprise-Scale/wiki/Deploying-ALZ#operating-the-azure-platform-using-azops-infrastructure-as-code-with-github-actions)
