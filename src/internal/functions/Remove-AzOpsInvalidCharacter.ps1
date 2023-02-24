@@ -48,6 +48,8 @@
                 }
             }
         }
+        # Always remove square brackets
+        $String = $String -replace "(\[|\])",""
         Write-PSFMessage -Level Verbose -String 'Remove-AzOpsInvalidCharacter.Completed' -StringValues $String -FunctionName 'Remove-AzOpsInvalidCharacter'
         # Return processed string
         return $String

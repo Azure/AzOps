@@ -83,13 +83,13 @@
                 $script:policySetDefinitions | Remove-AzPolicySetDefinition -Force -Confirm:$false -ErrorAction SilentlyContinue
                 # Collect and cleanup deployment jobs
                 $azTenantDeploymentJobs = Get-AzTenantDeployment
-                $azTenantDeploymentJobs | ForEach-Object -ThrottleLimit 20 -Parallel {
+                $azTenantDeploymentJobs | ForEach-Object -ThrottleLimit 10 -Parallel {
                     Write-PSFMessage -Level Verbose -Message "Executing test AzDeployment cleanup thread of $($_.DeploymentName)" -FunctionName "Remove-AzOpsTestsDeployment"
                     $_ | Remove-AzTenantDeployment -Confirm:$false
                 }
                 Get-AzManagementGroupDeployment -ManagementGroupId "cd35e23c-537f-4553-a280-f5a60033a446" | Remove-AzManagementGroupDeployment -Confirm:$false
                 $azDeploymentJobs = Get-AzDeployment
-                $azDeploymentJobs | ForEach-Object -ThrottleLimit 20 -Parallel {
+                $azDeploymentJobs | ForEach-Object -ThrottleLimit 10 -Parallel {
                     Write-PSFMessage -Level Verbose -Message "Executing test AzDeployment cleanup thread of $($_.DeploymentName)" -FunctionName "Remove-AzOpsTestsDeployment"
                     $_ | Remove-AzDeployment -Confirm:$false
                 }

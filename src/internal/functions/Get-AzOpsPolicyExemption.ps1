@@ -36,7 +36,18 @@
                 Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyExemption.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
-        Get-AzPolicyExemption -Scope $ScopeObject.Scope -WarningAction SilentlyContinue -ErrorAction Continue | Where-Object ResourceId -match $ScopeObject.scope -ErrorAction Continue
+        try {
+            $parameters = @{
+                Scope = $ScopeObject.Scope
+            }
+            # Gather policyExemption with retry and backoff support from Invoke-AzOpsScriptBlock
+            Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                Get-AzPolicyExemption @parameters -WarningAction SilentlyContinue -ErrorAction Stop | Where-Object ResourceId -match $parameters.Scope
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsPolicyExemption"
+        }
     }
 
 }

@@ -56,7 +56,6 @@
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
-    'ConvertTo-AzOpsState.File.InvalidCharacter'                                    = 'The specified AzOpsState file contains invalid characters (remove any "[" or "]" characters)! Skipping {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.File.UseExisting'                                         = 'AzOpsState file is found. Using existing file: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.NoExportPath'                                             = 'No export path found for {0}. Ensure the original data type remains intact or specify an -ExportPath' # $Resource
     'ConvertTo-AzOpsState.Processing'                                               = 'Processing input: {0}' # $Resource
@@ -142,6 +141,7 @@
     'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'           = 'No management group access, discovery will happen from subscription scope(s)'
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
+    'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores
     'Initialize-AzOpsEnvironment.UsingCache'                                        = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions' #
 
     'Invoke-AzOpsPull.Deleting.State'                                               = 'Removing state in {0}' # $StatePath
@@ -161,7 +161,7 @@
     'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed'                     = 'SkipResource set to false or SkipChildResource set to false requires SkipResourceGroup to be set to false. Change value for SkipResourceGroup and retry operation. {0} https://github.com/azure/azops/wiki/settings' #
 
     'Invoke-AzOpsRestMethod.Processing'                                             = 'Invoke-AzRestMethod processing path: [{0}]' # $Path
-    'Invoke-AzOpsRestMethod.Processing.Warning'                                     = 'Invoke-AzRestMethod received [{0}] while processing: [{1}]' # $_, $Path
+    'Invoke-AzOpsRestMethod.Processing.Error'                                       = 'Invoke-AzRestMethod received [{0}] while processing: [{1}]' # $_, $Path
     'Invoke-AzOpsRestMethod.Processing.RateLimit'                                   = 'Invoke-AzRestMethod is throttled while processing: [{0}], going to sleep for {1} seconds' # $Path, $_.value
 
     'Invoke-AzOpsPush.Change.AddModify'                                             = 'Adding or modifying:' #

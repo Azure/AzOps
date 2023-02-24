@@ -37,8 +37,18 @@
                 Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceLock.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
-        # Gather resource locks at scopeObject
-        $resourceLocks = Get-AzResourceLock -Scope $ScopeObject.Scope -AtScope -ErrorAction SilentlyContinue | Where-Object {$($_.ResourceID.Substring(0, $_.ResourceId.LastIndexOf('/'))) -Like ("$($ScopeObject.scope)/providers/Microsoft.Authorization/locks")}
+        try {
+            $parameters = @{
+                Scope = $ScopeObject.Scope
+            }
+            # Gather resource locks at scopeObject with retry and backoff support from Invoke-AzOpsScriptBlock
+            $resourceLocks = Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                Get-AzResourceLock @parameters -AtScope -ErrorAction Stop | Where-Object {$($_.ResourceID.Substring(0, $_.ResourceId.LastIndexOf('/'))) -Like ("$($parameters.Scope)/providers/Microsoft.Authorization/locks")}
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsResourceLock"
+        }
         if ($resourceLocks) {
             # Process each resource lock
             foreach ($lock in $resourceLocks) {

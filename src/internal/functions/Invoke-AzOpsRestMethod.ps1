@@ -37,7 +37,7 @@
                 }
             }
             catch {
-                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsRestMethod.Processing.Warning' -StringValues $_, $Path
+                Write-PSFMessage -Level Error -String 'Invoke-AzOpsRestMethod.Processing.Error' -StringValues $_, $Path
             }
         }
         while ($path)

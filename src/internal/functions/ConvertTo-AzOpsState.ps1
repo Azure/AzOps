@@ -98,10 +98,6 @@
         else {
             $objectFilePath = $ExportPath
         }
-        # Check for invalid characters "[" or "]"
-        if ($objectFilePath -match [regex]::Escape("[") -or $objectFilePath -match [regex]::Escape("]")) {
-            Stop-PSFFunction -String 'ConvertTo-AzOpsState.File.InvalidCharacter' -StringValues $objectFilePath -EnableException $true -Cmdlet $PSCmdlet
-        }
         # Create folder structure if it doesn't exist
         if (-not (Test-Path -Path $objectFilePath)) {
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.File.Create' -StringValues $objectFilePath
