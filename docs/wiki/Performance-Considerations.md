@@ -25,7 +25,7 @@ As the number of scopes and objects to pull increases, the time required for pro
 
 - By adjusting the `Core.ThrottleLimit` value in `settings.json`, AzOps can increase or decrease the amount of parallel threads used during processing. It's important to evaluate whether the number of available cores in the runtime environment is appropriate. Increasing the `Core.ThrottleLimit` value results in a higher level of parallelism, which can improve processing performance
 
-  > **_NOTE:_** If you have a large environment and are experiencing crashed pipelines, consider changing the `Core.ThrottleLimit` setting [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available CPU cores
+  > **_NOTE:_** If you have a large environment and are experiencing crashed pipelines, consider changing the `Core.ThrottleLimit` setting [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available CPU cores, or increase compute CPU cores (if using self-hosted runners).
 
 ## Warning Message
 
