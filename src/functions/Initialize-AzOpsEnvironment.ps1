@@ -63,7 +63,7 @@
         }
 
         # Adjust ThrottleLimit from previously default 10 to 5 if system has less than 2 cores
-        $cpuCores = if ($IsWindows) { $env:NUMBER_OF_PROCESSORS } else { Invoke-AzOpsNativeCommand -ScriptBlock { nproc --all } }
+        $cpuCores = if ($IsWindows) { $env:NUMBER_OF_PROCESSORS } else { Invoke-AzOpsNativeCommand -ScriptBlock { nproc --all } -IgnoreExitcode }
         $throttleLimit = (Get-PSFConfig -Module AzOps -Name Core.ThrottleLimit).Value
         if (-not[string]::IsNullOrEmpty($cpuCores) -and $cpuCores -le 2 -and $throttleLimit -gt 5) {
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -StringValues $throttleLimit, $cpuCores
