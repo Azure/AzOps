@@ -21,7 +21,7 @@ The default setup and throttle limit have a relatively minor impact on pull perf
 
 ## Larger Azure environment with over 100 subscriptions
 
-As the number of scopes and objects to pull increases, the time required for processing and waiting also increases, which can negatively impact pull performance.However, by using the right conditions and optimization techniques, the performance of the pull operation can be tuned for better and more reliable results. 
+As the number of scopes and objects to pull increases, the time required for processing and waiting also increases, which can negatively impact pull performance.However, by using the right conditions and optimization techniques, the performance of the pull operation can be tuned for better and more reliable results.
 
 - By adjusting the `Core.ThrottleLimit` value in `settings.json`, AzOps can increase or decrease the amount of parallel threads used during processing. It's important to evaluate whether the number of available cores in the runtime environment is appropriate. Increasing the `Core.ThrottleLimit` value results in a higher level of parallelism, which can improve processing performance
 
