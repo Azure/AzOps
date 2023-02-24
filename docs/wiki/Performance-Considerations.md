@@ -1,41 +1,41 @@
 # In this guide
 
 - [Introduction](#introduction)
-- [Small Azure environment](#small-azure-environment-to-pull-100-subscriptions)
-- [Large Azure environment](#large-azure-environment-to-pull-more-then-100-subscriptions)
+- [Small Azure environment](#Smaller-Azure-environment-with-less-than-100-subscriptions)
+- [Large Azure environment](#Larger-Azure-environment-with-over-100-subscriptions)
 - [Seeing Warning Message](#warning-message)
 
 ---
 
 ## Introduction
 
-AzOps **pull performance** can differ **significantly** depending on Azure environment, configuration settings and compute cores available to runtime.
+The performance of AzOps **pull operations** can vary greatly depending on several factors, including the specific Azure environment being used, the configuration settings selected, and the number of compute cores available to the pipeline runtime.
 
-Default setup of AzOps results in a certain set of settings (`settings.json`) affecting what to pull and a PowerShell [throttle limit](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/foreach-object?view=powershell-7.2#-throttlelimit) of 5.
+The default configuration of AzOps includes a set of settings (`settings.json`) that determine what is pulled, as well as a PowerShell [throttle limit](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/foreach-object?view=powershell-7.2#-throttlelimit) of 5, which restricts the number of operations that can be performed in parallel.
 
-**_NOTE:_** In AzOps 2.0.0 changes where introduced to improve performance that makes greater use of parallel threads then before.
+**_NOTE:_** AzOps [2.0.0](https://github.com/Azure/AzOps/releases/tag/2.0.0) introduced changes to improve performance, including increased usage of parallel threads compared to previous versions.
 
-## Small Azure environment to pull 100 subscriptions
+## Smaller Azure environment with less than 100 subscriptions
 
-The default setup and throttle limit is of less impact to the pull performance.
+The default setup and throttle limit have a relatively minor impact on pull performance.
 
-## Large Azure environment to pull more then 100 subscriptions
+## Larger Azure environment with over 100 subscriptions
 
-When the number of scopes and objects to pull increase the time spent processing and waiting increases. As this happens the pull performance can be tuned to perform better when given the right conditions.
+As the number of scopes and objects to pull increases, the time required for processing and waiting also increases, which can negatively impact pull performance. However, by using the right conditions and optimization techniques, the performance of the pull operation can be tuned for better and more reliable results. 
 
-- Adjusting the `Core.ThrottleLimit` value in `settings.json` tells AzOps to increase or decrease the amount of parallel threads. Evaluate if the cores available to AzOps in runtime is appropriate. A higher value increases the level or parallel threads for processing.
-- - **_NOTE:_** `Core.ThrottleLimit` parameter should be set [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available cores.
+- By adjusting the `Core.ThrottleLimit` value in `settings.json`, AzOps can increase or decrease the amount of parallel threads used during processing. It's important to evaluate whether the number of available cores in the runtime environment is appropriate. Increasing the `Core.ThrottleLimit` value results in a higher level of parallelism, which can improve processing performance
+- - **_NOTE:_** If you have a large environment and are experiencing crashed pipelines, consider changing the `Core.ThrottleLimit` setting [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available CPU cores
 
 ## Warning Message
 
-Are you seeing a warning message `Adjusting AzOps.Core.ThrottleLimit`:
+Are you receiving a warning message about adjusting `AzOps.Core.ThrottleLimit`?
 
 ![Warning Message](./Media/AdjustingThrottleLimit.png)
 
-This means AzOps detected that the `Core.ThrottleLimit` value is higher than available compute cores and overrides the declared setting to reduce risk of execution failure due to crashing.
+This means that AzOps has detected that the `Core.ThrottleLimit` value is higher than the available compute cores and has automatically adjusted the setting to reduce the risk of execution failure due to crashing.
 
-To alleviate the warning consider:
+To address the warning message, consider the following options:
 
-- A) Change the `Core.ThrottleLimit`
+- a) Change the `Core.ThrottleLimit` to 5 or lower
 
-- B) Increase compute cores
+- b) Increase compute cores (if using self-hosted runners)
