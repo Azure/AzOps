@@ -56,7 +56,6 @@
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.File.Create'                                              = 'AzOpsState file not found. Creating new: {0}' # $ObjectFilePath
-    'ConvertTo-AzOpsState.File.InvalidCharacter'                                    = 'The specified AzOpsState file contains invalid characters (remove any "[" or "]" characters)! Skipping {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.File.UseExisting'                                         = 'AzOpsState file is found. Using existing file: {0}' # $ObjectFilePath
     'ConvertTo-AzOpsState.NoExportPath'                                             = 'No export path found for {0}. Ensure the original data type remains intact or specify an -ExportPath' # $Resource
     'ConvertTo-AzOpsState.Processing'                                               = 'Processing input: {0}' # $Resource
