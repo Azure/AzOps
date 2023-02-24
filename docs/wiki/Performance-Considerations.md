@@ -24,7 +24,8 @@ The default setup and throttle limit have a relatively minor impact on pull perf
 As the number of scopes and objects to pull increases, the time required for processing and waiting also increases, which can negatively impact pull performance. However, by using the right conditions and optimization techniques, the performance of the pull operation can be tuned for better and more reliable results. 
 
 - By adjusting the `Core.ThrottleLimit` value in `settings.json`, AzOps can increase or decrease the amount of parallel threads used during processing. It's important to evaluate whether the number of available cores in the runtime environment is appropriate. Increasing the `Core.ThrottleLimit` value results in a higher level of parallelism, which can improve processing performance
-- - **_NOTE:_** If you have a large environment and are experiencing crashed pipelines, consider changing the `Core.ThrottleLimit` setting [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available CPU cores
+
+  > **_NOTE:_** If you have a large environment and are experiencing crashed pipelines, consider changing the `Core.ThrottleLimit` setting [approximately](https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/) to the number of available CPU cores
 
 ## Warning Message
 
@@ -36,6 +37,6 @@ This means that AzOps has detected that the `Core.ThrottleLimit` value is higher
 
 To address the warning message, consider the following options:
 
-- a) Change the `Core.ThrottleLimit` to 5 or lower
+  a) Change the `Core.ThrottleLimit` to 5 or lower
 
-- b) Increase compute cores (if using self-hosted runners)
+  b) Increase compute cores (if using self-hosted runners)
