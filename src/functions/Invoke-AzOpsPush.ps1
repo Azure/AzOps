@@ -171,6 +171,14 @@
 
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
+
+        # Remove lingering files from previous run
+        $tempPath = [System.IO.Path]::GetTempPath()
+        if (Test-Path -Path ($tempPath + 'OUTPUT.md')) {
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'
+            Remove-Item -Path ($tempPath + 'OUTPUT.md') -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path ($tempPath + 'OUTPUT.json') -Force -ErrorAction SilentlyContinue
+        }
     }
 
     process {
