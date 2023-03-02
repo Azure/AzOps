@@ -47,9 +47,9 @@ To resolve the error, remove the failed deployment(s) from the target scope and 
 
 Yes, during runtime AzOps identifies the systems temporary directory `[System.IO.Path]::GetTempPath()`.
 
-AzOps utilizes the temporary directory for storing temporary information either used at processing time by AzOps (e.g., export and conversion of child resources) or information that is intended to be picked up by pipeline after AzOps module execution (e.g., `OUTPUT.md / OUTPUT.json`).
+AzOps utilizes the temporary directory for storing temporary information either used at processing time by AzOps (e.g. export and conversion of child resources) or information that is intended to be picked up by pipeline after AzOps module execution (e.g. `OUTPUT.md / OUTPUT.json`).
 
->Due to the different usage patterns of temporary files they are either created and deleted during module invocation or created and left for further processing at a later stage. As a part of AzOps invocation the initialize procedure looks for lingering temporary files (e.g., `OUTPUT.md / OUTPUT.json`) and removes them to ensure a clean execution.
+>Due to the different usage patterns of temporary files they are either created and deleted during module invocation or created and left for further processing at a later stage. As a part of AzOps invocation the initialize procedure looks for lingering temporary files (e.g. `OUTPUT.md / OUTPUT.json`) and removes them to ensure a clean execution.
 
 ## Pull fail with active pull request already exists error
 
