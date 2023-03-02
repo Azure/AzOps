@@ -69,6 +69,14 @@
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -StringValues $throttleLimit, $cpuCores
             Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5
         }
+
+        # Remove lingering files from previous run
+        $tempPath = [System.IO.Path]::GetTempPath()
+        if (Test-Path -Path ($tempPath + 'OUTPUT.md')) {
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'
+            Remove-Item -Path ($tempPath + 'OUTPUT.md') -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path ($tempPath + 'OUTPUT.json') -Force -ErrorAction SilentlyContinue
+        }
     }
 
     process {
