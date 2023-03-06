@@ -7,7 +7,7 @@
 ## Introduction
 
 GitHub Actions support OpenID Connect (OIDC) for secure deployments to Azure, which uses short-lived tokens that are automatically rotated for each deployment.
-In the context of AzOps, this means we can allow the AzOps pipeline Service Principal/Managed Identity to access Azure Resource Manager and Azure AD with federated credentials, eliminating the need to create/handle secrets.
+In the context of AzOps, this means we can allow the AzOps pipeline Service Principal/User-assigned managed identity to access Azure Resource Manager and Azure AD with federated credentials, eliminating the need to create/handle secrets.
 
 This wiki explains how this feature can be configured and used in the AzOps GitHub Actions.
 
@@ -15,15 +15,15 @@ This wiki explains how this feature can be configured and used in the AzOps GitH
 
 ## Configure
 
-Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at <https://github.com/azure/azops/wiki/prerequisites> and have your Service Principal/Managed Identity ready with appropriate RBAC permissions.
+Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at <https://github.com/azure/azops/wiki/prerequisites> and have your Service Principal/User-assigned managed identity ready with appropriate RBAC permissions.
 
 ### Federated credentials
-> **Note:** Depending on if you are using a Service Principal or Managed Identity the wording and visuals might differ, however settings and values are equal.
+> **Note:** Depending on if you are using a Service Principal or User-assigned managed identity the wording and visuals might differ, however settings and values are equal.
 
 1. **For Service Principal:** In Azure AD, find your AzOps service principal and navigate to Certificates & Secrets -> Federated credentials, click on `Add credential`.
 ![Add creds](./Media/oidc/spn_addcreds.jpg)
 
-    **For Managed Identity:** In Azure Portal, find your AzOps Managed Identity and navigate to Federated credentials, click on `Add Credential`.
+    **For User-assigned managed identity:** In Azure Portal, find your AzOps User-assigned managed identity and navigate to Federated credentials, click on `Add Credential`.
     ![Add creds](./Media/oidc/uami.png)
 
 2. There are three sections requiring input, enter your values in each highlighted field.
