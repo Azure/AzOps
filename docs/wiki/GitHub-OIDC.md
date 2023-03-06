@@ -33,7 +33,7 @@ Before you start to configure the workload federation feature in Azure AD and ch
         |  Setting  |  Value  |
         |---|---|
         |  `Federated credential scenario`  |  select `GitHub Actions deploying Azure resources`  |
-        
+
         Click on `Select scenario` and choose `GitHub Actions deploying Azure resources`.
         ![Add creds](./Media/oidc/addcreds.png)
 
@@ -63,7 +63,7 @@ Before you start to configure the workload federation feature in Azure AD and ch
 
     ![Overview](./Media/oidc/spn_addcreds2.png)
 
-### Github Actions
+### GitHub Actions
 >
 > **Note:** The starter GitHub pipelines in [AzOps-Accelerator](https://github.com/azure/azops-accelerator) have been updated to support federated credentials. If you haven't updated the pipelines recently, consider performing an update using the [update](https://github.com/azure/azops/wiki/updates) pipeline.
 
