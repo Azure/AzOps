@@ -7,7 +7,7 @@
 ## Introduction
 
 GitHub Actions support OpenID Connect (OIDC) for secure deployments to Azure, which uses short-lived tokens that are automatically rotated for each deployment.
-In the context of AzOps, this means we can allow the AzOps pipeline SPNs to access Azure Resource Manager and Azure AD with federated credentials, eliminating the need to create/handle secrets in the repository.
+In the context of AzOps, this means we can allow the AzOps pipeline Service Principal/Managed Identity to access Azure Resource Manager and Azure AD with federated credentials, eliminating the need to create/handle secrets.
 
 This wiki explains how this feature can be configured and used in the AzOps GitHub Actions.
 
@@ -15,15 +15,53 @@ This wiki explains how this feature can be configured and used in the AzOps GitH
 
 ## Configure
 
-Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at <https://github.com/azure/azops/wiki/prerequisites> and have your service principal ready with appropriate RBAC permissions.
+Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at <https://github.com/azure/azops/wiki/prerequisites> and have your Service Principal/Managed Identity ready with appropriate RBAC permissions.
 
-### Azure AD
+### Federated credentials
+> **Note:** Depending on if you are using a Service Principal or Managed Identity the wording and visuals might differ, however settings and values are equal.
 
-1. In Azure AD, find your AzOps service principal and navigate to Certificates & Secrets -> Federated credentials.
-    ![Add creds](./Media/oidc/spn_addcreds.jpg)
-2. Add federated credentials to the Service Principal. Replace the values to reflect your organization, repository and environment name. In the accelerator examples, we have used 'prod' as the environment enable.
-    ![Overview](./Media/oidc/spn_addcreds2.jpg)
-    ![Overview](./Media/oidc/spn_added.jpg)
+1. **For Service Principal:** In Azure AD, find your AzOps service principal and navigate to Certificates & Secrets -> Federated credentials, click on `Add credential`.
+![Add creds](./Media/oidc/spn_addcreds.jpg)
+
+    **For Managed Identity:** In Azure Portal, find your AzOps Managed Identity and navigate to Federated credentials, click on `Add Credential`.
+    ![Add creds](./Media/oidc/uami.png)
+
+2. There are three sections requiring input, enter your values in each highlighted field.
+
+    1. **Federated credential scenario:**
+
+        |  Setting  |  Value  |
+        |---|---|
+        |  `Federated credential scenario`  |  select `GitHub Actions deploying Azure resources`  |
+        
+        Click on `Select scenario` and choose `GitHub Actions deploying Azure resources`.
+        ![Add creds](./Media/oidc/addcreds.png)
+
+    2. **Connect your GitHub account:**
+
+        |  Setting  |  Value  |
+        |---|---|
+        |  `Organization`  |  {replace with your organization}  |
+        |  `Repository`  |  {replace with your repository}  |
+        |  `Entity type`  |  select `Environment`  |
+        |  `GitHub environment name`  |  {replace with your environment name}  |
+
+        ![Add creds](./Media/oidc/connect_github_account.png)
+    3. **Credential details:**
+
+        |  Setting  |  Value  |
+        |---|---|
+        |  `Name`  |  {replace with your name}  |
+
+        ![Add creds](./Media/oidc/credential_details.png)
+
+        Click `Add` to complete Federated credentials configuration section.
+
+        ![Overview](./Media/oidc/add.png)
+
+    Overview of the accelerator example, where 'prod' is used as the `environment name`.
+
+    ![Overview](./Media/oidc/spn_addcreds2.png)
 
 ### Github Actions
 >
