@@ -18,7 +18,7 @@ This wiki explains how this feature can be configured and used in the AzOps GitH
 Before you start to configure the workload federation feature in Azure AD and changing the GitHub Actions, ensure that you have followed the instructions at <https://github.com/azure/azops/wiki/prerequisites> and have your Service Principal/User-assigned managed identity ready with appropriate RBAC permissions.
 
 ### Federated credentials
-> **Note:** Depending on if you are using a Service Principal or User-assigned managed identity the wording and visuals might differ, however settings and values are equal.
+> **Note:** Depending on if you are using a Service Principal or User-assigned managed identity the wording and visuals might differ.
 
 1. **For Service Principal:** In Azure AD, find your AzOps service principal and navigate to Certificates & Secrets -> Federated credentials, click on `Add credential`.
 ![Add creds](./Media/oidc/spn_addcreds.jpg)
