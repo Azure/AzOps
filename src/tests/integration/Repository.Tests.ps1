@@ -308,6 +308,8 @@ Describe "Repository" {
         $script:bicepDeploymentName = "AzOps-{0}-{1}" -f $($script:bicepTemplatePath[0].Name.Replace(".bicep", '')), $deploymentLocationId
         $script:bicepResourceGroupName = ((Get-Content -Path ($Script:bicepTemplatePath.FullName[1])) | ConvertFrom-Json).parameters.resourceGroupName.value
 
+        $script:bicepErrorTemplatePath = Get-Item -Path "$($global:testRoot)/templates/biceperror.bicep" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+
         $script:pushmgmttest1idManagementGroupTemplatePath = Get-Item "$($global:testroot)/templates/pushmgmttest1displayname (pushmgmttest1id)" | Copy-Item -Destination $script:testManagementGroupDirectory -Recurse -PassThru -Force
         $script:pushmgmttest1idManagementGroupDeploymentName = "AzOps-{0}-{1}" -f "$($script:pushmgmttest1idManagementGroupTemplatePath[1].Name.Replace(".json", ''))", $deploymentLocationId
         $script:pushmgmttest1idName = ((Get-Content -Path ($script:pushmgmttest1idManagementGroupTemplatePath.FullName[1])) | ConvertFrom-Json).resources.name[0]
@@ -995,6 +997,15 @@ Describe "Repository" {
             )
             $DeleteSetContents = (Get-Content $script:policyAssignmentsDep2File)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
+        }
+        #endregion
+
+        #region Bicep Build Validation
+        It "Build of invalid bicep file should fail" {
+            $changeSet = @(
+                "A`t$($script:bicepErrorTemplatePath.FullName)"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Throw
         }
         #endregion
     }

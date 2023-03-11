@@ -23,8 +23,10 @@
         $transpiledTemplatePath = $BicepTemplatePath -replace '\.bicep', '.json'
         Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate' -StringValues $BicepTemplatePath, $transpiledTemplatePath
         Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $bicepTemplatePath --outfile $transpiledTemplatePath }
-        if(-not (Test-Path $transpiledTemplatePath)){
-            Write-PSFMessage -Level Warning -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.Warning' -StringValues $BicepTemplatePath
+        # Check if bicep build created (ARM) template
+        if (-not (Test-Path $transpiledTemplatePath)) {
+            # If bicep build did not produce file exit with error
+            Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error' -StringValues $BicepTemplatePath
             throw
         }
         # Return transpiled ARM json path
