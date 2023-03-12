@@ -52,6 +52,7 @@
     'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on ResourceType {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
 
     'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error'             = 'Failed to convert Bicep template ({0}) to standard ARM Template JSON' # $BicepTemplatePath
 
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
