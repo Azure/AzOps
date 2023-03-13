@@ -3,7 +3,7 @@ This doc goes through the steps required to migrate from the old container based
 > If you prefer to create a new repository for the new version instead of migrating your existing one, just follow the [getting started guide](https://github.com/azure/azops/wiki/github-actions) and decommission the old repository after the new one is up and running. 
 
 ***
-### 1. Add [settings.json](https://github.com/azure/azops/blob/main/settings.json) file to repository 
+### 1. Add [settings.json](https://github.com/Azure/AzOps-Accelerator/blob/main/settings.json) file to repository 
 This file contains all [configurable settings](https://github.com/azure/azops/wiki/settings) for AzOps. 
 These settings were previously exposed as variables directly in the pipelines - ensure any changes that was previously made directly in the pipeline is reflected in settings.json. 
 
