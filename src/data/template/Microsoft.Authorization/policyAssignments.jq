@@ -16,6 +16,10 @@
             "type": "string",
             "defaultValue": .Location
         },
+        "enforcementMode": {
+            "type": "string",
+            "defaultValue": .Properties.enforcementMode
+        },
         "policyparameters": {
             "type": "object",
             "defaultValue": .Properties.parameters
@@ -36,7 +40,7 @@
             "properties": {
                 "description": .Properties.Description,
                 "displayName":  .Properties.displayName,
-                "enforcementMode": .Properties.enforcementMode,
+                "enforcementMode": "[parameters('enforcementMode')]",
                 "policyDefinitionId": .Properties.policyDefinitionId,
                 "scope": .Properties.scope,
                 "parameters": "[parameters('policyparameters')]"
