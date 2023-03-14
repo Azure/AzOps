@@ -67,6 +67,7 @@ Describe "Repository" {
         try {
             New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
             New-AzManagementGroupDeployment @params
+            New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep"
             # Pause for resource consistency
             Start-Sleep -Seconds 120
         }
@@ -123,6 +124,7 @@ Describe "Repository" {
             $script:policyAssignments = Get-AzPolicyAssignment -Name "TestPolicyAssignment" -Scope "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)"
             $script:policyAssignmentsDep = Get-AzPolicyAssignment -Name "AzOpsDep2 - audit-vm-manageddisks"
             $script:policyAssignmentsDep2 = Get-AzPolicyAssignment -Name "TestPolicyAssignment2" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/Lock2-azopsrg"
+            $script:policyAssignmentsUam = Get-AzPolicyAssignment -Name "TestPolicyAssignmentWithUAM" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/App1-azopsrg"
             $script:policyDefinitions = Get-AzPolicyDefinition -Name 'TestPolicyDefinition' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:policyDefinitionsDep = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:policyDefinitionsDep2 = Get-AzPolicyDefinition -Name 'TestPolicyDefinitionDe2' -ManagementGroupName $($script:testManagementGroup.Name)
@@ -234,6 +236,12 @@ Describe "Repository" {
         $script:policyAssignmentsDep2DeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsDep2Path.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsDep2File)" -FunctionName "BeforeAll"
 
+        $script:policyAssignmentsUamPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsUam.Name).toLower()).json")
+        $script:policyAssignmentsUamDirectory = ($script:policyAssignmentsUamPath).Directory
+        $script:policyAssignmentsUamFile = ($script:policyAssignmentsUamPath).FullName
+        $script:policyAssignmentsUamDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsUamPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsUamFile)" -FunctionName "BeforeAll"
+
         $script:policyDefinitionsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policydefinitions-$(($script:policyDefinitions.Name).toLower()).parameters.json")
         $script:policyDefinitionsDirectory = ($script:policyDefinitionsPath).Directory
         $script:policyDefinitionsFile = ($script:policyDefinitionsPath).FullName
@@ -321,6 +329,7 @@ Describe "Repository" {
         $changeSet = @(
             "A`t$script:testManagementGroupFile",
             "A`t$script:policyAssignmentsFile",
+            "A`t$script:policyAssignmentsUamFile",
             "A`t$script:policyDefinitionsFile",
             "A`t$script:policySetDefinitionsFile",
             "A`t$script:policyExemptionsFile",
@@ -616,6 +625,43 @@ Describe "Repository" {
         It "Policy Assignments deletion should be successful" {
             $policyAssignmentDeletion = Get-AzPolicyAssignment -Id $script:policyAssignments.PolicyAssignmentId -ErrorAction SilentlyContinue
             $policyAssignmentDeletion | Should -Be $Null
+        }
+        #endregion
+
+        #region Scope = Policy Assignments with UAM - Resource Group (./root/tenant root group/test/platform/management/subscription-0/App1-azopsrg)
+        It "Policy Assignments with UAM directory should exist" {
+            Test-Path -Path $script:policyAssignmentsUamDirectory | Should -BeTrue
+        }
+        It "Policy Assignments with UAM file should exist" {
+            Test-Path -Path $script:policyAssignmentsUamFile | Should -BeTrue
+        }
+        It "Policy Assignments with UAM resource type should exist" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Policy Assignments with UAM resource name should exist" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Policy Assignments with UAM resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Policy Assignments with UAM resource properties should exist" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Policy Assignments with UAM resource type should match" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Authorization/policyAssignments"
+        }
+        It "Policy Assignments with UAM scope property should match" {
+            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].identity.userAssignedIdentities | Should -BeTrue
+        }
+        It "Policy Assignments with UAM deployment should be successful" {
+            $script:policyAssignmentUamDeployment = Get-AzResourceGroupDeployment -Name $script:policyAssignmentsUamDeploymentName -ResourceGroupName $script:policyAssignmentsUam.ResourceGroupName
+            $policyAssignmentUamDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
 
