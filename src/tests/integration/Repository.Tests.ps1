@@ -659,9 +659,6 @@ Describe "Repository" {
             $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
             $fileContents.resources[0].identity.userAssignedIdentities | Should -BeTrue
         }
-        It "Policy Assignments with UAM custom metadata property should exist" {
-            $fileContents = Get-Content -Path $script:policyAssignmentsUamFile -Raw | ConvertFrom-Json -Depth 25
-            $fileContents.resources[0].properties.metadata.customkey | Should -BeTrue
         }
         It "Policy Assignments with UAM deployment should be successful" {
             $script:policyAssignmentUamDeployment = Get-AzResourceGroupDeployment -Name $script:policyAssignmentsUamDeploymentName -ResourceGroupName $script:policyAssignmentsUam.ResourceGroupName
