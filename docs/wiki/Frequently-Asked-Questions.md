@@ -8,6 +8,7 @@ This article answers frequently asked questions relating to AzOps.
   - [In this Section](#in-this-section)
   - [Subscriptions or resources not showing up in repository](#subscriptions-or-resources-not-showing-up-in-repository)
   - [Push fail with deployment already exists in location error](#push-fail-with-deployment-already-exists-in-location-error)
+  - [Does AzOps use temporary files](#does-azops-use-temporary-files)
   - [Pull fail with active pull request already exists error](#pull-fail-with-active-pull-request-already-exists-error)
   - [Discovery scenarios and settings](#discovery-scenarios-and-settings)
     - [**I want to discover all resources across all resource groups in one specific subscription**](#i-want-to-discover-all-resources-across-all-resource-groups-in-one-specific-subscription)
@@ -41,6 +42,14 @@ This happens because [it is unsupported in ARM](https://learn.microsoft.com/en-u
 
 To resolve the error, remove the failed deployment(s) from the target scope and re-run the failed Push pipeline. This can be done either under 'Deployments' at the particular scope in the Azure portal  or with [PowerShell](https://learn.microsoft.com/en-us/powershell/module/az.resources/remove-azmanagementgroupdeployment?view=azps-7.1.0)/[Azure CLI](https://learn.microsoft.com/en-us/cli/azure/deployment/mg?view=azure-cli-latest#az-deployment-mg-delete)/[REST](https://learn.microsoft.com/en-us/rest/api/resources/deployments/delete-at-management-group-scope).
 ![Delete Deployments at scope](./Media/FAQ/delete_deployments.png)
+
+## Does AzOps use Temporary Files
+
+Yes, during runtime AzOps identifies the systems temporary directory `[System.IO.Path]::GetTempPath()`.
+
+AzOps utilizes the temporary directory for storing temporary information either used at processing time by AzOps (e.g. export and conversion of child resources) or information that is intended to be picked up by pipeline after AzOps module execution (e.g. `OUTPUT.md / OUTPUT.json`).
+
+>Due to the different usage patterns of temporary files they are either created and deleted during module invocation or created and left for further processing at a later stage. As a part of AzOps invocation the initialize procedure looks for lingering temporary files (e.g. `OUTPUT.md / OUTPUT.json`) and removes them to ensure a clean execution.
 
 ## Pull fail with active pull request already exists error
 
