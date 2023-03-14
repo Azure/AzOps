@@ -308,7 +308,7 @@ foreach($groupName in 'credentials','azops') {
 
 ## Configuration, clean up and triggering the pipelines
 
-- Configuration values can be modified within the `settings.json` file to change the default behavior of AzOps. The settings are documented in [Settings chapter](./Settings.md)
+- Configuration values can be modified within the `settings.json` file to change the default behavior of AzOps. The settings are documented in [Settings chapter](https://github.com/azure/azops/wiki/settings)
 
 - Optionally, add the variable `AZOPS_MODULE_VERSION` to the `Variable group` `azops` to pin the version of the AzOps module to be used
 
