@@ -9,42 +9,42 @@
     "parameters": {
         "scope": {
             "type": "string",
-            "defaultValue": .Properties.scope
+            "defaultValue": .properties.scope
         },
         "location": {
             "type": "string",
-            "defaultValue": .Location
+            "defaultValue": .location
         },
         "enforcementMode": {
             "type": "string",
-            "defaultValue": .Properties.enforcementMode
+            "defaultValue": .properties.enforcementMode
         },
         "policyparameters": {
             "type": "object",
-            "defaultValue": .Properties.parameters
+            "defaultValue": .properties.parameters
         },
         "identity": {
             "type": "object",
-            "defaultValue": (if (.Identity.Type == "SystemAssigned" ) then {type: "SystemAssigned",PrincipalId:.Identity.PrincipalId,TenantId:.Identity.TenantId} else {type: "UserAssigned", UserAssignedIdentities : { (.Identity.UserAssignedIdentities | to_entries[] | .key) : {} } } end)
+            "defaultValue": ( if (.identity.type == "UserAssigned") then { type: "UserAssigned", userAssignedIdentities : { (.identity.userAssignedIdentities | to_entries[] | .key) : {} } } else { type:"SystemAssigned" , PrincipalId:.identity.principalId, TenantId:.identity.tenantId } end)
         }
     },
     "variables": {},
     "resources": [
         {
             "type": .Type,
-            "name": .Name,
+            "name": .name,
             "apiVersion": "2022-06-01",
             "location": "[parameters('location')]",
             "identity": "[parameters('identity')]",
             "properties": {
-                "description": .Properties.Description,
-                "displayName":  .Properties.displayName,
+                "description": .properties.description,
+                "displayName":  .properties.displayName,
                 "enforcementMode": "[parameters('enforcementMode')]",
-                "policyDefinitionId": .Properties.policyDefinitionId,
-                "scope": .Properties.scope,
+                "policyDefinitionId": .properties.policyDefinitionId,
+                "scope": "[parameters('scope')]",
                 "parameters": "[parameters('policyparameters')]"
             }
         }
     ],
     "outputs": {}
-} | del(.ResourceId, .resourceGroup, .subscriptionId, .properties.metadata.createdOn, .properties.metadata.updatedOn, .properties.metadata.createdBy, .properties.metadata.createdBy, .properties.metadata.updatedBy, .properties.metadata.assignedBy )
+}
