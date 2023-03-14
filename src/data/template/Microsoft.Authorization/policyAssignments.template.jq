@@ -25,7 +25,7 @@
         },
         "identity": {
             "type": "object",
-            "defaultValue": ( if (.identity.type == "UserAssigned") then { type: "UserAssigned", userAssignedIdentities : { (.identity.userAssignedIdentities | to_entries[] | .key) : {} } } else { type:"SystemAssigned" , PrincipalId:.identity.principalId, TenantId:.identity.tenantId } end)
+            "defaultValue": ( if (.identity.type == "UserAssigned") then { type: .identity.type, userAssignedIdentities : { (.identity.userAssignedIdentities | to_entries[] | .key) : {} } } else { type: .identity.type , principalId:.identity.principalId, tenantId:.identity.tenantId } end)
         }
     },
     "variables": {},
@@ -35,7 +35,7 @@
             "name": .name,
             "apiVersion": "2022-06-01",
             "location": "[parameters('location')]",
-            "identity": "[parameters('identity')]",
+            "identity": "[if(empty(parameters('identity').type), null(), parameters('identity'))]",
             "properties": {
                 "description": .properties.description,
                 "displayName":  .properties.displayName,
