@@ -52,7 +52,7 @@ jobs:
     # - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
     #   uses: azure/login@v1
     #   with:
-    #     client-id: ${{ env.ARM_CLIENT_ID}}
+    #     client-id: ${{ env.ARM_CLIENT_ID }}
     #     tenant-id: ${{ env.ARM_TENANT_ID }}
     #     subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
     #     enable-AzPSSession: true
@@ -87,6 +87,61 @@ jobs:
         shell: pwsh
         run: |
           ./src/tests/Pester.ps1 -TestIntegration $true
+
+      # Run Cleanup Environment
+      - name: "Run Environment Cleanup"
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -CleanupEnvironment $true
+  testsubonly:
+    if: ${{ always() }}
+    needs: tests
+    name: "Tests - Subscription Only"
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID_SUB }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET_SUB }}
+
+    steps:
+
+      # Checkout
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          fetch-depth: 0
+
+      # Dependencies
+      - name: "Dependencies"
+        shell: pwsh
+        run: |
+          ./scripts/Dependencies.ps1
+
+      # Connect to Azure - TEMPORARY until 2.7.0 credential expiration issue is fixed
+      - name: "Connect"
+        shell: pwsh
+        run: |
+          $credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+          Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+
+    # # Authenticate Azure context
+    # - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ env.ARM_CLIENT_ID_SUB }}
+    #     tenant-id: ${{ env.ARM_TENANT_ID }}
+    #     subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+    #     enable-AzPSSession: true
+
+      # Run Subscription Only Tests
+      - name: "Run Subscription Only Tests"
+        shell: pwsh
+        run: |
+          ./src/tests/Pester.ps1 -TestSubscriptionOnly $true
 
       # Run Cleanup Environment
       - name: "Run Environment Cleanup"

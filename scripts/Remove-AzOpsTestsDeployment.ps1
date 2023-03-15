@@ -58,14 +58,24 @@
             try {
                 Write-PSFMessage -Level Verbose -Message "Executing test cleanup" -FunctionName "Remove-AzOpsTestsDeployment"
                 # Cleanup managementGroups
-                $script:managementGroups = Get-AzManagementGroup | Where-Object {$_.DisplayName -eq "Test" -or $_.DisplayName -eq "AzOpsMGMTName"}
+                $script:managementGroups = Get-AzManagementGroup -ErrorAction SilentlyContinue | Where-Object {$_.DisplayName -eq "Test" -or $_.DisplayName -eq "AzOpsMGMTName"} -ErrorAction SilentlyContinue
                 foreach ($script:mgclean in $script:managementGroups) {
                     Remove-ManagementGroups -DisplayName $script:mgclean.DisplayName -Name $script:mgclean.Name -RootName (Get-AzTenant).TenantId
                 }
                 # Collect resources to cleanup
                 Get-AzResourceLock | Remove-AzResourceLock -Force
                 $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -like "*-azopsrg"}
-                $script:roleAssignments = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
+                $script:roleAssignmentsCleanBase = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
+                $script:roleAssignments = foreach ($roleAssignment in $script:roleAssignmentsCleanBase) {
+                    if ($roleAssignment.Scope -ne "/subscriptions/$((Get-AzContext).Subscription)") {
+                        $roleAssignment
+                    }
+                    else {
+                        if ($roleAssignment.RoleDefinitionName -ne 'Owner') {
+                            $roleAssignment
+                        }
+                    }
+                }
                 $script:policyAssignments = Get-AzPolicyAssignment
                 $script:policyDefinitions = Get-AzPolicyDefinition -Custom
                 $script:policySetDefinitions = Get-AzPolicySetDefinition -Custom
@@ -82,12 +92,12 @@
                 $script:policyDefinitions | Remove-AzPolicyDefinition -Force -Confirm:$false -ErrorAction SilentlyContinue
                 $script:policySetDefinitions | Remove-AzPolicySetDefinition -Force -Confirm:$false -ErrorAction SilentlyContinue
                 # Collect and cleanup deployment jobs
-                $azTenantDeploymentJobs = Get-AzTenantDeployment
+                $azTenantDeploymentJobs = Get-AzTenantDeployment -ErrorAction SilentlyContinue
                 $azTenantDeploymentJobs | ForEach-Object -ThrottleLimit 10 -Parallel {
                     Write-PSFMessage -Level Verbose -Message "Executing test AzDeployment cleanup thread of $($_.DeploymentName)" -FunctionName "Remove-AzOpsTestsDeployment"
                     $_ | Remove-AzTenantDeployment -Confirm:$false
                 }
-                Get-AzManagementGroupDeployment -ManagementGroupId "cd35e23c-537f-4553-a280-f5a60033a446" | Remove-AzManagementGroupDeployment -Confirm:$false
+                Get-AzManagementGroupDeployment -ManagementGroupId "cd35e23c-537f-4553-a280-f5a60033a446" -ErrorAction SilentlyContinue | Remove-AzManagementGroupDeployment -Confirm:$false -ErrorAction SilentlyContinue
                 $azDeploymentJobs = Get-AzDeployment
                 $azDeploymentJobs | ForEach-Object -ThrottleLimit 10 -Parallel {
                     Write-PSFMessage -Level Verbose -Message "Executing test AzDeployment cleanup thread of $($_.DeploymentName)" -FunctionName "Remove-AzOpsTestsDeployment"

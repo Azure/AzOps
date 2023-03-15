@@ -7,6 +7,8 @@
 
     $TestIntegration = $false,
 
+    $TestSubscriptionOnly = $false,
+
     [ValidateSet('None', 'Normal', 'Detailed', 'Diagnostic')]
     $Output = "None",
 
@@ -176,6 +178,35 @@ if ($TestIntegration) {
     }
 }
 #endregion Run Integration Tests
+
+#region Run Subscription Only Tests
+if ($TestSubscriptionOnly) {
+    Write-PSFMessage -Level Important -Message "Proceeding with subscription only tests"
+    foreach ($file in (Get-ChildItem "$PSScriptRoot\subscriptiononly" | Where-Object Name -like "*.Tests.ps1")) {
+        if ($file.Name -notlike $Include) { continue }
+        if ($Exclude -contains $file.Name) { continue }
+
+        Write-PSFMessage -Level Significant -Message "Executing <c='em'>$($file.Name)</c>"
+        $config.TestResult.OutputPath = Join-Path "$PSScriptRoot\..\..\results" "$($file.BaseName).xml"
+        $config.Run.Path = $file.FullName
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = $Output
+        $results = Invoke-Pester -Configuration $config
+        foreach ($result in $results) {
+            $totalRun += $result.TotalCount
+            $totalFailed += $result.FailedCount
+            $result.Tests | Where-Object Result -ne 'Passed' | ForEach-Object {
+                $testresults += [PSCustomObject]@{
+                    Block   = $_.Block
+                    Name    = "It $($_.Name)"
+                    Result  = $_.Result
+                    Message = $_.ErrorRecord.DisplayErrorMessage
+                }
+            }
+        }
+    }
+}
+#endregion Run Subscription Only Tests
 
 $testresults | Sort-Object Describe, Context, Name, Result, Message | Format-List
 
