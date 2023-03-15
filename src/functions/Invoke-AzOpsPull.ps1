@@ -169,6 +169,7 @@
         else {
             # If no management groups are found, iterate through each subscription
             foreach ($subscription in $script:AzOpsSubscriptions) {
+                ConvertTo-AzOpsState -Resource (Get-AzSubscription -SubscriptionId $subscription.subscriptionId) -StatePath $StatePath
                 Get-AzOpsResourceDefinition -Scope $subscription.id @parameters
             }
         }

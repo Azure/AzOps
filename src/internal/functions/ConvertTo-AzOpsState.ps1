@@ -135,6 +135,9 @@
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] } {
                 Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -StringValues "$($_.GetType())" -FunctionName 'ConvertTo-AzOpsState'
                 $resourceType = 'Microsoft.Subscription/subscriptions'
+                if (-not $Resource.Type) {
+                    $Resource | Add-Member -NotePropertyName Type -NotePropertyValue $resourceType
+                }
                 break
             }
             # Resource Groups
