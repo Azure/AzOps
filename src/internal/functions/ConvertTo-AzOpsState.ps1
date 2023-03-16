@@ -219,21 +219,26 @@
                     #endregion
 
                     #region Replace Resource Type and API Version
-                    if (
-                        ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
+                    if ($object.resources[0].apiVersion -ne "0000-00-00")
+                    {
+                        if(($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
                         (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName })
-                    ) {
-                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions[0]
-                        Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
+                         ) {
+                            $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions[0]
+                            Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
 
-                        $object.resources[0].apiVersion = $apiVersions
-                        $object.resources[0].type = $resourceType
+                            $object.resources[0].apiVersion = $apiVersions
+                            $object.resources[0].type = $resourceType
+                        }
+                        else {
+                            Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
+                        }
+                        #endregion
                     }
                     else {
-                        Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
+                        #No need to retrive the API version dynamically
+                        Write-PSFMessage -Level Warning -String 'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersionRequired' -StringValues $resourceType -FunctionName 'ConvertTo-AzOpsState'
                     }
-                    #endregion
-
                     #region Append Name for child resource
                     # [Patch] Temporary until mangementGroup() is fully implemented
                     if ($resourceType -eq "Microsoft.Management/managementGroups/subscriptions") {

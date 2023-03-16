@@ -7,9 +7,9 @@
     }
   },
   "parameters": {
-    "virtualNetwork": {
-       "type": "object",
-       "defaultValue": .properties.virtualNetwork
+    "ipConfigurations": {
+        "type": "array",
+        "defaultValue": .properties.ipConfigurations
     },
     "resourceId": {
        "type": "string",
@@ -21,13 +21,12 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/privateDnsZones/virtualnetworklinks",
+      "type": "Microsoft.Network/dnsResolvers/inboundendpoints",
       "name": "[variables('name')]",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2022-07-01",
       "location": .location,
       "properties": {
-        "registrationEnabled": false,
-        "virtualNetwork": "[parameters('virtualNetwork')]"
+        "ipConfigurations": "[parameters('ipConfigurations')]"
       }
     }
   ],

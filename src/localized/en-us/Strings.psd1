@@ -68,6 +68,7 @@
     'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName'                     = 'Resource api type: {0}' # $resourceApiTypeName
     'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion'                              = 'Determined api version: {1} for resource type name: {0}' # $resourceType, $apiVersions
     'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion'                            = 'Unable to determine api version from resource type name: {0}' # $resourceTypeName
+    'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersionRequired'                    = 'Template already contains api version from resource type name: {0}' # $resourceTypeName
     'ConvertTo-AzOpsState.GenerateTemplate.ChildResource'                           = 'Appending child resource name: {0}' # $resourceName
     'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type: {0}' # $($_.GetType())
     'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject'                             = 'Determined object type based on PowerShell class {0}' # $($_.GetType())
