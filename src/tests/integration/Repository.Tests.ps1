@@ -178,7 +178,7 @@ Describe "Repository" {
         }
         #endregion GeneratedRoot Pull
 
-        # The following values are discovering the file system paths so that they can be validate against ensuring that the data model behaves as intended.
+        # The following values are discovering the file system paths, ensuring that the model behaves as intended.
 
         #region Paths
         Write-PSFMessage -Level Debug -Message "GeneratedRootPath: $generatedRoot" -FunctionName "BeforeAll"
