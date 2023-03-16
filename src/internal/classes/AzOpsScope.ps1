@@ -283,14 +283,7 @@
             $this.ResourceGroup = $this.GetResourceGroup()
             $this.ResourceProvider = $this.IsResourceProvider()
             $this.Resource = $this.GetResource()
-            if ( (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix') -notcontains 'parameters.json' -and
-                ("$($this.ResourceProvider)/$($this.Resource)" -in 'Microsoft.Authorization/policyDefinitions', 'Microsoft.Authorization/policySetDefinitions')
-            ) {
-                $this.StatePath = ($this.GetAzOpsResourcePath() + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
-            }
-            else {
-                $this.StatePath = ($this.GetAzOpsResourcePath() + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
-            }
+            $this.StatePath = ($this.GetAzOpsResourcePath() + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
         }
         elseif ($this.IsResourceGroup()) {
             $this.Type = "resourcegroups"
