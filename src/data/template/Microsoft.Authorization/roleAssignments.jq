@@ -1,1 +1,1 @@
-del(.properties.createdOn, .properties.updatedOn, .properties.createdBy, .properties.createdBy, .properties.updatedBy)
+del(.properties.createdOn, .properties.updatedOn, .properties.createdBy, .properties.updatedBy)
