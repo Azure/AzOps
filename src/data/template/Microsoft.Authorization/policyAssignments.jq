@@ -1,2 +1,2 @@
 if .identity.userAssignedIdentities != null then del(.identity.userAssignedIdentities[].principalId, .identity.userAssignedIdentities[].clientId, .identity.tenantId, .identity.principalId) else . end |
-del(.ResourceId, .resourceGroup, .subscriptionId, .properties.metadata.createdOn, .properties.metadata.updatedOn, .properties.metadata.createdBy, .properties.metadata.createdBy, .properties.metadata.updatedBy, .properties.metadata.assignedBy)
+del(.ResourceId, .resourceGroup, .subscriptionId, .properties.metadata.createdOn, .properties.metadata.updatedOn, .properties.metadata.createdBy, .properties.metadata.updatedBy, .properties.metadata.assignedBy)
