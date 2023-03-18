@@ -34,6 +34,7 @@
             "type": .Type,
             "name": .name,
             "apiVersion": "2022-06-01",
+            "scope": "[parameters('scope')]",
             "location": "[parameters('location')]",
             "identity": "[if(empty(parameters('identity').type), null(), parameters('identity'))]",
             "properties": {
@@ -41,7 +42,6 @@
                 "displayName":  .properties.displayName,
                 "enforcementMode": "[parameters('enforcementMode')]",
                 "policyDefinitionId": .properties.policyDefinitionId,
-                "scope": "[parameters('scope')]",
                 "parameters": "[parameters('policyparameters')]"
             }
         }
