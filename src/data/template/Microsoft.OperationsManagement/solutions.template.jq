@@ -23,6 +23,7 @@
       "name": .name,
       "apiVersion": "2015-11-01-preview",
       "location": .location,
+      "plan": .plan,
       "properties": {
         "containedResources": "[parameters('containedResources')]",
         "workbookTemplates": [],
