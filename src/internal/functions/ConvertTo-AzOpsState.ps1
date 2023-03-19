@@ -69,7 +69,8 @@
         if ($ChildResource) {
             $objectFilePath = (New-AzOpsScope -scope $ChildResource.parentResourceId -ChildResource $ChildResource -StatePath $Statepath).statepath
 
-            $jqJsonTemplate = Join-Path $JqTemplatePath -ChildPath "templateChildResource.jq"
+            $jqJsonTemplate = Get-AzOpsTemplateFile -File "templateChildResource.jq"
+
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template' -StringValues $jqJsonTemplate
             $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
 
@@ -186,11 +187,8 @@
                 Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName' -StringValues $resourceApiTypeName -FunctionName 'ConvertTo-AzOpsState'
             }
 
-            $jqRemoveTemplate = (
-                (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq"))) ?
-                (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq")):
-                (Join-Path $JqTemplatePath -ChildPath "generic.jq")
-            )
+            $jqRemoveTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq") -Fallback "generic.jq"
+
             Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Remove' -StringValues $jqRemoveTemplate -FunctionName 'ConvertTo-AzOpsState'
             # If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
             $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
@@ -202,9 +200,8 @@
                 if ($generateTemplateParameter) {
                     #region Generating Template Parameter
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplateParameter' -FunctionName 'ConvertTo-AzOpsState'
-                    $jqJsonTemplate = (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq"))) ?
-                    (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq")):
-                    (Join-Path $JqTemplatePath -ChildPath "template.parameters.jq")
+
+                    $jqJsonTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq") -Fallback "template.parameters.jq"
 
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
                     $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
@@ -213,9 +210,8 @@
                 else {
                     #region Generating Template
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate' -StringValues "$true"  -FunctionName 'ConvertTo-AzOpsState'
-                    $jqJsonTemplate = (Test-Path (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq"))) ?
-                    (Join-Path $JqTemplatePath -ChildPath (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq")):
-                    (Join-Path $JqTemplatePath -ChildPath "template.jq")
+
+                    $jqJsonTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq") -Fallback "template.jq"
 
                     Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.Jq.Template' -StringValues $jqJsonTemplate -FunctionName 'ConvertTo-AzOpsState'
                     $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
