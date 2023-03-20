@@ -2,9 +2,9 @@
 
     <#
         .SYNOPSIS
-            Takes file name input and returns first match, looks at Core.CustomJqTemplatePath followed by Core.JqTemplatePath.
+            Takes file name input and returns first match, looks at Core.SkipCustomJqTemplate, Core.CustomJqTemplatePath followed by Core.JqTemplatePath.
         .DESCRIPTION
-            Takes file name input and returns first match, looks at Core.CustomJqTemplatePath followed by Core.JqTemplatePath.
+            Takes file name input and returns first match, looks at Core.SkipCustomJqTemplate, Core.CustomJqTemplatePath followed by Core.JqTemplatePath.
         .PARAMETER File
             Filename of template file to look for.
         .PARAMETER Fallback
@@ -29,13 +29,16 @@
         $JqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.JqTemplatePath'),
 
         [string]
-        $CustomJqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.CustomJqTemplatePath')
+        $CustomJqTemplatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.CustomJqTemplatePath'),
+
+        [bool]
+        $SkipCustomJqTemplate = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipCustomJqTemplate')
     )
 
     process {
         Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing' -StringValues $File, $Fallback
         # Evaluate JqTemplate Conditions
-        if ($CustomJqTemplatePath -eq '*') {
+        if ($SkipCustomJqTemplate) {
             # Use default module templates only
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
             $return = (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) ?

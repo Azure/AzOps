@@ -71,17 +71,17 @@
         }
 
         # Validate optional custom path for custom jq template
-        $customJqTemplatePath = (Get-PSFConfig -Module AzOps -Name Core.CustomJqTemplatePath).Value
-        if ($customJqTemplatePath -eq '*') {
-            Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.NotSet' -StringValues $customJqTemplatePath
+        if ((Get-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate).Value) {
+            Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'
         }
         else {
+            $customJqTemplatePath = (Get-PSFConfig -Module AzOps -Name Core.CustomJqTemplatePath).Value
             if (Test-Path -Path $customJqTemplatePath) {
-                Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.Set' -StringValues $customJqTemplatePath
+                Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath' -StringValues $customJqTemplatePath
             }
             else {
                 Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound' -StringValues $customJqTemplatePath
-                Set-PSFConfig -Module AzOps -Name Core.CustomJqTemplatePath -Value "*"
+                Set-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate -Value $true
             }
         }
     }
