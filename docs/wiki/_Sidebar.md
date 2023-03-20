@@ -13,6 +13,7 @@
 ## Documentation
 
 * [Settings](https://github.com/azure/azops/wiki/settings)
+  * [Custom Jq Templates](https://github.com/azure/azops/wiki/custom-jq-templates)
   * [Performance Considerations](https://github.com/azure/azops/wiki/performance-considerations)
 * [Updates](https://github.com/azure/azops/wiki/updates)
 * [Steps](https://github.com/azure/azops/wiki/steps)
