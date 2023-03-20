@@ -132,7 +132,8 @@
     'Get-AzOpsSubscription.Subscriptions.Included'                                  = 'Number of subscriptions included: {0}' # $includedSubscriptions.Count
     'Get-AzOpsSubscription.Subscriptions.PastDue'                                   = 'Number of included subscriptions in the state "PastDue": {0}' # ($includedSubscriptions | Where-Object State -EQ PastDue).Count
 
-    'Get-AzOpsTemplateFile.Processing'                                              = 'Identifying template for file: {0} with fallback: {1}' # $File, $Fallback
+    'Get-AzOpsTemplateFile.Processing'                                              = 'Identifying template for file: {0}' # $File
+    'Get-AzOpsTemplateFile.Processing.Fallback'                                     = 'Identifying template for file: {0} with fallback: {1}' # $File, $Fallback
     'Get-AzOpsTemplateFile.Processing.Path'                                         = 'Identifying template for file: {0} at {1}' # $File, $JqTemplatePath/$CustomJqTemplatePath
     'Get-AzOpsTemplateFile.Processing.Found'                                        = 'Identified template: {0}' # $return
     'Get-AzOpsTemplateFile.Processing.NotFound'                                     = 'No template identified for: {0}' # $return

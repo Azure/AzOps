@@ -36,27 +36,54 @@
     )
 
     process {
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing' -StringValues $File, $Fallback
+        Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing' -StringValues $File
         # Evaluate JqTemplate Conditions
         if ($SkipCustomJqTemplate) {
             # Use default module templates only
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
-            $return = (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) ?
-            (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
-            (Get-Item (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
+            if ($Fallback) {
+                # Process with Fallback
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Fallback' -StringValues $File, $Fallback
+                $return = (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) ?
+                (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
+                (Get-Item (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
+            }
+            else {
+                # Process without Fallback
+                if (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) {
+                    $return = (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue)
+                }
+            }
         }
         else {
             # Use custom templates
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $CustomJqTemplatePath
-            $return = (Test-Path (Join-Path $CustomJqTemplatePath -ChildPath $File)) ?
-            (Get-Item (Join-Path $CustomJqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
-            (Get-Item (Join-Path $CustomJqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
-            if (-not $return) {
-                # Use default templates since no custom templates was found
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
-                $return = (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) ?
-                (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
-                (Get-Item (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
+            if ($Fallback) {
+                # Process with Fallback
+                Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Fallback' -StringValues $File, $Fallback
+                $return = (Test-Path (Join-Path $CustomJqTemplatePath -ChildPath $File)) ?
+                (Get-Item (Join-Path $CustomJqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
+                (Get-Item (Join-Path $CustomJqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
+                if (-not $return) {
+                    # Use default templates since no custom templates was found
+                    Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
+                    $return = (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) ?
+                    (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
+                    (Get-Item (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
+                }
+            }
+            else {
+                # Process without Fallback
+                if (Test-Path (Join-Path $CustomJqTemplatePath -ChildPath $File)) {
+                    $return = (Get-Item (Join-Path $CustomJqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue)
+                }
+                if (-not $return) {
+                    # Use default templates since no custom templates was found
+                    Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
+                    if (Test-Path (Join-Path $JqTemplatePath -ChildPath $File)) {
+                        $return = (Get-Item (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue)
+                    }
+                }
             }
         }
         if ($return) {
