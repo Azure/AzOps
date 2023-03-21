@@ -88,8 +88,9 @@
         }
         if ($return) {
             # Template file found
+            $return = ($return | Select-Object -First 1).VersionInfo.FileName
             Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Found' -StringValues $return
-            return ($return | Select-Object -First 1).VersionInfo.FileName
+            return $return
         }
         else {
             # No template file found, throw
