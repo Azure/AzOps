@@ -94,7 +94,6 @@ jobs:
         run: |
           ./src/tests/Pester.ps1 -CleanupEnvironment $true
   testsubonly:
-    if: ${{ always() }}
     needs: tests
     name: "Tests - Subscription Only"
     runs-on: ubuntu-latest

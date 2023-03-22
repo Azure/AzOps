@@ -13,15 +13,15 @@
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { $true } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
-                Mock 'Test-Path' -ModuleName AzOps { $true }
+                Mock 'Test-Path' -ModuleName AzOps { $true } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" -and $PathType -eq "Leaf" }
                 Mock 'Get-Item' -ModuleName AzOps {
                     $object = [PSCustomObject]@{
                         VersionInfo = [PSCustomObject]@{
-                            FileName = "$JqTemplatePath/$template"
+                            FileName = "$jqTemplatePath/$template"
                         }
                     }
                     return $object
-                }
+                } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" }
                 $returntemplate = Get-AzOpsTemplateFile -File $template
                 $returntemplate | Should -Be "$jqTemplatePath/$template"
             }
@@ -50,7 +50,7 @@
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { $true } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
-                Mock 'Test-Path' -ModuleName AzOps { $true }
+                Mock 'Test-Path' -ModuleName AzOps { $true } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" -and $PathType -eq "Leaf" }
                 Mock 'Get-Item' -ModuleName AzOps {
                     $object = [PSCustomObject]@{
                         VersionInfo = [PSCustomObject]@{
@@ -58,7 +58,7 @@
                         }
                     }
                     return $object
-                }
+                } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" }
                 $returntemplate = Get-AzOpsTemplateFile -File $template -Fallback $fallbacktemplate
                 $returntemplate | Should -Be "$jqTemplatePath/$template"
             }
@@ -73,7 +73,8 @@
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { $true } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
-                Mock 'Test-Path' -ModuleName AzOps { $true }
+                Mock 'Test-Path' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Get-Item' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" }
                 Mock 'Get-Item' -ModuleName AzOps {
                     $object = [PSCustomObject]@{
                         VersionInfo = [PSCustomObject]@{
@@ -81,7 +82,7 @@
                         }
                     }
                     return $object
-                }
+                } -ParameterFilter { $Path -eq "$jqTemplatePath/$fallbacktemplate" }
                 $returntemplate = Get-AzOpsTemplateFile -File $template -Fallback $fallbacktemplate
                 $returntemplate | Should -Be "$jqTemplatePath/$fallbacktemplate"
             }
@@ -105,9 +106,32 @@
                         }
                     }
                     return $object
-                }
+                } -ParameterFilter { $Path -eq "$customJqTemplatePath/$template" }
                 $returntemplate = Get-AzOpsTemplateFile -File $template
                 $returntemplate | Should -Be "$customJqTemplatePath/$template"
+            }
+        }
+
+        It 'Return built-in template, no custom file matching' {
+            InModuleScope AzOps {
+                $jqTemplatePath = "AzOps/src/data/template"
+                $customJqTemplatePath = "AzOps/.customtemplates"
+                $template = "templateChildResource.jq"
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { $false } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
+                Mock 'Test-Path' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$customJqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Test-Path' -ModuleName AzOps { $true } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Get-Item' -ModuleName AzOps {
+                    $object = [PSCustomObject]@{
+                        VersionInfo = [PSCustomObject]@{
+                            FileName = "$jqTemplatePath/$template"
+                        }
+                    }
+                    return $object
+                } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" }
+                $returntemplate = Get-AzOpsTemplateFile -File $template
+                $returntemplate | Should -Be "$jqTemplatePath/$template"
             }
         }
     }
@@ -136,6 +160,32 @@
             }
         }
 
+        It 'Return built-in template, no custom file matching' {
+            InModuleScope AzOps {
+                $jqTemplatePath = "AzOps/src/data/template"
+                $customJqTemplatePath = "AzOps/.customtemplates"
+                $template = "templateChildResource.jq"
+                $fallbacktemplate = "generic.jq"
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { $false } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
+                Mock 'Test-Path' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$customJqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Test-Path' -ModuleName AzOps { $true } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Get-Item' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$customJqTemplatePath/$template" }
+                Mock 'Get-Item' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$customJqTemplatePath/$fallbacktemplate" }
+                Mock 'Get-Item' -ModuleName AzOps {
+                    $object = [PSCustomObject]@{
+                        VersionInfo = [PSCustomObject]@{
+                            FileName = "$jqTemplatePath/$template"
+                        }
+                    }
+                    return $object
+                } -ParameterFilter { $Path -eq "$jqTemplatePath/$template" }
+                $returntemplate = Get-AzOpsTemplateFile -File $template -Fallback $fallbacktemplate
+                $returntemplate | Should -Be "$jqTemplatePath/$template"
+            }
+        }
+
         It 'Return custom fallback template' {
             InModuleScope AzOps {
                 $jqTemplatePath = "AzOps/src/data/template"
@@ -144,8 +194,16 @@
                 $fallbacktemplate = "generic.jq"
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $jqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.JqTemplatePath" }
                 Mock 'Get-PSFConfigValue' -ModuleName AzOps { return $customJqTemplatePath } -ParameterFilter { $FullName -eq "AzOps.Core.CustomJqTemplatePath" }
-                Mock 'Get-PSFConfigValue' -ModuleName AzOps { $true } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
-                Mock 'Test-Path' -ModuleName AzOps { $true }
+                Mock 'Get-PSFConfigValue' -ModuleName AzOps { $false } -ParameterFilter { $FullName -eq "AzOps.Core.SkipCustomJqTemplate" }
+                Mock 'Test-Path' -ModuleName AzOps { $false } -ParameterFilter { $Path -eq "$customJqTemplatePath/$template" -and $PathType -eq "Leaf" }
+                Mock 'Get-Item' -ModuleName AzOps {
+                    $object = [PSCustomObject]@{
+                        VersionInfo = [PSCustomObject]@{
+                            FileName = "$customJqTemplatePath/$jqTemplatePath"
+                        }
+                    }
+                    return $object
+                } -ParameterFilter { $Path -eq "$customJqTemplatePath/$jqTemplatePath" }
                 Mock 'Get-Item' -ModuleName AzOps {
                     $object = [PSCustomObject]@{
                         VersionInfo = [PSCustomObject]@{
@@ -153,7 +211,7 @@
                         }
                     }
                     return $object
-                }
+                } -ParameterFilter { $Path -eq "$customJqTemplatePath/$fallbacktemplate" }
                 $returntemplate = Get-AzOpsTemplateFile -File $template -Fallback $fallbacktemplate
                 $returntemplate | Should -Be "$customJqTemplatePath/$fallbacktemplate"
             }
