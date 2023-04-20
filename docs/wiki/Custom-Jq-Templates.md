@@ -2,7 +2,7 @@
 
 - [Introduction](#introduction)
 - [Logic](#logic)
-  - [Template Folder and File Name](#template-folder-and-file-name)
+  - [Template Folder and filename](#template-folder-and-filename)
 
 ---
 
@@ -20,7 +20,7 @@ What happens? when the following is set: `"Core.SkipCustomJqTemplate": true` and
 
 For retrieved resources, AzOps will look for a matching template file in the custom location. If no match is found AzOps falls back to [built-in templates](https://github.com/Azure/AzOps/tree/main/src/data/template).
 
-### Template Folder and File Name
+### Template Folder and filename
 
 AzOps performs transformation of pulled information in three high level steps.
 
