@@ -132,6 +132,12 @@
     'Get-AzOpsSubscription.Subscriptions.Included'                                  = 'Number of subscriptions included: {0}' # $includedSubscriptions.Count
     'Get-AzOpsSubscription.Subscriptions.PastDue'                                   = 'Number of included subscriptions in the state "PastDue": {0}' # ($includedSubscriptions | Where-Object State -EQ PastDue).Count
 
+    'Get-AzOpsTemplateFile.Processing'                                              = 'Identifying template for file: {0}' # $File
+    'Get-AzOpsTemplateFile.Processing.Fallback'                                     = 'Identifying template for file: {0} with fallback: {1}' # $File, $Fallback
+    'Get-AzOpsTemplateFile.Processing.Path'                                         = 'Identifying template for file: {0} at {1}' # $File, $JqTemplatePath/$CustomJqTemplatePath
+    'Get-AzOpsTemplateFile.Processing.Found'                                        = 'Identified template: {0}' # $return
+    'Get-AzOpsTemplateFile.Processing.NotFound'                                     = 'No template identified for: {0}' # $return
+
     'Initialize-AzOpsEnvironment.AzureContext.No'                                   = 'No context available in Az PowerShell. Please use Connect-AzAccount and connect before using the command' #
     'Initialize-AzOpsEnvironment.AzureContext.TooMany'                              = 'Unsupported number of tenants in context: {0} TenantIDs TenantIDs: {1} Please reconnect with Connect-AzAccount using an account/service principal that only have access to one tenant' # $azContextTenants.Count, ($azContextTenants -join ',')
     'Initialize-AzOpsEnvironment.Initializing'                                      = 'Starting AzOps environment initialization' #
@@ -143,6 +149,9 @@
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores
+    'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'                         = 'AzOps.Core.SkipCustomJqTemplate is true, using module defaults' #
+    'Initialize-AzOpsEnvironment.CustomJqTemplatePath'                              = 'AzOps.Core.CustomJqTemplatePath {0}' # $customJqTemplatePath
+    'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound'                 = 'The path specified in AzOps.Core.CustomJqTemplatePath {0} was not found, reverting to module defaults' # $customJqTemplatePath
     'Initialize-AzOpsEnvironment.UsingCache'                                        = 'Using cached values for AzOpsAzManagementGroup and AzOpsSubscriptions' #
 
     'Invoke-AzOpsPull.Deleting.State'                                               = 'Removing state in {0}' # $StatePath

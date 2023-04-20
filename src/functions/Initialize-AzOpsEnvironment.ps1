@@ -69,6 +69,21 @@
             Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -StringValues $throttleLimit, $cpuCores
             Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5
         }
+
+        # Validate optional custom path for custom jq template
+        if ((Get-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate).Value) {
+            Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'
+        }
+        else {
+            $customJqTemplatePath = (Get-PSFConfig -Module AzOps -Name Core.CustomJqTemplatePath).Value
+            if (Test-Path -Path $customJqTemplatePath) {
+                Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath' -StringValues $customJqTemplatePath
+            }
+            else {
+                Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound' -StringValues $customJqTemplatePath
+                Set-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate -Value $true
+            }
+        }
     }
 
     process {
