@@ -215,15 +215,28 @@
         }
         if ($DeleteSetContents -and $deleteSet) {
             Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete'
-            $DeleteSetContents = $DeleteSetContents -join "" -split "-- " | Where-Object { $_ }
+            # Unique delimiter used to join, split and replace data in DeleteSetContents
+            $delimiter = "<azops$(Get-Random -Minimum 100 -Maximum 1000)separatorvalue>"
+            # Transform $DeleteSetContents for further processing
+            $DeleteSetContents = $DeleteSetContents -join $delimiter -split "$delimiter-- " -replace $delimiter,""
+            # Process each $deleteSet $item
             foreach ($item in $deleteSet) {
                 Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
+                # Process each $deleteSet and compare it to each $DeleteSetContents
                 foreach ($content in $DeleteSetContents) {
                     if ($content.Contains($item)) {
-                        $jsonValue = $content.replace($item, "")
+                        # Transform original first line in content with missing delimiter
+                        if ($content.StartsWith("-- ")) {
+                            $jsonValue = $content.replace("-- $item", "")
+                        }
+                        # Transform remaining content
+                        else {
+                            $jsonValue = $content.replace($item, "")
+                        }
                         if (-not(Test-Path -Path (Split-Path -Path $item))) {
                             New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
                         }
+                        # Update item
                         Set-Content -Path $item -Value $jsonValue
                     }
                 }
