@@ -216,7 +216,7 @@
         if ($DeleteSetContents -and $deleteSet) {
             Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete'
             # Unique delimiter used to join, split and replace data in DeleteSetContents
-            $delimiter = "<azops$(Get-Random -Minimum 100 -Maximum 1000)separatorvalue>"
+            $delimiter = (New-Guid).Guid
             # Transform $DeleteSetContents for further processing
             $DeleteSetContents = $DeleteSetContents -join $delimiter -split "$delimiter-- " -replace $delimiter,""
             # Process each $deleteSet $item
