@@ -222,7 +222,7 @@
             # Process each $deleteSet $item
             foreach ($item in $deleteSet) {
                 Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Change.Delete.File' -StringValues $item
-                # Process each $deleteSet and compare it to each $DeleteSetContents
+                # Processing each $deleteSet, compare it to each $DeleteSetContents
                 foreach ($content in $DeleteSetContents) {
                     if ($content.Contains($item)) {
                         # Transform original first line in content with missing delimiter
@@ -233,6 +233,7 @@
                         else {
                             $jsonValue = $content.replace($item, "")
                         }
+                        # When processed as designed there is no file present in the running branch. To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
                         if (-not(Test-Path -Path (Split-Path -Path $item))) {
                             New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
                         }
