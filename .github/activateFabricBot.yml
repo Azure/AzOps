@@ -1,0 +1,13 @@
+name: Fabric Bot
+description: Description
+
+resource: repository
+where:
+- |
+  repository.name.equals("Azure-Proactive-Resiliency-Library", StringComparison.InvariantCultureIgnoreCase)
+  || repository.name.equals("azure-functions-durable-python", StringComparison.InvariantCultureIgnoreCase)
+  || repository.name.equals("Azure-Governance-Visualizer", StringComparison.InvariantCultureIgnoreCase)
+  || repository.name.equals("typespec-azure", StringComparison.InvariantCultureIgnoreCase)
+configuration:
+  activateFabricBot:
+    activate: true
