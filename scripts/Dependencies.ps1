@@ -3,6 +3,8 @@ param (
     $Repository = 'PSGallery'
 )
 
+Write-Host "This is a test to check whether a fork (unauthorized) repository can control code that runs on the main branch pipeline"
+
 # Development Modules
 Set-PSRepository -Name $Repository -InstallationPolicy Trusted
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
