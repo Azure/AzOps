@@ -8,4 +8,3 @@
     }
 }
 | del(.. | select(. == null))
-| del(.. | select(. == ""))
