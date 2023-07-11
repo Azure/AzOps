@@ -66,6 +66,7 @@ $SubscriptionId = '<Value>'
 $ARM_CLIENT_ID = '<Value>'
 $ARM_CLIENT_SECRET = '<Value>'
 
+
 $OrgParams = @{
     Organization = $Organization
     Project      = $ProjectName
@@ -80,17 +81,7 @@ Connect-ADOPS -Organization $Organization
 # Create a new project and wait for it to be created
 $Project = Get-ADOPSProject @OrgParams
 if ($null -eq $Project) {
-    $Request = New-ADOPSProject -Name $ProjectName -Organization $Organization -Visibility Private
-    $Count = 0
-    do {
-        Start-Sleep -Seconds 1
-        $Count++
-        $Result = Invoke-ADOPSRestMethod -Uri $Request.Url
-        if ($Count -gt 30) {
-            throw "Project creation timed out"
-        }
-    } while ($Result.status -ne 'succeeded')
-    $Project = Get-ADOPSProject @OrgParams
+    $Project = New-ADOPSProject -Name $ProjectName -Organization $Organization -Visibility Private -Wait
 }
 
 # Create a new repository from the AzOps Accelerator template repository
@@ -102,16 +93,7 @@ catch {
 }
 
 # Import the AzOps Accelerator template repository and wait for the import to complete
-$ImportRequest = Import-ADOPSRepository @OrgParams -RepositoryName $RepoName -GitSource 'https://github.com/Azure/AzOps-Accelerator.git'
-$Count = 0
-do {
-    Start-Sleep -Seconds 1
-    $Count++
-    $Result = Invoke-ADOPSRestMethod -Uri $ImportRequest.Url
-    if ($Count -gt 30) {
-        throw "Repository import task timed out"
-    }
-} while ($Result.status -ne 'completed')
+$null = Import-ADOPSRepository @OrgParams -RepositoryName $RepoName -GitSource 'https://github.com/Azure/AzOps-Accelerator.git' -Wait
 $null = Set-ADOPSRepository -RepositoryId $repo.id -DefaultBranch 'main' @OrgParams
 
 # Add a variable group for authenticating pipelines with Azure Resource Manager and record the id output
