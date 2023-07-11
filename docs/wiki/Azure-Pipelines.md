@@ -73,7 +73,7 @@ $OrgParams = @{
 }
 
 # Install the ADOPS PowerShell module
-Install-Module -Name ADOPS -Scope CurrentUser -RequiredVersion '2.0.0' -Force
+Install-Module -Name ADOPS -Scope CurrentUser -RequiredVersion '2.0.1' -Force
 
 # Connect to Azure DevOps (This will open a browser window for you to login)
 Connect-ADOPS -Organization $Organization
