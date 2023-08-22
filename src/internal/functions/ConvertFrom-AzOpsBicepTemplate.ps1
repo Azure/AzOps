@@ -48,6 +48,10 @@
             Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -StringValues $BicepTemplatePath
         }
         # Return transpiled (ARM) template path
-        return $transpiledTemplatePath
+        $return = [PSCustomObject]@{
+            transpiledTemplatePath   = $transpiledTemplatePath
+            transpiledParametersPath = $transpiledParametersPath
+        }
+        return $return
     }
 }

@@ -51,12 +51,12 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on ResourceType {0} and Resource Name {1}' # ResourceType and #Resource Name
     'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on ResourceType {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
 
-    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to standard ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
-    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error'             = 'Failed to convert Bicep template ({0}) to standard ARM Template JSON' # $BicepTemplatePath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error'             = 'Failed to convert Bicep template ({0}) to ARM Template JSON' # $BicepTemplatePath
     'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam'                             = 'Determine if Bicep template ({0}) has a bicepparam file at ({1})' # $BicepTemplatePath, $bicepParametersPath
     'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound'                    = 'No bicepparam file found for ({0})' # $BicepTemplatePath
-    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam'                      = 'Found bicepparam file ({0}), converting to standard ARM parameters JSON ({1})' # $bicepParametersPath, $transpiledParametersPath
-    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error'                = 'Failed to convert bicepparam file ({0}) to standard ARM Template JSON' # $bicepParametersPath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam'                      = 'Found bicepparam file ({0}), converting to ARM parameters JSON ({1})' # $bicepParametersPath, $transpiledParametersPath
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error'                = 'Failed to convert bicepparam file ({0}) to ARM Template JSON' # $bicepParametersPath
 
     'ConvertTo-AzOpsState.Exporting'                                                = 'Exporting AzOpsState to {0}' # $resourceData.ObjectFilePath
     'ConvertTo-AzOpsState.Exporting.Default'                                        = 'Exporting input resource to AzOpsState to {0}' # $resourceData.ObjectFilePath
@@ -193,7 +193,7 @@
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
-    'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json file at all! Skipping {0}' # $fileItem.FullName
+    'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json or bicep file! Skipping {0}' # $fileItem.FullName
     'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
