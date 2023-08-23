@@ -101,8 +101,8 @@
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
-                            $result.TemplateFilePath = $transpiledTemplatePath.transpiledTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             return $result
                         }
                     }
@@ -112,10 +112,7 @@
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
                             $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
-                            # If transpiled result contains transpiledParametersPath override TemplateParameterFilePath
-                            if ($transpiledTemplatePaths.transpiledParametersPath) {
-                                $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
-                            }
+                            $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
                             return $result
                         }
                     }
@@ -290,11 +287,16 @@
                     continue
                 }
             }
+            if ($addition.EndsWith(".bicepparam")) {
+                if ($addModifySet -contains $addition.Replace(".bicepparam", ".bicep")) {
+                    continue
+                }
+            }
 
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
-                $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition
-                $addition = $transpiledTemplatePath
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition | Select-Object transpiledTemplatePath
+                $addition = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
             try {

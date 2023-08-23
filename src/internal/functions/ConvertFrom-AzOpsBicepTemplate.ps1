@@ -5,6 +5,10 @@
             The json file will be created in the same folder as the bicep file.
         .PARAMETER BicepTemplatePath
             BicepTemplatePath
+        .EXAMPLE
+            ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath "root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.bicep"
+            transpiledTemplatePath      : root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.json
+            transpiledParametersPath    : root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.parameters.json
     #>
 
     [CmdletBinding()]
@@ -47,7 +51,7 @@
         else {
             Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -StringValues $BicepTemplatePath
         }
-        # Return transpiled (ARM) template path
+        # Return transpiled (ARM) template paths
         $return = [PSCustomObject]@{
             transpiledTemplatePath   = $transpiledTemplatePath
             transpiledParametersPath = $transpiledParametersPath
