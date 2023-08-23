@@ -62,16 +62,9 @@
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
         $resultJson = $results.Changes
         $resultJson | Add-Member -Name "TemplateFile" -Value $resultHeadline -MemberType NoteProperty -Force
-        if ($existingContent.count -gt 0) {
-            $existingContent += $resultJson
-            $existingContent = $existingContent | ConvertTo-Json -Depth 100
-            Add-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
-        }
-        else {
-            $existingContent = $resultJson
-            $existingContent = $existingContent | ConvertTo-Json -Depth 100
-            Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
-        }
+        $existingContent += $resultJson
+        $existingContent = $existingContent | ConvertTo-Json -Depth 100
+        Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
