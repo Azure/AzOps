@@ -59,6 +59,14 @@
         $existingContentStringMeasureMd = $existingContentStringMd | Measure-Object -Line -Character -Word
         # Gather current OUTPUT.json content
         $existingContent = @(Get-Content -Path ($tempPath + 'OUTPUT.json') -Raw | ConvertFrom-Json -Depth 100)
+        # Export results to json file
+        if ($existingContent.count -gt 0) {
+            $existingContent += $results.Changes
+            $existingContent = $existingContent | ConvertTo-Json -Depth 100
+        }
+        else {
+            $existingContent = $resultJson
+        }
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
             Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
@@ -77,13 +85,6 @@
                 }
             }
             else {
-                if ($existingContent.count -gt 0) {
-                    $existingContent += $results.Changes
-                    $existingContent = $existingContent | ConvertTo-Json -Depth 100
-                }
-                else {
-                    $existingContent = $resultJson
-                }
                 $mdOutput = 'WhatIf Results for {2}:{0}```{0}{1}{0}```{0}' -f [environment]::NewLine, $resultString, $resultHeadline
                 Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
                 Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
