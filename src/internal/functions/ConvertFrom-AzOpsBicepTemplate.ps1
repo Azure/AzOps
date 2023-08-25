@@ -46,7 +46,7 @@
                 # If bicep build-params did not produce file exit with error
                 Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error' -StringValues $bicepParametersPath
                 throw
-        }
+            }
         }
         else {
             Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -StringValues $BicepTemplatePath

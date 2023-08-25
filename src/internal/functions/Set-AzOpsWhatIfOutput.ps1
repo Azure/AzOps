@@ -60,8 +60,16 @@
         $existingContent = @(Get-Content -Path ($tempPath + 'OUTPUT.json') -Raw | ConvertFrom-Json -Depth 100)
         # Export results to json file
         Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
-        $resultJson = $results.Changes
-        $resultJson | Add-Member -Name "TemplateFile" -Value $resultHeadline -MemberType NoteProperty -Force
+        if ($RemoveAzOpsFlag) {
+            $resultJson = [PSCustomObject]@{
+                WhatIfResult = $Results
+                TemplateFile = $resultHeadline
+            }
+        }
+        else {
+            $resultJson = $results.Changes
+            $resultJson | Add-Member -Name "TemplateFile" -Value $resultHeadline -MemberType NoteProperty -Force
+        }
         $existingContent += $resultJson
         $existingContent = $existingContent | ConvertTo-Json -Depth 100
         Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
