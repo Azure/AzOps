@@ -1,10 +1,14 @@
 ﻿function ConvertFrom-AzOpsBicepTemplate {
     <#
         .SYNOPSIS
-            Transpiles bicep template to Azure Resource Manager (ARM) template.
+            Transpiles bicep template and associated bicepparam to Azure Resource Manager (ARM) template.
             The json file will be created in the same folder as the bicep file.
         .PARAMETER BicepTemplatePath
             BicepTemplatePath
+        .EXAMPLE
+            ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath "root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.bicep"
+            transpiledTemplatePath      : root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.json
+            transpiledParametersPath    : root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.parameters.json
     #>
 
     [CmdletBinding()]
@@ -29,7 +33,29 @@
             Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error' -StringValues $BicepTemplatePath
             throw
         }
-        # Return transpiled ARM json path
-        return $transpiledTemplatePath
+        # Check if bicep template has associated bicepparam file
+        $bicepParametersPath = $BicepTemplatePath -replace '\.bicep', '.bicepparam'
+        Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -StringValues $BicepTemplatePath, $bicepParametersPath
+        if (Test-Path $bicepParametersPath) {
+            # Convert bicepparam to ARM parameter file
+            $transpiledParametersPath = $bicepParametersPath -replace '\.bicepparam', ('.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
+            Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam' -StringValues $bicepParametersPath, $transpiledParametersPath
+            Invoke-AzOpsNativeCommand -ScriptBlock { bicep build-params $bicepParametersPath --outfile $transpiledParametersPath }
+            # Check if bicep build-params created (ARM) parameters
+            if (-not (Test-Path $transpiledParametersPath)) {
+                # If bicep build-params did not produce file exit with error
+                Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error' -StringValues $bicepParametersPath
+                throw
+            }
+        }
+        else {
+            Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -StringValues $BicepTemplatePath
+        }
+        # Return transpiled (ARM) template paths
+        $return = [PSCustomObject]@{
+            transpiledTemplatePath   = $transpiledTemplatePath
+            transpiledParametersPath = $transpiledParametersPath
+        }
+        return $return
     }
 }

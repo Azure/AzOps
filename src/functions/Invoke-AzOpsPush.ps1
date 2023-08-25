@@ -73,7 +73,7 @@
             }
 
             $fileItem = Get-Item -Path $FilePath
-            if ($fileItem.Extension -notin '.json' , '.bicep') {
+            if ($fileItem.Extension -notin '.json' , '.bicep', '.bicepparam') {
                 Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NoJson' -StringValues $fileItem.FullName -Tag pwsh -FunctionName 'Invoke-AzOpsPush' -Target $ScopeObject
                 return
             }
@@ -83,30 +83,41 @@
             #endregion Initialization Prep
 
             #region Case: Parameters File
-            if ($fileItem.Name.EndsWith('.parameters.json')) {
+            if (($fileItem.Name.EndsWith('.parameters.json')) -or ($fileItem.Name.EndsWith('.bicepparam'))) {
                 $result.TemplateParameterFilePath = $fileItem.FullName
-                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '' -replace ' ', '_'
+                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '' -replace ' ', '_' -replace '\.bicepparam', ''
                 if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
                 $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
 
                 #region Directly Associated Template file exists
-                $templatePath = $fileItem.FullName -replace '.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
-                if (Test-Path $templatePath) {
-                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
-                    $result.TemplateFilePath = $templatePath
-                    return $result
+                switch ($fileItem.Name) {
+                    { $_.EndsWith('.parameters.json') } {
+                        $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+                        $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                        if (Test-Path $templatePath) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
+                            $result.TemplateFilePath = $templatePath
+                            return $result
+                        }
+                        elseif (Test-Path $bicepTemplatePath) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
+                            return $result
+                        }
+                    }
+                    { $_.EndsWith('.bicepparam') } {
+                        $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                        if (Test-Path $bicepTemplatePath) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
+                            $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
+                            return $result
+                        }
+                    }
                 }
                 #endregion Directly Associated Template file exists
-
-                #region Directly Associated bicep template exists
-                $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
-                if (Test-Path $bicepTemplatePath) {
-                    Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                    $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
-                    $result.TemplateFilePath = $transpiledTemplatePath
-                    return $result
-                }
-                #endregion Directly Associated bicep template exists
 
                 #region Check in the main template file for a match
                 Write-PSFMessage -Level Important @common -String 'Invoke-AzOpsPush.Resolve.NotFoundTemplate' -StringValues $FilePath, $templatePath
@@ -174,7 +185,7 @@
 
         # Remove lingering files from previous run
         $tempPath = [System.IO.Path]::GetTempPath()
-        if (Test-Path -Path ($tempPath + 'OUTPUT.md')) {
+        if ((Test-Path -Path ($tempPath + 'OUTPUT.md')) -or (Test-Path -Path ($tempPath + 'OUTPUT.json'))) {
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'
             Remove-Item -Path ($tempPath + 'OUTPUT.md') -Force -ErrorAction SilentlyContinue
             Remove-Item -Path ($tempPath + 'OUTPUT.json') -Force -ErrorAction SilentlyContinue
@@ -276,11 +287,16 @@
                     continue
                 }
             }
+            if ($addition.EndsWith(".bicepparam")) {
+                if ($addModifySet -contains $addition.Replace(".bicepparam", ".bicep")) {
+                    continue
+                }
+            }
 
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
-                $transpiledTemplatePath = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition
-                $addition = $transpiledTemplatePath
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition | Select-Object transpiledTemplatePath
+                $addition = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
             try {

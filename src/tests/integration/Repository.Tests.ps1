@@ -67,7 +67,7 @@ Describe "Repository" {
         try {
             New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
             New-AzManagementGroupDeployment @params
-            New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep"
+            New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep" -TemplateParameterFile "$($global:testRoot)/templates/policywithuam.bicepparam"
             # Pause for resource consistency
             Start-Sleep -Seconds 120
         }
@@ -1052,6 +1052,16 @@ Describe "Repository" {
                 "A`t$($script:bicepErrorTemplatePath.FullName)"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Throw
+        }
+        #endregion
+
+        #region Bicep Build-Params Test
+        It "Build with bicepparam should not throw" {
+            $script:bicepParamTemplatePath = Get-ChildItem -Path "$($global:testRoot)/templates/bicepparamtest*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:bicepParamTemplatePath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
         }
         #endregion
     }
