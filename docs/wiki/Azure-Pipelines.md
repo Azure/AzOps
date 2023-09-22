@@ -86,7 +86,7 @@ if ($null -eq $Project) {
 
 # Create a new repository from the AzOps Accelerator template repository
 $Repo = Get-ADOPSRepository @OrgParams -Repository $RepoName
-if ($null -eq $repo) {
+if ($null -eq $Repo) {
     $Repo = New-ADOPSRepository @OrgParams -Name $RepoName
 }
 
