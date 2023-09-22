@@ -73,7 +73,7 @@ $OrgParams = @{
 }
 
 # Install the ADOPS PowerShell module
-Install-Module -Name ADOPS -Scope CurrentUser -RequiredVersion '2.0.1' -Force
+Install-Module -Name ADOPS -Scope CurrentUser -RequiredVersion '2.0.2' -Force
 
 # Connect to Azure DevOps (This will open a browser window for you to login)
 Connect-ADOPS -Organization $Organization
@@ -85,10 +85,8 @@ if ($null -eq $Project) {
 }
 
 # Create a new repository from the AzOps Accelerator template repository
-try {
-    $Repo = Get-ADOPSRepository @OrgParams -Repository $RepoName
-}
-catch {
+$Repo = Get-ADOPSRepository @OrgParams -Repository $RepoName
+if ($null -eq $repo) {
     $Repo = New-ADOPSRepository @OrgParams -Name $RepoName
 }
 
