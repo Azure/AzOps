@@ -84,6 +84,8 @@
     'Get-AzOpsCurrentPrincipal.AccountType'                                         = 'Current AccountType is {0}' #$AzContext.Account.Type
     'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
+    'Get-AzOpsManagementGroup.Failed'                                               = 'Get-AzManagementGroup -GroupId {0} failed' #$ManagementGroup
+
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyAssignment.ResourceGroup'                                       = 'Retrieving Policy Assignment for Resource Group in {0} Subscription objects' # $Subscription.count
     'Get-AzOpsPolicyAssignment.Subscription'                                        = 'Retrieving Policy Assignment for {0} Subscription objects' # $Subscription.count

@@ -16,8 +16,6 @@
         Azure Tenant Id to be used
     .PARAMETER AzureSubscriptionId
         Azure Subscription Id to be used
-    .PARAMETER EnterpriseScalePrefix
-        Prefix of the Enterprise Scale deployment
     .PARAMETER NewRepositoryName
         Name of the repository to be created
 #>
@@ -30,7 +28,6 @@ param (
     [Parameter(Mandatory = $true)][string]$SpnAppId,
     [Parameter(Mandatory = $true)][string]$AzureTenantId,
     [Parameter(Mandatory = $true)][string]$AzureSubscriptionId,
-    [Parameter(Mandatory = $true)][string]$EnterpriseScalePrefix,
     [Parameter(Mandatory = $true)][string]$NewRepositoryName
 )
 begin {
@@ -41,7 +38,7 @@ begin {
     $NewESLZRepository = $NewRepositoryName
     $DeploymentScriptOutputs['New Repository'] = $NewRepositoryName
 
-    Write-Host "The request has been accepted for processing, but the processing has not been completed."
+    Write-Output "The request has been accepted for processing, but the processing has not been completed."
 
     # Adding sleep so that RBAC can propegate
     Start-Sleep -Seconds 500
@@ -90,7 +87,7 @@ begin {
 process {
     #region Get secrets from Key Vault
     try {
-        Write-Host "Getting secrets from KeyVault"
+        Write-Output "Getting secrets from KeyVault"
         $PATSecret = Get-AzKeyVaultSecret -VaultName $KeyVault -Name $PATSecretName -AsPlainText
         $SPNSecret = Get-AzKeyVaultSecret -VaultName $KeyVault -Name $SPNSecretName -AsPlainText
     }
@@ -109,7 +106,7 @@ process {
     #region authenticate to GitHub pwsh module using PAT
     try {
         $ghCred = New-Object System.Management.Automation.PSCredential "ignore", ($PATSecret | ConvertTo-SecureString -AsPlainText -Force)
-        Write-Host "Authenticating to GitHub using PA token..."
+        Write-Output "Authenticating to GitHub using PA token..."
         Set-GitHubAuthentication -Credential $ghCred
     }
     catch {
@@ -118,12 +115,12 @@ process {
     #endregion authenticate to GitHub pwsh module using PAT
 
     #region Check if target GitHub Repository exists
-    Write-Host "Checking if repository $NewRepositoryName already exists before continuing..."
+    Write-Output "Checking if repository $NewRepositoryName already exists before continuing..."
     $RepoExists = Invoke-GHRequest -Method Get @BaseGHRest -ErrorAction SilentlyContinue
 
     if ([string]::IsNullOrEmpty($RepoExists)) {
         try {
-            Write-Host "Moving on; creating the repository $NewESLZRepository in $GitHubUserNameOrOrg"
+            Write-Output "Moving on; creating the repository $NewESLZRepository in $GitHubUserNameOrOrg"
             Get-GitHubRepository -OwnerName $ESLZGitHubOrg `
                 -RepositoryName $ESLZRepository | New-GitHubRepositoryFromTemplate `
                 -TargetRepositoryName $NewESLZRepository `
@@ -146,7 +143,7 @@ process {
         do {
             Start-Sleep -Seconds 10
             $keyCount++
-            Write-host "Attempt $keyCount; Getting GitHub Public Key to create new secrets... "
+            Write-Output "Attempt $keyCount; Getting GitHub Public Key to create new secrets... "
             $GitHubPublicKey = Invoke-GHRequest @BaseGHRest -Path "/actions/secrets/public-key" -Method Get -ErrorAction SilentlyContinue
         } until ($GitHubPublicKey.key -or $keyCount -eq 10)
 
@@ -160,7 +157,7 @@ process {
 
         # Create secrets
         foreach ($Secret in $Secrets.Keys) {
-            Write-Host "Creating secret $secret"
+            Write-Output "Creating secret $secret"
             $SecretBody = @{
                 encrypted_value = $Secrets[$Secret]
                 key_id          = $GitHubPublicKey.Key_id
@@ -175,7 +172,7 @@ process {
 
     #region Grant workflow "Read and write permissions" and "Allow GitHub Actions to create and approve pull requests" permissions
     try {
-        Write-Host "Configure workflow permissions for pull requests and read/write permissions"
+        Write-Output "Configure workflow permissions for pull requests and read/write permissions"
         $GrantBody = @{
             default_workflow_permissions     = 'write'
             can_approve_pull_request_reviews = $true
@@ -189,7 +186,7 @@ process {
 
     #region Trigger repository dispatch for AzOps-Pull job
     try {
-        Write-Host "Invoking GitHub Action to bootstrap the repository."
+        Write-Output "Invoking GitHub Action to bootstrap the repository."
         $DispatchBody = @{
             event_type = 'Enterprise-Scale Deployment'
         } | ConvertTo-Json
@@ -201,5 +198,5 @@ process {
     }
     #endregion Trigger repository dispatch for AzOps-Pull job
 
-    Write-Host "Successfully bootstrapped $($GitHubUserNameOrOrg)/$($NewESLZRepository) with the $($ESLZRepository)"
+    Write-Output "Successfully bootstrapped $($GitHubUserNameOrOrg)/$($NewESLZRepository) with the $($ESLZRepository)"
 }

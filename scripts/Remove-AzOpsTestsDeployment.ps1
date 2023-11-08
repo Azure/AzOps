@@ -16,7 +16,7 @@
 
     process {
         if ($CleanupEnvironment) {
-            function Remove-ManagementGroups {
+            function Remove-ManagementGroup {
 
                 param (
                     [Parameter()]
@@ -40,7 +40,7 @@
                             if ($_.Type -eq "Microsoft.Management/managementGroups") {
                                 # Invoke function again with Child resources
                                 Write-PSFMessage -Level Verbose -Message "Nested Management Group: $($DisplayName)" -FunctionName "Remove-AzOpsTestsDeployment"
-                                Remove-ManagementGroups -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
+                                Remove-ManagementGroup -DisplayName $_.DisplayName -Name $_.Name -RootName $RootName
                             }
                             if ($_.Type -eq '/subscriptions') {
                                 # Move Subscription resource to Tenant Root Group
@@ -60,7 +60,7 @@
                 # Cleanup managementGroups
                 $script:managementGroups = Get-AzManagementGroup -ErrorAction SilentlyContinue | Where-Object {$_.DisplayName -eq "Test" -or $_.DisplayName -eq "AzOpsMGMTName"} -ErrorAction SilentlyContinue
                 foreach ($script:mgclean in $script:managementGroups) {
-                    Remove-ManagementGroups -DisplayName $script:mgclean.DisplayName -Name $script:mgclean.Name -RootName (Get-AzTenant).TenantId
+                    Remove-ManagementGroup -DisplayName $script:mgclean.DisplayName -Name $script:mgclean.Name -RootName (Get-AzTenant).TenantId
                 }
                 # Collect resources to cleanup
                 Get-AzResourceLock | Remove-AzResourceLock -Force
