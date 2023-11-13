@@ -14,7 +14,7 @@ try {
         $script:mgmt = Get-AzManagementGroup
         $script:testManagementGroup = ($script:mgmt | Where-Object Name -eq "AzOpsMGMTID")
 
-        if ($script:testManagementGroup -ne $null) {
+        if ($null -ne $script:testManagementGroup) {
             $script:mgmtRun = "Done"
         }
         else {

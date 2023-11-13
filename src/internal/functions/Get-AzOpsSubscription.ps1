@@ -34,7 +34,7 @@
         $TenantId,
 
         [string]
-        $ApiVersion = '2020-01-01'
+        $ApiVersion = '2022-12-01'
     )
 
     process {

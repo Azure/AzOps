@@ -6,23 +6,23 @@ param (
 # Development Modules
 Set-PSRepository -Name $Repository -InstallationPolicy Trusted
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
-Write-Host "Installing development modules"
+Write-Output "Installing development modules"
 foreach ($module in $modules) {
-    Write-Host "Installing: $module"
+    Write-Output "Installing: $module"
     Install-Module $module -Repository $Repository -Force
 }
 # Runtime Modules
 $data = Import-PowerShellDataFile -Path "$PSScriptRoot/../src/AzOps.psd1"
-Write-Host "Installing runtime modules"
+Write-Output "Installing runtime modules"
 foreach ($dependency in $data.RequiredModules) {
     $module = Get-Module -Name $dependency.ModuleName -ListAvailable
     if ($module) {
         foreach ($item in $module) {
-        Write-Host "Cleanup of: $($item.Name)"
-        Uninstall-Module -Name $item.Name -Force
+            Write-Output "Cleanup of: $($item.Name)"
+            Uninstall-Module -Name $item.Name -Force
         }
     }
-    Write-Host "Installing: $($dependency.ModuleName) $($dependency.RequiredVersion)"
+    Write-Output "Installing: $($dependency.ModuleName) $($dependency.RequiredVersion)"
     Install-Module -Name $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -Repository $Repository
 }
 # Download and add bicep to PATH

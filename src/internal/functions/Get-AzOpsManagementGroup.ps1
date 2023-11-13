@@ -31,7 +31,6 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateScript( { Get-AzManagementGroup -GroupId $_ -WarningAction SilentlyContinue })]
         $ManagementGroup,
 
         [switch]
@@ -39,7 +38,13 @@
     )
 
     process {
-        $groupObject = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -WarningAction SilentlyContinue
+        try {
+            $groupObject = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -WarningAction SilentlyContinue
+        }
+        catch {
+            Write-PSFMessage -Level Error -String 'Get-AzOpsManagementGroup.Failed' -StringValues $ManagementGroup
+            throw
+        }
         if ($PartialDiscovery) {
             if ($groupObject.ParentId -and -not (Get-AzManagementGroup -GroupId $groupObject.ParentName -ErrorAction Ignore -WarningAction SilentlyContinue)) {
                 $script:AzOpsPartialRoot += $groupObject
@@ -50,7 +55,7 @@
                 }
             }
         }
-        $groupObject
+        return $groupObject
     }
 
 }
