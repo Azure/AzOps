@@ -2,8 +2,8 @@
 
 - [Introduction](#introduction)
 - [Configure](#configure)
-    - [GitHub](#github)
-    - [Azure DevOps](#pipelines)
+  - [GitHub](#github)
+  - [Azure DevOps](#pipelines)
 - [Resources](#resources)
 
 ## Introduction
