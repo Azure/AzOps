@@ -43,7 +43,7 @@ If you are using GitHub Enterprise Server, you need to [import the repository](h
 ![GIT-Project](./Media/Actions/GIT-Project.PNG)
 3. Review the information you entered, then click Begin import.
 ![GIT-Repository](./Media/Actions/GIT-Repository.PNG)
-4. Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below. Note that `ARM_CLIENT_SECRET` is not required when using [federated credentials](https://github.com/azure/azops/wiki/github-oidc).
+4. Navigate to Settings -> Secrets -> Actions and create the required secrets as depicted below. Note that `ARM_CLIENT_SECRET` is not required when using [federated credentials](https://github.com/azure/azops/wiki/oidc).
 ![GIT-Secret](./Media/Actions/GIT-Secret.PNG)
 5. Untick `Allow merge commits` and `Allow rebase merging` under Settings -> General -> Pull Requests
 ![GIT-Merge](./Media/Actions/GIT-Merge.PNG)
@@ -70,7 +70,7 @@ gh repo create '<Name>' --template azure/azops-accelerator --private --confirm
 gh secret set 'ARM_TENANT_ID' -b "<Secret>"
 gh secret set 'ARM_SUBSCRIPTION_ID' -b "<Secret>"
 gh secret set 'ARM_CLIENT_ID' -b "<Secret>"
-gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>" # Not required when using federated credentials((https://github.com/azure/azops/wiki/github-oidc) 
+gh secret set 'ARM_CLIENT_SECRET' -b "<Secret>" # Not required when using federated credentials((https://github.com/azure/azops/wiki/oidc) 
 ```
 
 - Disable Allow Merge commits and Allow rebase merging

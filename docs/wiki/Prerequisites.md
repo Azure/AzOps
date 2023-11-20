@@ -26,7 +26,7 @@ The Azure Active Directory [Directory Readers](https://learn.microsoft.com/azure
 ### Create Service Principal
 
 If you intend to run AzOps with hosted agents a Service Principal is required. Perform the steps below to create the Service Principal in Azure AD. If you plan to run with self-hosted agents and want to use a managed identity skip to the next step.
-If using GitHub Enterprise Cloud, consider using [federated credentials](https://github.com/azure/azops/wiki/github-oidc) to eliminate secrets management.
+If using GitHub Enterprise Cloud or Azure DevOps Pipelines, consider using [federated credentials](https://github.com/azure/azops/wiki/oidc) to eliminate secrets management.
 
 ```powershell
 # Install module
