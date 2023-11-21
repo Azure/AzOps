@@ -7,8 +7,8 @@
   * [Sovereign Clouds](https://github.com/azure/azops/wiki/sovereign-clouds)
 * [Services](https://github.com/azure/azops/wiki/services)
   * [GitHub Actions](https://github.com/azure/azops/wiki/github-actions)
-    * [Workload identity federation](https://github.com/azure/azops/wiki/github-oidc)
   * [Azure Pipelines](https://github.com/azure/azops/wiki/azure-pipelines)
+  * [Workload Identity Federation](https://github.com/azure/azops/wiki/oidc)
 
 ## Documentation
 

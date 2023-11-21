@@ -54,7 +54,7 @@ The PowerShell script below will set up a new project or use an existing if it a
 
 - Before running the commands below, any `<Value>` needs to be replaced with your values
 
-> If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `$ARM_CLIENT_ID` and `$ARM_CLIENT_SECRET` to `''`.
+> If you are running self-hosted build agents in Azure with Managed Identity enabled. Remove the variables `$ARM_CLIENT_ID` and `$ARM_CLIENT_SECRET` from `credentials` variable group.
 
 ```PowerShell
 # Configuration, make sure to replace <Value> with your values
@@ -99,6 +99,7 @@ $CredentialVariableGroup = @(
     @{Name = 'ARM_TENANT_ID'; Value = $TenantId; IsSecret = $false }
     @{Name = 'ARM_SUBSCRIPTION_ID'; Value = $SubscriptionId; IsSecret = $false }
     @{Name = 'ARM_CLIENT_ID'; Value = $ARM_CLIENT_ID; IsSecret = $false }
+    @{Name = 'ARM_SERVICE_CONNECTION'; Value = ''; IsSecret = $false }
 )
 if ($ARM_CLIENT_SECRET) {
     $CredentialVariableGroup += @{Name = 'ARM_CLIENT_SECRET'; Value = $ARM_CLIENT_SECRET; IsSecret = $true }
@@ -186,11 +187,12 @@ foreach ($pipeline in 'AzOps - Push', 'AzOps - Pull', 'AzOps - Validate') {
 
   - Add the variables from the `Service Principal` creation to the `credentials Variable group`.
 
-    > If you are running self-hosted build agents in Azure with Managed Identity enabled set the value for `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` to `null`.
+    > If you are running self-hosted build agents in Azure with Managed Identity enabled, skip adding `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET`.
 
     ```shell
     ARM_CLIENT_ID
     ARM_CLIENT_SECRET
+    ARM_SERVICE_CONNECTION
     ARM_SUBSCRIPTION_ID
     ARM_TENANT_ID
     ```
