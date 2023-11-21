@@ -3,7 +3,7 @@
 - [Introduction](#introduction)
 - [Configure](#configure)
   - [GitHub](#github)
-  - [Azure DevOps](#pipelines)
+  - [Azure Pipelines](#azure-pipelines)
 - [Resources](#resources)
 
 ## Introduction
@@ -43,7 +43,7 @@ How to setup GitHub Actions with workload identity federation:
     ![Overview](./Media/oidc/arm_client_secret.png)
 4. Test the Pull, Push and Validate pipelines to ensure authentication works with federated credential.
 
-### Pipelines
+### Azure Pipelines
 
 How to setup Azure DevOps Pipelines with workload identity federation:
 
