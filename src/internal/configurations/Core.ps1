@@ -26,7 +26,7 @@ Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Valid
 Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "root") -Initialize -Validation string -Description 'Folder to store AzOpsState artefact'
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeResourceGroups -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup to be false. Subscription ID or Display Name that matches the filter. Powershell filter that matches with like operator is supported.'
 Set-PSFConfig -Module AzOps -Name Core.TemplateParameterFileSuffix -Value '.json' -Initialize -Validation string -Description 'Parameter file suffix identifier'
-Set-PSFConfig -Module AzOps -Name Core.AllowMultipleTemplateParameterFiles -Value $false -Initialize -Validation string -Description 'Global flag to control multiple parameter file behaviour.'
+Set-PSFConfig -Module AzOps -Name Core.AllowMultipleTemplateParameterFiles -Value $false -Initialize -Validation string -Description 'Global flag to control multiple parameter file behaviour'
 Set-PSFConfig -Module AzOps -Name Core.MultipleTemplateParameterFileSuffix -Value '.x' -Initialize -Validation string -Description 'Multiple parameter file suffix identifier'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
 Set-PSFConfig -Module AzOps -Name Core.WhatifExcludedChangeTypes -Value @('NoChange', 'Ignore') -Initialize -Validation stringarray -Description 'Exclude specific change types from WhatIf operations.'

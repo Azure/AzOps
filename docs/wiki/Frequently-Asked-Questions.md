@@ -15,6 +15,9 @@ This article answers frequently asked questions relating to AzOps.
     - [**I want to discover all resources in specific resource groups in one specific subscription**](#i-want-to-discover-all-resources-in-specific-resource-groups-in-one-specific-subscription)
     - [**I want to discover a specific resource type in specific resource group in one specific subscription**](#i-want-to-discover-a-specific-resource-type-in-specific-resource-group-in-one-specific-subscription)
     - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
+  - [Push scenarios and settings](#push-scenarios-and-settings)
+      - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
+      - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
 
 ## Subscriptions or resources not showing up in repository
 
@@ -145,5 +148,56 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
 
 Can AzOps settings be configured to enable this?
 
-Yes, ensure that the variable `AZOPS_CUSTOM_SORT_ORDER` is set to `true` and create a file named `.order` in the same folder as your template files.  
+Yes, ensure that the variable `AZOPS_CUSTOM_SORT_ORDER` is set to `true` and create a file named `.order` in the same folder as your template files.
 Template files listed in the order file will be deployed in the order specified in the file and before any other templates.
+
+## Push scenarios and settings
+
+### **I want to have multiple different deployments at scope using the same template file but different parameter files**
+
+When using custom deployment templates, can I avoid the pattern of duplicating the `.bicep` file for each `parameter` file below?
+```
+scope/
+├── template-a.bicep
+├── template-a.bicepparam
+├── template-b.bicep
+├── template-b.bicepparam
+├── template-c.bicep
+└── template-c.parameters.json
+```
+Yes, ensure the following setting combinations are applied (replace `x` with your specific pattern identifier)
+
+```bash
+    "Core.AllowMultipleTemplateParameterFiles": true
+
+    "Core.MultipleTemplateParameterFileSuffix": ".x"
+```
+AzOps module will evaluate each parameter file individually and try to find matching template by removing parameter file identifiers.
+```
+scope/
+├── template.x1.bicepparam
+├── template.x2.bicepparam
+├── template.x3.parameters.json
+└── template.bicep
+```
+> Note: To avoid having AzOps deploy the base `template.bicep` unintentionally, ensure you have at least one parameter without default value in `template.bicep` and no lingering 1:1 matching parameter file.
+
+### **I am getting: Missing defaultValue and no parameter file found, skip deployment**
+
+To confirm if this applies to you, check the pipeline logs for the following message:
+
+```powershell
+[Resolve-ArmFileAssociation] Template <filepath> with parameter: <missingparam>, missing defaultValue and no parameter file found, skip deployment
+```
+
+What does this mean?
+
+AzOps have detected that parameters used in the template do not have defaultValues, no 1:1 parameter file mapped and that `Core.AllowMultipleTemplateParameterFiles` is set to `true`.
+
+To avoid exiting with error or attempt to deploy the updated base template unintentionally AzOps skips the file and logs it.
+
+The following must be true for this to happen:
+- `Core.AllowMultipleTemplateParameterFiles` is set to `true`
+- A template file is a part of the changeset sent to AzOps
+- Template file contains parameters with no defaultValue
+- Template file does not have 1:1 mapping to parameter file
