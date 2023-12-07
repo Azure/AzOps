@@ -92,8 +92,15 @@
                 #region Directly Associated Template file exists
                 switch ($fileItem.Name) {
                     { $_.EndsWith('.parameters.json') } {
-                        $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
-                        $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $FilePath
+                            $templatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '\.parameters.json', '.json'
+                            $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '.parameters.json', '.bicep'
+                        }
+                        else {
+                            $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+                            $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                        }
                         if (Test-Path $templatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
@@ -101,16 +108,22 @@
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             return $result
                         }
                     }
                     { $_.EndsWith('.bicepparam') } {
-                        $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $FilePath
+                            $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-2])"), '' -replace '\.bicepparam', '.bicep'
+                        }
+                        else {
+                            $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                        }
                         if (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
                             return $result
@@ -164,6 +177,14 @@
             }
             else {
                 Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
+                # Check for template parameters without defaultValue
+                $defaultValueContent = Get-Content $FilePath
+                $missingDefaultParam = $defaultValueContent | jq '.parameters | with_entries(select(.value.defaultValue == null))'
+                if ($missingDefaultParam) {
+                    # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
+                    Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -StringValues $FilePath, ($missingDefaultParam | ConvertFrom-Json)
+                    continue
+                }
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
