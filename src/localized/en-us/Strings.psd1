@@ -200,7 +200,7 @@
     'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
-    'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingDefaultParam
+    'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
