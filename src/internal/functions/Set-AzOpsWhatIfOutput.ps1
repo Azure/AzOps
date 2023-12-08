@@ -53,7 +53,7 @@
         }
 
         if ($ParameterFilePath) {
-            $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]), $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+            $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) with $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
         }
         else {
             $resultHeadline = $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
