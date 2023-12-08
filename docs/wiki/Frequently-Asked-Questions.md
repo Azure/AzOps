@@ -172,7 +172,7 @@ Yes, ensure the following setting combinations are applied (replace `x` with you
 
     "Core.MultipleTemplateParameterFileSuffix": ".x"
 ```
-AzOps module will evaluate each parameter file individually and try to find matching template by removing parameter file identifiers.
+AzOps module will evaluate each parameter file individually and try to find base template by matching (*regex*) according to `MultipleTemplateParameterFileSuffix` pattern identifier.
 ```
 scope/
 ├── template.x1.bicepparam
