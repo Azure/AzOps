@@ -14,7 +14,9 @@
         .PARAMETER ResultSizeMaxLimit
             The maximum upper character limit allowed for comments 64,600
         .PARAMETER FilePath
-            File in scope of WhatIf
+            Template File in scope of WhatIf
+        .PARAMETER ParameterFilePath
+            Parameter File in scope of WhatIf
         .EXAMPLE
             > Set-AzOpsWhatIfOutput -Results $results
             > Set-AzOpsWhatIfOutput -Results $results -RemoveAzOpsFlag $true
@@ -35,8 +37,11 @@
         [Parameter(Mandatory = $false)]
         $ResultSizeMaxLimit = "64600",
 
+        [Parameter(Mandatory = $true)]
+        $FilePath,
+
         [Parameter(Mandatory = $false)]
-        $FilePath
+        $ParameterFilePath
     )
 
     process {
@@ -47,7 +52,12 @@
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
         }
 
-        $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+        if ($ParameterFilePath) {
+            $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]), $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+        }
+        else {
+            $resultHeadline = $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+        }
 
         # Measure input $Results.Changes content
         $resultString = $Results | Out-String
