@@ -183,7 +183,7 @@
                     $missingDefaultParam = $defaultValueContent | jq '.parameters | with_entries(select(.value.defaultValue == null))' | ConvertFrom-Json -AsHashtable
                     if ($missingDefaultParam.Count -ge 1) {
                         # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
-                        $missingString = ForEach($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
+                        $missingString = foreach ($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
                         Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -StringValues $FilePath, ($missingString | Out-String -NoNewline)
                         continue
                     }
