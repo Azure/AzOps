@@ -374,8 +374,8 @@
         #Sort 'deletionList' based on 'deletionListPriority'
         $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
 
-        #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
-        if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory)) {
+        #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories and AllowMultipleTemplateParameterFiles is default false, exit with terminating error
+        if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory) -and ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $false)) {
             Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
             throw
         }
