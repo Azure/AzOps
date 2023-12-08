@@ -16,8 +16,8 @@ This article answers frequently asked questions relating to AzOps.
     - [**I want to discover a specific resource type in specific resource group in one specific subscription**](#i-want-to-discover-a-specific-resource-type-in-specific-resource-group-in-one-specific-subscription)
     - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
   - [Push scenarios and settings](#push-scenarios-and-settings)
-      - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
-      - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
+    - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
+    - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
 
 ## Subscriptions or resources not showing up in repository
 
@@ -156,7 +156,7 @@ Template files listed in the order file will be deployed in the order specified 
 ### **I want to have multiple different deployments at scope using the same template file but different parameter files**
 
 When using custom deployment templates, can I avoid the pattern of duplicating the `.bicep` file for each `parameter` file below?
-```
+```bash
 scope/
 ├── template-a.bicep
 ├── template-a.bicepparam
@@ -172,8 +172,8 @@ Yes, ensure the following setting combinations are applied (replace `x` with you
 
     "Core.MultipleTemplateParameterFileSuffix": ".x"
 ```
-AzOps module will evaluate each parameter file individually and try to find base template by matching (*regex*) according to `MultipleTemplateParameterFileSuffix` pattern identifier.
-```
+AzOps module will evaluate each parameter file individually and try to find base template by matching (*regular expression*) according to `MultipleTemplateParameterFileSuffix` pattern identifier.
+```bash
 scope/
 ├── template.x1.bicepparam
 ├── template.x2.bicepparam

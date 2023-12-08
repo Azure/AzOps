@@ -155,6 +155,7 @@
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores
+    'Initialize-AzOpsEnvironment.MultipleTemplateParameterFileSuffix.Adjustment'    = 'Adjusting AzOps.Core.MultipleTemplateParameterFileSuffix from ({0}) to ({1}) to ensure reliable file matching. To avoid this warning update your MultipleTemplateParameterFileSuffix setting to startwith a [.]' # AzOps.Core.MultipleTemplateParameterFileSuffix, $updateMultipleTemplateParameterFileSuffix
     'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'                         = 'AzOps.Core.SkipCustomJqTemplate is true, using module defaults' #
     'Initialize-AzOpsEnvironment.CustomJqTemplatePath'                              = 'AzOps.Core.CustomJqTemplatePath {0}' # $customJqTemplatePath
     'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound'                 = 'The path specified in AzOps.Core.CustomJqTemplatePath {0} was not found, reverting to module defaults' # $customJqTemplatePath
