@@ -1074,6 +1074,7 @@ Describe "Repository" {
                 "A`t$($script:bicepMultiParamPath.FullName[2])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
             $script:bicepMultiParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtmultibasex*"}
             $script:bicepMultiParamPathDeployment.Count | Should -Be 2
         }
@@ -1096,6 +1097,21 @@ Describe "Repository" {
                 "A`t$($script:bicepMultiParamPath.FullName[0])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Throw
+        }
+        #endregion
+
+        #region Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments
+        It "Deploy Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $true
+            $script:deployAllRtParamPath = Get-ChildItem -Path "$($global:testRoot)/templates/deployallrtbase*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployAllRtParamPath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $script:deployAllRtParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtbasex*"}
+            $script:deployAllRtParamPathDeployment.Count | Should -Be 2
         }
         #endregion
     }

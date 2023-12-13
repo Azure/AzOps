@@ -17,6 +17,7 @@ This article answers frequently asked questions relating to AzOps.
     - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
   - [Push scenarios and settings](#push-scenarios-and-settings)
     - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
+    - [**I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**](#i-have-allowmultipletemplateparameterfiles-set-to-true-and-when-changes-are-made-to-a-template-no-deployment-is-performed)
     - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
 
 ## Subscriptions or resources not showing up in repository
@@ -181,6 +182,14 @@ scope/
 └── template.bicep
 ```
 > Note: To avoid having AzOps deploy the base `template.bicep` unintentionally, ensure you have at least one parameter without default value in `template.bicep` and no lingering 1:1 matching parameter file.
+
+### **I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**
+
+When using a custom deployment templates with multiple corresponding parameter files, can I ensure that changes made to the template triggers AzOps to create separate deployments for each corresponding parameter file?
+
+Yes, ensure the following setting `Core.DeployAllMultipleTemplateParameterFiles` is set to `true`.
+
+> Note: By default, AzOps does not try to identify and deploy files that have not changed, by changing this setting AzOps will attempt to resolve matching parameter files for deployment based on deployment template.
 
 ### **I am getting: Missing defaultValue and no parameter file found, skip deployment**
 
