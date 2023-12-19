@@ -1064,6 +1064,56 @@ Describe "Repository" {
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
         }
         #endregion
+
+        #region Bicep multiple parameter file Test
+        It "Deploy Bicep base template with multiple parameter files (bicepparam, parameters.json)" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            $script:bicepMultiParamPath = Get-ChildItem -Path "$($global:testRoot)/templates/rtmultibase*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:bicepMultiParamPath.FullName[1])",
+                "A`t$($script:bicepMultiParamPath.FullName[2])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $script:bicepMultiParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtmultibasex*"}
+            $script:bicepMultiParamPathDeployment.Count | Should -Be 2
+        }
+        #endregion
+
+        #region Bicep base template with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to true Test should not deploy
+        It "Try deployment of Bicep base template with missing defaultValue parameter with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to true, Test should not deploy and exit gracefully" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            $changeSet = @(
+                "A`t$($script:bicepMultiParamPath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+        }
+        #endregion
+
+        #region Bicep base template with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to false Test should throw
+        It "Try deployment of Bicep base template with missing defaultValue parameter with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to false, Test should not deploy and throw" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
+            $changeSet = @(
+                "A`t$($script:bicepMultiParamPath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Throw
+        }
+        #endregion
+
+        #region Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments
+        It "Deploy Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $true
+            $script:deployAllRtParamPath = Get-ChildItem -Path "$($global:testRoot)/templates/deployallrtbase*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployAllRtParamPath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $script:deployAllRtParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtbasex*"}
+            $script:deployAllRtParamPathDeployment.Count | Should -Be 2
+        }
+        #endregion
     }
 
     AfterAll {

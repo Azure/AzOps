@@ -62,6 +62,13 @@
             Stop-PSFFunction -String 'Initialize-AzOpsEnvironment.AzureContext.TooMany' -StringValues $azContextTenants.Count, ($azContextTenants -join ',') -EnableException $true -Cmdlet $PSCmdlet
         }
 
+        # Adjust MultipleTemplateParameterFileSuffix if incorrect MultipleTemplateParameterFileSuffix is set and log warning
+        if (-not $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').StartsWith('.')) {
+            $updateMultipleTemplateParameterFileSuffix = ".$(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix')"
+            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.MultipleTemplateParameterFileSuffix.Adjustment' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix'), $updateMultipleTemplateParameterFileSuffix
+            Set-PSFConfig -Module AzOps -Name Core.MultipleTemplateParameterFileSuffix -Value $updateMultipleTemplateParameterFileSuffix
+        }
+
         # Adjust ThrottleLimit from previously default 10 to 5 if system has less than 2 cores
         [int]$cpuCores = if ($IsWindows) { $env:NUMBER_OF_PROCESSORS } else { Invoke-AzOpsNativeCommand -ScriptBlock { nproc --all } -IgnoreExitcode }
         $throttleLimit = (Get-PSFConfig -Module AzOps -Name Core.ThrottleLimit).Value

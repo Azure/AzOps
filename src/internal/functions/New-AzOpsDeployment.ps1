@@ -175,7 +175,12 @@
                 # Handle WhatIf prediction errors
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
-                    Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    if ($parameters.TemplateParameterFile) {
+                        Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -ParameterFilePath $parameters.TemplateParameterFile -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    }
+                    else {
+                        Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                    }
                 }
                 else {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
@@ -189,7 +194,12 @@
             else {
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results $results
+                if ($parameters.TemplateParameterFile) {
+                    Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -ParameterFilePath $parameters.TemplateParameterFile -Results $results
+                }
+                else {
+                    Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results $results
+                }
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
             if ($parameters.ExcludeChangeType) {

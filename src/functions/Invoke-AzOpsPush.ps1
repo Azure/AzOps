@@ -92,8 +92,15 @@
                 #region Directly Associated Template file exists
                 switch ($fileItem.Name) {
                     { $_.EndsWith('.parameters.json') } {
-                        $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
-                        $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $FilePath
+                            $templatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '\.parameters.json', '.json'
+                            $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '.parameters.json', '.bicep'
+                        }
+                        else {
+                            $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+                            $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                        }
                         if (Test-Path $templatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
@@ -101,16 +108,22 @@
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             return $result
                         }
                     }
                     { $_.EndsWith('.bicepparam') } {
-                        $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $FilePath
+                            $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-2])"), '' -replace '\.bicepparam', '.bicep'
+                        }
+                        else {
+                            $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                        }
                         if (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
                             return $result
@@ -162,8 +175,41 @@
                 Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterFound' -StringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath
             }
+            elseif ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.DeployAllMultipleTemplateParameterFiles') -eq $true) {
+                # Check for multiple associated template parameter files
+                $paramFileList = Get-ChildItem -Path $fileItem.Directory | Where-Object { ($_.Name.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) -or ($_.Name.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) }
+                if ($paramFileList) {
+                    $multiResult = @()
+                    foreach ($paramFile in $paramFileList) {
+                        # Process possible parameter files for template equivalent
+                        if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
+                            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $paramFile.FullName
+                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate
+                        }
+                    }
+                    if ($multiResult) {
+                        # Return completed object
+                        return $multiResult
+                    }
+                    else {
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
+                    }
+
+                }
+            }
             else {
                 Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -StringValues $FilePath, $parameterPath
+                if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true) {
+                    # Check for template parameters without defaultValue
+                    $defaultValueContent = Get-Content $FilePath
+                    $missingDefaultParam = $defaultValueContent | jq '.parameters | with_entries(select(.value.defaultValue == null))' | ConvertFrom-Json -AsHashtable
+                    if ($missingDefaultParam.Count -ge 1) {
+                        # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
+                        $missingString = foreach ($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
+                        Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -StringValues $FilePath, ($missingString | Out-String -NoNewline)
+                        continue
+                    }
+                }
             }
 
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
@@ -350,8 +396,8 @@
         #Sort 'deletionList' based on 'deletionListPriority'
         $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
 
-        #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories, exit with terminating error
-        if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory)) {
+        #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories and AllowMultipleTemplateParameterFiles is default false, exit with terminating error
+        if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory) -and ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $false)) {
             Write-PSFMessage -Level Critical @common -String 'Invoke-AzOpsPush.DeploymentList.NotFound'
             throw
         }

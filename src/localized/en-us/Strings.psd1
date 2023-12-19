@@ -155,6 +155,7 @@
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores
+    'Initialize-AzOpsEnvironment.MultipleTemplateParameterFileSuffix.Adjustment'    = 'Adjusting AzOps.Core.MultipleTemplateParameterFileSuffix from ({0}) to ({1}) to ensure reliable file matching. To avoid this warning update your MultipleTemplateParameterFileSuffix setting to startwith a [.]' # AzOps.Core.MultipleTemplateParameterFileSuffix, $updateMultipleTemplateParameterFileSuffix
     'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'                         = 'AzOps.Core.SkipCustomJqTemplate is true, using module defaults' #
     'Initialize-AzOpsEnvironment.CustomJqTemplatePath'                              = 'AzOps.Core.CustomJqTemplatePath {0}' # $customJqTemplatePath
     'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound'                 = 'The path specified in AzOps.Core.CustomJqTemplatePath {0} was not found, reverting to module defaults' # $customJqTemplatePath
@@ -194,11 +195,13 @@
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $bicepTemplatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
     'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
+    'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile'                        = 'Found AllowMultipleTemplateParameterFile {0}' # $FilePath
     'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json or bicep file! Skipping {0}' # $fileItem.FullName
     'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
+    'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
