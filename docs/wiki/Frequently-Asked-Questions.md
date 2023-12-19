@@ -34,7 +34,6 @@ Remove the invalid resource or character and retry the operation.
 
 A common example of invalid characters preventing successful operations in AzOps is with [Visual Studio Enterprise](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0063p/) based subscriptions. The default resource name of said subscriptions contains the "`–`" [EN DASH](https://www.cogsci.ed.ac.uk/~richard/utf-8.cgi?input=2013&mode=hex) character. Example: `visual studio enterprise subscription – mpn`.
 
-
 ## Push fail with deployment already exists in location error
 
 If you have changed `"Core.DefaultDeploymentRegion":` from the default `northeurope` post initial setup, subsequent Push/Deployments might fail with an error as below:
