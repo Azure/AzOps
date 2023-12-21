@@ -402,10 +402,80 @@
             throw
         }
 
-        #Starting Tenant Deployment
+        #Starting deployment
         $WhatIfPreference = $WhatIfPreferenceState
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $deploymentList | Select-Object $uniqueProperties -Unique | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique
+        $deploymentResult = @()
+
+        #Determine what deployment pattern to adopt serial or parallel
+        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeploymentMultipleTemplateParameterFiles') -eq $true) {
+            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelCondition'
+            # Group deployments based on TemplateFilePath
+            $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
+            if ($groups) {
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelGroup' -StringValues $groups.Count
+                $processedTargets = @()
+                # Process each deployment and evaluate serial or parallel deployment pattern
+                foreach ($deployment in $uniqueDeployment) {
+                    if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
+                        $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Parallel' -StringValues $deployment.TemplateFilePath, $targets.Count
+                        # Prepare Input Data for parallel processing
+                        $runspaceData = @{
+                            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                            StatePath                       = $StatePath
+                            WhatIfPreference                = $WhatIfPreference
+                            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
+                            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+                        }
+                        $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
+                            $deployment = $_
+                            $runspaceData = $using:runspaceData
+
+                            Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
+                            $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
+
+                            & $azOps {
+                                $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                                $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                                $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                                $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                            }
+
+                            & $azOps {
+                                $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
+                            }
+                        }
+                        $processedTargets += $targets
+                    }
+                    elseif ($deployment -notin $processedTargets) {
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $deployment.Count
+                        $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+                    }
+                    else {
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Skip' -StringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+                    }
+                }
+            }
+            else {
+                # No deployments with matching TemplateFilePath identified
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $deployment.Count
+                $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+            }
+        } else {
+            # Perform serial deployment only
+            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $uniqueDeployment.Count
+            $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        }
+
+        if ($deploymentResult) {
+            foreach ($result in $deploymentResult) {
+                Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
+            }
+        }
 
         #Removal of Supported resourceTypes
         $uniqueProperties = 'Scope', 'TemplateFilePath', 'TemplateParameterFilePath'
