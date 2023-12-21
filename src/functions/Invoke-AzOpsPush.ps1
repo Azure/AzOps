@@ -419,6 +419,7 @@
                 # Process each deployment and evaluate serial or parallel deployment pattern
                 foreach ($deployment in $uniqueDeployment) {
                     if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
+                        # Deployment part of group association for parallel processing, process entire group as parallel deployment
                         $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
                         Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Parallel' -StringValues $deployment.TemplateFilePath, $targets.Count
                         # Prepare Input Data for parallel processing
@@ -431,6 +432,7 @@
                             runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
                             runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
                         }
+                        # Pass deployment targets for parallel processing and output deployment result for later
                         $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
                             $deployment = $_
                             $runspaceData = $using:runspaceData
@@ -449,13 +451,16 @@
                                 $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
                             }
                         }
+                        # Add targets to processed list to avoid duplicate deployment
                         $processedTargets += $targets
                     }
                     elseif ($deployment -notin $processedTargets) {
+                        # Deployment not part of group association for parallel processing, process this as serial deployment
                         Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $deployment.Count
                         $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
                     }
                     else {
+                        # Deployment already processed by group association from parallel processing, skip this duplicate deployment
                         Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Skip' -StringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
                     }
                 }
@@ -472,6 +477,7 @@
         }
 
         if ($deploymentResult) {
+            #Process deploymentResult and output result
             foreach ($result in $deploymentResult) {
                 Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
             }
