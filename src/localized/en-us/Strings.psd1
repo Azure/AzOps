@@ -193,7 +193,7 @@
     'Invoke-AzOpsPush.Deployment.Serial'                                            = 'Running {0} serial deployments' # $uniqueDeployment
     'Invoke-AzOpsPush.Deployment.Skip'                                              = 'Skipping deployment of template: {0} with parameter: {1}, its already been deployed' # $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deployment.ParallelCondition'                                 = 'Parallel deployment condition true' #
-    'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified {0} group of deployments with matching TemplateFilePath' # $groups
+    'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified multiple deployments with matching TemplateFilePath' # $groups
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath

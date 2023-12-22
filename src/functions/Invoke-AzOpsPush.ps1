@@ -414,7 +414,7 @@
             # Group deployments based on TemplateFilePath
             $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
             if ($groups) {
-                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelGroup' -StringValues $groups.Count
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelGroup'
                 $processedTargets = @()
                 # Process each deployment and evaluate serial or parallel deployment pattern
                 foreach ($deployment in $uniqueDeployment) {
