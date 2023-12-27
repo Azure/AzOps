@@ -17,6 +17,7 @@ This article answers frequently asked questions relating to AzOps.
     - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
   - [Push scenarios and settings](#push-scenarios-and-settings)
     - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
+    - [**I have AllowMultipleTemplateParameterFiles set to true and want deployments performed in parallel**](#i-have-allowmultipletemplateparameterfiles-set-to-true-and-want-deployments-performed-in-parallel)
     - [**I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**](#i-have-allowmultipletemplateparameterfiles-set-to-true-and-when-changes-are-made-to-a-template-no-deployment-is-performed)
     - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
 
@@ -184,6 +185,26 @@ scope/
 └── template.bicep
 ```
 > Note: To avoid having AzOps deploy the base `template.bicep` unintentionally, ensure you have at least one parameter without default value in `template.bicep` and no lingering 1:1 matching parameter file.
+
+### **I have AllowMultipleTemplateParameterFiles set to true and want deployments performed in parallel**
+
+Can AzOps perform parallel deployments of the below 3 separate parameter files?
+```bash
+scope/
+├── template.x1.bicepparam
+├── template.x2.bicepparam
+├── template.x3.parameters.json
+└── template.bicep
+```
+Yes, ensure the following setting combinations are applied
+
+```bash
+    "Core.AllowMultipleTemplateParameterFiles": true
+
+    "Core.ParallelDeployMultipleTemplateParameterFiles": true
+```
+
+> Note: By default, AzOps performs serial deployments.
 
 ### **I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**
 

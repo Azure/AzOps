@@ -45,9 +45,9 @@
     )
 
     process {
-        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
         $tempPath = [System.IO.Path]::GetTempPath()
         if ((-not (Test-Path -Path ($tempPath + 'OUTPUT.md'))) -or (-not (Test-Path -Path ($tempPath + 'OUTPUT.json')))) {
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
             New-Item -Path ($tempPath + 'OUTPUT.md') -WhatIf:$false
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
         }
@@ -69,7 +69,7 @@
         # Gather current OUTPUT.json content
         $existingContent = @(Get-Content -Path ($tempPath + 'OUTPUT.json') -Raw | ConvertFrom-Json -Depth 100)
         # Export results to json file
-        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'
+        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -StringValues 'json', $FilePath, $ParameterFilePath
         if ($RemoveAzOpsFlag) {
             $resultJson = [PSCustomObject]@{
                 WhatIfResult = $Results
@@ -105,7 +105,7 @@
             }
         }
         if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $existingContentStringMeasureMd.Characters) -le $ResultSizeMaxLimit) {
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'
+            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -StringValues 'markdown', $FilePath, $ParameterFilePath
             Add-Content -Path ($tempPath + 'OUTPUT.md') -Value $mdOutput -WhatIf:$false
         }
         else {
