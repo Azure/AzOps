@@ -1137,7 +1137,7 @@ Describe "Repository" {
             $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroupParallelDeploy).ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
             $query = "resourcechanges | where resourceGroup == '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp) | project changeTime, properties.changeType, properties.targetResourceId, properties.targetResourceType, properties.changes | order by changeTime asc"
-            $createTime = Search-AzGraph -Query $query
+            $createTime = Search-AzGraph -Query $query -Subscription $script:subscriptionId
             # Calculate differences between creation timing
             $diff1 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[1]
             $diff2 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[2]
