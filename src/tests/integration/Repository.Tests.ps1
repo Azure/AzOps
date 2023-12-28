@@ -132,6 +132,7 @@ Describe "Repository" {
             $script:policySetDefinitionsDep = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "App1-azopsrg")
+            $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
@@ -282,6 +283,11 @@ Describe "Repository" {
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
         $script:resourceGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:resourceGroupPath.Name.Replace(".json", '')), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGroupParallelDeployPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupParallelDeploy.ResourceGroupName).toLower()).json")
+        $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
+        $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
+        Write-PSFMessage -Level Debug -Message "ParallelDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
 
         $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
@@ -1112,6 +1118,38 @@ Describe "Repository" {
             Start-Sleep -Seconds 5
             $script:deployAllRtParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtbasex*"}
             $script:deployAllRtParamPathDeployment.Count | Should -Be 2
+        }
+        #endregion
+
+        #region Multiple deployments to test parallel deployment logic
+        It "Deploy parallel storage accounts and compare to serial timing" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.ParallelDeployMultipleTemplateParameterFiles -Value $true
+            $script:deployAllSta1ParamPath = Get-ChildItem -Path "$($global:testRoot)/templates/staparalleldeploy*" | Copy-Item -Destination $script:resourceGroupParallelDeployDirectory -PassThru -Force
+            $script:deployAllSta2ParamPath = Get-ChildItem -Path "$($global:testRoot)/templates/staserialdeploy*" | Copy-Item -Destination $script:resourceGroupParallelDeployDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployAllSta1ParamPath.FullName[0])",
+                "A`t$($script:deployAllSta2ParamPath.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 10
+            $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroupParallelDeploy).ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
+            $script:deployAllStaParamPathDeployment.Count | Should -Be 4
+            $query = "resourcechanges | where resourceGroup == '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp) | project changeTime, properties.changeType, properties.targetResourceId, properties.targetResourceType, properties.changes | order by changeTime asc"
+            $createTime = Search-AzGraph -Query $query
+            # Calculate differences between creation timing
+            $diff1 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[1]
+            $diff2 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[2]
+            $diff3 = New-TimeSpan -Start $createTime.changeTime[1] -End $createTime.changeTime[2]
+            $diff4 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[3]
+            # Check if time difference is within x seconds
+            $allowedDiff = '8'
+            if ($diff1.TotalSeconds -le $allowedDiff -or $diff2.TotalSeconds -le $allowedDiff -or $diff3.TotalSeconds -le $allowedDiff -and $diff4.TotalSeconds -ge $allowedDiff) {
+                # Time difference is within x seconds of each other
+                $timeTest = "good"
+            }
+            $timeTest | Should -Be 'good'
         }
         #endregion
     }
