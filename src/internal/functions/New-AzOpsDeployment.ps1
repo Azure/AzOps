@@ -224,7 +224,7 @@
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
                 if (-not $invalidTemplate) {
-                    & $deploymentCommand @parameters
+                    & $deploymentCommand @parameters | Out-Null
                 }
             }
             else {
