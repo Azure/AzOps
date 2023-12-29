@@ -1145,7 +1145,7 @@ Describe "Repository" {
             $diff4 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[3]
             # Check if time difference is within x seconds
             $allowedDiff = '8'
-            if ($diff1.TotalSeconds -le $allowedDiff -or $diff2.TotalSeconds -le $allowedDiff -or $diff3.TotalSeconds -le $allowedDiff -and $diff4.TotalSeconds -ge $allowedDiff) {
+            if ($diff1.TotalSeconds -le $allowedDiff -and $diff2.TotalSeconds -le $allowedDiff -and $diff3.TotalSeconds -le $allowedDiff -and $diff4.TotalSeconds -ge $allowedDiff) {
                 # Time difference is within x seconds of each other
                 $timeTest = "good"
             }
