@@ -1133,10 +1133,10 @@ Describe "Repository" {
                 "A`t$($script:deployAllSta2ParamPath.FullName[0])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds 30
             $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroupParallelDeploy).ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
-            $query = "resourcechanges | where resourceGroup == '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp) | project changeTime, properties.changeType, properties.targetResourceId, properties.targetResourceType, properties.changes | order by changeTime asc"
+            $query = "resourcechanges | where resourceGroup =~ '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp), targetResourceId=tostring(properties.targetResourceId) | summarize arg_max(changeTime, *) by targetResourceId | project changeTime, targetResourceId, properties.changeType, properties.targetResourceType | order by changeTime asc"
             $createTime = Search-AzGraph -Query $query -Subscription $script:subscriptionId
             # Calculate differences between creation timing
             $diff1 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[1]
