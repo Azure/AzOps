@@ -104,12 +104,18 @@
                         if (Test-Path $templatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
                             $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                     }
@@ -126,6 +132,9 @@
                             $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                     }
