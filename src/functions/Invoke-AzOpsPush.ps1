@@ -459,7 +459,7 @@
                             & $azOps {
                                 $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
                             }
-                        }
+                        } -UseNewRunspace
                         # Add targets to processed list to avoid duplicate deployment
                         $processedTargets += $targets
                     }
