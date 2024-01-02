@@ -371,7 +371,6 @@
         return $null
     }
     [string] IsResourceProvider() {
-
         if ($this.Scope -match $this.regex_managementgroupProvider) {
             return (($this.regex_managementgroupProvider.Split($this.Scope) | Select-Object -last 1) -split '/')[1]
         }
