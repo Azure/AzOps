@@ -420,8 +420,8 @@
         #Determine what deployment pattern to adopt serial or parallel
         if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeployMultipleTemplateParameterFiles') -eq $true) {
             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelCondition'
-            # Group deployments based on TemplateFilePath
-            $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
+            # Group deployments based on TemplateFilePath and Scope
+            $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath, Scope | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
             if ($groups) {
                 Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelGroup'
                 $processedTargets = @()
