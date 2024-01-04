@@ -15,6 +15,10 @@ This article answers frequently asked questions relating to AzOps.
     - [**I want to discover all resources in specific resource groups in one specific subscription**](#i-want-to-discover-all-resources-in-specific-resource-groups-in-one-specific-subscription)
     - [**I want to discover a specific resource type in specific resource group in one specific subscription**](#i-want-to-discover-a-specific-resource-type-in-specific-resource-group-in-one-specific-subscription)
     - [**I want to discover and manage several Azure Firewall Policy's and rule collections spread out across several resource groups and subscriptions**](#i-want-to-discover-and-manage-several-azure-firewall-policys-and-rule-collections-spread-out-across-several-resource-groups-and-subscriptions)
+  - [Push scenarios and settings](#push-scenarios-and-settings)
+    - [**I want to have multiple different deployments at scope using the same template file but different parameter files**](#i-want-to-have-multiple-different-deployments-at-scope-using-the-same-template-file-but-different-parameter-files)
+    - [**I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**](#i-have-allowmultipletemplateparameterfiles-set-to-true-and-when-changes-are-made-to-a-template-no-deployment-is-performed)
+    - [**I am getting: Missing defaultValue and no parameter file found, skip deployment**](#i-am-getting-missing-defaultvalue-and-no-parameter-file-found-skip-deployment)
 
 ## Subscriptions or resources not showing up in repository
 
@@ -31,6 +35,8 @@ To confirm if this applies to you, check the pipeline logs for any of the follow
 ```
 
 Remove the invalid resource or character and retry the operation.
+
+A common example of invalid characters preventing successful operations in AzOps is with [Visual Studio Enterprise](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0063p/) based subscriptions. The default resource name of said subscriptions contains the "`–`" [EN DASH](https://www.cogsci.ed.ac.uk/~richard/utf-8.cgi?input=2013&mode=hex) character. Example: `visual studio enterprise subscription – mpn`.
 
 ## Push fail with deployment already exists in location error
 
@@ -145,5 +151,64 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
 
 Can AzOps settings be configured to enable this?
 
-Yes, ensure that the variable `AZOPS_CUSTOM_SORT_ORDER` is set to `true` and create a file named `.order` in the same folder as your template files.  
+Yes, ensure that the variable `AZOPS_CUSTOM_SORT_ORDER` is set to `true` and create a file named `.order` in the same folder as your template files.
 Template files listed in the order file will be deployed in the order specified in the file and before any other templates.
+
+## Push scenarios and settings
+
+### **I want to have multiple different deployments at scope using the same template file but different parameter files**
+
+When using custom deployment templates, can I avoid the pattern of duplicating the `.bicep` file for each `parameter` file below?
+```bash
+scope/
+├── template-a.bicep
+├── template-a.bicepparam
+├── template-b.bicep
+├── template-b.bicepparam
+├── template-c.bicep
+└── template-c.parameters.json
+```
+Yes, ensure the following setting combinations are applied (replace `x` with your specific pattern identifier)
+
+```bash
+    "Core.AllowMultipleTemplateParameterFiles": true
+
+    "Core.MultipleTemplateParameterFileSuffix": ".x"
+```
+AzOps module will evaluate each parameter file individually and try to find base template by matching (*regular expression*) according to `MultipleTemplateParameterFileSuffix` pattern identifier.
+```bash
+scope/
+├── template.x1.bicepparam
+├── template.x2.bicepparam
+├── template.x3.parameters.json
+└── template.bicep
+```
+> Note: To avoid having AzOps deploy the base `template.bicep` unintentionally, ensure you have at least one parameter without default value in `template.bicep` and no lingering 1:1 matching parameter file.
+
+### **I have AllowMultipleTemplateParameterFiles set to true and when changes are made to a template no deployment is performed**
+
+When using a custom deployment templates with multiple corresponding parameter files, can I ensure that changes made to the template triggers AzOps to create separate deployments for each corresponding parameter file?
+
+Yes, ensure the following setting `Core.DeployAllMultipleTemplateParameterFiles` is set to `true`.
+
+> Note: By default, AzOps does not try to identify and deploy files that have not changed, by changing this setting AzOps will attempt to resolve matching parameter files for deployment based on deployment template.
+
+### **I am getting: Missing defaultValue and no parameter file found, skip deployment**
+
+To confirm if this applies to you, check the pipeline logs for the following message:
+
+```powershell
+[Resolve-ArmFileAssociation] Template <filepath> with parameter: <missingparam>, missing defaultValue and no parameter file found, skip deployment
+```
+
+What does this mean?
+
+AzOps have detected that parameters used in the template do not have defaultValues, no 1:1 parameter file mapped and that `Core.AllowMultipleTemplateParameterFiles` is set to `true`.
+
+To avoid exiting with error or attempt to deploy the updated base template unintentionally AzOps skips the file and logs it.
+
+The following must be true for this to happen:
+- `Core.AllowMultipleTemplateParameterFiles` is set to `true`
+- A template file is a part of the changeset sent to AzOps
+- Template file contains parameters with no defaultValue
+- Template file does not have 1:1 mapping to parameter file
