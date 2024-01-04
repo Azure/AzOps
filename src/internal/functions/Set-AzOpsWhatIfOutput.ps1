@@ -48,8 +48,8 @@
         $tempPath = [System.IO.Path]::GetTempPath()
         if ((-not (Test-Path -Path ($tempPath + 'OUTPUT.md'))) -or (-not (Test-Path -Path ($tempPath + 'OUTPUT.json')))) {
             Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
-            New-Item -Path ($tempPath + 'OUTPUT.md') -WhatIf:$false
-            New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false
+            New-Item -Path ($tempPath + 'OUTPUT.md') -WhatIf:$false | Out-Null
+            New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false | Out-Null
         }
 
         if ($ParameterFilePath) {

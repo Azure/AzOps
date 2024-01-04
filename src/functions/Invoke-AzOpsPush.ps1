@@ -486,6 +486,8 @@
         }
 
         if ($deploymentResult) {
+            # Output deploymentResult outside module
+            $deploymentResult
             #Process deploymentResult and output result
             foreach ($result in $deploymentResult) {
                 Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results

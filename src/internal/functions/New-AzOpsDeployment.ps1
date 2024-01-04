@@ -166,6 +166,7 @@
                 filePath    = ''
                 parameterFilePath = ''
                 results = ''
+                deployment = ''
             }
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
@@ -224,7 +225,7 @@
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
                 if (-not $invalidTemplate) {
-                    & $deploymentCommand @parameters | Out-Null
+                    $deploymentResult.deployment = & $deploymentCommand @parameters
                 }
             }
             else {
