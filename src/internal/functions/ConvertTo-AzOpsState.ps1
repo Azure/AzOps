@@ -222,10 +222,20 @@
                         ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
                         (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName })
                     ) {
-                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions[0]
+                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions
                         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
+                        
+                        # Handle GA/Preview API versions
+                        $gaApiVersion = $apiVersions | Where-Object {$_ -match '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'}
+                        $preApiVersion = $apiVersions | Where-Object {$_ -notmatch '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'}
 
-                        $object.resources[0].apiVersion = $apiVersions
+                        if ($null -eq $gaApiVersion) {
+                            $apiVersion = $preApiVersion[0]
+                        } else {
+                            $apiVersion = $gaApiVersion[0]
+                        }
+
+                        $object.resources[0].apiVersion = $apiVersion
                         $object.resources[0].type = $resourceType
                     }
                     else {
