@@ -10,9 +10,9 @@
         .PARAMETER SkipParam
             Switch when set will avoid parameter file discovery.
         .PARAMETER ConvertedTemplate
-            Array of already converted base template, if file is on list skip conversion.
+            Array of strings, already converted base template, if file is on list skip conversion.
         .PARAMETER ConvertedParameter
-            Array of already converted parameter, if file is on list skip conversion.
+            Array of strings, already converted parameter, if file is on list skip conversion.
         .EXAMPLE
             ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath "root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.bicep"
             transpiledTemplatePath      : root/tenant root group (xxxx-xxxx-xxxx-xxxx-xxxx)/es (es)/subscription (xxxx-xxxx-xxxx-xxxx)/resource-rg/main.json
@@ -30,9 +30,9 @@
         $BicepParamTemplatePath,
         [switch]
         $SkipParam,
-        [array]
+        [string[]]
         $ConvertedTemplate,
-        [array]
+        [string[]]
         $ConvertedParameter
     )
 

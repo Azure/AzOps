@@ -52,9 +52,9 @@
                 $FilePath,
                 [string]
                 $AzOpsMainTemplate,
-                [array]
+                [string[]]
                 $ConvertedTemplate,
-                [array]
+                [string[]]
                 $ConvertedParameter
             )
 
@@ -245,9 +245,9 @@
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
 
-        # Create arrays to track bicep file conversion
-        $AzOpsTranspiledTemplate = @()
-        $AzOpsTranspiledParameter = @()
+        # Create array of strings to track bicep file conversion
+        [string[]] $AzOpsTranspiledTemplate = @()
+        [string[]] $AzOpsTranspiledParameter = @()
 
         # Remove lingering files from previous run
         $tempPath = [System.IO.Path]::GetTempPath()
