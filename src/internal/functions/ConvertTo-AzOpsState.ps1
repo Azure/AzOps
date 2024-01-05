@@ -226,13 +226,13 @@
                         Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
 
                         # Handle GA/Preview API versions
-                        $gaApiVersion = $apiVersions | Where-Object {$_ -match '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'}
-                        $preApiVersion = $apiVersions | Where-Object {$_ -notmatch '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'}
+                        $gaApiVersion = $apiVersions | Where-Object {$_ -match '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'} | Sort-Object -Descending
+                        $preApiVersion = $apiVersions | Where-Object {$_ -notmatch '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'} | Sort-Object -Descending
 
                         if ($null -eq $gaApiVersion) {
-                            $apiVersion = $preApiVersion[0]
+                            $apiVersion = $preApiVersion | Select-Object -First 1
                         } else {
-                            $apiVersion = $gaApiVersion[0]
+                            $apiVersion = $gaApiVersion | Select-Object -First 1
                         }
 
                         $object.resources[0].apiVersion = $apiVersion
