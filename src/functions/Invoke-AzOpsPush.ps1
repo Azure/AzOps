@@ -362,10 +362,10 @@
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
                 $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
-                if ($transpiledTemplatePaths.transpiledTemplateNew -eq $true) {
+                if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $transpiledTemplatePaths.transpiledTemplatePath
                 }
-                if ($transpiledTemplatePaths.transpiledParametersNew -eq $true) {
+                if ($true -eq $transpiledTemplatePaths.transpiledParametersNew) {
                     $AzOpsTranspiledParameter += $transpiledTemplatePaths.transpiledParametersPath
                 }
                 $addition = $transpiledTemplatePaths.transpiledTemplatePath
@@ -381,10 +381,10 @@
 
             $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
             foreach ($fileAssociation in $resolvedArmFileAssociation) {
-                if ($fileAssociation.transpiledTemplateNew -eq $true) {
+                if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
                 }
-                if ($fileAssociation.transpiledParametersNew -eq $true) {
+                if ($true -eq $fileAssociation.transpiledParametersNew) {
                     $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
                 }
             }
