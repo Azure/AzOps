@@ -113,8 +113,6 @@
         $script:AzOpsResourceProvider = Get-AzResourceProvider -ListAvailable
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
-        $script:AzOpsTranspiledTemplate = @()
-        $script:AzOpsTranspiledParameter = @()
         #endregion Initialize & Prepare
 
         #region Management Group Processing

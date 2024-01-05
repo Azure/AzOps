@@ -48,12 +48,14 @@
             param (
                 [AzOpsScope]
                 $ScopeObject,
-
                 [string]
                 $FilePath,
-
                 [string]
-                $AzOpsMainTemplate
+                $AzOpsMainTemplate,
+                [array]
+                $ConvertedTemplate,
+                [array]
+                $ConvertedParameter
             )
 
             #region Initialization Prep
@@ -66,7 +68,9 @@
 
             $result = [PSCustomObject] @{
                 TemplateFilePath          = $null
+                TranspiledTemplateNew     = $false
                 TemplateParameterFilePath = $null
+                TranspiledParametersNew   = $false
                 DeploymentName            = $null
                 ScopeObject               = $ScopeObject
                 Scope                     = $ScopeObject.Scope
@@ -111,7 +115,8 @@
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam -ConvertedTemplate $ConvertedTemplate
+                            $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
@@ -129,7 +134,9 @@
                         }
                         if (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                            $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
+                            $result.TranspiledParametersNew = $transpiledTemplatePaths.transpiledParametersNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
@@ -193,7 +200,7 @@
                         # Process possible parameter files for template equivalent
                         if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $paramFile.FullName
-                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate
+                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
                         }
                     }
                     if ($multiResult) {
@@ -237,6 +244,10 @@
 
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
+
+        # Create arrays to track bicep file conversion
+        $AzOpsTranspiledTemplate = @()
+        $AzOpsTranspiledParameter = @()
 
         # Remove lingering files from previous run
         $tempPath = [System.IO.Path]::GetTempPath()
@@ -350,7 +361,13 @@
 
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
-                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition | Select-Object transpiledTemplatePath
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+                if ($transpiledTemplatePaths.transpiledTemplateNew -eq $true) {
+                    $AzOpsTranspiledTemplate += $transpiledTemplatePaths.transpiledTemplatePath
+                }
+                if ($transpiledTemplatePaths.transpiledParametersNew -eq $true) {
+                    $AzOpsTranspiledParameter += $transpiledTemplatePaths.transpiledParametersPath
+                }
                 $addition = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
@@ -362,7 +379,16 @@
                 continue
             }
 
-            Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
+            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            foreach ($fileAssociation in $resolvedArmFileAssociation) {
+                if ($fileAssociation.transpiledTemplateNew -eq $true) {
+                    $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
+                }
+                if ($fileAssociation.transpiledParametersNew -eq $true) {
+                    $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
+                }
+            }
+            $resolvedArmFileAssociation
         }
 
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
