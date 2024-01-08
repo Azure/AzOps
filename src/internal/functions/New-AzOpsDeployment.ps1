@@ -23,6 +23,11 @@
         .EXAMPLE
             > $AzOpsDeploymentList | Select-Object $uniqueProperties -Unique | Sort-Object -Property TemplateParameterFilePath | New-Deployment
             Deploy all unique deployments provided from $AzOpsDeploymentList
+            Name                           Value
+            ----                           -----
+            filePath                       /root/managementgroup/subscription/resourcegroup/template.json
+            parameterFilePath              /root/managementgroup/subscription/resourcegroup/template.parameters.json
+            results                        Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.Deployments.PSWhatIfOperationResult
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -157,6 +162,12 @@
         }
         # Proceed with WhatIf or Deployment if scope was found
         if ($scopeFound) {
+            $deploymentResult = [PSCustomObject]@{
+                filePath    = ''
+                parameterFilePath = ''
+                results = ''
+                deployment = ''
+            }
             if ($TemplateParameterFilePath) {
                 $parameters.TemplateParameterFile = $TemplateParameterFilePath
             }
@@ -176,10 +187,13 @@
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
                     Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
                     if ($parameters.TemplateParameterFile) {
-                        Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -ParameterFilePath $parameters.TemplateParameterFile -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                        $deploymentResult.filePath = $parameters.TemplateFile
+                        $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+                        $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                     }
                     else {
-                        Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                        $deploymentResult.filePath = $parameters.TemplateFile
+                        $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                     }
                 }
                 else {
@@ -195,10 +209,13 @@
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 if ($parameters.TemplateParameterFile) {
-                    Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -ParameterFilePath $parameters.TemplateParameterFile -Results $results
+                    $deploymentResult.filePath = $parameters.TemplateFile
+                    $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+                    $deploymentResult.results = $results
                 }
                 else {
-                    Set-AzOpsWhatIfOutput -FilePath $parameters.TemplateFile -Results $results
+                    $deploymentResult.filePath = $parameters.TemplateFile
+                    $deploymentResult.results = $results
                 }
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
@@ -208,13 +225,17 @@
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
                 if (-not $invalidTemplate) {
-                    & $deploymentCommand @parameters
+                    $deploymentResult.deployment = & $deploymentCommand @parameters
                 }
             }
             else {
                 # Exit deployment
                 Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
+        }
+        #Return
+        if ($deploymentResult) {
+            return $deploymentResult
         }
     }
 }

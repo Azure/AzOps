@@ -189,6 +189,11 @@
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deployment.Required'                                          = 'Deployment required' #
+    'Invoke-AzOpsPush.Deployment.Parallel'                                          = 'Running parallel deployments of {1} items with matching TemplateFilePath: {0}' # $deployment, $targets
+    'Invoke-AzOpsPush.Deployment.Serial'                                            = 'Running {0} serial deployments' # $uniqueDeployment
+    'Invoke-AzOpsPush.Deployment.Skip'                                              = 'Skipping deployment of template: {0} with parameter: {1}, its already been deployed' # $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+    'Invoke-AzOpsPush.Deployment.ParallelCondition'                                 = 'Parallel deployment condition true' #
+    'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified multiple deployments with matching TemplateFilePath' # $groups
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
@@ -294,8 +299,7 @@
     'Set-AzOpsStringLength.WithInLimit'                                             = 'String {0} within limit of {1}' # $String
 
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
-    'Set-AzOpsWhatIfOutput.WhatIfFileAddingJson'                                    = 'Adding content to WhatIf json file' #
-    'Set-AzOpsWhatIfOutput.WhatIfFileAddingMd'                                      = 'Adding content to WhatIf markdown file' #
+    'Set-AzOpsWhatIfOutput.WhatIfFileAdding'                                        = 'Adding content to WhatIf {0} file for template {1} with parameter file {2}' # '<type>', $FilePath, $ParameterFilePath
     'Set-AzOpsWhatIfOutput.WhatIfFileMax'                                           = 'WhatIf markdown and json files have reached character limit, unable to append more information to files. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
     'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf have reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
     'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results

@@ -519,6 +519,12 @@
                             "location": "northeurope"
                         },
                         {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2019-10-01",
+                            "name": "ParallelDeploy-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
                             "type": "Microsoft.Authorization/roleAssignments",
                             "apiVersion": "2021-04-01-preview",
                             "name": "[guid('RoleAssignmentTest')]",

@@ -29,5 +29,6 @@ Set-PSFConfig -Module AzOps -Name Core.TemplateParameterFileSuffix -Value '.json
 Set-PSFConfig -Module AzOps -Name Core.AllowMultipleTemplateParameterFiles -Value $false -Initialize -Validation string -Description 'Global flag to control multiple parameter file behaviour'
 Set-PSFConfig -Module AzOps -Name Core.DeployAllMultipleTemplateParameterFiles -Value $false -Initialize -Validation string -Description 'Global flag to control base template deployment behaviour with changes and un-changed multiple corresponding parameter files'
 Set-PSFConfig -Module AzOps -Name Core.MultipleTemplateParameterFileSuffix -Value '.x' -Initialize -Validation string -Description 'Multiple parameter file suffix identifier'
+Set-PSFConfig -Module AzOps -Name Core.ParallelDeployMultipleTemplateParameterFiles -Value $false -Initialize -Validation string -Description 'Global flag to control parallel deployment of MultipleTemplateParameterFiles behaviour'
 Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5 -Initialize -Validation integer -Description 'Throttle limit used in Foreach-Object -Parallel for resource/subscription discovery'
 Set-PSFConfig -Module AzOps -Name Core.WhatifExcludedChangeTypes -Value @('NoChange', 'Ignore') -Initialize -Validation stringarray -Description 'Exclude specific change types from WhatIf operations.'

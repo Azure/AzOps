@@ -48,12 +48,14 @@
             param (
                 [AzOpsScope]
                 $ScopeObject,
-
                 [string]
                 $FilePath,
-
                 [string]
-                $AzOpsMainTemplate
+                $AzOpsMainTemplate,
+                [string[]]
+                $ConvertedTemplate,
+                [string[]]
+                $ConvertedParameter
             )
 
             #region Initialization Prep
@@ -66,7 +68,9 @@
 
             $result = [PSCustomObject] @{
                 TemplateFilePath          = $null
+                TranspiledTemplateNew     = $false
                 TemplateParameterFilePath = $null
+                TranspiledParametersNew   = $false
                 DeploymentName            = $null
                 ScopeObject               = $ScopeObject
                 Scope                     = $ScopeObject.Scope
@@ -104,12 +108,19 @@
                         if (Test-Path $templatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundTemplate' -StringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                         elseif (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam -ConvertedTemplate $ConvertedTemplate
+                            $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                     }
@@ -123,9 +134,14 @@
                         }
                         if (Test-Path $bicepTemplatePath) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -StringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                            $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
+                            $result.TranspiledParametersNew = $transpiledTemplatePaths.transpiledParametersNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $result.TemplateParameterFilePath = $transpiledTemplatePaths.transpiledParametersPath
+                            $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
+                            $result.ScopeObject = $newScopeObject
+                            $result.Scope = $newScopeObject.Scope
                             return $result
                         }
                     }
@@ -184,7 +200,7 @@
                         # Process possible parameter files for template equivalent
                         if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
                             Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -StringValues $paramFile.FullName
-                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate
+                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
                         }
                     }
                     if ($multiResult) {
@@ -228,6 +244,10 @@
 
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
+
+        # Create array of strings to track bicep file conversion
+        [string[]] $AzOpsTranspiledTemplate = @()
+        [string[]] $AzOpsTranspiledParameter = @()
 
         # Remove lingering files from previous run
         $tempPath = [System.IO.Path]::GetTempPath()
@@ -341,7 +361,13 @@
 
             # Handle Bicep templates
             if ($addition.EndsWith(".bicep")) {
-                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition | Select-Object transpiledTemplatePath
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+                if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew) {
+                    $AzOpsTranspiledTemplate += $transpiledTemplatePaths.transpiledTemplatePath
+                }
+                if ($true -eq $transpiledTemplatePaths.transpiledParametersNew) {
+                    $AzOpsTranspiledParameter += $transpiledTemplatePaths.transpiledParametersPath
+                }
                 $addition = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
@@ -353,7 +379,16 @@
                 continue
             }
 
-            Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate
+            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            foreach ($fileAssociation in $resolvedArmFileAssociation) {
+                if ($true -eq $fileAssociation.transpiledTemplateNew) {
+                    $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
+                }
+                if ($true -eq $fileAssociation.transpiledParametersNew) {
+                    $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
+                }
+            }
+            $resolvedArmFileAssociation
         }
 
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
@@ -402,10 +437,88 @@
             throw
         }
 
-        #Starting Tenant Deployment
+        #Starting deployment
         $WhatIfPreference = $WhatIfPreferenceState
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $deploymentList | Select-Object $uniqueProperties -Unique | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique
+        $deploymentResult = @()
+
+        #Determine what deployment pattern to adopt serial or parallel
+        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeployMultipleTemplateParameterFiles') -eq $true) {
+            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelCondition'
+            # Group deployments based on TemplateFilePath
+            $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
+            if ($groups) {
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.ParallelGroup'
+                $processedTargets = @()
+                # Process each deployment and evaluate serial or parallel deployment pattern
+                foreach ($deployment in $uniqueDeployment) {
+                    if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
+                        # Deployment part of group association for parallel processing, process entire group as parallel deployment
+                        $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Parallel' -StringValues $deployment.TemplateFilePath, $targets.Count
+                        # Prepare Input Data for parallel processing
+                        $runspaceData = @{
+                            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                            StatePath                       = $StatePath
+                            WhatIfPreference                = $WhatIfPreference
+                            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
+                            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+                        }
+                        # Pass deployment targets for parallel processing and output deployment result for later
+                        $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
+                            $deployment = $_
+                            $runspaceData = $using:runspaceData
+
+                            Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
+                            $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
+
+                            & $azOps {
+                                $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                                $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                                $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                                $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                            }
+
+                            & $azOps {
+                                $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
+                            }
+                        } -UseNewRunspace
+                        # Add targets to processed list to avoid duplicate deployment
+                        $processedTargets += $targets
+                    }
+                    elseif ($deployment -notin $processedTargets) {
+                        # Deployment not part of group association for parallel processing, process this as serial deployment
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $deployment.Count
+                        $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+                    }
+                    else {
+                        # Deployment already processed by group association from parallel processing, skip this duplicate deployment
+                        Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Skip' -StringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+                    }
+                }
+            }
+            else {
+                # No deployments with matching TemplateFilePath identified
+                Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $deployment.Count
+                $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+            }
+        } else {
+            # Perform serial deployment only
+            Write-PSFMessage -Level Verbose @common -String 'Invoke-AzOpsPush.Deployment.Serial' -StringValues $uniqueDeployment.Count
+            $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+        }
+
+        if ($deploymentResult) {
+            # Output deploymentResult outside module
+            $deploymentResult
+            #Process deploymentResult and output result
+            foreach ($result in $deploymentResult) {
+                Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
+            }
+        }
 
         #Removal of Supported resourceTypes
         $uniqueProperties = 'Scope', 'TemplateFilePath', 'TemplateParameterFilePath'

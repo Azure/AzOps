@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "!src/AzOps.psd1"
 
 permissions:
       id-token: write

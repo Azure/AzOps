@@ -85,7 +85,7 @@ Describe "Scenario - roleAssignments" {
 
         #region Push Test
         It "Push should be successful" {
-            $script:push.ProvisioningState | Should -Be "Succeeded"
+            $script:push.deployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion Push Test
     }
