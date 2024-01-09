@@ -222,10 +222,19 @@
                         ($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }) -and
                         (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName })
                     ) {
-                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions[0]
-                        Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersions -FunctionName 'ConvertTo-AzOpsState'
+                        $apiVersions = (($Script:AzOpsResourceProvider | Where-Object { $_.ProviderNamespace -eq $providerNamespace }).ResourceTypes | Where-Object { $_.ResourceTypeName -eq $resourceApiTypeName }).ApiVersions
 
-                        $object.resources[0].apiVersion = $apiVersions
+                        # Handle GA/Preview API versions
+                        $gaApiVersion = $apiVersions | Where-Object {$_ -match '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'} | Sort-Object -Descending
+                        $preApiVersion = $apiVersions | Where-Object {$_ -notmatch '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'} | Sort-Object -Descending
+
+                        if ($null -eq $gaApiVersion) {
+                            $apiVersion = $preApiVersion | Select-Object -First 1
+                        } else {
+                            $apiVersion = $gaApiVersion | Select-Object -First 1
+                        }
+                        Write-PSFMessage -Level Verbose -String 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -StringValues $resourceType, $apiVersion -FunctionName 'ConvertTo-AzOpsState'
+                        $object.resources[0].apiVersion = $apiVersion
                         $object.resources[0].type = $resourceType
                     }
                     else {
