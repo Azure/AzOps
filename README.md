@@ -10,7 +10,7 @@ This repository is for active development of the AzOps PowerShell cmdlets.
 
 ## Getting started
 
-For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
+For tutorials, samples, and quick starts, visit the [AzOps Accelerator](https://github.com/azure/azops-accelerator) template repository.
 
 ## Dependencies
 
@@ -23,13 +23,13 @@ For tutorials, samples and quick starts, visit the [AzOps Accelerator](https://g
 ## Need help?
 
 For introduction guidance, visit the [GitHub Wiki](https://github.com/azure/azops/wiki)  
-For tutorials, samples and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
+For tutorials, samples, and quick starts, go to [AzOps Accelerator](https://github.com/azure/azops-accelerator)  
 For information on contributing to the module, visit the [Contributing Guide](https://github.com/Azure/azops/wiki/debug)  
 File an issue via [GitHub Issues](https://github.com/azure/azops/issues/new/choose)  
 
 ## Output
 
-AzOps is rooted in the principle that everything in Azure is a resource and to operate at-scale, it should be managed declaratively to determine target goal state of the overall platform.
+AzOps is rooted in the principle that everything in Azure is a resource and to operate at scale, it should be managed declaratively to determine the target goal state of the overall platform.
 
 This PowerShell module provides the ability to deploy Resource Templates & Bicep files at all Azure [scope](https://learn.microsoft.com/azure/role-based-access-control/scope-overview) levels. To provide this functionality the multiple scopes within Azure Resource Manager are represented (example below) within Git. Using directories and files, templates can be deployed (Push) at various scopes whilst also exporting (Pull) composite templates from ARM and placing them within the repository.
 
@@ -71,7 +71,7 @@ root
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+Contributor License Agreement (CLA) declaring that you have the right to, and do, grant us
 the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
@@ -85,7 +85,7 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 ## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
-trademarks or logos is subject to and must follow
+trademarks or logos are subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+Use of Microsoft trademarks or logos in modified versions of this project must not confuse or imply Microsoft sponsorship.
+Any use of third-party trademarks or logos is subject to those third-party's policies.
