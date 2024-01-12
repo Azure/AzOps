@@ -64,9 +64,9 @@
     }
 
     process {
-        Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Processing' -LogStringValues $Resource.Id
-
         if ($ChildResource) {
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Processing' -LogStringValues $ChildResource.resourceName
+
             $objectFilePath = (New-AzOpsScope -scope $ChildResource.parentResourceId -ChildResource $ChildResource -StatePath $Statepath).statepath
 
             $jqJsonTemplate = Get-AzOpsTemplateFile -File "templateChildResource.jq"
@@ -77,6 +77,9 @@
             Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting' -LogStringValues $objectFilePath
             ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
             return
+        }
+        else {
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Processing' -LogStringValues $Resource.id
         }
 
         if (-not $ExportPath) {
