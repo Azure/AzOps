@@ -69,14 +69,14 @@
             }
             catch {
                 if ($count -lt $RetryCount) {
-                    Write-PSFMessage -Level Debug -String 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -StringValues $count, $RetryCount -ErrorRecord $_ -Data $data
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsScriptBlock.Failed.WillRetry' -LogStringValues $ScriptBlock, $count, $RetryCount -ErrorRecord $_ -Data $data
                     switch ($RetryType) {
                         Linear { Start-Sleep -Seconds $RetryWait }
                         Exponential { Start-Sleep -Seconds ([math]::Pow($RetryWait, $count)) }
                     }
                     continue
                 }
-                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsScriptBlock.Failed.GivingUp' -StringValues $count, $RetryCount -ErrorRecord $_ -Data $data
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsScriptBlock.Failed.GivingUp' -LogStringValues $ScriptBlock, $count, $RetryCount -ErrorRecord $_ -Data $data
                 throw
             }
         }

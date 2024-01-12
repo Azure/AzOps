@@ -36,14 +36,14 @@
     )
 
     process {
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing' -StringValues $File
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing' -LogStringValues $File
         # Evaluate JqTemplate Conditions
         if ($SkipCustomJqTemplate) {
             # Use default module templates only
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Path' -LogStringValues $File, $JqTemplatePath
             if ($Fallback) {
                 # Process with Fallback
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Fallback' -StringValues $File, $Fallback
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Fallback' -LogStringValues $File, $Fallback
                 $return = (Test-Path -Path (Join-Path $JqTemplatePath -ChildPath $File) -PathType Leaf) ?
                 (Get-Item -Path (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
                 (Get-Item -Path (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
@@ -57,16 +57,16 @@
         }
         else {
             # Use custom templates
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $CustomJqTemplatePath
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Path' -LogStringValues $File, $CustomJqTemplatePath
             if ($Fallback) {
                 # Process with Fallback
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Fallback' -StringValues $File, $Fallback
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Fallback' -LogStringValues $File, $Fallback
                 $return = (Test-Path -Path (Join-Path $CustomJqTemplatePath -ChildPath $File) -PathType Leaf) ?
                 (Get-Item -Path (Join-Path $CustomJqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
                 (Get-Item -Path (Join-Path $CustomJqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
                 if (-not $return) {
                     # Use default templates since no custom templates was found
-                    Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Path' -LogStringValues $File, $JqTemplatePath
                     $return = (Test-Path -Path (Join-Path $JqTemplatePath -ChildPath $File) -PathType Leaf) ?
                     (Get-Item -Path (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue):
                     (Get-Item -Path (Join-Path $JqTemplatePath -ChildPath $Fallback) -ErrorAction SilentlyContinue)
@@ -79,7 +79,7 @@
                 }
                 if (-not $return) {
                     # Use default templates since no custom templates was found
-                    Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Path' -StringValues $File, $JqTemplatePath
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsTemplateFile.Processing.Path' -LogStringValues $File, $JqTemplatePath
                     if (Test-Path -Path (Join-Path $JqTemplatePath -ChildPath $File) -PathType Leaf) {
                         $return = (Get-Item -Path (Join-Path $JqTemplatePath -ChildPath $File) -ErrorAction SilentlyContinue)
                     }
@@ -89,12 +89,12 @@
         if ($return) {
             # Template file found
             $return = ($return | Select-Object -First 1).VersionInfo.FileName
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsTemplateFile.Processing.Found' -StringValues $return
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsTemplateFile.Processing.Found' -LogStringValues $return
             return $return
         }
         else {
             # No template file found, throw
-            Write-PSFMessage -Level Error -String 'Get-AzOpsTemplateFile.Processing.NotFound' -StringValues $File
+            Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsTemplateFile.Processing.NotFound' -LogStringValues $File
             throw
         }
     }

@@ -34,7 +34,7 @@
     )
 
     process {
-        Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing' -StringValues $Query
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing' -LogStringValues $Query
         $results = @()
         if ($UseTenantScope) {
             do {
@@ -82,11 +82,11 @@
                     }
                 }
             }
-            Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing.Done' -StringValues $Query
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Done' -LogStringValues $Query
             return $resultsType
         }
         else {
-            Write-PSFMessage -Level Verbose -String 'Search-AzOpsAzGraph.Processing.NoResult' -StringValues $Query
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Search-AzOpsAzGraph.Processing.NoResult' -LogStringValues $Query
         }
     }
 

@@ -30,11 +30,11 @@
         switch ($ScopeObject.Type) {
             subscriptions {
                 # ScopeObject is a subscription
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceLock.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceLock.Subscription' -LogStringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
             }
             resourcegroups {
                 # ScopeObject is a resourcegroup
-                Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceLock.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceLock.ResourceGroup' -LogStringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
         try {
@@ -47,7 +47,7 @@
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
-            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsResourceLock"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceLock.Failed' -LogStringValues $_
         }
         if ($resourceLocks) {
             # Process each resource lock

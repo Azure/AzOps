@@ -42,7 +42,7 @@
             $groupObject = Get-AzManagementGroup -GroupId $ManagementGroup -Expand -WarningAction SilentlyContinue
         }
         catch {
-            Write-PSFMessage -Level Error -String 'Get-AzOpsManagementGroup.Failed' -StringValues $ManagementGroup
+            Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsManagementGroup.Failed' -LogStringValues $ManagementGroup
             throw
         }
         if ($PartialDiscovery) {

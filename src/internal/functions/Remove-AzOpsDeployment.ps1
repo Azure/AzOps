@@ -113,7 +113,7 @@
                                     }
                                 }
                                 else {
-                                    Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceDependencyNested' -StringValues $roleAssignmentId, $policyAssignment.ResourceId
+                                    Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceDependencyNested' -LogStringValues $roleAssignmentId, $policyAssignment.ResourceId
                                 }
                             }
                         }
@@ -185,17 +185,17 @@
         $fileItem = Get-Item -Path $TemplateFilePath
         $removeJobName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
         $removeJobName = "AzOps-RemoveResource-$removeJobName"
-        Write-PSFMessage -Level Important -String 'Remove-AzOpsDeployment.Processing' -StringValues $removeJobName, $TemplateFilePath -Target $TemplateFilePath
+        Write-AzOpsMessage -LogLevel Important -LogString 'Remove-AzOpsDeployment.Processing' -LogStringValues $removeJobName, $TemplateFilePath
         #region Parse Content
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
         #endregion
         #region Validate it is AzOpsgenerated template
         $schemavalue = '$schema'
         if ($templateContent.metadata._generator.name -eq "AzOps" -or $templateContent.$schemavalue -like "*deploymentParameters.json#") {
-            Write-PSFMessage -Level Verbose -Message 'Remove-AzOpsDeployment.Metadata.Success' -StringValues $TemplateFilePath -Target $TemplateFilePath
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.Success' -LogStringValues $TemplateFilePath
         }
         else {
-            Write-PSFMessage -Level Error -Message 'Remove-AzOpsDeployment.Metadata.Failed' -StringValues $TemplateFilePath -Target $TemplateFilePath
+            Write-AzOpsMessage -LogLevel Error -LogString 'Remove-AzOpsDeployment.Metadata.Failed' -LogStringValues $TemplateFilePath
             return
         }
         #endregion Validate it is AzOpsgenerated template
@@ -204,11 +204,11 @@
             $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
         }
         catch {
-            Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.Scope.Failed' -Target $TemplateFilePath -StringValues $TemplateFilePath -ErrorRecord $_
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.Scope.Failed' -LogStringValues $TemplateFilePath -ErrorRecord $_
             return
         }
         if (-not $scopeObject) {
-            Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.Scope.Empty' -Target $TemplateFilePath -StringValues $TemplateFilePath
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.Scope.Empty' -LogStringValues $TemplateFilePath
             return
         }
         #endregion Resolve Scope
@@ -262,7 +262,7 @@
             }
             # If no resource to delete was found return
             if (-not $resourceToDelete) {
-                Write-PSFMessage -Level Warning -String 'Remove-AzOpsDeployment.ResourceNotFound' -StringValues $scopeObject.Resource, $scopeObject.Scope -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 return
@@ -270,7 +270,7 @@
             if ($dependency) {
                 foreach ($resource in $dependency) {
                     if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
-                        Write-PSFMessage -Level Critical -String 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -StringValues $resource.ResourceId, $scopeObject.Scope -Target $scopeObject
+                        Write-AzOpsMessage -LogLevel Critical -LogString 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -LogStringValues $resource.ResourceId, $scopeObject.Scope
                         $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.ResourceId, $scopeObject.scope, [environment]::NewLine
                         Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         $dependencyMissing = [PSCustomObject]@{
@@ -281,8 +281,8 @@
             }
             else {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($dependencyMissing) {
@@ -290,15 +290,15 @@
             }
             elseif ($dependency) {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfResults' -StringValues $results -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile' -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
             }
             else {
-                Write-PSFMessage -Level Verbose -String 'Remove-AzOpsDeployment.SkipDueToWhatIf'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
     }

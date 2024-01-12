@@ -19,7 +19,7 @@
 
     process {
         # Process RoleEligibilitySchedule
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'RoleEligibilitySchedule', $scopeObject.Scope
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'RoleEligibilitySchedule', $scopeObject.Scope
         $roleEligibilityScheduleRequest = Get-AzOpsRoleEligibilityScheduleRequest -ScopeObject $ScopeObject
         if ($roleEligibilityScheduleRequest) {
             $roleEligibilityScheduleRequest | ConvertTo-AzOpsState -StatePath $StatePath

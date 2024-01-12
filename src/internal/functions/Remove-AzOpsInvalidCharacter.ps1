@@ -35,14 +35,14 @@
         # Check if string contains invalid characters
         $pattern = $InvalidChars | Out-String -NoNewline
         if ($String -match "[$pattern]") {
-            Write-PSFMessage -Level Verbose -String 'Remove-AzOpsInvalidCharacter.Invalid' -StringValues $String -FunctionName 'Remove-AzOpsInvalidCharacter'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsInvalidCharacter.Invalid' -LogStringValues $String
             # Arrange string into character array
             $fileNameChar = $String.ToCharArray()
             # Iterate over each character in string
             foreach ($character in $fileNameChar) {
                 # If character exists in invalid array then replace character
                 if ($character -in $InvalidChars) {
-                    Write-PSFMessage -Level Verbose -String 'Remove-AzOpsInvalidCharacter.Removal' -StringValues $character, $String -FunctionName 'Remove-AzOpsInvalidCharacter'
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsInvalidCharacter.Removal' -LogStringValues $character, $String
                     # Remove invalid character
                     $String = $String.Replace($character.ToString(),'')
                 }
@@ -50,7 +50,7 @@
         }
         # Always remove square brackets
         $String = $String -replace "(\[|\])",""
-        Write-PSFMessage -Level Verbose -String 'Remove-AzOpsInvalidCharacter.Completed' -StringValues $String -FunctionName 'Remove-AzOpsInvalidCharacter'
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsInvalidCharacter.Completed' -LogStringValues $String
         # Return processed string
         return $String
     }

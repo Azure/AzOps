@@ -38,8 +38,8 @@
     )
 
     process {
-        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Excluded.States' -StringValues ($ExcludedStates -join ',')
-        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Excluded.Offers' -StringValues ($ExcludedOffers -join ',')
+        Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsSubscription.Excluded.States' -LogStringValues ($ExcludedStates -join ',')
+        Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsSubscription.Excluded.Offers' -LogStringValues ($ExcludedOffers -join ',')
 
         $nextLink = "/subscriptions?api-version=$ApiVersion"
         $allSubscriptionsResults = do {
@@ -54,19 +54,19 @@
             $_.subscriptionPolicies.quotaId -notin $ExcludedOffers
         }
         if (-not $includedSubscriptions) {
-            Write-PSFMessage -Level Warning -String 'Get-AzOpsSubscription.NoSubscriptions' -Tag failed
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsSubscription.NoSubscriptions'
             return
         }
 
-        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Found' -StringValues $allSubscriptionsResults.Count
+        Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsSubscription.Subscriptions.Found' -LogStringValues $allSubscriptionsResults.Count
         if ($allSubscriptionsResults.Count -gt $includedSubscriptions.Count) {
-            Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Excluded' -StringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
+            Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsSubscription.Subscriptions.Excluded' -LogStringValues ($allSubscriptionsResults.Count - $includedSubscriptions.Count)
         }
 
         if ($includedSubscriptions | Where-Object State -EQ PastDue) {
-            Write-PSFMessage -Level Warning -String 'Get-AzOpsSubscription.Subscriptions.PastDue' -StringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsSubscription.Subscriptions.PastDue' -LogStringValues ($includedSubscriptions | Where-Object State -EQ PastDue).Count
         }
-        Write-PSFMessage -Level Important -String 'Get-AzOpsSubscription.Subscriptions.Included' -StringValues $includedSubscriptions.Count
+        Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsSubscription.Subscriptions.Included' -LogStringValues $includedSubscriptions.Count -Metric $includedSubscriptions.Count -MetricName 'Subscription Count'
         $includedSubscriptions
     }
 

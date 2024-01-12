@@ -36,7 +36,7 @@
     process {
         if (-not $ResourceGroup) {
             # Process policy definitions
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Definitions', $scopeObject.Scope
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Policy Definitions', $scopeObject.Scope
             $policyDefinitions = Get-AzOpsPolicyDefinition -ScopeObject $ScopeObject -Subscription $Subscription
             $policyDefinitionsClean = @()
             foreach ($policyDefinition in $policyDefinitions) {
@@ -46,12 +46,12 @@
             $policyDefinitionsClean | ConvertTo-AzOpsState -StatePath $StatePath
 
             # Process policy set definitions (initiatives)
-            Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Set Definitions', $ScopeObject.Scope
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Policy Set Definitions', $ScopeObject.Scope
             $policySetDefinitions = Get-AzOpsPolicySetDefinition -ScopeObject $ScopeObject -Subscription $Subscription
             $policySetDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
         }
         # Process policy assignments
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Policy Assignments', $ScopeObject.Scope
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Policy Assignments', $ScopeObject.Scope
         $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $ScopeObject -Subscription $Subscription -SubscriptionsToIncludeResourceGroups $SubscriptionsToIncludeResourceGroups -ResourceGroup $ResourceGroup
         $policyAssignments | ConvertTo-AzOpsState -StatePath $StatePath
     }

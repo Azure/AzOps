@@ -30,12 +30,12 @@
             return
         }
         if ($ScopeObject.Type -eq 'managementGroups') {
-            Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyDefinition.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyDefinition.ManagementGroup' -LogStringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
             $query = "policyresources | where type == 'microsoft.authorization/policydefinitions' and properties.policyType == 'Custom' and subscriptionId == '' | order by ['id'] asc"
             Search-AzOpsAzGraph -ManagementGroupName $ScopeObject.Name -Query $query -ErrorAction Stop
         }
         if ($Subscription) {
-            Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyDefinition.Subscription' -StringValues $Subscription.count -Target $ScopeObject
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyDefinition.Subscription' -LogStringValues $Subscription.count -Target $ScopeObject
             $query = "policyresources | where type == 'microsoft.authorization/policydefinitions' and properties.policyType == 'Custom' | order by ['id'] asc"
             Search-AzOpsAzGraph -Subscription $Subscription -Query $query -ErrorAction Stop
         }

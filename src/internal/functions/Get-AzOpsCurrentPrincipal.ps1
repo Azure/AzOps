@@ -17,7 +17,7 @@
     )
 
     process {
-        Write-PSFMessage -Level InternalComment -String 'Get-AzOpsCurrentPrincipal.AccountType' -StringValues $AzContext.Account.Type
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsCurrentPrincipal.AccountType' -LogStringValues $AzContext.Account.Type
 
         switch ($AzContext.Account.Type) {
             'User' {
@@ -32,7 +32,7 @@
                 $principalObject = Get-AzADServicePrincipal -ApplicationId $AzContext.Account.Id
             }
         }
-        Write-PSFMessage -Level InternalComment -String 'Get-AzOpsCurrentPrincipal.PrincipalId' -StringValues $principalObject.Id
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsCurrentPrincipal.PrincipalId' -LogStringValues $principalObject.Id
         return $principalObject
     }
 }

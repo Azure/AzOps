@@ -58,7 +58,7 @@
     )
 
     process {
-        Write-PSFMessage -Level Important -String 'New-AzOpsDeployment.Processing' -StringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
+        Write-AzOpsMessage -LogLevel Important -LogString 'New-AzOpsDeployment.Processing' -LogStringValues $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode -Target $TemplateFilePath
 
         #region Resolve Scope
         try {
@@ -71,11 +71,11 @@
             $scopeFound = $true
         }
         catch {
-            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Failed' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath -ErrorRecord $_
+            Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.Scope.Failed' -LogStringValues $TemplateFilePath, $TemplateParameterFilePath -ErrorRecord $_
             return
         }
         if (-not $scopeObject) {
-            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Empty' -Target $TemplateFilePath -StringValues $TemplateFilePath, $TemplateParameterFilePath
+            Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.Scope.Empty' -LogStringValues $TemplateFilePath, $TemplateParameterFilePath
             return
         }
         #endregion Resolve Scope
@@ -99,7 +99,7 @@
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ResourceGroup.Processing' -StringValues $scopeObject -Target $scopeObject
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzResourceGroupDeployment'
@@ -108,21 +108,21 @@
         }
         # Subscriptions
         elseif ($scopeObject.subscription) {
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Subscription.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzSubscriptionDeployment'
         }
         # Management Groups
         elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.ManagementGroup.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $parameters.ManagementGroupId = $scopeObject.managementgroup
             $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzManagementGroupDeployment'
         }
         # Tenant deployments
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
-            Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Root.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $whatIfCommand = 'Get-AzTenantDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzTenantDeployment'
         }
@@ -140,24 +140,24 @@
             if ($parentDirScopeObject -and $parentIdScope -and $parentDirScopeObject.Scope -eq $parentIdScope.Scope -and $parentDirScopeObject.StatePath -eq $parentIdScope.StatePath -and $parentDirScopeObject.Name -eq $parentIdScope.Name) {
                 # Validate directory name match resource information
                 if ((Get-Item -Path $pathDir).Name -eq "$($resource.properties.displayName) ($($resource.name))") {
-                    Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.Root.Processing' -StringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Root.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
                     $whatIfCommand = 'Get-AzTenantDeploymentWhatIfResult'
                     $deploymentCommand = 'New-AzTenantDeployment'
                 }
                 # Invalid directory name
                 else {
-                    Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.Directory.NotFound' -Target $scopeObject -Tag Error -StringValues (Get-Item -Path $pathDir).Name, "$($resource.properties.displayName) ($($resource.name))"
+                    Write-AzOpsMessage -LogLevel Error -LogString 'New-AzOpsDeployment.Directory.NotFound' -LogStringValues (Get-Item -Path $pathDir).Name, "$($resource.properties.displayName) ($($resource.name))"
                     throw
                 }
             }
             # Parent missing
             else {
-                Write-PSFMessage -Level Error -String 'New-AzOpsDeployment.Parent.NotFound' -Target $scopeObject -Tag Error -StringValues $addition
+                Write-AzOpsMessage -LogLevel Error -LogString 'New-AzOpsDeployment.Parent.NotFound' -LogStringValues $addition
                 throw
             }
         }
         else {
-            Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.Scope.Unidentified' -Target $scopeObject -StringValues $scopeObject
+            Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.Scope.Unidentified' -LogStringValues $scopeObject
             $scopeFound = $false
         }
         # Proceed with WhatIf or Deployment if scope was found
@@ -180,12 +180,12 @@
                 $resultsErrorMessage = $resultsError.exception.InnerException.Message
                 # Ignore errors for bicep modules
                 if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
                     $invalidTemplate = $true
                 }
                 # Handle WhatIf prediction errors
                 elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
                     if ($parameters.TemplateParameterFile) {
                         $deploymentResult.filePath = $parameters.TemplateFile
                         $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
@@ -197,17 +197,17 @@
                     }
                 }
                 else {
-                    Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.WhatIfWarning' -Target $scopeObject -Tag Error -StringValues $resultsErrorMessage
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
                     throw $resultsErrorMessage
                 }
             }
             elseif ($results.Error) {
-                Write-PSFMessage -Level Warning -String 'New-AzOpsDeployment.TemplateError' -StringValues $TemplateFilePath -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateError' -LogStringValues $TemplateFilePath -Target $scopeObject
                 return
             }
             else {
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfResults' -StringValues ($results | Out-String) -Target $scopeObject
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 if ($parameters.TemplateParameterFile) {
                     $deploymentResult.filePath = $parameters.TemplateFile
                     $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
@@ -230,7 +230,7 @@
             }
             else {
                 # Exit deployment
-                Write-PSFMessage -Level Verbose -String 'New-AzOpsDeployment.SkipDueToWhatIf'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #Return

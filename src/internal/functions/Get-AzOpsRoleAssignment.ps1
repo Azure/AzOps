@@ -20,7 +20,7 @@
     )
 
     process {
-        Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleAssignment.Processing' -StringValues $ScopeObject -Target $ScopeObject
+        Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleAssignment.Processing' -LogStringValues $ScopeObject -Target $ScopeObject
         $apiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.Authorization'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'roleAssignments'}).ApiVersions | Select-Object -First 1
         $path = "$($scopeObject.Scope)/providers/Microsoft.Authorization/roleAssignments?api-version=$apiVersion&`$filter=atScope()"
         try {
@@ -34,13 +34,13 @@
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
-            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsRoleAssignment"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsRoleAssignment.Failed' -LogStringValues $_
         }
         if ($roleAssignments) {
             $roleAssignmentMatch = @()
             foreach ($roleAssignment in $roleAssignments) {
                 if ($roleAssignment.properties.scope -eq $ScopeObject.Scope) {
-                    Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleAssignment.Assignment' -StringValues $roleAssignment.id, $roleAssignment.properties.roleDefinitionId -Target $ScopeObject
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleAssignment.Assignment' -LogStringValues $roleAssignment.id, $roleAssignment.properties.roleDefinitionId -Target $ScopeObject
                     $roleAssignmentMatch += [PSCustomObject]@{
                         id = $roleAssignment.id
                         name = $roleAssignment.name

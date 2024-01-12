@@ -65,7 +65,7 @@
         # Adjust MultipleTemplateParameterFileSuffix if incorrect MultipleTemplateParameterFileSuffix is set and log warning
         if (-not $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').StartsWith('.')) {
             $updateMultipleTemplateParameterFileSuffix = ".$(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix')"
-            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.MultipleTemplateParameterFileSuffix.Adjustment' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix'), $updateMultipleTemplateParameterFileSuffix
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.MultipleTemplateParameterFileSuffix.Adjustment' -LogStringValues (Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix'), $updateMultipleTemplateParameterFileSuffix
             Set-PSFConfig -Module AzOps -Name Core.MultipleTemplateParameterFileSuffix -Value $updateMultipleTemplateParameterFileSuffix
         }
 
@@ -73,21 +73,21 @@
         [int]$cpuCores = if ($IsWindows) { $env:NUMBER_OF_PROCESSORS } else { Invoke-AzOpsNativeCommand -ScriptBlock { nproc --all } -IgnoreExitcode }
         $throttleLimit = (Get-PSFConfig -Module AzOps -Name Core.ThrottleLimit).Value
         if (-not[string]::IsNullOrEmpty($cpuCores) -and $cpuCores -le 2 -and $throttleLimit -gt 5) {
-            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -StringValues $throttleLimit, $cpuCores
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment' -LogStringValues $throttleLimit, $cpuCores
             Set-PSFConfig -Module AzOps -Name Core.ThrottleLimit -Value 5
         }
 
         # Validate optional custom path for custom jq template
         if ((Get-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate).Value) {
-            Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Initialize-AzOpsEnvironment.SkipCustomJqTemplate.True'
         }
         else {
             $customJqTemplatePath = (Get-PSFConfig -Module AzOps -Name Core.CustomJqTemplatePath).Value
             if (Test-Path -Path $customJqTemplatePath) {
-                Write-PSFMessage -Level Debug -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath' -StringValues $customJqTemplatePath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Initialize-AzOpsEnvironment.CustomJqTemplatePath' -LogStringValues $customJqTemplatePath
             }
             else {
-                Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound' -StringValues $customJqTemplatePath
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.CustomJqTemplatePath.PathNotFound' -LogStringValues $customJqTemplatePath
                 Set-PSFConfig -Module AzOps -Name Core.SkipCustomJqTemplate -Value $true
             }
         }
@@ -96,16 +96,15 @@
     process {
         # If data exists and we don't want to rebuild the data cache, no point in continuing
         if (-not $InvalidateCache -and $script:AzOpsAzManagementGroup -and $script:AzOpsSubscriptions) {
-            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.UsingCache'
+            Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.UsingCache'
             return
         }
 
         #region Initialize & Prepare
-        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Processing'
+        Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.Processing'
         $currentAzContext = Get-AzContext
         $tenantId = $currentAzContext.Tenant.Id
-
-        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Initializing'
+        Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.Initializing'
         if (-not (Test-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.State'))) {
             $null = New-Item -path (Get-PSFConfigValue -FullName 'AzOps.Core.State') -Force -ItemType directory
         }
@@ -120,7 +119,7 @@
             $managementGroups = Get-AzManagementGroup -ErrorAction Stop
         }
         catch {
-            Write-PSFMessage -Level Warning -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
             return
         }
 
@@ -129,7 +128,7 @@
         $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
         if (-not $rootPermissions) {
-            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -StringValues $currentAzContext.Account.Id
+            Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -LogStringValues $currentAzContext.Account.Id
             $PartialMgDiscovery = $true
         }
         else {
@@ -139,7 +138,7 @@
 
         #region Partial Discovery
         if ($PartialMgDiscoveryRoot) {
-            Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
+            Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'
             $PartialMgDiscovery = $true
             $managementGroups = @()
             foreach ($managementRoot in $PartialMgDiscoveryRoot) {
@@ -150,16 +149,16 @@
         #endregion Partial Discovery
 
         #region Management Group Resolution
-        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -StringValues $managementGroups.Count
+        Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.Resolution' -LogStringValues $managementGroups.Count -Metric $managementGroups.Count -MetricName 'ManagementGroup Count'
         $tempResolved = foreach ($mgmtGroup in $managementGroups) {
-            Write-PSFMessage -Level Verbose -String 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -StringValues $mgmtGroup.Name
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.Expanding' -LogStringValues $mgmtGroup.Name
             Get-AzOpsManagementGroup -ManagementGroup $mgmtGroup.Name -PartialDiscovery:$PartialMgDiscovery
         }
         $script:AzOpsAzManagementGroup = $tempResolved | Sort-Object -Property Id -Unique
         #endregion Management Group Resolution
         #endregion Management Group Processing
-
-        Write-PSFMessage -Level Important -String 'Initialize-AzOpsEnvironment.Processing.Completed'
+        Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.Processing.Completed'
+        Clear-PSFMessage
     }
 
 }

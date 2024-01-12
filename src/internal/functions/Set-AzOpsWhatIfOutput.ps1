@@ -47,7 +47,7 @@
     process {
         $tempPath = [System.IO.Path]::GetTempPath()
         if ((-not (Test-Path -Path ($tempPath + 'OUTPUT.md'))) -or (-not (Test-Path -Path ($tempPath + 'OUTPUT.json')))) {
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFile'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
             New-Item -Path ($tempPath + 'OUTPUT.md') -WhatIf:$false | Out-Null
             New-Item -Path ($tempPath + 'OUTPUT.json') -WhatIf:$false | Out-Null
         }
@@ -69,7 +69,7 @@
         # Gather current OUTPUT.json content
         $existingContent = @(Get-Content -Path ($tempPath + 'OUTPUT.json') -Raw | ConvertFrom-Json -Depth 100)
         # Export results to json file
-        Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -StringValues 'json', $FilePath, $ParameterFilePath
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -LogStringValues 'json', $FilePath, $ParameterFilePath
         if ($RemoveAzOpsFlag) {
             $resultJson = [PSCustomObject]@{
                 WhatIfResult = $Results
@@ -85,7 +85,7 @@
         Set-Content -Path ($tempPath + 'OUTPUT.json') -Value $existingContent -WhatIf:$false
         # Check if $existingContentStringMeasureMd and $resultStringMeasure exceed allowed size in $ResultSizeLimit
         if (($existingContentStringMeasureMd.Characters + $resultStringMeasure.Characters) -gt $ResultSizeLimit) {
-            Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -StringValues $ResultSizeLimit
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfFileMax' -LogStringValues $ResultSizeLimit
             $mdOutput = 'WhatIf Results for {1}:{0} WhatIf is too large for comment field, for more details look at PR files to determine changes.' -f [environment]::NewLine, $resultHeadline
         }
         else {
@@ -105,11 +105,11 @@
             }
         }
         if ((($mdOutput | Measure-Object -Line -Character -Word).Characters + $existingContentStringMeasureMd.Characters) -le $ResultSizeMaxLimit) {
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -StringValues 'markdown', $FilePath, $ParameterFilePath
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFileAdding' -LogStringValues 'markdown', $FilePath, $ParameterFilePath
             Add-Content -Path ($tempPath + 'OUTPUT.md') -Value $mdOutput -WhatIf:$false
         }
         else {
-            Write-PSFMessage -Level Warning -String 'Set-AzOpsWhatIfOutput.WhatIfMessageMax' -StringValues $ResultSizeMaxLimit
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfMessageMax' -LogStringValues $ResultSizeMaxLimit
         }
     }
 }
