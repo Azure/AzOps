@@ -363,7 +363,9 @@
                         $resourceGroup = $using:resourceGroups | Where-Object {$_.subscriptionId -eq $resource.subscriptionId -and $_.name -eq $resource.resourceGroup}
                         foreach ($exportResource in $exportResources) {
                             if (-not(($resource.name -eq $exportResource.name) -and ($resource.type -eq $exportResource.type))) {
-                                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -Target $exportResource
+                                & $azOps {
+                                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -Target $exportResource
+                                }
                                 $ChildResource = @{
                                     resourceProvider = $exportResource.type -replace '/', '_'
                                     resourceName     = $exportResource.name -replace '/', '_'
@@ -380,7 +382,9 @@
                         }
                     }
                     catch {
-                        Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, $_
+                        & $azOps {
+                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, $_
+                        }
                     }
                     if (Test-Path -Path $tempExportPath) {
                         Remove-Item -Path $tempExportPath
