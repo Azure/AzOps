@@ -149,7 +149,7 @@
             # Construct ApplicationInsights object
             $azOpsMessage = [Microsoft.ApplicationInsights.TelemetryClient]::new()
             # Set ApplicationInsights connectionstring
-            $azOpsMessage.TelemetryConfiguration.ConnectionString = $env:APPLICATIONINSIGHTS_CONNECTION_STRING
+            $azOpsMessage.TelemetryConfiguration.ConnectionString = $env:APPLICATIONINSIGHTS_CONNECTIONSTRING
             $azOpsMessage.Context.Session.Id = $PID
             # Adjust logMessage.Level to align with ApplicationInsights
             switch ($logMessage.Level) {
