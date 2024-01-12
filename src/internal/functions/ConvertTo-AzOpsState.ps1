@@ -71,10 +71,10 @@
 
             $jqJsonTemplate = Get-AzOpsTemplateFile -File "templateChildResource.jq"
 
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template' -LogStringValues $jqJsonTemplate
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Subscription.ChildResource.Jq.Template' -LogStringValues $jqJsonTemplate
             $object = ($Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
 
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting' -LogStringValues $objectFilePath
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Subscription.ChildResource.Exporting' -LogStringValues $objectFilePath
             ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path $objectFilePath -Encoding UTF8 -Force
             return
         }
@@ -104,28 +104,28 @@
         }
         # Create folder structure if it doesn't exist
         if (-not (Test-Path -Path $objectFilePath)) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.File.Create' -LogStringValues $objectFilePath
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.File.Create' -LogStringValues $objectFilePath
             $null = New-Item -Path $objectFilePath -ItemType "file" -Force
         }
         else {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.File.UseExisting' -LogStringValues $objectFilePath
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.File.UseExisting' -LogStringValues $objectFilePath
         }
 
         # If export file path ends with parameter
         $generateTemplateParameter = $objectFilePath.EndsWith('.parameters.json') ? $true : $false
-        Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplateParameter' -LogStringValues "$generateTemplateParameter"
+        Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplateParameter' -LogStringValues "$generateTemplateParameter"
 
         $resourceType = $null
         switch ($Resource) {
             { $_.ResourceType } {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -LogStringValues "$($Resource.ResourceType)"
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -LogStringValues "$($Resource.ResourceType)"
                 $resourceType = $_.ResourceType
                 break
             }
             # Management Groups
             { $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroup] -or
                 $_ -is [Microsoft.Azure.Commands.Resources.Models.ManagementGroups.PSManagementGroupChildInfo] } {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
                 if ($_.Type -eq "/subscriptions") {
                     $resourceType = 'Microsoft.Management/managementGroups/subscriptions'
                     break
@@ -137,7 +137,7 @@
             }
             # Subscriptions
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureSubscription] } {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
                 $resourceType = 'Microsoft.Subscription/subscriptions'
                 if (-not $Resource.Type) {
                     $Resource | Add-Member -NotePropertyName Type -NotePropertyValue $resourceType
@@ -146,13 +146,13 @@
             }
             # Resource Groups
             { $_ -is [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup] } {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
                 $resourceType = 'Microsoft.Resources/resourceGroups'
                 break
             }
             # Resources - Controlled group for raw  objects
             { $_ -is [Microsoft.Azure.Commands.Profile.Models.PSAzureTenant] } {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.PSObject' -LogStringValues "$($_.GetType())"
                 break
             }
             { $_.type } {
@@ -162,7 +162,7 @@
                 else {
                     $resourceType = $_.type
                 }
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -LogStringValues $resourceType
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.ObjectType.Resolved.ResourceType' -LogStringValues $resourceType
                 break
             }
             Default {
@@ -172,27 +172,27 @@
         }
         if ($resourceType) {
             $providerNamespace = ($resourceType -split '/' | Select-Object -First 1)
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace' -LogStringValues $providerNamespace
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ProviderNamespace' -LogStringValues $providerNamespace
 
             if (($resourceType -split '/').Count -eq 2) {
                 $resourceTypeName = (($resourceType -split '/', 2) | Select-Object -Last 1)
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -LogStringValues $resourceTypeName
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -LogStringValues $resourceTypeName
 
                 $resourceApiTypeName = (($resourceType -split '/', 2) | Select-Object -Last 1)
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName' -LogStringValues $resourceApiTypeName
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName' -LogStringValues $resourceApiTypeName
             }
 
             if (($resourceType -split '/').Count -eq 3) {
                 $resourceTypeName = ((($resourceType -split '/', 3) | Select-Object -Last 2) -join '/')
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -LogStringValues $resourceTypeName
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName' -LogStringValues $resourceTypeName
 
                 $resourceApiTypeName = (($resourceType -split '/', 3) | Select-Object -Index 1)
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName' -LogStringValues $resourceApiTypeName
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName' -LogStringValues $resourceApiTypeName
             }
 
             $jqRemoveTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.jq") -Fallback "generic.jq"
 
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Jq.Remove' -LogStringValues $jqRemoveTemplate
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Jq.Remove' -LogStringValues $jqRemoveTemplate
             # If we were able to determine resourceType, apply filter and write template or template parameter files based on output filename.
             $object = $Resource | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r -f $jqRemoveTemplate | ConvertFrom-Json
 
@@ -202,19 +202,19 @@
             else {
                 if ($generateTemplateParameter) {
                     #region Generating Template Parameter
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplateParameter'
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplateParameter'
 
                     $jqJsonTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.parameters.jq") -Fallback "template.parameters.jq"
 
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Jq.Template' -LogStringValues $jqJsonTemplate
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Jq.Template' -LogStringValues $jqJsonTemplate
                     $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
                 }
                 else {
                     #region Generating Template
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate' -LogStringValues "$true"
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate' -LogStringValues "$true"
                     $jqJsonTemplate = Get-AzOpsTemplateFile -File (Join-Path $providerNamespace -ChildPath "$resourceTypeName.template.jq") -Fallback "template.jq"
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Jq.Template' -LogStringValues $jqJsonTemplate
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Jq.Template' -LogStringValues $jqJsonTemplate
                     $object = ($object | ConvertTo-Json -Depth 100 -EnumsAsStrings | jq -r '--sort-keys' | jq -r -f $jqJsonTemplate | ConvertFrom-Json)
                     #endregion
 
@@ -234,7 +234,7 @@
                         } else {
                             $apiVersion = $gaApiVersion | Select-Object -First 1
                         }
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -LogStringValues $resourceType, $apiVersion
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion' -LogStringValues $resourceType, $apiVersion
                         $object.resources[0].apiVersion = $apiVersion
                         $object.resources[0].type = $resourceType
                     }
@@ -248,17 +248,17 @@
                     if ($resourceType -eq "Microsoft.Management/managementGroups/subscriptions") {
                         $resourceName = (((New-AzOpsScope -Scope $Resource.Id).ManagementGroup) + "/" + $Resource.Name)
                         $object.resources[0].name = $resourceName
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ChildResource' -LogStringValues $resourceName
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ChildResource' -LogStringValues $resourceName
                     }
                     #endregion
 
                 }
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Exporting' -LogStringValues $objectFilePath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Exporting' -LogStringValues $objectFilePath
                 ConvertTo-Json -InputObject $object -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force
             }
         }
         else {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'ConvertTo-AzOpsState.Exporting.Default' -LogStringValues $objectFilePath
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.Exporting.Default' -LogStringValues $objectFilePath
             if ($ReturnObject) { return $Resource }
             else {
                 ConvertTo-Json -InputObject $Resource -Depth 100 -EnumsAsStrings | Set-Content -Path ([WildcardPattern]::Escape($objectFilePath)) -Encoding UTF8 -Force

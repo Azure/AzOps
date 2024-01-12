@@ -215,10 +215,10 @@
         #region Process Resource Groups
         if ($SkipResourceGroup -or (-not $subscriptions)) {
             if ($SkipResourceGroup) {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.SkippingResourceGroup' -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingResourceGroup' -Target $ScopeObject
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Subscription.NotFound' -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Subscription.NotFound' -Target $ScopeObject
             }
         }
         else {
@@ -276,7 +276,7 @@
                 Clear-PSFMessage
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.NoResourceGroup' -LogStringValues $scopeObject.Name -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.NoResourceGroup' -LogStringValues $scopeObject.Name -Target $ScopeObject
             }
             # Process Policies at Resource Group scope
             if (-not $SkipPolicy) {
@@ -318,11 +318,11 @@
                     }
                 }
                 else {
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound' -LogStringValues $scopeObject.Name -Target $ScopeObject
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound' -LogStringValues $scopeObject.Name -Target $ScopeObject
                 }
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.SkippingResources' -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingResources' -Target $ScopeObject
             }
             # Process resources as scope in parallel, look for childResource
             if (-not $SkipResource -and -not $SkipChildResource) {
@@ -393,10 +393,10 @@
                 Clear-PSFMessage
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.SkippingChildResources' -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingChildResources' -Target $ScopeObject
             }
         }
         #endregion Process Resource Groups
-        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Finished' -LogStringValues $scopeObject.Scope -Target $ScopeObject
+        Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Finished' -LogStringValues $scopeObject.Scope -Target $ScopeObject
     }
 }

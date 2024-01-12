@@ -97,7 +97,7 @@
                 switch ($fileItem.Name) {
                     { $_.EndsWith('.parameters.json') } {
                         if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $FilePath
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $FilePath
                             $templatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '\.parameters.json', '.json'
                             $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-3])"), '' -replace '.parameters.json', '.bicep'
                         }
@@ -106,7 +106,7 @@
                             $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
                         }
                         if (Test-Path $templatePath) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.FoundTemplate' -LogStringValues $FilePath, $templatePath
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundTemplate' -LogStringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
@@ -114,7 +114,7 @@
                             return $result
                         }
                         elseif (Test-Path $bicepTemplatePath) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
                             $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam -ConvertedTemplate $ConvertedTemplate
                             $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
@@ -126,14 +126,14 @@
                     }
                     { $_.EndsWith('.bicepparam') } {
                         if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $FilePath
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $FilePath
                             $bicepTemplatePath = $fileItem.FullName -replace (".$($fileItem.FullName.Split('.')[-2])"), '' -replace '\.bicepparam', '.bicep'
                         }
                         else {
                             $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
                         }
                         if (Test-Path $bicepTemplatePath) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
                             $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
                             $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TranspiledParametersNew = $transpiledTemplatePaths.transpiledParametersNew
@@ -151,7 +151,7 @@
                 #region Check in the main template file for a match
                 Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Resolve.NotFoundTemplate' -LogStringValues $FilePath, $templatePath
                 $mainTemplateItem = Get-Item $AzOpsMainTemplate
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.FromMainTemplate' -LogStringValues $mainTemplateItem.FullName
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FromMainTemplate' -LogStringValues $mainTemplateItem.FullName
 
                 # Determine Resource Type in Parameter file
                 $templateParameterFileHashtable = Get-Content -Path $fileItem.FullName | ConvertFrom-Json -AsHashtable
@@ -173,7 +173,7 @@
                 # Check if generic template is supporting the resource type for the deployment.
                 if ($effectiveResourceType -and
                     (Get-Content $mainTemplateItem.FullName | ConvertFrom-Json -AsHashtable).variables.apiVersionLookup.Keys -contains $effectiveResourceType) {
-                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -LogStringValues $effectiveResourceType, $mainTemplateItem.FullName
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MainTemplate.Supported' -LogStringValues $effectiveResourceType, $mainTemplateItem.FullName
                     $result.TemplateFilePath = $mainTemplateItem.FullName
                     return $result
                 }
@@ -188,7 +188,7 @@
             $result.TemplateFilePath = $fileItem.FullName
             $parameterPath = Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.ParameterFound' -LogStringValues $FilePath, $parameterPath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterFound' -LogStringValues $FilePath, $parameterPath
                 $result.TemplateParameterFilePath = $parameterPath
             }
             elseif ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.DeployAllMultipleTemplateParameterFiles') -eq $true) {
@@ -199,7 +199,7 @@
                     foreach ($paramFile in $paramFileList) {
                         # Process possible parameter files for template equivalent
                         if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
-                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $paramFile.FullName
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $paramFile.FullName
                             $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
                         }
                     }
@@ -208,13 +208,13 @@
                         return $multiResult
                     }
                     else {
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
                     }
 
                 }
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
                 if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true) {
                     # Check for template parameters without defaultValue
                     $defaultValueContent = Get-Content $FilePath
@@ -222,7 +222,7 @@
                     if ($missingDefaultParam.Count -ge 1) {
                         # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
                         $missingString = foreach ($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -LogStringValues $FilePath, ($missingString | Out-String -NoNewline)
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -LogStringValues $FilePath, ($missingString | Out-String -NoNewline)
                         continue
                     }
                 }
@@ -252,7 +252,7 @@
         # Remove lingering files from previous run
         $tempPath = [System.IO.Path]::GetTempPath()
         if ((Test-Path -Path ($tempPath + 'OUTPUT.md')) -or (Test-Path -Path ($tempPath + 'OUTPUT.json'))) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'
             Remove-Item -Path ($tempPath + 'OUTPUT.md') -Force -ErrorAction SilentlyContinue
             Remove-Item -Path ($tempPath + 'OUTPUT.json') -Force -ErrorAction SilentlyContinue
         }
@@ -446,18 +446,18 @@
 
         #Determine what deployment pattern to adopt serial or parallel
         if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeployMultipleTemplateParameterFiles') -eq $true) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.ParallelCondition'
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelCondition'
             # Group deployments based on TemplateFilePath
             $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
             if ($groups) {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.ParallelGroup'
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelGroup'
                 $processedTargets = @()
                 # Process each deployment and evaluate serial or parallel deployment pattern
                 foreach ($deployment in $uniqueDeployment) {
                     if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
                         # Deployment part of group association for parallel processing, process entire group as parallel deployment
                         $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
                         # Prepare Input Data for parallel processing
                         $runspaceData = @{
                             AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
@@ -493,23 +493,23 @@
                     }
                     elseif ($deployment -notin $processedTargets) {
                         # Deployment not part of group association for parallel processing, process this as serial deployment
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
                         $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
                     }
                     else {
                         # Deployment already processed by group association from parallel processing, skip this duplicate deployment
-                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.Skip' -LogStringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Skip' -LogStringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
                     }
                 }
             }
             else {
                 # No deployments with matching TemplateFilePath identified
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
                 $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
             }
         } else {
             # Perform serial deployment only
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $uniqueDeployment.Count
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $uniqueDeployment.Count
             $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
         }
 

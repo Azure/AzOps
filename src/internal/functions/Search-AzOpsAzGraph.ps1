@@ -82,7 +82,7 @@
                     }
                 }
             }
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Done' -LogStringValues $Query
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Search-AzOpsAzGraph.Processing.Done' -LogStringValues $Query
             return $resultsType
         }
         else {

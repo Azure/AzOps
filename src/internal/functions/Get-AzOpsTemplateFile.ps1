@@ -89,7 +89,7 @@
         if ($return) {
             # Template file found
             $return = ($return | Select-Object -First 1).VersionInfo.FileName
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsTemplateFile.Processing.Found' -LogStringValues $return
+            Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsTemplateFile.Processing.Found' -LogStringValues $return
             return $return
         }
         else {
