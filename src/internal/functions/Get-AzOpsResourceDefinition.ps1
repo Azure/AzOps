@@ -364,7 +364,7 @@
                         foreach ($exportResource in $exportResources) {
                             if (-not(($resource.name -eq $exportResource.name) -and ($resource.type -eq $exportResource.type))) {
                                 & $azOps {
-                                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -Target $exportResource
+                                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -FunctionName "Get-AzOpsResourceDefinition" -Target $exportResource
                                 }
                                 $ChildResource = @{
                                     resourceProvider = $exportResource.type -replace '/', '_'
@@ -383,7 +383,7 @@
                     }
                     catch {
                         & $azOps {
-                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, $_
+                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, $_ -FunctionName "Get-AzOpsResourceDefinition"
                         }
                     }
                     if (Test-Path -Path $tempExportPath) {
