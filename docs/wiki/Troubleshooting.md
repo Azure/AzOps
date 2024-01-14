@@ -11,16 +11,13 @@ To enable debug logging for the AzOps module, please add the following configura
 
 ```json
 {
-    "Version": 1,
-    "Static": {
-        "PSFramework.Message.Info.Maximum": 9
+    "PSFramework": {
+        "Message.Info.Maximum": 9
     }
 }
 ```
 
 ## GitHub Actions
-
-[TODO]
 
 To enable debug logging within GitHub Actions workflows, please visit the [Product Documentation](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging)
 
