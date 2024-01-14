@@ -124,7 +124,7 @@
     'Get-AzOpsResourceDefinition.SkippingChildResources'                            = 'SkipChildResource switch used, skipping child resource discovery' #
 
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.id, $roleAssignment.properties.roleDefinitionId
-    'Get-AzOpsRoleAssignment.Assignment.Failed'                                     = 'Failed retrieving roleAssignment {0}' # $_
+    'Get-AzOpsRoleAssignment.Processing.Failed'                                     = 'Failed retrieving roleAssignment {0}' # $_
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
     'Get-AzOpsRoleDefinition.Processing'                                            = 'Processing scope {0}' # $ScopeObject

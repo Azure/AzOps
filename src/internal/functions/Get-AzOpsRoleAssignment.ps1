@@ -34,7 +34,7 @@
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
-            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsRoleAssignment.Failed' -LogStringValues $_
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsRoleAssignment.Processing.Failed' -LogStringValues $_
         }
         if ($roleAssignments) {
             $roleAssignmentMatch = @()

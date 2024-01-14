@@ -207,7 +207,7 @@
             }
             else {
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 if ($parameters.TemplateParameterFile) {
                     $deploymentResult.filePath = $parameters.TemplateFile
                     $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
@@ -230,7 +230,7 @@
             }
             else {
                 # Exit deployment
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.SkipDueToWhatIf'
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
         #Return

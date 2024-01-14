@@ -282,7 +282,7 @@
             else {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($dependencyMissing) {
@@ -291,14 +291,14 @@
             elseif ($dependency) {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
             }
             else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
     }
