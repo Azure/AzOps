@@ -10,7 +10,7 @@
 
 The AzOps module has a variety of logs and metrics that it generates during execution.
 
-Depending on the numeric value set at `Message.Info.Maximum` different levels of verbosity is outputted. In general a lower value like `1` indicates minimum amount of information generated and a value of `9` indicates the highest possible verbosity,  [read more about the different levels](https://psframework.org/documentation/documents/psframework/logging/basics/message-levels.html).
+Depending on the numeric value set for `Message.Info.Maximum` at `settings.json` different levels of verbosity is outputted. In general a lower value like `1` indicates minimum amount of information generated and a value of `9` indicates the highest possible verbosity,  [read more about the different levels](https://psframework.org/documentation/documents/psframework/logging/basics/message-levels.html).
 
   > **_NOTE:_** Default verbosity level is `3`, runtime performance is negatively affected by increased verbosity.
 
@@ -24,12 +24,18 @@ During normal operations changes to verbosity levels are not needed and the defa
 
 By design the module emits logs to console during execution, in addition to that the module can emit logs to Azure Monitor Application Insights.
 
+AzOps utilizes `TrackTrace` to create a "breadcrumb trail" in Application Insights [view log traces and events coded into the application](https://learn.microsoft.com/en-us/azure/azure-monitor/app/transaction-search-and-diagnostics?tabs=transaction-search), warnings and errors are emitted as `TrackException` for diagnosis and each message generates a `TrackEvent`. In addition to that certain metrics are emitted as `TrackMetric` like `AzOpsPush Time` and `AzOpsPull Time` in seconds.
+
+![Transaction search](./Media/Monitoring/transactionsearch.png)
+
 This can be useful to track performance, key metrics, and exceptions over time.
 
 It is also helpful when you are running the module with several parallel threads `Core.ThrottleLimit` > `1` due to that console output does not work well when running in parallel. By emitting information to Azure Monitor Application Insights this can be overcome without adjusting the `Core.ThrottleLimit`.
 
+Enable Application Insights monitoring:
+
 1. [Create a Application Insights resource](https://learn.microsoft.com/en-us/azure/azure-monitor/app/create-workspace-resource#create-a-workspace-based-resource).
-1. Add a secret named `APPLICATIONINSIGHTS_CONNECTIONSTRING` *(in Github or Azure Pipelines)* and enter the connection string for you Application Insights resource, [find your connection string](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5#find-your-connection-string).
+1. Add a secret named `APPLICATIONINSIGHTS_CONNECTIONSTRING` *(in GitHub or Azure Pipelines)* and enter the connection string for you Application Insights resource, [find your connection string](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5#find-your-connection-string).
     > Note: Create the `APPLICATIONINSIGHTS_CONNECTIONSTRING` secret in the same location where you already have `ARM_TENANT_ID`, if you are using Azure Pipelines remember to set the variable type to `secret`.
 
     > Note: AzOps utilizes the connection string as a secret to authenticate, this requires that local authentication is enabled on the Application Insights resource *(this is due to high performance impact of Application Insights Microsoft Entra ID-based authentication)*.
