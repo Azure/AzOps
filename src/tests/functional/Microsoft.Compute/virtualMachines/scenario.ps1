@@ -55,7 +55,7 @@ Describe "Scenario - virtualMachines" {
             $script:fileContents.resources[0].location | Should -BeTrue
         }
         It "Resource apiVersion should exist" {
-            $script:fileContents.resources[0].apiVersion | Should -BeTrue
+            $script:fileContents.resources[0].apiVersion | Should -Match '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$'
         }
         It "Resource zones should exist" {
             $script:fileContents.resources[0].zones | Should -BeTrue
