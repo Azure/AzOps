@@ -33,9 +33,9 @@ AzOps uses `TrackTrace` to create a "breadcrumb trail" in Application Insights. 
 2. Add a secret named `APPLICATIONINSIGHTS_CONNECTIONSTRING` (in GitHub or Azure Pipelines) and enter the connection string for your Application Insights resource ([find your connection string](https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=dotnet5#find-your-connection-string)).
 
     > Note: Create the `APPLICATIONINSIGHTS_CONNECTIONSTRING` secret in the same location where you already have `ARM_TENANT_ID`. If you are using Azure Pipelines, remember to set the variable type to `secret`.
-
+    >
     > Note: AzOps utilizes the connection string as a secret to authenticate. This requires that local authentication is enabled on the Application Insights resource (due to the high performance impact of Application Insights Microsoft Entra ID-based authentication).
-
+    >
     > Note: AzOps emits each log event immediately as it happens to ensure messages are not lost. This means each event generates a service call to Application Insights that needs to be authenticated. No batching or schedule is used.
 
 3. Set the `Core.ApplicationInsights` value in `settings.json` to `true`. AzOps will emit logs to both the console and the designated Azure Monitor Application Insights.
