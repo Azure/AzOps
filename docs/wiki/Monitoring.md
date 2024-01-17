@@ -4,6 +4,7 @@
 - [Troubleshooting AzOps](#troubleshooting-azops)
 - [Operationalize monitoring and logging of AzOps](#operationalize-monitoring-and-logging-of-azops)
   - [Enable Application Insights Monitoring](#enable-application-insights-monitoring)
+  - [Create Alert Rules](#create-alert-rules)
 
 ---
 
@@ -52,3 +53,18 @@ env:
 
   APPLICATIONINSIGHTS_CONNECTIONSTRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTIONSTRING }}
 ```
+
+### Create Alert Rules
+
+Once monitoring is enabled, implement two essential alert rules using the powerful capabilities of [Azure Monitor alerts](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview).
+
+1. [Create a metric alert rule](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-create-metric-alert-rule) with the condition based on the native `exceptions` signal.
+   - Set a static threshold value of 0 to trigger the alert when the module logs any exception (**Warning, Error, Critical**).
+   - Recommended alert detail severity: Warning.
+![Condition Signal Exceptions](./Media/Monitoring/exception_condition.png)
+
+2. [Create a log alert rule](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-create-metric-alert-rule) with the condition based on the native `Custom log search` signal.
+   - Use the search query `traces | where severityLevel between (3 .. 4)` to trigger the alert for Error or Critical events.
+   - Enhance the alert by splitting dimensions based on the dimension name `message` and ensure to check `include all future values`.
+   - Recommended alert detail severity: Critical.
+![Condition Signal Exceptions](./Media/Monitoring/logsearch_condition.png)
