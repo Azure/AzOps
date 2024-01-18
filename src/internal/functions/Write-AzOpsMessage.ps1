@@ -77,21 +77,21 @@
     process {
         # Evaluate message verbosity
         $logLevels = @{
-            "Critical" = "1"
-            "Debug" = "8"
-            "Error" = "667"
-            "Host" = "2"
-            "Important" = "2"
-            "InternalComment" = "9"
-            "Output" = "2"
-            "Significant" = "3"
-            "SomewhatVerbose" = "6"
-            "System" = "7"
-            "Verbose" = "5"
-            "VeryVerbose" = "4"
-            "Warning" = "666"
+            "Critical" = 1
+            "Debug" = 8
+            "Error" = 667
+            "Host" = 2
+            "Important" = 2
+            "InternalComment" = 9
+            "Output" = 2
+            "Significant" = 3
+            "SomewhatVerbose" = 6
+            "System" = 7
+            "Verbose" = 5
+            "VeryVerbose" = 4
+            "Warning" = 666
         }
-        [int]$intLevel = $logLevels[$LogLevel]
+        $intLevel = $logLevels[$LogLevel]
         [int]$messageInfo = Get-PSFConfigValue -FullName 'PSFramework.Message.Info.Maximum'
         if (($messageInfo -lt $intLevel) -or ([PSFramework.Message.MessageHost]::MinimumInformation -gt $intLevel) -and ($intLevel -notin 666..667)) {
             # Message is below desired log verbosity, skip
