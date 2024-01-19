@@ -20,7 +20,7 @@
     )
 
     process {
-        Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleDefinition.Processing' -StringValues $ScopeObject -Target $ScopeObject
+        Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleDefinition.Processing' -LogStringValues $ScopeObject -Target $ScopeObject
         $apiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.Authorization'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'roleDefinitions'}).ApiVersions | Select-Object -First 1
         $path = "$($scopeObject.Scope)/providers/Microsoft.Authorization/roleDefinitions?api-version=$apiVersion&`$filter=type+eq+'CustomRole'"
         try {
@@ -34,13 +34,13 @@
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
-            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsRoleDefinition"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsRoleDefinition.Processing.Failed' -LogStringValues $_
         }
         if ($roleDefinitions) {
             $roleDefinitionsMatch = @()
             foreach ($roleDefinition in $roleDefinitions) {
                 if ($roleDefinition.properties.assignableScopes -eq $ScopeObject.Scope) {
-                    Write-PSFMessage -Level Debug -String 'Get-AzOpsRoleDefinition.Definition' -StringValues $roleDefinition.id -Target $ScopeObject
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleDefinition.Definition' -LogStringValues $roleDefinition.id -Target $ScopeObject
                     $roleDefinitionsMatch += [PSCustomObject]@{
                         # Removing the Trailing slash to ensure that '/' is not appended twice when adding '/providers/xxx'.
                         # Example: '/subscriptions/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX/' is a valid assignment scope.

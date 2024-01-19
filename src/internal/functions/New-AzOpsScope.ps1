@@ -61,7 +61,7 @@
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
     )
     process {
-        Write-PSFMessage -Level Debug -String 'New-AzOpsScope.Starting'
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsScope.Starting'
 
         switch ($PSCmdlet.ParameterSetName) {
             scope {

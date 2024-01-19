@@ -27,13 +27,13 @@
 
         switch ($ScopeObject.Type) {
             managementGroups {
-                Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyExemption.ManagementGroup' -StringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.ManagementGroup' -LogStringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
             }
             subscriptions {
-                Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyExemption.Subscription' -StringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.Subscription' -LogStringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
             }
             resourcegroups {
-                Write-PSFMessage -Level Debug -String 'Get-AzOpsPolicyExemption.ResourceGroup' -StringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.ResourceGroup' -LogStringValues $ScopeObject.ResourceGroup -Target $ScopeObject
             }
         }
         try {
@@ -46,7 +46,7 @@
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
-            Write-PSFMessage -Level Warning -Message $_ -FunctionName "Get-AzOpsPolicyExemption"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsPolicyExemption.Failed' -LogStringValues $ScopeObject.Scope
         }
     }
 

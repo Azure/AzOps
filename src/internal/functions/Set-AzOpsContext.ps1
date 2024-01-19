@@ -25,7 +25,7 @@
     process {
         if (-not $ScopeObject.Subscription) { return }
         if ($context.Subscription.Id -ne $ScopeObject.Subscription) {
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsContext.Change' -StringValues $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsContext.Change' -LogStringValues $context.Subscription.Name, $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
             Set-AzContext -SubscriptionId $scopeObject.Subscription -WhatIf:$false
         }
     }

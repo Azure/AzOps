@@ -47,13 +47,13 @@
         $transpiledTemplatePath = [IO.Path]::GetFullPath("$($BicepTemplatePath -replace '\.bicep', '.json')")
         if ($transpiledTemplatePath -notin $ConvertedTemplate) {
             # Convert bicep template
-            Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate' -StringValues $BicepTemplatePath, $transpiledTemplatePath
+            Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate' -LogStringValues $BicepTemplatePath, $transpiledTemplatePath
             Invoke-AzOpsNativeCommand -ScriptBlock { bicep build $bicepTemplatePath --outfile $transpiledTemplatePath }
             $transpiledTemplateNew = $true
             # Check if bicep build created (ARM) template
             if (-not (Test-Path $transpiledTemplatePath)) {
                 # If bicep build did not produce file exit with error
-                Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error' -StringValues $BicepTemplatePath
+                Write-AzOpsMessage -LogLevel Error -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error' -LogStringValues $BicepTemplatePath
                 throw
             }
         }
@@ -61,30 +61,30 @@
             if (-not $BicepParamTemplatePath) {
                 # Check if bicep template has associated bicepparam file
                 $bicepParametersPath = $BicepTemplatePath -replace '\.bicep', '.bicepparam'
-                Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -StringValues $BicepTemplatePath, $bicepParametersPath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -LogStringValues $BicepTemplatePath, $bicepParametersPath
             }
             elseif ($BicepParamTemplatePath) {
                 # BicepParamTemplatePath path provided as input
                 $bicepParametersPath = $BicepParamTemplatePath
-                Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -StringValues $BicepTemplatePath, $bicepParametersPath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -LogStringValues $BicepTemplatePath, $bicepParametersPath
             }
             if ($bicepParametersPath -and (Test-Path $bicepParametersPath)) {
                 $transpiledParametersPath = [IO.Path]::GetFullPath("$($bicepParametersPath -replace '\.bicepparam', '.parameters.json')")
                 if ($transpiledParametersPath -notin $ConvertedParameter) {
                     # Convert bicepparam to ARM parameter file
-                    Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam' -StringValues $bicepParametersPath, $transpiledParametersPath
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam' -LogStringValues $bicepParametersPath, $transpiledParametersPath
                     Invoke-AzOpsNativeCommand -ScriptBlock { bicep build-params $bicepParametersPath --outfile $transpiledParametersPath }
                     $transpiledParametersNew = $true
                     # Check if bicep build-params created (ARM) parameters
                     if (-not (Test-Path $transpiledParametersPath)) {
                         # If bicep build-params did not produce file exit with error
-                        Write-PSFMessage -Level Error -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error' -StringValues $bicepParametersPath
+                        Write-AzOpsMessage -LogLevel Error -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam.Error' -LogStringValues $bicepParametersPath
                         throw
                     }
                 }
             }
             else {
-                Write-PSFMessage -Level Verbose -String 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -StringValues $BicepTemplatePath
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam.NotFound' -LogStringValues $BicepTemplatePath
             }
         }
         # Return transpiled (ARM) template paths

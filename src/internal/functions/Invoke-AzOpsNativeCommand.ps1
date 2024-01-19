@@ -38,7 +38,7 @@
 
         if (-not $Quiet -and $output) {
             $output | Out-String -NoNewLine | ForEach-Object {
-                Write-PSFMessage -Level Debug -Message $_
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsNativeCommand' -LogStringValues $ScriptBlock, $_
             }
             $output
         }

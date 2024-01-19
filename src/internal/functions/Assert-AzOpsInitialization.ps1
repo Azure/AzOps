@@ -33,13 +33,13 @@
     process {
         $stateGood = $StatePath -and $StatePath -notmatch $invalidPathPattern
         if (-not $stateGood) {
-            Write-PSFMessage -Level Warning -String 'Assert-AzOpsInitialization.StateError' -Tag error
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Assert-AzOpsInitialization.StateError'
             $exception = [System.InvalidOperationException]::new($strings.'Assert-AzOpsInitialization.StateError')
             $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "BadData", 'InvalidData', $null)
         }
         $cacheBuilt = $script:AzOpsSubscriptions -or $script:AzOpsAzManagementGroup
         if (-not $cacheBuilt) {
-            Write-PSFMessage -Level Warning -String 'Assert-AzOpsInitialization.NoCache' -Tag error
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Assert-AzOpsInitialization.NoCache'
             $exception = [System.InvalidOperationException]::new($strings.'Assert-AzOpsInitialization.NoCache')
             $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "NoCache", 'InvalidData', $null)
         }

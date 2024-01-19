@@ -19,14 +19,14 @@
 
     process {
         # Process role definitions
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Definitions', $ScopeObject.Scope
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Role Definitions', $ScopeObject.Scope
         $roleDefinitions = Get-AzOpsRoleDefinition -ScopeObject $ScopeObject
         if ($roleDefinitions) {
             $roleDefinitions | ConvertTo-AzOpsState -StatePath $StatePath
         }
 
         # Process role assignments
-        Write-PSFMessage -Level Verbose -String 'Get-AzOpsResourceDefinition.Processing.Detail' -StringValues 'Role Assignments', $ScopeObject.Scope
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Role Assignments', $ScopeObject.Scope
         $roleAssignments = Get-AzOpsRoleAssignment -ScopeObject $ScopeObject
         if ($roleAssignments) {
             $roleAssignments | ConvertTo-AzOpsState -StatePath $StatePath

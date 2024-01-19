@@ -84,44 +84,44 @@
         #region Prepare
         if (-not $SkipPim) {
             try {
-                Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.UserRole'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPull.Validating.UserRole'
                 $null = Get-AzADUser -First 1 -ErrorAction Stop
-                Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.UserRole.Success'
-                Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.AADP2'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPull.Validating.UserRole.Success'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPull.Validating.AADP2'
                 $servicePlanName = "AAD_PREMIUM_P2"
                 $subscribedSkus = Invoke-AzRestMethod -Uri https://graph.microsoft.com/v1.0/subscribedSkus -ErrorAction Stop
                 $subscribedSkusValue = $subscribedSkus.Content | ConvertFrom-Json -Depth 100 | Select-Object value
                 if ($servicePlanName -in $subscribedSkusValue.value.servicePlans.servicePlanName) {
-                    Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.Validating.AADP2.Success'
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPull.Validating.AADP2.Success'
                 }
                 else {
-                    Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.AADP2.Failed'
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPull.Validating.AADP2.Failed'
                     $SkipPim = $true
                 }
             }
             catch {
-                Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.UserRole.Failed'
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPull.Validating.UserRole.Failed'
                 $SkipPim = $true
             }
         }
 
         if ($false -eq $SkipChildResource -or $false -eq $SkipResource -and $true -eq $SkipResourceGroup) {
-            Write-PSFMessage -Level Warning -String 'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed' -StringValues "`n"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed' -LogStringValues "`n"
         }
 
         $resourceTypeDiff = Compare-Object -ReferenceObject $SkipResourceType -DifferenceObject $IncludeResourceType -ExcludeDifferent
         if ($resourceTypeDiff) {
-            Write-PSFMessage -Level Warning -Message "SkipResourceType setting conflict found in IncludeResourceType, ignoring $($resourceTypeDiff.InputObject) from IncludeResourceType. To avoid this remove $($resourceTypeDiff.InputObject) from IncludeResourceType or SkipResourceType"
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPull.SkipResourceType.Failed' -LogStringValues $($resourceTypeDiff.InputObject)
             $IncludeResourceType = $IncludeResourceType | Where-Object { $_ -notin $resourceTypeDiff.InputObject }
         }
 
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
 
         $tenantId = (Get-AzContext).Tenant.Id
-        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Tenant' -StringValues $tenantId
-        Write-PSFMessage -Level Verbose -String 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -StringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPull.Tenant' -LogStringValues $tenantId
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPull.TemplateParameterFileSuffix' -LogStringValues (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
 
-        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Initialization.Completed'
+        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPull.Initialization.Completed'
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
         #endregion Initialize & Prepare
     }
@@ -133,7 +133,7 @@
                     $_.Name -like $("Microsoft.Management_managementGroups-" + $tenantId + $TemplateParameterFileSuffix)
                 } | Select-Object -ExpandProperty FullName -First 1) -notmatch '\((.*)\)'
             if ($migrationRequired) {
-                Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Migration.Required'
+                Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPull.Migration.Required'
             }
 
             if ($Force -or $migrationRequired) {
@@ -158,7 +158,7 @@
         # Parameters
         $parameters = $PSBoundParameters | ConvertTo-PSFHashtable -Inherit -Include IncludeResourcesInResourceGroup, IncludeResourceType, SkipPim, SkipLock, SkipPolicy, SkipRole, SkipResourceGroup, SkipChildResource, SkipResource, SkipResourceType, StatePath
 
-        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Building.State' -StringValues $StatePath
+        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPull.Building.State' -LogStringValues $StatePath
         if ($rootScope -and $script:AzOpsAzManagementGroup) {
             foreach ($root in $rootScope) {
                 # Create AzOpsState structure recursively
@@ -178,7 +178,8 @@
 
     end {
         $stopWatch.Stop()
-        Write-PSFMessage -Level Important -String 'Invoke-AzOpsPull.Duration' -StringValues $stopWatch.Elapsed -Data @{ Elapsed = $stopWatch.Elapsed }
+        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPull.Duration' -LogStringValues $stopWatch.Elapsed -Metric $stopWatch.Elapsed.TotalSeconds -MetricName 'AzOpsPull Time'
+        Clear-PSFMessage
     }
 
 }

@@ -1,4 +1,4 @@
-### In this guide
+# In this guide
 
 - [General](#general)
 - [GitHub Actions](#github-actions)
@@ -11,16 +11,13 @@ To enable debug logging for the AzOps module, please add the following configura
 
 ```json
 {
-    "Version": 1,
-    "Static": {
-        "PSFramework.Message.Info.Maximum": 9
+    "PSFramework": {
+        "Message.Info.Maximum": 9
     }
 }
 ```
 
 ## GitHub Actions
-
-[TODO]
 
 To enable debug logging within GitHub Actions workflows, please visit the [Product Documentation](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging)
 
@@ -46,13 +43,13 @@ Ensure that you're using the $escapedServicePrincipalJson variable string from t
 Enabling long paths on Windows
 The Git clone below and AzOps GitHub Action implementation requires that you enable long paths in Windows. To enable this, execute the following command from a terminal with elevated privileges:
 
-```
+```powershell
 REG ADD "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
 ```
 
-You will also need to execute the following command line from an elevated terminal:
+You will also need to execute the following command-line from an elevated terminal:
 
-```
+```powershell
 git config --system core.longpaths true
 ```
 

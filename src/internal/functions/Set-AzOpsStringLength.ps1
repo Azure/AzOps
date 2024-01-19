@@ -34,7 +34,7 @@
         # Check if string exceed maximum length
         if (($String.Length + $buffer) -gt $MaxStringLength){
             $overSize = $String.Length + $buffer - $MaxStringLength
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsStringLength.ToLong' -StringValues $String,$MaxStringLength,$overSize -FunctionName 'Set-AzOpsStringLength'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsStringLength.ToLong' -LogStringValues $String,$MaxStringLength,$overSize
             # Generate 64-character hash based on input string
             $stringStream = [IO.MemoryStream]::new([byte[]][char[]]$String)
             $stringHash = Get-FileHash -InputStream $stringStream -Algorithm SHA256
@@ -49,12 +49,12 @@
             }
             # Construct new string with modified name
             $String = $String.Replace($String,$newName)
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsStringLength.Shortened' -StringValues $String,$MaxStringLength -FunctionName 'Set-AzOpsStringLength'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsStringLength.Shortened' -LogStringValues $String,$MaxStringLength
             return $String
         }
         else {
             # Return original string, it is within limit
-            Write-PSFMessage -Level Verbose -String 'Set-AzOpsStringLength.WithInLimit' -StringValues $String,$MaxStringLength -FunctionName 'Set-AzOpsStringLength'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsStringLength.WithInLimit' -LogStringValues $String,$MaxStringLength
             return $String
         }
     }

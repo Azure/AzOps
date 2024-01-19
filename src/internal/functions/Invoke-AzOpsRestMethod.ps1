@@ -21,7 +21,7 @@
 
     process {
         # Process Path with given Method
-        Write-PSFMessage -Level Debug -String 'Invoke-AzOpsRestMethod.Processing' -StringValues $Path
+        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsRestMethod.Processing' -LogStringValues $Path
         $allresults = do {
             try {
                 $results = ((Invoke-AzRestMethod -Path $Path -Method $Method -ErrorAction Stop).Content | ConvertFrom-Json -Depth 100)
@@ -30,14 +30,14 @@
                 if ($results.StatusCode -eq '429' -or $results.StatusCode -like '5*') {
                     $results.Headers.GetEnumerator() | ForEach-Object {
                         if ($_.key -eq 'Retry-After') {
-                            Write-PSFMessage -Level Warning -String 'Invoke-AzOpsRestMethod.Processing.RateLimit' -StringValues $Path, $_.value
+                            Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsRestMethod.Processing.RateLimit' -LogStringValues $Path, $_.value
                             Start-Sleep -Seconds $_.value
                         }
                     }
                 }
             }
             catch {
-                Write-PSFMessage -Level Error -String 'Invoke-AzOpsRestMethod.Processing.Error' -StringValues $_, $Path
+                Write-AzOpsMessage -LogLevel Error -LogString 'Invoke-AzOpsRestMethod.Processing.Error' -LogStringValues $_, $Path
             }
         }
         while ($path)

@@ -96,8 +96,10 @@
     'Get-AzOpsPolicyExemption.ManagementGroup'                                      = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
     'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyExemption.Failed'                                               = 'Retrieving Policy Exemption failed at {0}' # $ScopeObject.Scope
 
     'Get-AzOpsResourceLock.ResourceGroup'                                           = 'Retrieving Resource Locks for Resource Group {0}' # $ScopeObject.ResourceGroup
+    'Get-AzOpsResourceLock.Failed'                                                  = 'Failed retrieving Resource Locks {0}' # $_
     'Get-AzOpsResourceLock.Subscription'                                            = 'Retrieving Resource Locks for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
     'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
@@ -117,14 +119,16 @@
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound'            = 'No resources found in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in {0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.SkippingResourceGroup'                             = 'SkipResourceGroup switch used, skipping resource Group discovery' #
-    'Get-AzOpsResourceDefinition.SkippingResources'                                 = 'Resources are skipped in due to SkipResource.' #
+    'Get-AzOpsResourceDefinition.SkippingResources'                                 = 'SkipResource switch used, skipping resource discovery.' #
     'Get-AzOpsResourceDefinition.Processing.ChildResource'                          = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
-    'Get-AzOpsResourceDefinition.SkippingChildResources'                            = 'Child resources are skipped, due to SkipChildResource' #
+    'Get-AzOpsResourceDefinition.SkippingChildResources'                            = 'SkipChildResource switch used, skipping child resource discovery' #
 
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.id, $roleAssignment.properties.roleDefinitionId
+    'Get-AzOpsRoleAssignment.Processing.Failed'                                     = 'Failed retrieving roleAssignment {0}' # $_
     'Get-AzOpsRoleAssignment.Processing'                                            = 'Retrieving Role Assignments at scope {0}' # $ScopeObject
 
     'Get-AzOpsRoleDefinition.Processing'                                            = 'Processing scope {0}' # $ScopeObject
+    'Get-AzOpsRoleDefinition.Processing.Failed'                                     = 'Failed retrieving roleDefinition {0}' # $_
     'Get-AzOpsRoleDefinition.Definition'                                            = 'Processing object {0}' # $roleDefinition.id
 
     'Get-AzOpsRoleEligibilityScheduleRequest.Processing'                            = 'Retrieving Privileged Identity Management RoleEligibilitySchedule at [{0}]' # $ScopeObject.Scope
@@ -176,6 +180,7 @@
     'Invoke-AzOpsPull.Validating.UserRole.Failed'                                   = 'Insufficient access to Azure AD. Privileged Identity Management information will not be pulled' #
     'Invoke-AzOpsPull.Validating.UserRole.Success'                                  = 'Azure access validated' #
     'Invoke-AzOpsPull.Validating.ResourceGroupDiscovery.Failed'                     = 'SkipResource set to false or SkipChildResource set to false requires SkipResourceGroup to be set to false. Change value for SkipResourceGroup and retry operation. {0} https://github.com/azure/azops/wiki/settings' #
+    'Invoke-AzOpsPull.SkipResourceType.Failed'                                      = 'SkipResourceType setting conflict found in IncludeResourceType, ignoring {0} from IncludeResourceType. To avoid this remove {0} from IncludeResourceType or SkipResourceType' # $resourceTypeDiff.InputObject
 
     'Invoke-AzOpsRestMethod.Processing'                                             = 'Invoke-AzRestMethod processing path: [{0}]' # $Path
     'Invoke-AzOpsRestMethod.Processing.Error'                                       = 'Invoke-AzRestMethod received [{0}] while processing: [{1}]' # $_, $Path
@@ -196,6 +201,7 @@
     'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified multiple deployments with matching TemplateFilePath' # $groups
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
+    'Invoke-AzOpsPush.Duration'                                                     = 'AzOps Push completed in {0}' # $stopWatch.Elapsed
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $bicepTemplatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
@@ -209,11 +215,12 @@
     'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
+    'Invoke-AzOpsNativeCommand'                                                     = 'Execution of ScriptBlock: {{{0}}} returned: {{{1}}}' # $ScriptBlock, $_
     'Invoke-AzOpsNativeCommand.Failed.NoCallstack'                                  = 'Execution of {{{0}}} failed with exit code {1}' # $ScriptBlock, $LASTEXITCODE
     'Invoke-AzOpsNativeCommand.Failed.WithCallstack'                                = 'Execution of {{{0}}} by {1}: line {2} failed with exit code {3}' # $ScriptBlock, $caller[1].ScriptName, $caller[1].ScriptLineNumber, $LASTEXITCODE
 
-    'Invoke-AzOpsScriptBlock.Failed.GivingUp'                                       = 'Tried unsuccessfully {0} out of {1} times, giving up.' # $count, $RetryCount
-    'Invoke-AzOpsScriptBlock.Failed.WillRetry'                                      = 'Tried unsuccessfully {0} out of {1} times, keeping up the fight!' # $count, $RetryCount
+    'Invoke-AzOpsScriptBlock.Failed.GivingUp'                                       = 'Tried {0} unsuccessfully {1} out of {2} times, giving up.' # $ScriptBlock, $count, $RetryCount
+    'Invoke-AzOpsScriptBlock.Failed.WillRetry'                                      = 'Tried {0} unsuccessfully {1} out of {2} times, keeping up the fight!' # $ScriptBlock, $count, $RetryCount
 
     'New-AzOpsScope.Creating.FromFile'                                              = 'Creating new scope from path {0}' # $Path
     'New-AzOpsScope.Creating.FromScope'                                             = 'Creating new AzOpsScope object using scope [{0}]' # $Scope

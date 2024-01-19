@@ -18,18 +18,18 @@
     )
 
     process {
-        Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsBicepDependency.Validating'
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsBicepDependency.Validating'
 
         $result = (Invoke-AzOpsNativeCommand -ScriptBlock { bicep --version } -IgnoreExitcode)
         $installed = $result -as [bool]
 
         if ($installed) {
-            Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsBicepDependency.Success'
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsBicepDependency.Success'
         }
         else {
             $exception = [System.InvalidOperationException]::new('Unable to locate bicep installation')
             $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
-            Write-PSFMessage -Level Warning -String 'Assert-AzOpsBicepDependency.NotFound' -Tag error
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Assert-AzOpsBicepDependency.NotFound'
             $Cmdlet.ThrowTerminatingError($errorRecord)
         }
 

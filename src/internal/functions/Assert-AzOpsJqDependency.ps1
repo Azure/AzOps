@@ -18,7 +18,7 @@
     )
 
     process {
-        Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJqDependency.Validating'
+        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsJqDependency.Validating'
 
         $result = (Invoke-AzOpsNativeCommand -ScriptBlock { jq --version } -IgnoreExitcode)
         $installed = $result -as [bool]
@@ -26,20 +26,20 @@
         if ($installed) {
             [double]$version = ($result).Split("-")[1]
             if ($version -ge 1.6) {
-                Write-PSFMessage -Level InternalComment -String 'Assert-AzOpsJqDependency.Success'
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsJqDependency.Success'
                 return
             }
             else {
                 $exception = [System.InvalidOperationException]::new('Unsupported version of jq installed. Please update to a minimum jq version of 1.6')
                 $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
-                Write-PSFMessage -Level Warning -String 'Assert-AzOpsJqDependency.Failed' -Tag error
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Assert-AzOpsJqDependency.Failed'
                 $Cmdlet.ThrowTerminatingError($errorRecord)
             }
         }
 
         $exception = [System.InvalidOperationException]::new('Unable to locate jq installation')
         $errorRecord = [System.Management.Automation.ErrorRecord]::new($exception, "ConfigurationError", 'InvalidOperation', $null)
-        Write-PSFMessage -Level Warning -String 'Assert-AzOpsJqDependency.Failed' -Tag error
+        Write-AzOpsMessage -LogLevel Warning -LogString 'Assert-AzOpsJqDependency.Failed'
         $Cmdlet.ThrowTerminatingError($errorRecord)
     }
 
