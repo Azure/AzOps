@@ -83,13 +83,16 @@
             }
 
             try {
+                # Create scope object from the given file path
                 $scopeObject = New-AzOpsScope -Path $FilePath -StatePath $StatePath -ErrorAction Stop
             }
             catch {
+                # Log a warning message if creating the scope object fails
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath -Target $FilePath -ErrorRecord $_
                 continue
             }
 
+            # Resolve ARM file association
             $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $FilePath -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
             if ($resolvedArmFileAssociation) {
                 foreach ($fileAssociation in $resolvedArmFileAssociation) {
