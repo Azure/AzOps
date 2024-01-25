@@ -32,21 +32,26 @@
             foreach ($item in $CurrentOrder) {
                 if ($item.Status -eq 'failed' -or $null -eq $item.Status) {
                     Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRawRecursive.Processing' -LogStringValues $item.ScopeObject.resource, $item.FullyQualifiedResourceId
+                    # Attempt to remove the resource
                     $result = Remove-AzResourceRaw -FullyQualifiedResourceId $item.FullyQualifiedResourceId -ScopeObject $item.ScopeObject -TemplateFilePath $item.TemplateFilePath -TemplateParameterFilePath $item.TemplateParameterFilePath
                     if ($result.Status -eq 'failed' -and $result.FullyQualifiedResourceId -notin $OutputObject.FullyQualifiedResourceId){
+                        # Add failed result to the output object
                         $OutputObject += $result
                     }
                 }
             }
+            # Return the final result
             return $OutputObject
         }
         else {
             if ($InputObject -and $OutputObject) {
+                # Filter out items already processed successfully
                 $filteredOutputObject = @()
                 foreach ($item in $InputObject) {
                     if ($item.FullyQualifiedResourceId -in $OutputObject.FullyQualifiedResourceId) {
                         foreach ($output in $OutputObject) {
                             if ($output.FullyQualifiedResourceId -eq $item.FullyQualifiedResourceId -and $output.Status -eq 'failed') {
+                                # Add previously failed item to the filtered output
                                 $filteredOutputObject += $output
                                 continue
                             }
@@ -61,8 +66,10 @@
             foreach ($item in $InputObject) {
                 $remainingItems = $InputObject -ne $item
                 $newOrder = $CurrentOrder + $item
+                # Recursively call Remove-AzResourceRawRecursive
                 $OutputObject = Remove-AzResourceRawRecursive -InputObject $remainingItems -CurrentOrder $newOrder -OutputObject $OutputObject
             }
+            # Return the output after all permutations
             return $OutputObject
         }
     }

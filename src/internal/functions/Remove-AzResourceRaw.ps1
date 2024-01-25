@@ -39,6 +39,7 @@
     )
 
     process {
+        # Construct result object
         $result = [PSCustomObject]@{
             FullyQualifiedResourceId = $FullyQualifiedResourceId
             TemplateFilePath = $TemplateFilePath
@@ -46,26 +47,31 @@
             ScopeObject = $scopeObject
             Status = 'success'
         }
-        #region SetContext
+        # Set Azure context for removal operation
         Set-AzOpsContext -ScopeObject $ScopeObject
+        # Check if the resource exists
         if ($FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
             $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $FullyQualifiedResourceId } -ErrorAction SilentlyContinue
         }
         else {
             $resource = Get-AzResource -ResourceId $FullyQualifiedResourceId -ErrorAction SilentlyContinue
         }
+        # Remove the resource if it exists
         if ($resource) {
             try {
                 $null = Remove-AzResource -ResourceId $FullyQualifiedResourceId -Force -ErrorAction Stop
             }
             catch {
+                # Log failure message
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.Failed' -LogStringValues $ScopeObject.resource, $FullyQualifiedResourceId
                 $result.Status = 'failed'
             }
         }
         else {
+            # Log not found message
             $result.Status = 'notfound'
         }
+        # Return result object
         return $result
     }
 }

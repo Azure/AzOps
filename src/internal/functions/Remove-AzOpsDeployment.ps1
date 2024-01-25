@@ -322,9 +322,11 @@
         elseif ($customDeletion -eq $true)  {
             $removalJob = New-AzOpsDeployment -DeploymentName $DeploymentName -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath -WhatIfResultFormat 'ResourceIdOnly' -WhatIf:$true
             if ($removalJob.results.Changes.Count -gt 0) {
+                # Initialize array to store items that need retry
                 $retry = @()
                 foreach ($change in $removalJob.results.Changes) {
                     $resource = $null
+                    # Check if the resource exists
                     if ($change.RelativeResourceId.StartsWith('Microsoft.Authorization/locks/')) {
                         $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $change.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
                     }
@@ -336,8 +338,10 @@
                         Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                         Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                         Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                        # Check if the removal should be performed
                         if ($PSCmdlet.ShouldProcess("Remove $($change.FullyQualifiedResourceId)?")) {
                             $removeAction = Remove-AzResourceRaw -FullyQualifiedResourceId $change.FullyQualifiedResourceId -ScopeObject $ScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
+                            # If removal failed, add to retry
                             if ($removeAction.Status -eq 'failed') {
                                 $retry += $removeAction
                             }
@@ -347,6 +351,7 @@
                         }
                     }
                     else {
+                        # Log warning if resource not found
                         Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.resource, $change.FullyQualifiedResourceId
                         $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $change.FullyQualifiedResourceId, [environment]::NewLine
                         Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
@@ -354,6 +359,7 @@
 
                 }
                 if ($retry.Count -gt 0) {
+                    # Retry failed removals recursively
                     Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.Resource.RetryCount' -LogStringValues $retry.Count
                     foreach ($try in $retry) { $try.Status = $null }
                     $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
@@ -362,7 +368,7 @@
                 }
             }
             else {
-                # No resource to delete was found return
+                # No resource to remove was found
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
