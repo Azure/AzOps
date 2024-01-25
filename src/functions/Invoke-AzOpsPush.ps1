@@ -442,11 +442,21 @@
             "policyAssignments",
             "policySetDefinitions",
             "policyDefinitions",
-            "resourceGroups"
+            "resourceGroups",
+            "managementGroups"
         )
 
         #Sort 'deletionList' based on 'deletionListPriority'
-        $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+        $deletionList = $deletionList | Sort-Object -Property {
+            $priorityIndex = $deletionListPriority.IndexOf($_.ScopeObject.Resource)
+            if ($priorityIndex -eq -1) {
+                # Set a default priority for items not found in deletionListPriority
+                return [int]::MaxValue
+            }
+            else {
+                return $priorityIndex
+            }
+        }
 
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories and AllowMultipleTemplateParameterFiles is default false, exit with terminating error
         if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory) -and ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $false)) {
