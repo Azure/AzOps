@@ -43,7 +43,7 @@
 
     begin {
         #region Utility Functions
-        function New-List {
+        function New-AzOpsList {
             [CmdletBinding()]
             param (
                 [string[]]
@@ -407,7 +407,7 @@
         #endregion Deploy State
 
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-            $deployFileAssociationList = New-List -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            $deployFileAssociationList = New-AzOpsList -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
             foreach ($fileAssociation in $deployFileAssociationList) {
                 if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
@@ -420,7 +420,7 @@
         }
 
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-            $deletionFileAssociationList = New-List -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
             foreach ($fileAssociation in $deletionFileAssociationList) {
                 if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
