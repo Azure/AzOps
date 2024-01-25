@@ -100,7 +100,7 @@
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
-            $null = Set-AzOpsContext -ScopeObject $scopeObject
+            Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzResourceGroupDeployment'
             $parameters.ResourceGroupName = $scopeObject.resourcegroup
@@ -109,7 +109,7 @@
         # Subscriptions
         elseif ($scopeObject.subscription) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
-            $null = Set-AzOpsContext -ScopeObject $scopeObject
+            Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
             $deploymentCommand = 'New-AzSubscriptionDeployment'
         }
