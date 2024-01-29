@@ -553,36 +553,46 @@
         #Removal of Supported resourceTypes
         $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
         if ($removalJob.FullyQualifiedResourceId.Count -gt 0) {
+            Clear-PSFMessage
+            # Identify failed removal attempts for potential retries
             $retry = $removalJob | Where-Object { $_.Status -eq 'failed' }
+            # If there are retries, log and attempt them again
             if ($retry) {
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deletion.Retry' -LogStringValues $retry.Count
                 Start-Sleep -Seconds 30
+                # Reset the status of failed attempts and perform recursive removal
                 foreach ($try in $retry) { $try.Status = $null }
                 $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
                 $removeActionFail = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
+                # If removal fails, log and attempt to fetch the resource causing the failure
                 if ($removeActionFail) {
                     Start-Sleep -Seconds 90
                     $throwFail = $false
+                    # Check each failed removal and attempt to get the associated resource
                     foreach ($fail in $removeActionFail) {
                         $resource = $null
                         Set-AzOpsContext -ScopeObject $fail.ScopeObject
+                        # Determine if the resource is a lock or a regular resource
                         if ($fail.FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $fail.FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
                             $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $fail.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
                         }
                         else {
                             $resource = Get-AzResource -ResourceId $fail.FullyQualifiedResourceId -ErrorAction SilentlyContinue
                         }
+                        # If the resource is found, log the failure
                         if ($resource) {
                             $throwFail = $true
                             Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
                         }
                     }
+                    # If any failures occurred, throw an exception
                     if ($throwFail) {
                         throw
                     }
                 }
             }
         }
+        # If there are missing dependencies, log the error and throw an exception
         if ($removalJob.dependencyMissing -eq $true) {
             Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Dependency.Missing'
             throw

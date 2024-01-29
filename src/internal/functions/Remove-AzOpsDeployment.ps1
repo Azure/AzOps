@@ -199,16 +199,18 @@
         $removeJobName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
         $removeJobName = "AzOps-RemoveResource-$removeJobName"
         Write-AzOpsMessage -LogLevel Important -LogString 'Remove-AzOpsDeployment.Processing' -LogStringValues $removeJobName, $TemplateFilePath
+
         #region Parse Content
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
-        #endregion
-        #region Validate it is AzOpsgenerated template
+        #endregion Parse Content
+
+        #region Validate template type AzOps generated or not
         $schemavalue = '$schema'
         $customDeletion = $false
         if ($templateContent.metadata._generator.name -eq "AzOps" -or $templateContent.$schemavalue -like "*deploymentParameters.json#") {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.AzOps' -LogStringValues $TemplateFilePath
         }
-        elseif ($CustomTemplateResourceDeletion) {
+        elseif ($CustomTemplateResourceDeletion -eq $true) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.Custom' -LogStringValues $TemplateFilePath
             $customDeletion = $true
         }
@@ -216,7 +218,8 @@
             Write-AzOpsMessage -LogLevel Error -LogString 'Remove-AzOpsDeployment.Metadata.Failed' -LogStringValues $TemplateFilePath
             return
         }
-        #endregion Validate it is AzOpsgenerated template
+        #endregion Validate template type AzOps generated or not
+
         #region Resolve Scope
         try {
             $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
@@ -235,7 +238,7 @@
         Set-AzOpsContext -ScopeObject $scopeObject
         #endregion SetContext
 
-        #region remove supported resources
+        #region remove resources
         if ($customDeletion -eq $false -and $scopeObject.Resource -in $DeletionSupportedResourceType) {
             $dependency = @()
             switch ($scopeObject.Resource) {
@@ -320,6 +323,7 @@
             }
         }
         elseif ($customDeletion -eq $true)  {
+            # Perform a New-AzOpsDeployment using WhatIf with ResourceIdOnly to extrapolate resources inside template
             $removalJob = New-AzOpsDeployment -DeploymentName $DeploymentName -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath -WhatIfResultFormat 'ResourceIdOnly' -WhatIf:$true
             if ($removalJob.results.Changes.Count -gt 0) {
                 # Initialize array to store items that need retry
@@ -375,5 +379,6 @@
                 return
             }
         }
+        #endregion remove resources
     }
 }
