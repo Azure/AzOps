@@ -409,31 +409,45 @@
         $newStateDeploymentCmd.End()
         #endregion Deploy State
 
+        #region Create DeploymentList
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
+            # Create a list of deployment file associations using the New-AzOpsList function
             $deployFileAssociationList = New-AzOpsList -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            # Iterate through each file association in the list
             foreach ($fileAssociation in $deployFileAssociationList) {
+                # Check if the transpiled template is new and add it to the collection if true
                 if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
                 }
+                # Check if the transpiled parameters are new and add them to the collection if true
                 if ($true -eq $fileAssociation.transpiledParametersNew) {
                     $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
                 }
             }
+            # Output the list of file associations for the current addition
             $deployFileAssociationList
         }
+        #endregion Create DeploymentList
 
+        #region Create DeletionList
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
+            # Create a list of deletion file associations using the New-AzOpsList function
             $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            # Iterate through each file association in the list
             foreach ($fileAssociation in $deletionFileAssociationList) {
+                # Check if the transpiled template is new and add it to the collection if true
                 if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
                 }
+                # Check if the transpiled parameters are new and add them to the collection if true
                 if ($true -eq $fileAssociation.transpiledParametersNew) {
                     $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
                 }
             }
+            # Output the list of file associations for the current deletion
             $deletionFileAssociationList
         }
+        #endregion Create DeletionList
 
         #Required deletion order
         $deletionListPriority = @(
