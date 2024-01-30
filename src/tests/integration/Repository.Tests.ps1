@@ -133,10 +133,12 @@ Describe "Repository" {
             $script:policySetDefinitionsDep = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "App1-azopsrg")
+            $script:resourceGroupCustomDeletion = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "CustomDeletion-azopsrg")
             $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
+            $script:policyAssignmentsDeletion = Get-AzPolicyAssignment -Name "TestPolicyAssignmentDeletion" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupCustomDeletion.ResourceGroupName)"
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
         }
@@ -226,6 +228,11 @@ Describe "Repository" {
         $script:policyAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
+        $script:policyAssignmentsDeletionPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDeletion.Name).toLower()).json")
+        $script:policyAssignmentsDeletionDirectory = ($script:policyAssignmentsDeletionPath).Directory
+        $script:policyAssignmentsDeletionFile = ($script:policyAssignmentsDeletionPath).FullName
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentsDeletionFile: $($script:policyAssignmentsDeletionFile)" -FunctionName "BeforeAll"
+
         $script:policyAssignmentsDepPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDep.Name).toLower()).json")
         $script:policyAssignmentsDepDirectory = ($script:policyAssignmentsDepPath).Directory
         $script:policyAssignmentsDepFile = ($script:policyAssignmentsDepPath).FullName
@@ -289,6 +296,11 @@ Describe "Repository" {
         $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
         $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
         Write-PSFMessage -Level Debug -Message "ParallelDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGroupCustomDeletionPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupCustomDeletion.ResourceGroupName).toLower()).json")
+        $script:resourceGroupCustomDeletionDirectory = ($script:resourceGroupCustomDeletionPath).Directory
+        $script:resourceGroupCustomDeletionFile = ($script:resourceGroupCustomDeletionPath).FullName
+        Write-PSFMessage -Level Debug -Message "CustomDeletionResourceGroupFile: $($script:resourceGroupCustomDeletionFile)" -FunctionName "BeforeAll"
 
         $script:resourceGrouprgDualDeploy1Path = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($otherSubscription[0].Id).toLower()).json")
         $script:resourceGrouprgDualDeploy1Directory = ($script:resourceGrouprgDualDeploy1Path).Directory
@@ -1183,6 +1195,30 @@ Describe "Repository" {
         #endregion
 
         #region Deletion of custom templates and pulled resources
+        It "Deletion of custom templates and pulled resources" {
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
+            $script:deployCustomRt = Get-ChildItem -Path "$($global:testRoot)/templates/rtcustomdelete*" | Copy-Item -Destination $script:resourceGroupCustomDeletionDirectory -PassThru -Force
+            $script:deployCustomLock = Get-ChildItem -Path "$($global:testRoot)/templates/customlockdelete*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployCustomRt.FullName[0])",
+                "A`t$($script:deployCustomLock.FullName)"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $changeSet = @(
+                "D`t$($script:deployCustomRt.FullName[0])",
+                "D`t$($script:deployCustomLock.FullName)",
+                "D`t$script:policyAssignmentsDeletionFile"
+            )
+            $DeleteSetContents = (Get-Content $script:deployCustomRt.FullName[0])
+            $DeleteSetContents += '-- '
+            $DeleteSetContents = (Get-Content $script:deployCustomLock.FullName)
+            $DeleteSetContents += '-- '
+            $DeleteSetContents = (Get-Content $script:policyAssignmentsDeletionFile)
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
+            Start-Sleep -Seconds 30
+        }
         #endregion
     }
 
