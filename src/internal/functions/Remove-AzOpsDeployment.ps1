@@ -191,7 +191,7 @@
 
         $dependencyMissing = $null
         #Adjust TemplateParameterFilePath to compensate for policyDefinitions and policySetDefinitions usage of parameters.json
-        if ($TemplateParameterFilePath -and $TemplateFilePath -eq (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')) {
+        if ($TemplateParameterFilePath -and $TemplateFilePath -eq (Resolve-Path (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')).Path) {
             $TemplateFilePath = $TemplateParameterFilePath
         }
         #Deployment Name

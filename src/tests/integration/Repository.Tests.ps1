@@ -21,6 +21,7 @@ Describe "Repository" {
         $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $otherSubscription = Get-AzSubscription | Where-Object { $_.Id -ne $script:subscriptionId } | Sort-Object Name -Descending | Select-Object Id -First 2
 
         # Validate that the runtime variables are set as they are used to authenticate the Azure session.
 
@@ -288,6 +289,16 @@ Describe "Repository" {
         $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
         $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
         Write-PSFMessage -Level Debug -Message "ParallelDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGrouprgDualDeploy1Path = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($otherSubscription[0].Id).toLower()).json")
+        $script:resourceGrouprgDualDeploy1Directory = ($script:resourceGrouprgDualDeploy1Path).Directory
+        $script:resourceGrouprgDualDeploy1File = ($script:resourceGrouprgDualDeploy1Path).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGrouprgDualDeploy1File: $($script:resourceGrouprgDualDeploy1File)" -FunctionName "BeforeAll"
+
+        $script:resourceGrouprgDualDeploy2Path = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($otherSubscription[1].Id).toLower()).json")
+        $script:resourceGrouprgDualDeploy2Directory = ($script:resourceGrouprgDualDeploy2Path).Directory
+        $script:resourceGrouprgDualDeploy2File = ($script:resourceGrouprgDualDeploy2Path).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGrouprgDualDeploy2File: $($script:resourceGrouprgDualDeploy2File)" -FunctionName "BeforeAll"
 
         $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
@@ -1151,6 +1162,27 @@ Describe "Repository" {
             }
             $timeTest | Should -Be 'good'
         }
+        #endregion
+
+        #region Deploy multiple resource group's to different subscriptions, test context switch
+        It "Deploy multiple resource group's to different subscriptions, test context switch" {
+            $script:deployRg1 = Get-ChildItem -Path "$($global:testRoot)/templates/rgdualdeploy*" | Copy-Item -Destination $script:resourceGrouprgDualDeploy1Directory -PassThru -Force
+            $script:deployRg2 = Get-ChildItem -Path "$($global:testRoot)/templates/rgdualdeploy*" | Copy-Item -Destination $script:resourceGrouprgDualDeploy2Directory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployRg1.FullName[0])",
+                "A`t$($script:deployRg2.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $null = Set-AzContext -SubscriptionId $otherSubscription[0].Id
+            (Get-AzResourceGroup -Name Test-azopsrg).Count | Should -Be 1
+            $null = Set-AzContext -SubscriptionId $otherSubscription[1].Id
+            (Get-AzResourceGroup -Name Test-azopsrg).Count | Should -Be 1
+            Set-AzContext -SubscriptionId $script:subscriptionId
+        }
+        #endregion
+
+        #region Deletion of custom templates and pulled resources
         #endregion
     }
 
