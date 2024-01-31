@@ -1218,6 +1218,8 @@ Describe "Repository" {
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
+            (Get-AzResource -ResourceGroupName $script:resourceGroupCustomDeletion.ResourceGroupName).Count | Should -Be 0
+            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.ResourceId -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
         }
         #endregion
     }
