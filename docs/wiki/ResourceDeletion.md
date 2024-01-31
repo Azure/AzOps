@@ -1,16 +1,25 @@
 # AzOps Resource Deletion
 
 - [Introduction](#introduction)
-- [Deletion dependency validation](#deletion-dependency-validation)
+- [Deletion of AzOps generated File](#deletion-of-azops-generated-file)
+  - [Deletion dependency validation](#deletion-dependency-validation)
   - [Deletion dependency validation scenario](#deletion-dependency-validation-scenario)
+- [Deletion of Custom Template](#deletion-of-custom-template)
+  - [Enable Deletion of Custom Template](#enable-deletion-of-custom-template)
 - [Integration with AzOps Accelerator](#integration-with-azops-accelerator)
   - [How to Add AzOps Resource Deletion to existing AzOps Push](#how-to-add-azops-resource-deletion-to-existing-azops-push-and-validate-pipelines)
 
 ## Introduction
 
-**AzOps Resource Deletion** performs deletion of locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
+**AzOps Resource Deletion** at a high level enables two scenarios.
+1. [Deletion of AzOps generated File](#deletion-of-azops-generated-file) of a supported resource type, resulting in AzOps removes the corresponding resource in Azure.
+2. [Deletion of Custom Template](#deletion-of-custom-template), resulting in AzOps removes the corresponding resource in Azure.
 
-- For any other resource type **deletion** is **not** supported by AzOps at this time.
+## Deletion of AzOps generated File
+
+Default AzOps behaviour when performing deletion of locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
+
+- For any other `AzOps - Pull` generated resource **deletion** is **not** supported by AzOps at this time.
 
 By removing a AzOps generated file of a supported resource type AzOps removes the corresponding resource in Azure.
 
@@ -68,7 +77,7 @@ By removing a AzOps generated file of a supported resource type AzOps removes th
                             OR
     Microsoft.Authorization/roleAssignments/*
 ```
-## Deletion dependency validation
+### Deletion dependency validation
 When deletion of a supported object is sent to AzOps it evaluates to ensure resource dependencies are included in the deletion job. If a dependency is missing the module will throw (exit with error) and post the result of missing dependencies to the pull request conversation asking you to add it and try again.
 
 **_Please Note: For the validation pipeline to fail in the manner intended (applicable to implementations created prior to AzOps release v1.9.0)_**
@@ -90,6 +99,25 @@ Scenario: Deletion of a policy definition and policy assignment where the assign
 - Two options:
   - a) In the branch delete the dependent file corresponding to the resulting error.
   - b) Delete the dependency in Azure and re-run validation.
+
+## Deletion of Custom Template
+Deletion of custom templates is a opt-in feature that you need to enable [see](#enable-deletion-of-custom-template).
+
+AzOps attempts deletion of custom templates according to these steps.
+1. Validate template.
+2. Resolve template parameter file, depending on module settings and possible multiple parameter file scenario.
+3. Sort templates for deletion based (attempt locks before other resources).
+4. Process templates for deletion in series.
+5. Identify resources within template by attempting a WhatIf deployment and gather returned resource ids.
+6. Attempt resource deletion for each resource id.
+7. If resource fails deletion, recursively retry deletion in different order.
+8. For resources still failing deletion, collect them for a last deletion attempt, once all other templates are processed.
+9. If resource deletion still fails, module will log error and throw.
+
+### Enable Deletion of Custom Template
+Set the `Core.CustomTemplateResourceDeletion` value in `settings.json` to `true`.
+
+`AzOps - Push` will now evaluate and attempt deletion of corresponding resource (*from template*) in Azure when a custom template is deleted.
 
 ## Integration with AzOps Accelerator
 
