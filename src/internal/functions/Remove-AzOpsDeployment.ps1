@@ -322,6 +322,10 @@
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
+        elseif ($customDeletion -eq $false -and $scopeObject.Resource -notin $DeletionSupportedResourceType) {
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.SkipUnsupportedResource' -LogStringValues $TemplateFilePath -Target $scopeObject
+            return
+        }
         elseif ($customDeletion -eq $true)  {
             # Perform a New-AzOpsDeployment using WhatIf with ResourceIdOnly to extrapolate resources inside template
             $removalJob = New-AzOpsDeployment -DeploymentName $DeploymentName -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath -WhatIfResultFormat 'ResourceIdOnly' -WhatIf:$true

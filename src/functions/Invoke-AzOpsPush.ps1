@@ -325,8 +325,6 @@
     process {
         if (-not $ChangeSet) { return }
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
-        #Supported resource types for deletion
-        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
         #region Categorize Input
         Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Deployment.Required'
         $deleteSet = @()

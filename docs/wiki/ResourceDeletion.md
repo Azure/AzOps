@@ -17,11 +17,11 @@
 
 ## Deletion of AzOps generated File
 
-Default AzOps behaviour when performing deletion of locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure, based on `AzOps - Pull` generated templates at all Azure scope levels `(Management Group/Subscription/Resource Group)`.
+By removing a AzOps generated file of a supported resource type AzOps removes the corresponding resource in Azure.
+
+_Supported resource types include: locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure._
 
 - For any other `AzOps - Pull` generated resource **deletion** is **not** supported by AzOps at this time.
-
-By removing a AzOps generated file of a supported resource type AzOps removes the corresponding resource in Azure.
 
 **_Please Note_**
 
@@ -106,7 +106,7 @@ Deletion of custom templates is a opt-in feature that you need to enable [see](#
 AzOps attempts deletion of custom templates according to these steps.
 1. Validate template.
 2. Resolve template parameter file, depending on module settings and possible multiple parameter file scenario.
-3. Sort templates for deletion based (attempt locks before other resources).
+3. Sort templates for deletion (attempt locks before other resources).
 4. Process templates for deletion in series.
 5. Identify resources within template by attempting a WhatIf deployment and gather returned resource ids.
 6. Attempt resource deletion for each resource id.

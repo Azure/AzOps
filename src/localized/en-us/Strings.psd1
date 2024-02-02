@@ -281,7 +281,7 @@
     'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
     'Remove-AzOpsDeployment.Resource.RetryCount'                                    = 'Retry deletion of {0} resources in different order'# $retry.Count
     'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.resource, $scopeObject.scope, $resultsError
-    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}'# $TemplateFilePath
 
     'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $scopeObject.scope, $FullyQualifiedResourceId
 
