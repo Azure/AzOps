@@ -29,7 +29,7 @@
             'ManagedService' {
                 # Get managed identity application id via IMDS (https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token)
                 $restMethodResult = Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" -Headers @{ Metadata = $true } -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-                if ($restMethodResult) {
+                if ($restMethodResult.client_id) {
                     $principalObject = Get-AzADServicePrincipal -ApplicationId $restMethodResult.client_id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
                 }
             }
