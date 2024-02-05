@@ -16,7 +16,7 @@
         .PARAMETER StatePath
             The root folder under which to find the resource json.
         .PARAMETER DeletionSupportedResourceType
-            Supported resource types for deletion.
+            Supported resource types for deletion of AzOps generated file.
         .PARAMETER WhatIf
             If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
         .EXAMPLE
@@ -332,6 +332,7 @@
             if ($removalJob.results.Changes.Count -gt 0) {
                 # Initialize array to store items that need retry
                 $retry = @()
+                $removalJob = Set-AzOpsRemoveOrder -DeletionList $removalJob -Index { (New-AzOpsScope -Scope $_.results.Changes.FullyQualifiedResourceId).Resource }
                 foreach ($change in $removalJob.results.Changes) {
                     $resource = $null
                     # Check if the resource exists

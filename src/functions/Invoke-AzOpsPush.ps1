@@ -447,29 +447,6 @@
         }
         #endregion Create DeletionList
 
-        #Required deletion order
-        $deletionListPriority = @(
-            "locks",
-            "policyExemptions",
-            "policyAssignments",
-            "policySetDefinitions",
-            "policyDefinitions",
-            "resourceGroups",
-            "managementGroups"
-        )
-
-        #Sort 'deletionList' based on 'deletionListPriority'
-        $deletionList = $deletionList | Sort-Object -Property {
-            $priorityIndex = $deletionListPriority.IndexOf($_.ScopeObject.Resource)
-            if ($priorityIndex -eq -1) {
-                # Set a default priority for items not found in deletionListPriority
-                return [int]::MaxValue
-            }
-            else {
-                return $priorityIndex
-            }
-        }
-
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories and AllowMultipleTemplateParameterFiles is default false, exit with terminating error
         if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory) -and ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $false)) {
             Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.DeploymentList.NotFound'
@@ -562,52 +539,55 @@
             }
         }
 
-        #Removal of Supported resourceTypes
-        $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
-        if ($removalJob.FullyQualifiedResourceId.Count -gt 0) {
-            Clear-PSFMessage
-            # Identify failed removal attempts for potential retries
-            $retry = $removalJob | Where-Object { $_.Status -eq 'failed' }
-            # If there are retries, log and attempt them again
-            if ($retry) {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deletion.Retry' -LogStringValues $retry.Count
-                Start-Sleep -Seconds 30
-                # Reset the status of failed attempts and perform recursive removal
-                foreach ($try in $retry) { $try.Status = $null }
-                $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
-                $removeActionFail = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
-                # If removal fails, log and attempt to fetch the resource causing the failure
-                if ($removeActionFail) {
-                    Start-Sleep -Seconds 90
-                    $throwFail = $false
-                    # Check each failed removal and attempt to get the associated resource
-                    foreach ($fail in $removeActionFail) {
-                        $resource = $null
-                        Set-AzOpsContext -ScopeObject $fail.ScopeObject
-                        # Determine if the resource is a lock or a regular resource
-                        if ($fail.FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $fail.FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
-                            $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $fail.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
+        if ($deletionList) {
+            #Removal of Supported resourceTypes and Custom Templates
+            $deletionList = Set-AzOpsRemoveOrder -DeletionList $deletionList -Index { $_.ScopeObject.Resource }
+            $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
+            if ($removalJob.FullyQualifiedResourceId.Count -gt 0) {
+                Clear-PSFMessage
+                # Identify failed removal attempts for potential retries
+                $retry = $removalJob | Where-Object { $_.Status -eq 'failed' }
+                # If there are retries, log and attempt them again
+                if ($retry) {
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deletion.Retry' -LogStringValues $retry.Count
+                    Start-Sleep -Seconds 30
+                    # Reset the status of failed attempts and perform recursive removal
+                    foreach ($try in $retry) { $try.Status = $null }
+                    $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
+                    $removeActionFail = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
+                    # If removal fails, log and attempt to fetch the resource causing the failure
+                    if ($removeActionFail) {
+                        Start-Sleep -Seconds 90
+                        $throwFail = $false
+                        # Check each failed removal and attempt to get the associated resource
+                        foreach ($fail in $removeActionFail) {
+                            $resource = $null
+                            Set-AzOpsContext -ScopeObject $fail.ScopeObject
+                            # Determine if the resource is a lock or a regular resource
+                            if ($fail.FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $fail.FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
+                                $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $fail.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
+                            }
+                            else {
+                                $resource = Get-AzResource -ResourceId $fail.FullyQualifiedResourceId -ErrorAction SilentlyContinue
+                            }
+                            # If the resource is found, log the failure
+                            if ($resource) {
+                                $throwFail = $true
+                                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+                            }
                         }
-                        else {
-                            $resource = Get-AzResource -ResourceId $fail.FullyQualifiedResourceId -ErrorAction SilentlyContinue
+                        # If any failures occurred, throw an exception
+                        if ($throwFail) {
+                            throw
                         }
-                        # If the resource is found, log the failure
-                        if ($resource) {
-                            $throwFail = $true
-                            Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
-                        }
-                    }
-                    # If any failures occurred, throw an exception
-                    if ($throwFail) {
-                        throw
                     }
                 }
             }
-        }
-        # If there are missing dependencies, log the error and throw an exception
-        if ($removalJob.dependencyMissing -eq $true) {
-            Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Dependency.Missing'
-            throw
+            # If there are missing dependencies, log the error and throw an exception
+            if ($removalJob.dependencyMissing -eq $true) {
+                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Dependency.Missing'
+                throw
+            }
         }
         $stopWatch.Stop()
         Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Duration' -LogStringValues $stopWatch.Elapsed -Metric $stopWatch.Elapsed.TotalSeconds -MetricName 'AzOpsPush Time'
