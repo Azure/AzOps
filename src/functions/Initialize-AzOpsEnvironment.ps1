@@ -124,8 +124,10 @@
         }
 
         #region Validate root '/' permissions - different methods of getting current context depending on principalType
-        $currentPrincipal = Get-AzOpsCurrentPrincipal -AzContext $currentAzContext
-        $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        $currentPrincipal = Get-AzOpsCurrentPrincipal -AzContext $currentAzContext -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        if ($currentPrincipal.id) {
+            $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        }
 
         if (-not $rootPermissions) {
             Write-AzOpsMessage -LogLevel Important -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions' -LogStringValues $currentAzContext.Account.Id

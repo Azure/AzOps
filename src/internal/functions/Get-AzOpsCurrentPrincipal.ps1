@@ -21,15 +21,20 @@
 
         switch ($AzContext.Account.Type) {
             'User' {
-                $principalObject = (Invoke-AzRestMethod -Uri https://graph.microsoft.com/v1.0/me).Content | ConvertFrom-Json
+                $restMethodResult = Invoke-AzRestMethod -Uri https://graph.microsoft.com/v1.0/me -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                if ($restMethodResult) {
+                    $principalObject = $restMethodResult.Content | ConvertFrom-Json
+                }
             }
             'ManagedService' {
                 # Get managed identity application id via IMDS (https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token)
-                $applicationId = (Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" -Headers @{ Metadata = $true }).client_id
-                $principalObject = Get-AzADServicePrincipal -ApplicationId $applicationId
+                $restMethodResult = Invoke-RestMethod -Uri "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2021-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" -Headers @{ Metadata = $true } -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                if ($restMethodResult) {
+                    $principalObject = Get-AzADServicePrincipal -ApplicationId $restMethodResult.client_id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+                }
             }
             default {
-                $principalObject = Get-AzADServicePrincipal -ApplicationId $AzContext.Account.Id
+                $principalObject = Get-AzADServicePrincipal -ApplicationId $AzContext.Account.Id -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
             }
         }
         Write-AzOpsMessage -LogLevel InternalComment -LogString 'Get-AzOpsCurrentPrincipal.PrincipalId' -LogStringValues $principalObject.Id
