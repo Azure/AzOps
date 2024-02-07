@@ -124,9 +124,19 @@
         }
 
         #region Validate root '/' permissions - different methods of getting current context depending on principalType
-        $currentPrincipal = Get-AzOpsCurrentPrincipal -AzContext $currentAzContext -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+        try {
+            $currentPrincipal = Get-AzOpsCurrentPrincipal -AzContext $currentAzContext -ErrorAction Stop
+        }
+        catch {
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.CurrentPrincipal.Fail' -LogStringValues $_
+        }
         if ($currentPrincipal.id) {
-            $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+            try {
+                $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction -ErrorAction Stop
+            }
+            catch {
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Initialize-AzOpsEnvironment.CurrentPrincipal.RoleAssignmentFail' -LogStringValues $_
+            }
         }
 
         if (-not $rootPermissions) {
