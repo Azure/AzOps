@@ -132,7 +132,7 @@
         }
         if ($currentPrincipal.id) {
             try {
-                $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction -ErrorAction Stop
+                $rootPermissions = Get-AzRoleAssignment -ObjectId $currentPrincipal.id -Scope "/" -ErrorAction Stop
             }
             catch {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Initialize-AzOpsEnvironment.CurrentPrincipal.RoleAssignmentFail' -LogStringValues $_
