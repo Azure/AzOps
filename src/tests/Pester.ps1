@@ -1,4 +1,5 @@
-﻿param (
+Write-Host "testing ci"
+param (
     $TestGeneral = $false,
 
     $TestFunctions = $false,
