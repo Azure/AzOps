@@ -151,6 +151,8 @@
     'Initialize-AzOpsEnvironment.AzureContext.No'                                   = 'No context available in Az PowerShell. Please use Connect-AzAccount and connect before using the command' #
     'Initialize-AzOpsEnvironment.AzureContext.TooMany'                              = 'Unsupported number of tenants in context: {0} TenantIDs TenantIDs: {1} Please reconnect with Connect-AzAccount using an account/service principal that only have access to one tenant' # $azContextTenants.Count, ($azContextTenants -join ',')
     'Initialize-AzOpsEnvironment.Initializing'                                      = 'Starting AzOps environment initialization' #
+    'Initialize-AzOpsEnvironment.CurrentPrincipal.Fail'                             = 'Identifying current principal failed with: {0}' # $_
+    'Initialize-AzOpsEnvironment.CurrentPrincipal.RoleAssignmentFail'               = 'Identifying current principal root scope "/" roleAssignment failed with: {0}' # $_
     'Initialize-AzOpsEnvironment.ManagementGroup.Expanding'                         = 'Expanding management groups under {0}' # $mgmtGroup.Name
     'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions'                 = 'Principal {0} does not have permissions under / in tenant, enabling partial discovery' # $currentAzContext.Account.Id
     'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'                  = 'Executing partial discovery' #
