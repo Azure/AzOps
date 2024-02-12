@@ -103,7 +103,8 @@ Scenario: Deletion of a policy definition and policy assignment where the assign
 ## Deletion of Custom Template
 Deletion of custom templates is a opt-in feature that you need to enable [see](#enable-deletion-of-custom-template).
 
-AzOps attempts deletion of custom templates according to these steps.
+How does AzOps attempt deletion of custom template?
+
 1. Validate template.
 2. Resolve template parameter file, depending on module settings and possible multiple parameter file scenario.
 3. Sort templates for deletion (attempt locks before other resources).
