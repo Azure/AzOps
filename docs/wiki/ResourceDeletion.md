@@ -12,7 +12,7 @@
 ## Introduction
 
 **AzOps Resource Deletion** at a high level enables two scenarios.
-1. [Deletion of AzOps generated File](#deletion-of-azops-generated-file) of a supported resource type, resulting in AzOps removes the corresponding resource in Azure.
+1. [Deletion of AzOps generated File](#deletion-of-azops-generated-file) with a supported resource type, resulting in AzOps removes the corresponding resource in Azure.
 2. [Deletion of Custom Template](#deletion-of-custom-template), resulting in AzOps removes the corresponding resource in Azure.
 
 ## Deletion of AzOps generated File
@@ -103,6 +103,8 @@ Scenario: Deletion of a policy definition and policy assignment where the assign
 ## Deletion of Custom Template
 Deletion of custom templates is a opt-in feature that you need to enable [see](#enable-deletion-of-custom-template).
 
+Once enabled, deletion of `yourCustomTemplate.bicep`, `yourCustomTemplate.bicepparam`, `yourCustomTemplate.json` or `yourCustomTemplate.parameters.json` results in AzOps attempting deletion of the resolved Azure resources.
+
 How does AzOps attempt deletion of custom template?
 
 1. Validate template.
@@ -110,7 +112,7 @@ How does AzOps attempt deletion of custom template?
 3. Sort templates for deletion (attempt locks before other resources).
 4. Process templates for deletion in series.
 5. Identify resources within template by attempting a WhatIf deployment and gather returned resource ids.
-6. Attempt resource deletion for each resource id.
+6. Attempt resource deletion for each identified resource id.
 7. If resource fails deletion, recursively retry deletion in different order.
 8. For resources still failing deletion, collect them for a last deletion attempt, once all other templates are processed.
 9. If resource deletion still fails, module will log error and throw.
