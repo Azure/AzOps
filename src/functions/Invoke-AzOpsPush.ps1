@@ -122,12 +122,6 @@
             )
 
             #region Initialization Prep
-            $common = @{
-                Level        = 'Host'
-                Tag          = 'pwsh'
-                FunctionName = 'Invoke-AzOpsPush'
-                Target       = $ScopeObject
-            }
 
             $result = [PSCustomObject] @{
                 TemplateFilePath          = $null
@@ -300,11 +294,6 @@
         }
         #endregion Utility Functions
 
-        $common = @{
-            Level = 'Host'
-            Tag   = 'git'
-        }
-
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
 
@@ -385,7 +374,7 @@
         #endregion Categorize Input
 
         #region Deploy State
-        $common.Tag = 'pwsh'
+
         # Nested Pipeline allows economizing on New-AzOpsStateDeployment having to run its "begin" block once only
         $newStateDeploymentCmd = { New-AzOpsStateDeployment -StatePath $StatePath }.GetSteppablePipeline()
         $newStateDeploymentCmd.Begin($true)
