@@ -363,9 +363,11 @@
                         }
                         # When processed as designed there is no file present in the running branch. To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
                         if (-not(Test-Path -Path (Split-Path -Path $item))) {
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $item
                             New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
                         }
                         # Update item
+                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $item, $jsonValue
                         Set-Content -Path $item -Value $jsonValue
                     }
                 }
