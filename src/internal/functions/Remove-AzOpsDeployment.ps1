@@ -332,8 +332,8 @@
             if ($removalJob.results.Changes.Count -gt 0) {
                 # Initialize array to store items that need retry
                 $retry = @()
-                $removalJob = Set-AzOpsRemoveOrder -DeletionList $removalJob -Index { (New-AzOpsScope -Scope $_.results.Changes.FullyQualifiedResourceId).Resource }
-                foreach ($change in $removalJob.results.Changes) {
+                $removalJobChanges = Set-AzOpsRemoveOrder -DeletionList $removalJob.results.Changes -Index { (New-AzOpsScope -Scope $_.FullyQualifiedResourceId -WhatIf:$false).Resource }
+                foreach ($change in $removalJobChanges) {
                     $resource = $null
                     # Check if the resource exists
                     if ($change.RelativeResourceId.StartsWith('Microsoft.Authorization/locks/')) {
