@@ -193,7 +193,7 @@
     'Invoke-AzOpsPush.Change.Delete'                                                = 'Deleting:' #
     'Invoke-AzOpsPush.Change.Delete.File'                                           = '  {0}' # $fileName
     'Invoke-AzOpsPush.Change.Delete.TempFile'                                       = 'Creating temporary file dir for deletion processing: {0}' # $fileName
-    'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, next file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
+    'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
     'Invoke-AzOpsPush.Change.Delete.SetTempFileContent'                             = 'Set temporary file content: [{1}], in [{0}]' # $fileName, $jsonValue
     'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, has failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deletion.Retry'                                               = 'Deletion of {0} resources unsuccessful, initiate final retry combination.' # $retry.Count
