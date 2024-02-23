@@ -346,7 +346,7 @@
                         $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $change.FullyQualifiedResourceId, [environment]::NewLine
                         Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                         Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
-                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
                         # Check if the removal should be performed
                         if ($PSCmdlet.ShouldProcess("Remove $($change.FullyQualifiedResourceId)?")) {
                             $removeAction = Remove-AzResourceRaw -FullyQualifiedResourceId $change.FullyQualifiedResourceId -ScopeObject $ScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
@@ -363,7 +363,7 @@
                         # Log warning if resource not found
                         Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.resource, $change.FullyQualifiedResourceId
                         $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $change.FullyQualifiedResourceId, [environment]::NewLine
-                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
                     }
 
                 }
@@ -380,7 +380,7 @@
                 # No resource to remove was found
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
-                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
                 return
             }
         }
