@@ -343,32 +343,40 @@
         }
         if ($DeleteSetContents -and $deleteSet) {
             Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete'
-            # Unique delimiter used to join, split and replace data in DeleteSetContents
-            $delimiter = (New-Guid).Guid
-            # Transform $DeleteSetContents for further processing
-            $DeleteSetContents = $DeleteSetContents -join $delimiter -split "$delimiter-- " -replace $delimiter,""
-            # Process each $deleteSet $item
-            foreach ($item in $deleteSet) {
-                Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $item
-                # Processing each $deleteSet, compare it to each $DeleteSetContents
-                foreach ($content in $DeleteSetContents) {
-                    if ($content.Contains($item)) {
-                        # Transform original first line in content with missing delimiter
-                        if ($content.StartsWith("-- ")) {
-                            $jsonValue = $content.replace("-- $item", "")
+            # Iterate through each line in $DeleteSetContents
+            for ($i = 0; $i -lt $DeleteSetContents.Count; $i++) {
+                $line = $DeleteSetContents[$i].Trim()
+                # Check if the line starts with '-- ' and matches any filename in $deleteSet
+                if ($line -match '^-- (.+)$') {
+                    $fileName = $matches[1]
+                    if ($deleteSet -contains $fileName) {
+                        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $fileName
+                        # Collect lines until the next line starting with '--'
+                        $objectLines = @($line)
+                        $i++
+                        while ($i -lt $DeleteSetContents.Count) {
+                            $currentLine = $DeleteSetContents[$i].Trim()
+                            # Check if the line starts with '-- ' followed by any filename in $deleteSet
+                            if ($currentLine -match '^-- (.+)$' -and $deleteSet -contains $matches[1]) {
+                                $i--
+                                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.NextTempFile' -LogStringValues $currentLine
+                                break  # Exit the loop if the line starts with '-- ' and matches a filename in $deleteSet
+                            }
+                            $objectLines += $currentLine
+                            $i++
                         }
-                        # Transform remaining content
-                        else {
-                            $jsonValue = $content.replace($item, "")
+                        # When processed as designed there is no file present in the running branch.
+                        # To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
+                        if (-not(Test-Path -Path (Split-Path -Path $fileName))) {
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $fileName
+                            New-Item -Path (Split-Path -Path $fileName) -ItemType Directory | Out-Null
                         }
-                        # When processed as designed there is no file present in the running branch. To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
-                        if (-not(Test-Path -Path (Split-Path -Path $item))) {
-                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $item
-                            New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
-                        }
-                        # Update item
-                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $item, $jsonValue
-                        Set-Content -Path $item -Value $jsonValue
+                        # Create $fileName and set $content
+                        $objectLines = $objectLines[1..$objectLines.Count]
+                        $content = $objectLines.replace("-- $fileName", "") -join "`r`n"
+                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $fileName, $content
+                        Set-Content -Path $fileName -Value $content
+                        $i--  # Move back one step to process the next line properly
                     }
                 }
             }
