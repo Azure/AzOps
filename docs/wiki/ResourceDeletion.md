@@ -12,8 +12,27 @@
 ## Introduction
 
 **AzOps Resource Deletion** at a high level enables two scenarios.
-1. [Deletion of AzOps generated File](#deletion-of-azops-generated-file) with a supported resource type, resulting in AzOps removes the corresponding resource in Azure.
+1. [Deletion of AzOps generated File](#deletion-of-azops-generated-file) of supported resource type, resulting in AzOps removes the corresponding resource in Azure.
 2. [Deletion of Custom Template](#deletion-of-custom-template), resulting in AzOps removes the corresponding resource in Azure.
+
+```mermaid
+flowchart TD
+    A[(Main Branch)] --> B[(1.Delete Branch)]
+    B -- Remove Template Files --> C([2. filename.json])
+    C --> D([3. Commit])
+    D --> B
+    B -- Pull Request to Main ----> E(((4. AzOps - Validate
+    '/tmp/diff.txt'
+    '/tmp/diffdeletedfiles.txt')))
+    E -- git diff --- A
+    E ---> F[5. Invoke-AzOpsPush -WhatIf:$true]
+    E -- Merge ---> A
+    A -- Automated trigger----> G(((6. AzOps - Push
+    '/tmp/diff.txt'
+    '/tmp/diffdeletedfiles.txt')))
+    G -- git diff --- A
+    G --> H[7. Invoke-AzOpsPush -WhatIf:$false]
+```
 
 ## Deletion of AzOps generated File
 
@@ -107,15 +126,28 @@ Once enabled, deletion of `yourCustomTemplate.bicep`, `yourCustomTemplate.bicepp
 
 How does AzOps attempt deletion of custom template?
 
-1. Validate template.
-2. Resolve template parameter file, depending on module settings and possible multiple parameter file scenario.
-3. Sort templates for deletion (attempt locks before other resources).
-4. Process templates for deletion in series.
-5. Identify resources within template by attempting a WhatIf deployment and gather returned resource ids.
-6. Attempt resource deletion for each identified resource id.
-7. If resource fails deletion, recursively retry deletion in different order.
-8. For resources still failing deletion, collect them for a last deletion attempt, once all other templates are processed.
-9. If resource deletion still fails, module will log error and throw.
+```mermaid
+flowchart TD
+    A(((Invoke-AzOpsPush))) --> B[Validate Template
+    filename.parameters.json]
+    B -- Failed --> K[Skip]
+    B -- Success --> C[Resolve template files]
+    C -- No template found --> D
+    C -- Found template
+    filename.json --> D[Sort Templates
+    Attempt locks before other resources]
+    D --> E[(Process templates for deletion in series)]
+    E -- Success ---> A
+    E --> F([Identify resources within template by attempting a WhatIf deployment and gather returned resource ids])
+    F --> G([Attempt resource deletion for each identified resource id])
+    G -- Success ---> E
+    G -- Fail --> H([If resource fails deletion, recursively retry deletion in different order])
+    H -- Success ---> E
+    H -- Fail --> I([For resources still failing deletion, collect them for a last deletion attempt, once all other templates are processed])
+    I -- Success ---> A
+    I --Fail --> J([If resource deletion still fails, module will log error and throw])
+    J --Fail ---> A
+```
 
 ### Enable Deletion of Custom Template
 Set the `Core.CustomTemplateResourceDeletion` value in `settings.json` to `true`.
