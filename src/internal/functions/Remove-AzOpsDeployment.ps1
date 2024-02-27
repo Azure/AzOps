@@ -380,14 +380,19 @@
                 if ($DeleteSet) {
                     $deleteSetCheck = $DeleteSet  -replace '\.bicep$', '.json'
                     $deleteSetCheck = $deleteSetCheck  -replace '\.bicepparam$', '.parameters.json'
+                    # Check if template and parameter file exist in $DeleteSet, example AzOps has been instructed to remove template.json but not the associated parameter.json
                     $resultsFileAssociation = switch ($null) {
+                        { $baseTemplateCheck -notin $deleteSetCheck -and $baseParameterCheck -notin $deleteSetCheck } {
+                            'Missing template and parameter file association:{2}{0} and {1} for deletion.{2}{2}Ensure that you have reviewed and confirmed the necessity of each deletion.{2}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json or .parameters.json for deletion processing and outputs the results from the converted files here.{2}' -f $TemplateFilePath, $TemplateParameterFilePath, [environment]::NewLine
+                        }
                         { $baseTemplateCheck -notin $deleteSetCheck } {
-                            'Missing template file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
+                            'Missing template file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json or deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
                         }
                         { $baseParameterCheck -notin $deleteSetCheck } {
-                            'Missing parameter file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
+                            'Missing parameter file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json or deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
                         }
                     }
+                    # If there are $resultsFileAssociation, combine them with existing results and log a warning
                     if ($resultsFileAssociation) {
                         $finallResults = @()
                         $finallResults += $resultsFileAssociation
