@@ -382,10 +382,10 @@
                     $deleteSetCheck = $deleteSetCheck  -replace '\.bicepparam$', '.parameters.json'
                     $resultsFileAssociation = switch ($null) {
                         { $baseTemplateCheck -notin $deleteSetCheck } {
-                            'Missing template file association:{1}{0} for deletion:{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion. If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
+                            'Missing template file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
                         }
                         { $baseParameterCheck -notin $deleteSetCheck } {
-                            'Missing parameter file association:{1}{0} for deletion:{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion. If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
+                            'Missing parameter file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
                         }
                     }
                     if ($resultsFileAssociation) {
