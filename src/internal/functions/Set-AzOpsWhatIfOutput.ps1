@@ -93,7 +93,7 @@
                 if ($Results -match 'Missing resource dependency' ) {
                     $mdOutput = ':x: **Action Required**{0}WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $resultString, $resultHeadline
                 }
-                elseif ($Results -match 'What if operation failed') {
+                elseif ($Results -match 'What if operation failed' -or $Results -match 'Missing template file association' -or $Results -match 'Missing parameter file association') {
                     $mdOutput = ':warning: WhatIf Results for Resource Deletion of {2}:{0}```{0}{1}{0}```' -f [environment]::NewLine, $resultString, $resultHeadline
                 }
                 else {

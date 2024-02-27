@@ -17,6 +17,8 @@
             The root folder under which to find the resource json.
         .PARAMETER DeletionSupportedResourceType
             Supported resource types for deletion of AzOps generated file.
+        .PARAMETER DeleteSet
+            String of file names to validate deletion.
         .PARAMETER WhatIf
             If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
         .EXAMPLE
@@ -45,7 +47,10 @@
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
 
         [object[]]
-        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
+        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType'),
+
+        [string[]]
+        $DeleteSet
     )
 
     process {
@@ -368,7 +373,29 @@
                     }
 
                 }
-                # Log WhatIf Output once for all resources in template
+                $baseTemplateCheck = $TemplateFilePath -replace '\.bicep$', '.json'
+                if ($TemplateParameterFilePath) {
+                    $baseParameterCheck = $TemplateParameterFilePath -replace '\.bicepparam$', 'parameters.json'
+                }
+                if ($DeleteSet) {
+                    $deleteSetCheck = $DeleteSet  -replace '\.bicep$', '.json'
+                    $deleteSetCheck = $deleteSetCheck  -replace '\.bicepparam$', '.parameters.json'
+                    $resultsFileAssociation = switch ($null) {
+                        { $baseTemplateCheck -notin $deleteSetCheck } {
+                            'Missing template file association:{1}{0} for deletion:{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion. If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
+                        }
+                        { $baseParameterCheck -notin $deleteSetCheck } {
+                            'Missing parameter file association:{1}{0} for deletion:{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion. If you are deleting files with the extensions .bicep or .bicepparam, keep in mind that AzOps converts them to .json and .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
+                        }
+                    }
+                    if ($resultsFileAssociation) {
+                        $finallResults = @()
+                        $finallResults += $resultsFileAssociation
+                        $finallResults += $allResults
+                        $allResults = $finallResults
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $allResults
+                    }
+                }
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
                 if ($retry.Count -gt 0) {
                     # Retry failed removals recursively

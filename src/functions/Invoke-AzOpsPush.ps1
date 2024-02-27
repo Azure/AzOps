@@ -541,7 +541,7 @@
         if ($deletionList) {
             #Removal of Supported resourceTypes and Custom Templates
             $deletionList = Set-AzOpsRemoveOrder -DeletionList $deletionList -Index { $_.ScopeObject.Resource }
-            $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
+            $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference -DeleteSet (Resolve-Path -Path $deleteSet).Path
             if ($removalJob.FullyQualifiedResourceId.Count -gt 0) {
                 Clear-PSFMessage
                 # Identify failed removal attempts for potential retries
