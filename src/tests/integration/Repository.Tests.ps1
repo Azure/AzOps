@@ -410,6 +410,12 @@ Describe "Repository" {
         $DeleteSetContents += $Script:locksFile
         $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:locksFile)
+        Remove-Item -Path $script:policyAssignmentsFile -Force
+        Remove-Item -Path $Script:policyDefinitionsFile -Force
+        Remove-Item -Path $Script:policySetDefinitionsFile -Force
+        Remove-Item -Path $Script:policyExemptionsFile -Force
+        Remove-Item -Path $Script:roleAssignmentsFile -Force
+        Remove-Item -Path $Script:locksFile -Force
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
@@ -1064,6 +1070,7 @@ Describe "Repository" {
             $DeleteSetContents += $Script:policyDefinitionsDepFile
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $Script:policyDefinitionsDepFile)
+            Remove-Item -Path $Script:policyDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policySetDefinitionsFile with assignment dependency should fail" {
@@ -1074,6 +1081,7 @@ Describe "Repository" {
             $DeleteSetContents += $Script:policySetDefinitionsDepFile
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
+            Remove-Item -Path $Script:policySetDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyDefinitionsFile with setDefinition dependency should fail" {
@@ -1084,6 +1092,7 @@ Describe "Repository" {
             $DeleteSetContents += $script:policyDefinitionsDep2File
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $script:policyDefinitionsDep2File)
+            Remove-Item -Path $script:policyDefinitionsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with role assignment dependency should fail" {
@@ -1094,6 +1103,7 @@ Describe "Repository" {
             $DeleteSetContents += $script:policyAssignmentsDepFile
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $script:policyAssignmentsDepFile)
+            Remove-Item -Path $script:policyAssignmentsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with lock dependency should fail" {
@@ -1104,6 +1114,7 @@ Describe "Repository" {
             $DeleteSetContents += $script:policyAssignmentsDep2File
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $script:policyAssignmentsDep2File)
+            Remove-Item -Path $script:policyAssignmentsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         #endregion
@@ -1257,6 +1268,9 @@ Describe "Repository" {
             $DeleteSetContents += $script:policyAssignmentsDeletionFile
             $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += (Get-Content $script:policyAssignmentsDeletionFile)
+            Remove-Item -Path $script:deployCustomRt.FullName[0] -Force
+            Remove-Item -Path $script:deployCustomLock.FullName -Force
+            Remove-Item -Path $script:policyAssignmentsDeletionFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
