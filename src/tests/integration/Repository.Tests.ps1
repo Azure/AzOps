@@ -381,16 +381,34 @@ Describe "Repository" {
             "D`t$script:roleAssignmentsFile",
             "D`t$script:locksFile"
         )
+        $DeleteSetContents = '-- '
+        $DeleteSetContents += $script:policyAssignmentsFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += '-- '
+        $DeleteSetContents += $Script:policyDefinitionsFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:policyDefinitionsFile)
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += '-- '
+        $DeleteSetContents += $Script:policySetDefinitionsFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += '-- '
+        $DeleteSetContents += $Script:policyExemptionsFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += '-- '
+        $DeleteSetContents += $Script:roleAssignmentsFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += '-- '
+        $DeleteSetContents += $Script:locksFile
+        $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:locksFile)
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
@@ -1042,35 +1060,50 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDepFile"
             )
-            $DeleteSetContents = (Get-Content $Script:policyDefinitionsDepFile)
+            $DeleteSetContents += '-- '
+            $DeleteSetContents += $Script:policyDefinitionsDepFile
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $Script:policyDefinitionsDepFile)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policySetDefinitionsFile with assignment dependency should fail" {
             $changeSet = @(
                 "D`t$script:policySetDefinitionsDepFile"
             )
-            $DeleteSetContents = (Get-Content $Script:policySetDefinitionsDepFile)
+            $DeleteSetContents = '-- '
+            $DeleteSetContents += $Script:policySetDefinitionsDepFile
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyDefinitionsFile with setDefinition dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDep2File"
             )
-            $DeleteSetContents = (Get-Content $script:policyDefinitionsDep2File)
+            $DeleteSetContents = '-- '
+            $DeleteSetContents += $script:policyDefinitionsDep2File
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:policyDefinitionsDep2File)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with role assignment dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDepFile"
             )
-            $DeleteSetContents = (Get-Content $script:policyAssignmentsDepFile)
+            $DeleteSetContents = '-- '
+            $DeleteSetContents += $script:policyAssignmentsDepFile
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:policyAssignmentsDepFile)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with lock dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDep2File"
             )
-            $DeleteSetContents = (Get-Content $script:policyAssignmentsDep2File)
+            $DeleteSetContents = '-- '
+            $DeleteSetContents += $script:policyAssignmentsDep2File
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:policyAssignmentsDep2File)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         #endregion
@@ -1210,11 +1243,20 @@ Describe "Repository" {
                 "D`t$($script:deployCustomLock.FullName)",
                 "D`t$script:policyAssignmentsDeletionFile"
             )
-            $DeleteSetContents = (Get-Content $script:deployCustomRt.FullName[0])
+            $DeleteSetContents = '-- '
+            $DeleteSetContents += $script:deployCustomRt.FullName[0]
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:deployCustomRt.FullName[0])
+            $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += '-- '
-            $DeleteSetContents = (Get-Content $script:deployCustomLock.FullName)
+            $DeleteSetContents += $script:deployCustomLock.FullName
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:deployCustomLock.FullName)
+            $DeleteSetContents += [Environment]::NewLine
             $DeleteSetContents += '-- '
-            $DeleteSetContents = (Get-Content $script:policyAssignmentsDeletionFile)
+            $DeleteSetContents += $script:policyAssignmentsDeletionFile
+            $DeleteSetContents += [Environment]::NewLine
+            $DeleteSetContents += (Get-Content $script:policyAssignmentsDeletionFile)
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
