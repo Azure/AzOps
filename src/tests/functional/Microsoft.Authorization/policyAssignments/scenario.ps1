@@ -40,6 +40,9 @@ Describe "Scenario - policyAssignments" {
         $changeSet = @(
             "D`t$script:file"
         )
+        $deleteSetContents = '-- '
+        $deleteSetContents += $script:file
+        $deleteSetContents += [Environment]::NewLine
         $deleteSetContents += (Get-Content $script:file)
         try {
             Write-PSFMessage -Level Debug -Message "Deletion Scenario $script:resourceType starting: $script:file" -FunctionName "Functional Tests"
