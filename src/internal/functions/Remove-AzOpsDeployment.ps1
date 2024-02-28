@@ -280,8 +280,16 @@
                     }
                 }
                 'roleAssignments' {
-                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
+                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }
                     if ($resourceToDelete) {
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                    }
+                }
+                'resourceGroups' {
+                    $resourceToDelete = Get-AzResourceGroup -Id $scopeObject.Scope -ErrorAction SilentlyContinue
+                    if ($resourceToDelete) {
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "ResourceType" -Value "$($scopeObject.Type)"
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "SubscriptionId" -Value "$($scopeObject.Subscription)"
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
