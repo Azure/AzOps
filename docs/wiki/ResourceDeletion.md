@@ -38,7 +38,7 @@ flowchart TD
 
 By removing a AzOps generated file of a supported resource type AzOps removes the corresponding resource in Azure.
 
-_Supported resource types include: locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments in Azure._
+_Supported resource types include: locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions, roleAssignments and resourceGroups in Azure._
 
 - For any other `AzOps - Pull` generated resource **deletion** is **not** supported by AzOps at this time.
 
@@ -95,6 +95,14 @@ _Supported resource types include: locks, policyAssignments, policyDefinitions, 
     Microsoft.Authorization/roleAssignments/delete
                             OR
     Microsoft.Authorization/roleAssignments/*
+```
+
+- For Azure Resource group removal
+
+```bash
+    Microsoft.Resources/subscriptions/resourceGroups/delete
+                            OR
+    Microsoft.Resources/subscriptions/resourceGroups/*
 ```
 ### Deletion dependency validation
 When deletion of a supported object is sent to AzOps it evaluates to ensure resource dependencies are included in the deletion job. If a dependency is missing the module will throw (exit with error) and post the result of missing dependencies to the pull request conversation asking you to add it and try again.
