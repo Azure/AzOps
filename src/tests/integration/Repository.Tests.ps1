@@ -133,6 +133,7 @@ Describe "Repository" {
             $script:policySetDefinitionsDep = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "App1-azopsrg")
+            $script:resourceGroupRemovalSupport = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "RemovalSupport-azopsrg")
             $script:resourceGroupCustomDeletion = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "CustomDeletion-azopsrg")
             $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
@@ -292,6 +293,11 @@ Describe "Repository" {
         $script:resourceGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:resourceGroupPath.Name.Replace(".json", '')), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
 
+        $script:resourceGroupRemovalSupportPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupRemovalSupport.ResourceGroupName).toLower()).json")
+        $script:resourceGroupRemovalSupportDirectory = ($script:resourceGroupRemovalSupportPath).Directory
+        $script:resourceGroupRemovalSupportFile = ($script:resourceGroupRemovalSupportPath).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupRemovalSupportFile)" -FunctionName "BeforeAll"
+
         $script:resourceGroupParallelDeployPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupParallelDeploy.ResourceGroupName).toLower()).json")
         $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
         $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
@@ -379,7 +385,8 @@ Describe "Repository" {
             "D`t$script:policySetDefinitionsFile",
             "D`t$script:policyExemptionsFile",
             "D`t$script:roleAssignmentsFile",
-            "D`t$script:locksFile"
+            "D`t$script:locksFile",
+            "D`t$script:resourceGroupRemovalSupportFile"
         )
         $DeleteSetContents = '-- '
         $DeleteSetContents += $script:policyAssignmentsFile
@@ -410,12 +417,18 @@ Describe "Repository" {
         $DeleteSetContents += $Script:locksFile
         $DeleteSetContents += [Environment]::NewLine
         $DeleteSetContents += (Get-Content $Script:locksFile)
+        $DeleteSetContents += [Environment]::NewLine
+        $DeleteSetContents += '-- '
+        $DeleteSetContents += $script:resourceGroupRemovalSupportFile
+        $DeleteSetContents += [Environment]::NewLine
+        $DeleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
         Remove-Item -Path $script:policyAssignmentsFile -Force
         Remove-Item -Path $Script:policyDefinitionsFile -Force
         Remove-Item -Path $Script:policySetDefinitionsFile -Force
         Remove-Item -Path $Script:policyExemptionsFile -Force
         Remove-Item -Path $Script:roleAssignmentsFile -Force
         Remove-Item -Path $Script:locksFile -Force
+        Remove-Item -Path $script:resourceGroupRemovalSupportFile -Force
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
@@ -853,6 +866,39 @@ Describe "Repository" {
         It "Resource Group deployment should be successful" {
             $script:resourceGroupDeployment = Get-AzSubscriptionDeployment -Name $script:resourceGroupDeploymentName
             $resourceGroupDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        #endregion
+
+        #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/RemovalSupport-azopsrg)
+        It "Resource Group directory should exist" {
+            Test-Path -Path $script:resourceGroupRemovalSupportDirectory | Should -BeTrue
+        }
+        It "Resource Group file should exist" {
+            Test-Path -Path $script:resourceGroupRemovalSupportFile | Should -BeTrue
+        }
+        It "Resource Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Resource Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Resource Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Resource Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Resource Group resource type should match" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Resources/resourceGroups"
+        }
+        It "Resource Group deletion should be successful" {
+            $rgDeletion = Get-AzResourceGroup -Id $script:resourceGroupRemovalSupport.ResourceId -ErrorAction SilentlyContinue
+            $rgDeletion | Should -Be $Null
         }
         #endregion
 
