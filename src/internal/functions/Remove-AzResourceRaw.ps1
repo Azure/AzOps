@@ -60,6 +60,7 @@
         if ($resource) {
             try {
                 $null = Remove-AzResource -ResourceId $FullyQualifiedResourceId -Force -ErrorAction Stop
+                Start-Sleep -Seconds 5
             }
             catch {
                 # Log failure message
