@@ -388,40 +388,40 @@ Describe "Repository" {
             "D`t$script:locksFile",
             "D`t$script:resourceGroupRemovalSupportFile"
         )
-        $DeleteSetContents = '-- '
-        $DeleteSetContents += $script:policyAssignmentsFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $Script:policyDefinitionsFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:policyDefinitionsFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $Script:policySetDefinitionsFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $Script:policyExemptionsFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $Script:roleAssignmentsFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $Script:locksFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $Script:locksFile)
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += $script:resourceGroupRemovalSupportFile
-        $DeleteSetContents += [Environment]::NewLine
-        $DeleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
+        $deleteSetContents = '-- '
+        $deleteSetContents += $script:policyAssignmentsFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $Script:policyDefinitionsFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:policyDefinitionsFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $Script:policySetDefinitionsFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $Script:policyExemptionsFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:policyExemptionsFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $Script:roleAssignmentsFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $Script:locksFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $Script:locksFile)
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += '-- '
+        $deleteSetContents += $script:resourceGroupRemovalSupportFile
+        $deleteSetContents += [Environment]::NewLine
+        $deleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
         Remove-Item -Path $script:policyAssignmentsFile -Force
         Remove-Item -Path $Script:policyDefinitionsFile -Force
         Remove-Item -Path $Script:policySetDefinitionsFile -Force
