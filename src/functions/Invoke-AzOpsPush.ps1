@@ -343,40 +343,47 @@
         }
         if ($DeleteSetContents -and $deleteSet) {
             Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete'
-            # Iterate through each line in $DeleteSetContents
-            for ($i = 0; $i -lt $DeleteSetContents.Count; $i++) {
-                $line = $DeleteSetContents[$i].Trim()
-                # Check if the line starts with '-- ' and matches any filename in $deleteSet
-                if ($line -match '^-- (.+)$') {
-                    $fileName = $matches[1]
-                    if ($deleteSet -contains $fileName) {
-                        Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $fileName
-                        # Collect lines until the next line starting with '--'
-                        $objectLines = @($line)
-                        $i++
-                        while ($i -lt $DeleteSetContents.Count) {
-                            $currentLine = $DeleteSetContents[$i].Trim()
-                            # Check if the line starts with '-- ' followed by any filename in $deleteSet
-                            if ($currentLine -match '^-- (.+)$' -and $deleteSet -contains $matches[1]) {
-                                $i--
-                                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.NextTempFile' -LogStringValues $currentLine
-                                break  # Exit the loop if the line starts with '-- ' and matches a filename in $deleteSet
-                            }
-                            $objectLines += $currentLine
+            # Count if $DeleteSetContents contains 1 or less
+            if ($DeleteSetContents.Count -le 1) {
+                # DeleteSetContents has no file content or is malformed
+                Write-AzOpsMessage -LogLevel Error -LogString 'Invoke-AzOpsPush.Change.Delete.DeleteSetContents' -LogStringValues $DeleteSetContents
+            }
+            else {
+                # Iterate through each line in $DeleteSetContents
+                for ($i = 0; $i -lt $DeleteSetContents.Count; $i++) {
+                    $line = $DeleteSetContents[$i].Trim()
+                    # Check if the line starts with '-- ' and matches any filename in $deleteSet
+                    if ($line -match '^-- (.+)$') {
+                        $fileName = $matches[1]
+                        if ($deleteSet -contains $fileName) {
+                            Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $fileName
+                            # Collect lines until the next line starting with '--'
+                            $objectLines = @($line)
                             $i++
+                            while ($i -lt $DeleteSetContents.Count) {
+                                $currentLine = $DeleteSetContents[$i].Trim()
+                                # Check if the line starts with '-- ' followed by any filename in $deleteSet
+                                if ($currentLine -match '^-- (.+)$' -and $deleteSet -contains $matches[1]) {
+                                    $i--
+                                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.NextTempFile' -LogStringValues $currentLine
+                                    break  # Exit the loop if the line starts with '-- ' and matches a filename in $deleteSet
+                                }
+                                $objectLines += $currentLine
+                                $i++
+                            }
+                            # When processed as designed there is no file present in the running branch.
+                            # To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
+                            if (-not(Test-Path -Path (Split-Path -Path $fileName))) {
+                                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $fileName
+                                New-Item -Path (Split-Path -Path $fileName) -ItemType Directory | Out-Null
+                            }
+                            # Create $fileName and set $content
+                            $objectLines = $objectLines[1..$objectLines.Count]
+                            $content = $objectLines.replace("-- $fileName", "") -join "`r`n"
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $fileName, $content
+                            Set-Content -Path $fileName -Value $content
+                            $i--  # Move back one step to process the next line properly
                         }
-                        # When processed as designed there is no file present in the running branch.
-                        # To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
-                        if (-not(Test-Path -Path (Split-Path -Path $fileName))) {
-                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $fileName
-                            New-Item -Path (Split-Path -Path $fileName) -ItemType Directory | Out-Null
-                        }
-                        # Create $fileName and set $content
-                        $objectLines = $objectLines[1..$objectLines.Count]
-                        $content = $objectLines.replace("-- $fileName", "") -join "`r`n"
-                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $fileName, $content
-                        Set-Content -Path $fileName -Value $content
-                        $i--  # Move back one step to process the next line properly
                     }
                 }
             }

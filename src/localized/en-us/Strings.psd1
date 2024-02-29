@@ -191,6 +191,7 @@
     'Invoke-AzOpsPush.Change.AddModify'                                             = 'Adding or modifying:' #
     'Invoke-AzOpsPush.Change.AddModify.File'                                        = '  {0}' # $item
     'Invoke-AzOpsPush.Change.Delete'                                                = 'Deleting:' #
+    'Invoke-AzOpsPush.Change.Delete.DeleteSetContents'                              = '[DeleteSetContents] has no file content or is malformed: {0}' # $DeleteSetContents
     'Invoke-AzOpsPush.Change.Delete.File'                                           = '  {0}' # $fileName
     'Invoke-AzOpsPush.Change.Delete.TempFile'                                       = 'Creating temporary file dir for deletion processing: {0}' # $fileName
     'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
