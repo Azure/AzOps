@@ -329,8 +329,7 @@
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
-                $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
-                Start-Sleep -Seconds 5
+                $null = Remove-AzResourceRaw -FullyQualifiedResourceId $scopeObject.Scope -ScopeObject $scopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
             }
             else {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'

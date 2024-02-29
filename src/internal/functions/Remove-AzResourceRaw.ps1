@@ -47,20 +47,26 @@
             ScopeObject = $scopeObject
             Status = 'success'
         }
-        # Set Azure context for removal operation
-        Set-AzOpsContext -ScopeObject $ScopeObject
         # Check if the resource exists
-        if ($FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
-            $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $FullyQualifiedResourceId } -ErrorAction SilentlyContinue
-        }
-        else {
-            $resource = Get-AzResource -ResourceId $FullyQualifiedResourceId -ErrorAction SilentlyContinue
-        }
+        $resource = Get-AzOpsResource -ResourceId $FullyQualifiedResourceId -ScopeObject $ScopeObject
         # Remove the resource if it exists
         if ($resource) {
             try {
+                # Set Azure context for removal operation
+                Set-AzOpsContext -ScopeObject $ScopeObject
                 $null = Remove-AzResource -ResourceId $FullyQualifiedResourceId -Force -ErrorAction Stop
-                Start-Sleep -Seconds 5
+                $maxAttempts = 4
+                $attempt = 1
+                $gone = $false
+                while ($gone -eq $false -and $attempt -le $maxAttempts) {
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $FullyQualifiedResourceId
+                    Start-Sleep -Seconds 10
+                    $tryResource = Get-AzOpsResource -ResourceId $FullyQualifiedResourceId -ScopeObject $ScopeObject
+                    if (-not $tryResource) {
+                        $gone = $true
+                    }
+                    $attempt++
+                }
             }
             catch {
                 # Log failure message

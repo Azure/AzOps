@@ -568,14 +568,7 @@
                         # Check each failed removal and attempt to get the associated resource
                         foreach ($fail in $removeActionFail) {
                             $resource = $null
-                            Set-AzOpsContext -ScopeObject $fail.ScopeObject
-                            # Determine if the resource is a lock or a regular resource
-                            if ($fail.FullyQualifiedResourceId -match '^/subscriptions/.*/providers/Microsoft.Authorization/locks' -or $fail.FullyQualifiedResourceId -match '^/subscriptions/.*/resourceGroups/.*/providers/Microsoft.Authorization/locks') {
-                                $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $fail.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
-                            }
-                            else {
-                                $resource = Get-AzResource -ResourceId $fail.FullyQualifiedResourceId -ErrorAction SilentlyContinue
-                            }
+                            $resource = Get-AzOpsResource -ResourceId $fail.FullyQualifiedResourceId -ScopeObject $fail.ScopeObject
                             # If the resource is found, log the failure
                             if ($resource) {
                                 $throwFail = $true
