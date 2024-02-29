@@ -249,17 +249,17 @@
             switch ($scopeObject.Resource) {
                 # Check resource existance through optimal path
                 'locks' {
-                    $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object {$_.ResourceID -eq $ScopeObject.scope}
+                    $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object { $_.ResourceID -eq $ScopeObject.Scope }
                 }
                 'policyAssignments' {
-                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policyDefinitions' {
-                    $resourceToDelete = Get-AzPolicyDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyDefinition -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzPolicyDefinitionDeletionDependency -resourceToDelete $resourceToDelete
@@ -267,20 +267,20 @@
                     }
                 }
                 'policyExemptions' {
-                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policySetDefinitions' {
-                    $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'roleAssignments' {
-                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }
+                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }
                     if ($resourceToDelete) {
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
@@ -329,7 +329,7 @@
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
-                $null = Remove-AzResourceRaw -FullyQualifiedResourceId $scopeObject.Scope -ScopeObject $scopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
+                $null = Remove-AzResourceRaw -ScopeObject $scopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
             }
             else {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
@@ -349,21 +349,18 @@
                 $allResults = @()
                 foreach ($change in $removalJobChanges) {
                     $resource = $null
+                    $resourceScopeObject = $null
                     # Check if the resource exists
-                    if ($change.RelativeResourceId.StartsWith('Microsoft.Authorization/locks/')) {
-                        $resource = Get-AzResourceLock | Where-Object { $_.ResourceId -eq $change.FullyQualifiedResourceId } -ErrorAction SilentlyContinue
-                    }
-                    else {
-                        $resource = Get-AzResource -ResourceId $change.FullyQualifiedResourceId -ErrorAction SilentlyContinue
-                    }
+                    $resourceScopeObject = New-AzOpsScope -Scope $change.FullyQualifiedResourceId -WhatIf:$false
+                    $resource = Get-AzOpsResource -ScopeObject $resourceScopeObject
                     if ($resource) {
-                        $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $change.FullyQualifiedResourceId, [environment]::NewLine
+                        $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $resourceScopeObject.Scope, [environment]::NewLine
                         $allResults += $results
                         Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                         Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                         # Check if the removal should be performed
-                        if ($PSCmdlet.ShouldProcess("Remove $($change.FullyQualifiedResourceId)?")) {
-                            $removeAction = Remove-AzResourceRaw -FullyQualifiedResourceId $change.FullyQualifiedResourceId -ScopeObject $ScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
+                        if ($PSCmdlet.ShouldProcess("Remove $($resourceScopeObject.Scope)?")) {
+                            $removeAction = Remove-AzResourceRaw -ScopeObject $resourceScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
                             # If removal failed, add to retry
                             if ($removeAction.Status -eq 'failed') {
                                 $retry += $removeAction
@@ -375,7 +372,7 @@
                     }
                     else {
                         # Log warning if resource not found
-                        Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.resource, $change.FullyQualifiedResourceId
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $ScopeObject.Resource, $change.FullyQualifiedResourceId
                         $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $change.FullyQualifiedResourceId, [environment]::NewLine
                         $allResults += $results
                     }
@@ -422,7 +419,7 @@
             else {
                 # No resource to remove was found
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
-                $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
+                $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.Scope, [environment]::NewLine
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
                 return
             }

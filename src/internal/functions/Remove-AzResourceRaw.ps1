@@ -5,19 +5,16 @@
             Performs resource deletion in Azure at any scope.
         .DESCRIPTION
             Performs resource deletion in Azure with FullyQualifiedResourceId and ScopeObject.
-        .PARAMETER FullyQualifiedResourceId
-            Parameter containing FullyQualifiedResourceId of resource to delete.
         .PARAMETER TemplateFilePath
             Path where the ARM templates can be found.
         .PARAMETER TemplateParameterFilePath
             Path where the parameters of the ARM templates can be found.
         .PARAMETER ScopeObject
-            Object used to set Azure context for removal operation.
+            Resource to delete.
         .EXAMPLE
-            > Remove-AzResourceRaw -FullyQualifiedResourceId '/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.KeyVault/vaults/<vault-name>' -ScopeObject $ScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
+            > Remove-AzResourceRaw -ScopeObject $ScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
             Name                           Value
             ----                           -----
-            FullyQualifiedResourceId       /subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.KeyVault/vaults/<vault-name>
             TemplateFilePath               /root/managementgroup/subscription/resourcegroup/template.json
             TemplateParameterFilePath      /root/managementgroup/subscription/resourcegroup/template.parameters.json
             ScopeObject                    ScopeObject
@@ -26,9 +23,6 @@
 
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
-        [string]
-        $FullyQualifiedResourceId,
         [string]
         $TemplateFilePath,
         [string]
@@ -41,27 +35,26 @@
     process {
         # Construct result object
         $result = [PSCustomObject]@{
-            FullyQualifiedResourceId = $FullyQualifiedResourceId
             TemplateFilePath = $TemplateFilePath
             TemplateParameterFilePath = $TemplateParameterFilePath
-            ScopeObject = $scopeObject
+            ScopeObject = $ScopeObject
             Status = 'success'
         }
         # Check if the resource exists
-        $resource = Get-AzOpsResource -ResourceId $FullyQualifiedResourceId -ScopeObject $ScopeObject
+        $resource = Get-AzOpsResource -ScopeObject $ScopeObject
         # Remove the resource if it exists
         if ($resource) {
             try {
                 # Set Azure context for removal operation
                 Set-AzOpsContext -ScopeObject $ScopeObject
-                $null = Remove-AzResource -ResourceId $FullyQualifiedResourceId -Force -ErrorAction Stop
+                $null = Remove-AzResource -ResourceId $ScopeObject.Scope -Force -ErrorAction Stop
                 $maxAttempts = 4
                 $attempt = 1
                 $gone = $false
                 while ($gone -eq $false -and $attempt -le $maxAttempts) {
-                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $FullyQualifiedResourceId
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $ScopeObject.Scope
                     Start-Sleep -Seconds 10
-                    $tryResource = Get-AzOpsResource -ResourceId $FullyQualifiedResourceId -ScopeObject $ScopeObject
+                    $tryResource = Get-AzOpsResource -ScopeObject $ScopeObject
                     if (-not $tryResource) {
                         $gone = $true
                     }
@@ -70,7 +63,7 @@
             }
             catch {
                 # Log failure message
-                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.Failed' -LogStringValues $ScopeObject.resource, $FullyQualifiedResourceId
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.Failed' -LogStringValues $ScopeObject.Resource, $ScopeObject.Scope
                 $result.Status = 'failed'
             }
         }

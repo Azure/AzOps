@@ -196,7 +196,7 @@
     'Invoke-AzOpsPush.Change.Delete.TempFile'                                       = 'Creating temporary file dir for deletion processing: {0}' # $fileName
     'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
     'Invoke-AzOpsPush.Change.Delete.SetTempFileContent'                             = 'Set temporary file content: [{1}], in [{0}]' # $fileName, $jsonValue
-    'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, has failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+    'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, has failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deletion.Retry'                                               = 'Deletion of {0} resources unsuccessful, initiate final retry combination.' # $retry.Count
     'Invoke-AzOpsPush.Deploy.ProviderFeature'                                       = 'Invoking new state deployment - *.providerfeatures.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
@@ -286,12 +286,12 @@
     'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
     'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
     'Remove-AzOpsDeployment.Resource.RetryCount'                                    = 'Retry deletion of {0} resources in different order'# $retry.Count
-    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.resource, $scopeObject.scope, $resultsError
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.Scope, $resultsError
     'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}'# $TemplateFilePath
 
     'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]'# $FullyQualifiedResourceId
-    'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $scopeObject.scope, $FullyQualifiedResourceId
-    'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.resource, $item.FullyQualifiedResourceId
+    'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $ScopeObject.Resource, $ScopeObject.Scope
+    'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.Resource, $item.ScopeObject.Scope
 
     'Remove-AzOpsInvalidCharacter.Completed'                                        = 'Valid string: {0}'# $String
     'Remove-AzOpsInvalidCharacter.Invalid'                                          = 'Invalid character detected in string: {0}, further processing initiated'# $String

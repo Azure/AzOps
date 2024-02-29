@@ -31,10 +31,10 @@
             # Base case: All items have been used, perform action on the current order
             foreach ($item in $CurrentOrder) {
                 if ($item.Status -eq 'failed' -or $null -eq $item.Status) {
-                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRawRecursive.Processing' -LogStringValues $item.ScopeObject.resource, $item.FullyQualifiedResourceId
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRawRecursive.Processing' -LogStringValues $item.ScopeObject.Resource, $item.ScopeObject.Scope
                     # Attempt to remove the resource
-                    $result = Remove-AzResourceRaw -FullyQualifiedResourceId $item.FullyQualifiedResourceId -ScopeObject $item.ScopeObject -TemplateFilePath $item.TemplateFilePath -TemplateParameterFilePath $item.TemplateParameterFilePath
-                    if ($result.Status -eq 'failed' -and $result.FullyQualifiedResourceId -notin $OutputObject.FullyQualifiedResourceId){
+                    $result = Remove-AzResourceRaw -ScopeObject $item.ScopeObject -TemplateFilePath $item.TemplateFilePath -TemplateParameterFilePath $item.TemplateParameterFilePath
+                    if ($result.Status -eq 'failed' -and $result.ScopeObject.Scope -notin $OutputObject.ScopeObject.Scope){
                         # Add failed result to the output object
                         $OutputObject += $result
                     }
@@ -48,9 +48,9 @@
                 # Filter out items already processed successfully
                 $filteredOutputObject = @()
                 foreach ($item in $InputObject) {
-                    if ($item.FullyQualifiedResourceId -in $OutputObject.FullyQualifiedResourceId) {
+                    if ($item.ScopeObject.Scope -in $OutputObject.ScopeObject.Scope) {
                         foreach ($output in $OutputObject) {
-                            if ($output.FullyQualifiedResourceId -eq $item.FullyQualifiedResourceId -and $output.Status -eq 'failed') {
+                            if ($output.ScopeObject.Scope -eq $item.ScopeObject.Scope -and $output.Status -eq 'failed') {
                                 # Add previously failed item to the filtered output
                                 $filteredOutputObject += $output
                                 continue

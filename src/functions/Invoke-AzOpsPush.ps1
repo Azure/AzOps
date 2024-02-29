@@ -549,7 +549,7 @@
             #Removal of Supported resourceTypes and Custom Templates
             $deletionList = Set-AzOpsRemoveOrder -DeletionList $deletionList -Index { $_.ScopeObject.Resource }
             $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference -DeleteSet (Resolve-Path -Path $deleteSet).Path
-            if ($removalJob.FullyQualifiedResourceId.Count -gt 0) {
+            if ($removalJob.ScopeObject.Scope.Count -gt 0) {
                 Clear-PSFMessage
                 # Identify failed removal attempts for potential retries
                 $retry = $removalJob | Where-Object { $_.Status -eq 'failed' }
@@ -568,11 +568,11 @@
                         # Check each failed removal and attempt to get the associated resource
                         foreach ($fail in $removeActionFail) {
                             $resource = $null
-                            $resource = Get-AzOpsResource -ResourceId $fail.FullyQualifiedResourceId -ScopeObject $fail.ScopeObject
+                            $resource = Get-AzOpsResource -ScopeObject $fail.ScopeObject
                             # If the resource is found, log the failure
                             if ($resource) {
                                 $throwFail = $true
-                                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.FullyQualifiedResourceId, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+                                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
                             }
                         }
                         # If any failures occurred, throw an exception
