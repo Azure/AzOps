@@ -388,47 +388,20 @@ Describe "Repository" {
             "D`t$script:locksFile",
             "D`t$script:resourceGroupRemovalSupportFile"
         )
-        $deleteSetContents = '-- '
-        $deleteSetContents += $script:policyAssignmentsFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:policyAssignmentsFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $Script:policyDefinitionsFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:policyDefinitionsFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $Script:policySetDefinitionsFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $Script:policyExemptionsFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:policyExemptionsFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $Script:roleAssignmentsFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:roleAssignmentsFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $Script:locksFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $Script:locksFile)
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += '-- '
-        $deleteSetContents += $script:resourceGroupRemovalSupportFile
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
-        Remove-Item -Path $script:policyAssignmentsFile -Force
-        Remove-Item -Path $Script:policyDefinitionsFile -Force
-        Remove-Item -Path $Script:policySetDefinitionsFile -Force
-        Remove-Item -Path $Script:policyExemptionsFile -Force
-        Remove-Item -Path $Script:roleAssignmentsFile -Force
-        Remove-Item -Path $Script:locksFile -Force
-        Remove-Item -Path $script:resourceGroupRemovalSupportFile -Force
+        [string[]]$deleteSetContents = "-- $script:policyAssignmentsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        [string[]]$deleteSetContents = "-- $Script:policyDefinitionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyDefinitionsFile)
+        [string[]]$deleteSetContents = "-- $Script:policySetDefinitionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
+        [string[]]$deleteSetContents = "-- $Script:policyExemptionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyExemptionsFile)
+        [string[]]$deleteSetContents = "-- $Script:roleAssignmentsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        [string[]]$deleteSetContents = "-- $Script:locksFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:locksFile)
+        [string[]]$deleteSetContents = "-- $script:resourceGroupRemovalSupportFile"
+        [string[]]$deleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
@@ -1112,10 +1085,8 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDepFile"
             )
-            $DeleteSetContents += '-- '
-            $DeleteSetContents += $Script:policyDefinitionsDepFile
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $Script:policyDefinitionsDepFile)
+            [string[]]$deleteSetContents = "-- $Script:policyDefinitionsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $Script:policyDefinitionsDepFile)
             Remove-Item -Path $Script:policyDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
@@ -1123,10 +1094,8 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policySetDefinitionsDepFile"
             )
-            $DeleteSetContents = '-- '
-            $DeleteSetContents += $Script:policySetDefinitionsDepFile
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
+            [string[]]$deleteSetContents = "--  $Script:policySetDefinitionsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
             Remove-Item -Path $Script:policySetDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
@@ -1134,10 +1103,8 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDep2File"
             )
-            $DeleteSetContents = '-- '
-            $DeleteSetContents += $script:policyDefinitionsDep2File
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:policyDefinitionsDep2File)
+            [string[]]$deleteSetContents = "-- $script:policyDefinitionsDep2File"
+            [string[]]$deleteSetContents += (Get-Content $script:policyDefinitionsDep2File)
             Remove-Item -Path $script:policyDefinitionsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
@@ -1145,10 +1112,8 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDepFile"
             )
-            $DeleteSetContents = '-- '
-            $DeleteSetContents += $script:policyAssignmentsDepFile
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:policyAssignmentsDepFile)
+            [string[]]$deleteSetContents = "-- $script:policyAssignmentsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDepFile)
             Remove-Item -Path $script:policyAssignmentsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
@@ -1156,10 +1121,8 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDep2File"
             )
-            $DeleteSetContents = '-- '
-            $DeleteSetContents += $script:policyAssignmentsDep2File
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:policyAssignmentsDep2File)
+            [string[]]$deleteSetContents = "-- $script:policyAssignmentsDep2File"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDep2File)
             Remove-Item -Path $script:policyAssignmentsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
@@ -1294,26 +1257,18 @@ Describe "Repository" {
                 "A`t$($script:deployCustomLock.FullName)"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Start-Sleep -Seconds 5
+            Start-Sleep -Seconds 10
             $changeSet = @(
                 "D`t$($script:deployCustomRt.FullName[0])",
                 "D`t$($script:deployCustomLock.FullName)",
                 "D`t$script:policyAssignmentsDeletionFile"
             )
-            $DeleteSetContents = '-- '
-            $DeleteSetContents += $script:deployCustomRt.FullName[0]
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:deployCustomRt.FullName[0])
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += '-- '
-            $DeleteSetContents += $script:deployCustomLock.FullName
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:deployCustomLock.FullName)
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += '-- '
-            $DeleteSetContents += $script:policyAssignmentsDeletionFile
-            $DeleteSetContents += [Environment]::NewLine
-            $DeleteSetContents += (Get-Content $script:policyAssignmentsDeletionFile)
+            [string[]]$deleteSetContents = "-- $($script:deployCustomRt.FullName[0])"
+            [string[]]$deleteSetContents += (Get-Content $script:deployCustomRt.FullName[0])
+            [string[]]$deleteSetContents += "-- $($script:deployCustomLock.FullName)"
+            [string[]]$deleteSetContents += (Get-Content $script:deployCustomLock.FullName)
+            [string[]]$deleteSetContents += "-- $script:policyAssignmentsDeletionFile"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDeletionFile)
             Remove-Item -Path $script:deployCustomRt.FullName[0] -Force
             Remove-Item -Path $script:deployCustomLock.FullName -Force
             Remove-Item -Path $script:policyAssignmentsDeletionFile -Force
@@ -1321,7 +1276,7 @@ Describe "Repository" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
             (Get-AzResource -ResourceGroupName $script:resourceGroupCustomDeletion.ResourceGroupName).Count | Should -Be 0
-            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.ResourceId -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.ResourceId -ErrorAction SilentlyContinue | Should -Be $Null
         }
         #endregion
     }

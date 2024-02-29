@@ -40,10 +40,8 @@ Describe "Scenario - roleAssignments" {
         $changeSet = @(
             "D`t$script:file"
         )
-        $deleteSetContents = '-- '
-        $deleteSetContents += $script:file
-        $deleteSetContents += [Environment]::NewLine
-        $deleteSetContents += (Get-Content $script:file)
+        [string[]]$deleteSetContents = "-- $script:file"
+        [string[]]$deleteSetContents += (Get-Content $script:file)
         Remove-Item -Path $script:file -Force
         try {
             Write-PSFMessage -Level Debug -Message "Deletion Scenario $script:resourceType starting: $script:file" -FunctionName "Functional Tests"
