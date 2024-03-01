@@ -41,7 +41,7 @@
             Status = 'success'
         }
         # Check if the resource exists
-        $resource = Get-AzOpsResource -ScopeObject $ScopeObject
+        $resource = Get-AzOpsResource -ScopeObject $ScopeObject -ErrorAction SilentlyContinue
         # Remove the resource if it exists
         if ($resource) {
             try {
@@ -54,7 +54,7 @@
                 while ($gone -eq $false -and $attempt -le $maxAttempts) {
                     Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $ScopeObject.Scope
                     Start-Sleep -Seconds 10
-                    $tryResource = Get-AzOpsResource -ScopeObject $ScopeObject
+                    $tryResource = Get-AzOpsResource -ScopeObject $ScopeObject -ErrorAction SilentlyContinue
                     if (-not $tryResource) {
                         $gone = $true
                     }

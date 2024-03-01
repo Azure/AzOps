@@ -352,7 +352,7 @@
                     $resourceScopeObject = $null
                     # Check if the resource exists
                     $resourceScopeObject = New-AzOpsScope -Scope $change.FullyQualifiedResourceId -WhatIf:$false
-                    $resource = Get-AzOpsResource -ScopeObject $resourceScopeObject
+                    $resource = Get-AzOpsResource -ScopeObject $resourceScopeObject -ErrorAction SilentlyContinue
                     if ($resource) {
                         $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $resourceScopeObject.Scope, [environment]::NewLine
                         $allResults += $results

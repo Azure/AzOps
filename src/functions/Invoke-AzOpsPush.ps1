@@ -568,7 +568,7 @@
                         # Check each failed removal and attempt to get the associated resource
                         foreach ($fail in $removeActionFail) {
                             $resource = $null
-                            $resource = Get-AzOpsResource -ScopeObject $fail.ScopeObject
+                            $resource = Get-AzOpsResource -ScopeObject $fail.ScopeObject -ErrorAction SilentlyContinue
                             # If the resource is found, log the failure
                             if ($resource) {
                                 $throwFail = $true
