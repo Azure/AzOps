@@ -160,7 +160,7 @@ flowchart TD
 ### Enable Deletion of Custom Template
 Set the `Core.CustomTemplateResourceDeletion` value in `settings.json` to `true`.
 
-`AzOps - Push` will now evaluate and attempt deletion of corresponding resource (*from template*) in Azure when a custom template is deleted.
+`AzOps - Push` will now evaluate and attempt deletion of corresponding resource (_from template_) in Azure when a custom template is deleted.
 
 ## Integration with AzOps Accelerator
 
