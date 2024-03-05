@@ -559,7 +559,7 @@
                     Start-Sleep -Seconds 30
                     # Reset the status of failed attempts and perform recursive removal
                     foreach ($try in $retry) { $try.Status = $null }
-                    $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
+                    $removeActionRecursive = Remove-AzResourceRaw -InputObject $retry -Recursive
                     $removeActionFail = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
                     # If removal fails, log and attempt to fetch the resource causing the failure
                     if ($removeActionFail) {

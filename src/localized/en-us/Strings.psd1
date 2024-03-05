@@ -289,6 +289,8 @@
     'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.Scope, $resultsError
     'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}'# $TemplateFilePath
 
+    'Remove-AzResourceRaw.Resource.Recursive.Missing'                               = 'Missing required parameter InputObject, when running Recursive'#
+    'Remove-AzResourceRaw.Resource.Missing'                                         = 'Missing required parameter ScopeObject'#
     'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]'# $FullyQualifiedResourceId
     'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $ScopeObject.Resource, $ScopeObject.Scope
     'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.Resource, $item.ScopeObject.Scope

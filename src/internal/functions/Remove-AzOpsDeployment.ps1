@@ -350,6 +350,7 @@
                 foreach ($change in $removalJobChanges) {
                     $resource = $null
                     $resourceScopeObject = $null
+                    $removeAction = $null
                     # Check if the resource exists
                     $resourceScopeObject = New-AzOpsScope -Scope $change.FullyQualifiedResourceId -WhatIf:$false
                     $resource = Get-AzOpsResource -ScopeObject $resourceScopeObject -ErrorAction SilentlyContinue
@@ -411,7 +412,7 @@
                     # Retry failed removals recursively
                     Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.Resource.RetryCount' -LogStringValues $retry.Count
                     foreach ($try in $retry) { $try.Status = $null }
-                    $removeActionRecursive = Remove-AzResourceRawRecursive -InputObject $retry
+                    $removeActionRecursive = Remove-AzResourceRaw -InputObject $retry -Recursive
                     $removeActionRecursiveRemaining = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
                     return $removeActionRecursiveRemaining
                 }
