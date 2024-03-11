@@ -215,7 +215,7 @@
         if ($templateContent.metadata._generator.name -eq "AzOps" -or $templateContent.$schemavalue -like "*deploymentParameters.json#") {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.AzOps' -LogStringValues $TemplateFilePath
         }
-        elseif ($CustomTemplateResourceDeletion -eq $true) {
+        elseif ($true -eq $CustomTemplateResourceDeletion) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.Custom' -LogStringValues $TemplateFilePath
             $customDeletion = $true
         }
@@ -400,10 +400,10 @@
                     }
                     # If there are $resultsFileAssociation, combine them with existing results and log a warning
                     if ($resultsFileAssociation) {
-                        $finallResults = @()
-                        $finallResults += $resultsFileAssociation
-                        $finallResults += $allResults
-                        $allResults = $finallResults
+                        $finalResults = @()
+                        $finalResults += $resultsFileAssociation
+                        $finalResults += $allResults
+                        $allResults = $finalResults
                         Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $allResults
                     }
                 }
