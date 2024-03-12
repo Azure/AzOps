@@ -21,6 +21,7 @@ Describe "Repository" {
         $script:repositoryRoot = (Resolve-Path "$global:testroot/../..").Path
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
+        $otherSubscription = Get-AzSubscription | Where-Object { $_.Id -ne $script:subscriptionId } | Sort-Object Name -Descending | Select-Object Id -First 2
 
         # Validate that the runtime variables are set as they are used to authenticate the Azure session.
 
@@ -132,10 +133,13 @@ Describe "Repository" {
             $script:policySetDefinitionsDep = Get-AzPolicySetDefinition -Name 'TestPolicySetDefinitionDep' -ManagementGroupName $($script:testManagementGroup.Name)
             $script:subscription = (Get-AzSubscription | Where-Object Id -eq $script:subscriptionId)
             $script:resourceGroup = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "App1-azopsrg")
+            $script:resourceGroupRemovalSupport = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "RemovalSupport-azopsrg")
+            $script:resourceGroupCustomDeletion = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "CustomDeletion-azopsrg")
             $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
+            $script:policyAssignmentsDeletion = Get-AzPolicyAssignment -Name "TestPolicyAssignmentDeletion" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupCustomDeletion.ResourceGroupName)"
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
         }
@@ -225,6 +229,11 @@ Describe "Repository" {
         $script:policyAssignmentsDeploymentName = "AzOps-{0}-{1}" -f $($script:policyAssignmentsPath.Name.Replace(".json", '')).Substring(0, 53), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "PolicyAssignmentsFile: $($script:policyAssignmentsFile)" -FunctionName "BeforeAll"
 
+        $script:policyAssignmentsDeletionPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDeletion.Name).toLower()).json")
+        $script:policyAssignmentsDeletionDirectory = ($script:policyAssignmentsDeletionPath).Directory
+        $script:policyAssignmentsDeletionFile = ($script:policyAssignmentsDeletionPath).FullName
+        Write-PSFMessage -Level Debug -Message "PolicyAssignmentsDeletionFile: $($script:policyAssignmentsDeletionFile)" -FunctionName "BeforeAll"
+
         $script:policyAssignmentsDepPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_policyassignments-$(($script:policyAssignmentsDep.Name).toLower()).json")
         $script:policyAssignmentsDepDirectory = ($script:policyAssignmentsDepPath).Directory
         $script:policyAssignmentsDepFile = ($script:policyAssignmentsDepPath).FullName
@@ -284,10 +293,30 @@ Describe "Repository" {
         $script:resourceGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:resourceGroupPath.Name.Replace(".json", '')), $deploymentLocationId
         Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupFile)" -FunctionName "BeforeAll"
 
+        $script:resourceGroupRemovalSupportPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupRemovalSupport.ResourceGroupName).toLower()).json")
+        $script:resourceGroupRemovalSupportDirectory = ($script:resourceGroupRemovalSupportPath).Directory
+        $script:resourceGroupRemovalSupportFile = ($script:resourceGroupRemovalSupportPath).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGroupFile: $($script:resourceGroupRemovalSupportFile)" -FunctionName "BeforeAll"
+
         $script:resourceGroupParallelDeployPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupParallelDeploy.ResourceGroupName).toLower()).json")
         $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
         $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
         Write-PSFMessage -Level Debug -Message "ParallelDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGroupCustomDeletionPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupCustomDeletion.ResourceGroupName).toLower()).json")
+        $script:resourceGroupCustomDeletionDirectory = ($script:resourceGroupCustomDeletionPath).Directory
+        $script:resourceGroupCustomDeletionFile = ($script:resourceGroupCustomDeletionPath).FullName
+        Write-PSFMessage -Level Debug -Message "CustomDeletionResourceGroupFile: $($script:resourceGroupCustomDeletionFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGrouprgDualDeploy1Path = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($otherSubscription[0].Id).toLower()).json")
+        $script:resourceGrouprgDualDeploy1Directory = ($script:resourceGrouprgDualDeploy1Path).Directory
+        $script:resourceGrouprgDualDeploy1File = ($script:resourceGrouprgDualDeploy1Path).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGrouprgDualDeploy1File: $($script:resourceGrouprgDualDeploy1File)" -FunctionName "BeforeAll"
+
+        $script:resourceGrouprgDualDeploy2Path = ($filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($otherSubscription[1].Id).toLower()).json")
+        $script:resourceGrouprgDualDeploy2Directory = ($script:resourceGrouprgDualDeploy2Path).Directory
+        $script:resourceGrouprgDualDeploy2File = ($script:resourceGrouprgDualDeploy2Path).FullName
+        Write-PSFMessage -Level Debug -Message "ResourceGrouprgDualDeploy2File: $($script:resourceGrouprgDualDeploy2File)" -FunctionName "BeforeAll"
 
         $script:roleAssignmentsPath = ($filePaths | Where-Object Name -eq "microsoft.authorization_roleassignments-$(($script:roleAssignments.RoleAssignmentId).toLower() -replace ".*/").json")
         $script:roleAssignmentsDirectory = ($script:roleAssignmentsPath).Directory
@@ -356,19 +385,23 @@ Describe "Repository" {
             "D`t$script:policySetDefinitionsFile",
             "D`t$script:policyExemptionsFile",
             "D`t$script:roleAssignmentsFile",
-            "D`t$script:locksFile"
+            "D`t$script:locksFile",
+            "D`t$script:resourceGroupRemovalSupportFile"
         )
-        $DeleteSetContents += (Get-Content $Script:policyAssignmentsFile)
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += (Get-Content $Script:policyDefinitionsFile)
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += (Get-Content $Script:policyExemptionsFile)
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += (Get-Content $Script:roleAssignmentsFile)
-        $DeleteSetContents += '-- '
-        $DeleteSetContents += (Get-Content $Script:locksFile)
+        [string[]]$deleteSetContents = "-- $script:policyAssignmentsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyAssignmentsFile)
+        [string[]]$deleteSetContents = "-- $Script:policyDefinitionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyDefinitionsFile)
+        [string[]]$deleteSetContents = "-- $Script:policySetDefinitionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policySetDefinitionsFile)
+        [string[]]$deleteSetContents = "-- $Script:policyExemptionsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:policyExemptionsFile)
+        [string[]]$deleteSetContents = "-- $Script:roleAssignmentsFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:roleAssignmentsFile)
+        [string[]]$deleteSetContents = "-- $Script:locksFile"
+        [string[]]$deleteSetContents += (Get-Content $Script:locksFile)
+        [string[]]$deleteSetContents = "-- $script:resourceGroupRemovalSupportFile"
+        [string[]]$deleteSetContents += (Get-Content $script:resourceGroupRemovalSupportFile)
         Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents
     }
 
@@ -809,6 +842,39 @@ Describe "Repository" {
         }
         #endregion
 
+        #region Scope - Resource Group (./root/tenant root group/test/platform/management/subscription-0/RemovalSupport-azopsrg)
+        It "Resource Group directory should exist" {
+            Test-Path -Path $script:resourceGroupRemovalSupportDirectory | Should -BeTrue
+        }
+        It "Resource Group file should exist" {
+            Test-Path -Path $script:resourceGroupRemovalSupportFile | Should -BeTrue
+        }
+        It "Resource Group resource type should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -BeTrue
+        }
+        It "Resource Group resource name should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].name | Should -BeTrue
+        }
+        It "Resource Group resource apiVersion should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].apiVersion | Should -BeTrue
+        }
+        It "Resource Group resource properties should exist" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].properties | Should -BeTrue
+        }
+        It "Resource Group resource type should match" {
+            $fileContents = Get-Content -Path $script:resourceGroupRemovalSupportFile -Raw | ConvertFrom-Json -Depth 25
+            $fileContents.resources[0].type | Should -Be "Microsoft.Resources/resourceGroups"
+        }
+        It "Resource Group deletion should be successful" {
+            $rgDeletion = Get-AzResourceGroup -Id $script:resourceGroupRemovalSupport.ResourceId -ErrorAction SilentlyContinue
+            $rgDeletion | Should -Be $Null
+        }
+        #endregion
+
         #region Deploy Resource Group via bicep
         It "Bicep deployment should be successful" {
             $script:bicepDeployment = Get-AzSubscriptionDeployment -Name $script:bicepDeploymentName
@@ -1019,35 +1085,45 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDepFile"
             )
-            $DeleteSetContents = (Get-Content $Script:policyDefinitionsDepFile)
+            [string[]]$deleteSetContents = "-- $Script:policyDefinitionsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $Script:policyDefinitionsDepFile)
+            Remove-Item -Path $Script:policyDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policySetDefinitionsFile with assignment dependency should fail" {
             $changeSet = @(
                 "D`t$script:policySetDefinitionsDepFile"
             )
-            $DeleteSetContents = (Get-Content $Script:policySetDefinitionsDepFile)
+            [string[]]$deleteSetContents = "--  $Script:policySetDefinitionsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
+            Remove-Item -Path $Script:policySetDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyDefinitionsFile with setDefinition dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyDefinitionsDep2File"
             )
-            $DeleteSetContents = (Get-Content $script:policyDefinitionsDep2File)
+            [string[]]$deleteSetContents = "-- $script:policyDefinitionsDep2File"
+            [string[]]$deleteSetContents += (Get-Content $script:policyDefinitionsDep2File)
+            Remove-Item -Path $script:policyDefinitionsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with role assignment dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDepFile"
             )
-            $DeleteSetContents = (Get-Content $script:policyAssignmentsDepFile)
+            [string[]]$deleteSetContents = "-- $script:policyAssignmentsDepFile"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDepFile)
+            Remove-Item -Path $script:policyAssignmentsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         It "Deletion of policyAssignmentFile with lock dependency should fail" {
             $changeSet = @(
                 "D`t$script:policyAssignmentsDep2File"
             )
-            $DeleteSetContents = (Get-Content $script:policyAssignmentsDep2File)
+            [string[]]$deleteSetContents = "-- $script:policyAssignmentsDep2File"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDep2File)
+            Remove-Item -Path $script:policyAssignmentsDep2File -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
         }
         #endregion
@@ -1150,6 +1226,57 @@ Describe "Repository" {
                 $timeTest = "good"
             }
             $timeTest | Should -Be 'good'
+        }
+        #endregion
+
+        #region Deploy multiple resource group's to different subscriptions, test context switch
+        It "Deploy multiple resource group's to different subscriptions, test context switch" {
+            $script:deployRg1 = Get-ChildItem -Path "$($global:testRoot)/templates/rgdualdeploy*" | Copy-Item -Destination $script:resourceGrouprgDualDeploy1Directory -PassThru -Force
+            $script:deployRg2 = Get-ChildItem -Path "$($global:testRoot)/templates/rgdualdeploy*" | Copy-Item -Destination $script:resourceGrouprgDualDeploy2Directory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployRg1.FullName[0])",
+                "A`t$($script:deployRg2.FullName[0])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $null = Set-AzContext -SubscriptionId $otherSubscription[0].Id
+            (Get-AzResourceGroup -Name Test-azopsrg).Count | Should -Be 1
+            $null = Set-AzContext -SubscriptionId $otherSubscription[1].Id
+            (Get-AzResourceGroup -Name Test-azopsrg).Count | Should -Be 1
+            Set-AzContext -SubscriptionId $script:subscriptionId
+        }
+        #endregion
+
+        #region Deletion of custom templates and pulled resources
+        It "Deletion of custom templates and pulled resources" {
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
+            $script:deployCustomRt = Get-ChildItem -Path "$($global:testRoot)/templates/rtcustomdelete*" | Copy-Item -Destination $script:resourceGroupCustomDeletionDirectory -PassThru -Force
+            $script:deployCustomLock = Get-ChildItem -Path "$($global:testRoot)/templates/customlockdelete*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployCustomRt.FullName[0])",
+                "A`t$($script:deployCustomLock.FullName)"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 10
+            $changeSet = @(
+                "D`t$($script:deployCustomRt.FullName[0])",
+                "D`t$($script:deployCustomLock.FullName)",
+                "D`t$script:policyAssignmentsDeletionFile"
+            )
+            [string[]]$deleteSetContents = "-- $($script:deployCustomRt.FullName[0])"
+            [string[]]$deleteSetContents += (Get-Content $script:deployCustomRt.FullName[0])
+            [string[]]$deleteSetContents += "-- $($script:deployCustomLock.FullName)"
+            [string[]]$deleteSetContents += (Get-Content $script:deployCustomLock.FullName)
+            [string[]]$deleteSetContents += "-- $script:policyAssignmentsDeletionFile"
+            [string[]]$deleteSetContents += (Get-Content $script:policyAssignmentsDeletionFile)
+            Remove-Item -Path $script:deployCustomRt.FullName[0] -Force
+            Remove-Item -Path $script:deployCustomLock.FullName -Force
+            Remove-Item -Path $script:policyAssignmentsDeletionFile -Force
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
+            Start-Sleep -Seconds 30
+            (Get-AzResource -ResourceGroupName $script:resourceGroupCustomDeletion.ResourceGroupName).Count | Should -Be 0
+            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.ResourceId -ErrorAction SilentlyContinue | Should -Be $Null
         }
         #endregion
     }

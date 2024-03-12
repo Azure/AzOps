@@ -191,7 +191,13 @@
     'Invoke-AzOpsPush.Change.AddModify'                                             = 'Adding or modifying:' #
     'Invoke-AzOpsPush.Change.AddModify.File'                                        = '  {0}' # $item
     'Invoke-AzOpsPush.Change.Delete'                                                = 'Deleting:' #
-    'Invoke-AzOpsPush.Change.Delete.File'                                           = '  {0}' # $item
+    'Invoke-AzOpsPush.Change.Delete.DeleteSetContents'                              = '[DeleteSetContents] has no file content or is malformed: {0}' # $DeleteSetContents
+    'Invoke-AzOpsPush.Change.Delete.File'                                           = '  {0}' # $fileName
+    'Invoke-AzOpsPush.Change.Delete.TempFile'                                       = 'Creating temporary file dir for deletion processing: {0}' # $fileName
+    'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
+    'Invoke-AzOpsPush.Change.Delete.SetTempFileContent'                             = 'Set temporary file content: [{1}], in [{0}]' # $fileName, $jsonValue
+    'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, has failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+    'Invoke-AzOpsPush.Deletion.Retry'                                               = 'Deletion of {0} resources unsuccessful, initiate final retry combination.' # $retry.Count
     'Invoke-AzOpsPush.Deploy.ProviderFeature'                                       = 'Invoking new state deployment - *.providerfeatures.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.Subscription'                                          = 'Invoking new state deployment - *.subscription.json for a file {0}' # $addition
@@ -213,7 +219,7 @@
     'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json or bicep file! Skipping {0}' # $fileItem.FullName
     'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
-    'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template {0} : {1}' # $FilePath, $parameterPath
+    'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template: {0}, at: {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
@@ -271,31 +277,39 @@
     'Register-AzOpsResourceProvider.Provider.Register'                              = 'Registering provider {0}' # $resourceprovider.ProviderNamespace
 
     'Remove-AzOpsDeployment.Processing'                                             = 'Processing removal {0} for template {1}' # $removeJobName, $TemplateFilePath
-    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'Detected custom template: {0} . resource Deletion is currently only supported for AzOps Generated templates' #$TemplateFilePath
-    'Remove-AzOpsDeployment.Metadata.Success'                                       = 'Processing AzOps Generated Template File {0}' # $TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.AzOps'                                         = 'Resource deletion detected with AzOps generated template file {0}' # $TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Custom'                                        = 'Resource deletion detected with custom template file: {0}' #$TemplateFilePath
+    'Remove-AzOpsDeployment.Metadata.Failed'                                        = 'Detected custom template: {0}, and Core.CustomTemplateResourceDeletion is not set to true' #$TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
     'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
     'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successfull deletion of {1}. Please add missing resource and retry.'# $resource.ResourceId, $scopeObject.Scope
-    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.resource, $scopeObject.scope, $resultsError
-    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion is currently only supported for policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of file {0}'# $templateFilePath
+    'Remove-AzOpsDeployment.Resource.RetryCount'                                    = 'Retry deletion of {0} resources in different order'# $retry.Count
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.Scope, $resultsError
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}'# $TemplateFilePath
 
-    'Remove-AzOpsInvalidCharacter.Completed'                                       = 'Valid string: {0}'# $String
-    'Remove-AzOpsInvalidCharacter.Invalid'                                         = 'Invalid character detected in string: {0}, further processing initiated'# $String
-    'Remove-AzOpsInvalidCharacter.Removal'                                         = 'Removed invalid character: {0} from string: {1}'# $character, $String
+    'Remove-AzResourceRaw.Resource.Recursive.Missing'                               = 'Missing required parameter InputObject, when running Recursive'#
+    'Remove-AzResourceRaw.Resource.Missing'                                         = 'Missing required parameter ScopeObject'#
+    'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]'# $FullyQualifiedResourceId
+    'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $ScopeObject.Resource, $ScopeObject.Scope
+    'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.Resource, $item.ScopeObject.Scope
 
-    'Save-AzOpsManagementGroupChild.Creating.Scope'                              = 'Creating scope object' #
-    'Save-AzOpsManagementGroupChild.Data.Directory'                              = 'Resolved state path directory: {0}' # $statepathDirectory
-    'Save-AzOpsManagementGroupChild.Data.FileName'                               = 'Resolved state path filename: {0}' # $statepathFileName
-    'Save-AzOpsManagementGroupChild.Data.ScopeDirectory'                         = 'Resolved state path scope directory: {0}' # $statepathScopeDirectory
-    'Save-AzOpsManagementGroupChild.Data.ScopeDirectoryParent'                   = 'Resolved state path scope directory parent: {0}' # $statepathScopeDirectoryParent
-    'Save-AzOpsManagementGroupChild.Data.StatePath'                              = 'Resolved state path: {0}' # $scopeStatepath
-    'Save-AzOpsManagementGroupChild.Moving.Destination'                          = 'Moved existing state file to: {0}' # $statepathScopeDirectoryParent
-    'Save-AzOpsManagementGroupChild.Moving.Source'                               = 'Found existing state file in directory: {0}' # $exisitingScopePath
-    'Save-AzOpsManagementGroupChild.Processing'                                  = 'Processing Scope: {0}' # $scopeObject.Scope
-    'Save-AzOpsManagementGroupChild.Starting'                                    = 'Starting execution' #
-    'Save-AzOpsManagementGroupChild.Subscription.NotFound'                       = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
+    'Remove-AzOpsInvalidCharacter.Completed'                                        = 'Valid string: {0}'# $String
+    'Remove-AzOpsInvalidCharacter.Invalid'                                          = 'Invalid character detected in string: {0}, further processing initiated'# $String
+    'Remove-AzOpsInvalidCharacter.Removal'                                          = 'Removed invalid character: {0} from string: {1}'# $character, $String
+
+    'Save-AzOpsManagementGroupChild.Creating.Scope'                                 = 'Creating scope object' #
+    'Save-AzOpsManagementGroupChild.Data.Directory'                                 = 'Resolved state path directory: {0}' # $statepathDirectory
+    'Save-AzOpsManagementGroupChild.Data.FileName'                                  = 'Resolved state path filename: {0}' # $statepathFileName
+    'Save-AzOpsManagementGroupChild.Data.ScopeDirectory'                            = 'Resolved state path scope directory: {0}' # $statepathScopeDirectory
+    'Save-AzOpsManagementGroupChild.Data.ScopeDirectoryParent'                      = 'Resolved state path scope directory parent: {0}' # $statepathScopeDirectoryParent
+    'Save-AzOpsManagementGroupChild.Data.StatePath'                                 = 'Resolved state path: {0}' # $scopeStatepath
+    'Save-AzOpsManagementGroupChild.Moving.Destination'                             = 'Moved existing state file to: {0}' # $statepathScopeDirectoryParent
+    'Save-AzOpsManagementGroupChild.Moving.Source'                                  = 'Found existing state file in directory: {0}' # $exisitingScopePath
+    'Save-AzOpsManagementGroupChild.Processing'                                     = 'Processing Scope: {0}' # $scopeObject.Scope
+    'Save-AzOpsManagementGroupChild.Starting'                                       = 'Starting execution' #
+    'Save-AzOpsManagementGroupChild.Subscription.NotFound'                          = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Search-AzOpsAzGraph.Processing'                                                = 'AzGraph processing query: [{0}]' # $Query
     'Search-AzOpsAzGraph.Processing.Done'                                           = 'AzGraph completed processing of query: [{0}]' # $Query

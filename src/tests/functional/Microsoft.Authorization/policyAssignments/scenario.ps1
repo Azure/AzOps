@@ -40,7 +40,9 @@ Describe "Scenario - policyAssignments" {
         $changeSet = @(
             "D`t$script:file"
         )
-        $deleteSetContents += (Get-Content $script:file)
+        [string[]]$deleteSetContents = "-- $script:file"
+        [string[]]$deleteSetContents += (Get-Content $script:file)
+        Remove-Item -Path $script:file -Force
         try {
             Write-PSFMessage -Level Debug -Message "Deletion Scenario $script:resourceType starting: $script:file" -FunctionName "Functional Tests"
             $script:deletion = Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents

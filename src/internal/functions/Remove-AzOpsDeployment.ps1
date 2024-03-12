@@ -1,9 +1,14 @@
 ﻿function Remove-AzOpsDeployment {
+
     <#
         .SYNOPSIS
-            Deletion of supported resource types from azure according to AzOps.Core.DeletionSupportedResourceType.
+            Deletion of supported resource types AzOps.Core.DeletionSupportedResourceType and custom templates.
         .DESCRIPTION
-            Deletion of supported resource types from azure according to AzOps.Core.DeletionSupportedResourceType.
+            Deletion of supported resource types AzOps.Core.DeletionSupportedResourceType and custom templates.
+        .PARAMETER CustomTemplateResourceDeletion
+            Enable or disable, deletion of resources in custom templates.
+        .PARAMETER DeploymentName
+            Dummy name used to run Azure WhatIf deployment.
         .PARAMETER TemplateFilePath
             Path where the ARM templates can be found.
         .PARAMETER TemplateParameterFilePath
@@ -11,7 +16,9 @@
         .PARAMETER StatePath
             The root folder under which to find the resource json.
         .PARAMETER DeletionSupportedResourceType
-            Supported resource types for deletion.
+            Supported resource types for deletion of AzOps generated file.
+        .PARAMETER DeleteSet
+            String of file names to validate deletion.
         .PARAMETER WhatIf
             If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
         .EXAMPLE
@@ -21,6 +28,13 @@
 
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
+        [bool]
+        $CustomTemplateResourceDeletion = (Get-PSFConfigValue -FullName 'AzOps.Core.CustomTemplateResourceDeletion'),
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [string]
+        $DeploymentName = "azops-template-deployment",
+
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $TemplateFilePath = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
@@ -33,7 +47,10 @@
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
 
         [object[]]
-        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
+        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType'),
+
+        [string[]]
+        $DeleteSet
     )
 
     process {
@@ -176,9 +193,10 @@
                 return $results
             }
         }
+
         $dependencyMissing = $null
         #Adjust TemplateParameterFilePath to compensate for policyDefinitions and policySetDefinitions usage of parameters.json
-        if ($TemplateParameterFilePath) {
+        if ($TemplateParameterFilePath -and $TemplateFilePath -eq (Resolve-Path (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')).Path) {
             $TemplateFilePath = $TemplateParameterFilePath
         }
         #Deployment Name
@@ -186,19 +204,27 @@
         $removeJobName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
         $removeJobName = "AzOps-RemoveResource-$removeJobName"
         Write-AzOpsMessage -LogLevel Important -LogString 'Remove-AzOpsDeployment.Processing' -LogStringValues $removeJobName, $TemplateFilePath
+
         #region Parse Content
         $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
-        #endregion
-        #region Validate it is AzOpsgenerated template
+        #endregion Parse Content
+
+        #region Validate template type AzOps generated or not
         $schemavalue = '$schema'
+        $customDeletion = $false
         if ($templateContent.metadata._generator.name -eq "AzOps" -or $templateContent.$schemavalue -like "*deploymentParameters.json#") {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.Success' -LogStringValues $TemplateFilePath
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.AzOps' -LogStringValues $TemplateFilePath
+        }
+        elseif ($true -eq $CustomTemplateResourceDeletion) {
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzOpsDeployment.Metadata.Custom' -LogStringValues $TemplateFilePath
+            $customDeletion = $true
         }
         else {
             Write-AzOpsMessage -LogLevel Error -LogString 'Remove-AzOpsDeployment.Metadata.Failed' -LogStringValues $TemplateFilePath
             return
         }
-        #endregion Validate it is AzOpsgenerated template
+        #endregion Validate template type AzOps generated or not
+
         #region Resolve Scope
         try {
             $scopeObject = New-AzOpsScope -Path $TemplateFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
@@ -217,23 +243,23 @@
         Set-AzOpsContext -ScopeObject $scopeObject
         #endregion SetContext
 
-        #region remove supported resources
-        if ($scopeObject.Resource -in $DeletionSupportedResourceType) {
+        #region remove resources
+        if ($customDeletion -eq $false -and $scopeObject.Resource -in $DeletionSupportedResourceType) {
             $dependency = @()
             switch ($scopeObject.Resource) {
                 # Check resource existance through optimal path
                 'locks' {
-                    $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object {$_.ResourceID -eq $ScopeObject.scope}
+                    $resourceToDelete = Get-AzResourceLock -Scope "/subscriptions/$($ScopeObject.Subscription)" -ErrorAction SilentlyContinue | Where-Object { $_.ResourceID -eq $ScopeObject.Scope }
                 }
                 'policyAssignments' {
-                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyAssignment -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policyDefinitions' {
-                    $resourceToDelete = Get-AzPolicyDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyDefinition -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzPolicyDefinitionDeletionDependency -resourceToDelete $resourceToDelete
@@ -241,21 +267,29 @@
                     }
                 }
                 'policyExemptions' {
-                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicyExemption -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'policySetDefinitions' {
-                    $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.scope -ErrorAction SilentlyContinue
+                    $resourceToDelete = Get-AzPolicySetDefinition -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
                         $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $resourceToDelete
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
                 'roleAssignments' {
-                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.scope)?api-version=2022-01-01-preview" | Where-Object { $_.StatusCode -eq 200 }
+                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }
                     if ($resourceToDelete) {
+                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                    }
+                }
+                'resourceGroups' {
+                    $resourceToDelete = Get-AzResourceGroup -Id $scopeObject.Scope -ErrorAction SilentlyContinue
+                    if ($resourceToDelete) {
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "ResourceType" -Value "$($scopeObject.Type)"
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "SubscriptionId" -Value "$($scopeObject.Subscription)"
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
@@ -295,11 +329,102 @@
                 Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
-                $null = Remove-AzResource -ResourceId $scopeObject.Scope -Force
+                $null = Remove-AzResourceRaw -ScopeObject $scopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
             }
             else {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
+        elseif ($customDeletion -eq $false -and $scopeObject.Resource -notin $DeletionSupportedResourceType) {
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.SkipUnsupportedResource' -LogStringValues $TemplateFilePath -Target $scopeObject
+            return
+        }
+        elseif ($customDeletion -eq $true)  {
+            # Perform a New-AzOpsDeployment using WhatIf with ResourceIdOnly to extrapolate resources inside template
+            $removalJob = New-AzOpsDeployment -DeploymentName $DeploymentName -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath -WhatIfResultFormat 'ResourceIdOnly' -WhatIf:$true
+            if ($removalJob.results.Changes.Count -gt 0) {
+                # Initialize array to store items that need retry
+                $retry = @()
+                $removalJobChanges = Set-AzOpsRemoveOrder -DeletionList $removalJob.results.Changes -Index { (New-AzOpsScope -Scope $_.FullyQualifiedResourceId -WhatIf:$false).Resource }
+                $allResults = @()
+                foreach ($change in $removalJobChanges) {
+                    $resource = $null
+                    $resourceScopeObject = $null
+                    $removeAction = $null
+                    # Check if the resource exists
+                    $resourceScopeObject = New-AzOpsScope -Scope $change.FullyQualifiedResourceId -WhatIf:$false
+                    $resource = Get-AzOpsResource -ScopeObject $resourceScopeObject -ErrorAction SilentlyContinue
+                    if ($resource) {
+                        $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $resourceScopeObject.Scope, [environment]::NewLine
+                        $allResults += $results
+                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
+                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
+                        # Check if the removal should be performed
+                        if ($PSCmdlet.ShouldProcess("Remove $($resourceScopeObject.Scope)?")) {
+                            $removeAction = Remove-AzResourceRaw -ScopeObject $resourceScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
+                            # If removal failed, add to retry
+                            if ($removeAction.Status -eq 'failed') {
+                                $retry += $removeAction
+                            }
+                        }
+                        else {
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.SkipDueToWhatIf'
+                        }
+                    }
+                    else {
+                        # Log warning if resource not found
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $ScopeObject.Resource, $change.FullyQualifiedResourceId
+                        $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $change.FullyQualifiedResourceId, [environment]::NewLine
+                        $allResults += $results
+                    }
+
+                }
+                $baseTemplateCheck = $TemplateFilePath -replace '\.bicep$', '.json'
+                if ($TemplateParameterFilePath) {
+                    $baseParameterCheck = $TemplateParameterFilePath -replace '\.bicepparam$', 'parameters.json'
+                }
+                if ($DeleteSet) {
+                    $deleteSetCheck = $DeleteSet  -replace '\.bicep$', '.json'
+                    $deleteSetCheck = $deleteSetCheck  -replace '\.bicepparam$', '.parameters.json'
+                    # Check if template and parameter file exist in $DeleteSet, example AzOps has been instructed to remove template.json but not the associated parameter.json
+                    $resultsFileAssociation = switch ($null) {
+                        { $baseTemplateCheck -notin $deleteSetCheck -and $baseParameterCheck -notin $deleteSetCheck } {
+                            'Missing template and parameter file association:{2}{0} and {1} for deletion.{2}{2}Ensure that you have reviewed and confirmed the necessity of each deletion.{2}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json or .parameters.json for deletion processing and outputs the results from the converted files here.{2}' -f $TemplateFilePath, $TemplateParameterFilePath, [environment]::NewLine
+                        }
+                        { $baseTemplateCheck -notin $deleteSetCheck } {
+                            'Missing template file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json or .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateFilePath, [environment]::NewLine
+                        }
+                        { $baseParameterCheck -notin $deleteSetCheck } {
+                            'Missing parameter file association:{1}{0} for deletion.{1}{1}Ensure that you have reviewed and confirmed the necessity of each deletion.{1}If you are deleting files with extension .bicep or .bicepparam, keep in mind that AzOps converts them to .json or .parameters.json for deletion processing and outputs the results from the converted files here.{1}' -f $TemplateParameterFilePath, [environment]::NewLine
+                        }
+                    }
+                    # If there are $resultsFileAssociation, combine them with existing results and log a warning
+                    if ($resultsFileAssociation) {
+                        $finalResults = @()
+                        $finalResults += $resultsFileAssociation
+                        $finalResults += $allResults
+                        $allResults = $finalResults
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $allResults
+                    }
+                }
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
+                if ($retry.Count -gt 0) {
+                    # Retry failed removals recursively
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.Resource.RetryCount' -LogStringValues $retry.Count
+                    foreach ($try in $retry) { $try.Status = $null }
+                    $removeActionRecursive = Remove-AzResourceRaw -InputObject $retry -Recursive
+                    $removeActionRecursiveRemaining = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
+                    return $removeActionRecursiveRemaining
+                }
+            }
+            else {
+                # No resource to remove was found
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
+                $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.Scope, [environment]::NewLine
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
+                return
+            }
+        }
+        #endregion remove resources
     }
 }

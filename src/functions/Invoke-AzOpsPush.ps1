@@ -43,6 +43,69 @@
 
     begin {
         #region Utility Functions
+        function New-AzOpsList {
+            [CmdletBinding()]
+            param (
+                [string[]]
+                $FileSet,
+                [string]
+                $FilePath,
+                [string]
+                $AzOpsMainTemplate,
+                [string[]]
+                $ConvertedTemplate,
+                [string[]]
+                $ConvertedParameter
+            )
+
+            # Avoid duplicate entries in the deployment list
+            if ($FilePath.EndsWith(".parameters.json")) {
+                if ($FileSet -contains $FilePath.Replace(".parameters.json", ".json") -or $FileSet -contains $FilePath.Replace(".parameters.json", ".bicep")) {
+                    continue
+                }
+            }
+            if ($FilePath.EndsWith(".bicepparam")) {
+                if ($FileSet -contains $FilePath.Replace(".bicepparam", ".bicep")) {
+                    continue
+                }
+            }
+
+            # Handle Bicep templates
+            if ($FilePath.EndsWith(".bicep")) {
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $FilePath -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew) {
+                    $ConvertedTemplate += $transpiledTemplatePaths.transpiledTemplatePath
+                }
+                if ($true -eq $transpiledTemplatePaths.transpiledParametersNew) {
+                    $ConvertedParameter += $transpiledTemplatePaths.transpiledParametersPath
+                }
+                $FilePath = $transpiledTemplatePaths.transpiledTemplatePath
+            }
+
+            try {
+                # Create scope object from the given file path
+                $scopeObject = New-AzOpsScope -Path $FilePath -StatePath $StatePath -ErrorAction Stop
+            }
+            catch {
+                # Log a warning message if creating the scope object fails
+                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath -Target $FilePath -ErrorRecord $_
+                continue
+            }
+
+            # Resolve ARM file association
+            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $FilePath -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+            if ($resolvedArmFileAssociation) {
+                foreach ($fileAssociation in $resolvedArmFileAssociation) {
+                    if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew -and $fileAssociation.TemplateFilePath -eq $transpiledTemplatePaths.transpiledTemplatePath) {
+                        $fileAssociation.TranspiledTemplateNew = $true
+                    }
+                    if ($true -eq $transpiledTemplatePaths.TranspiledParametersNew -and $fileAssociation.TemplateParameterFilePath -eq $transpiledTemplatePaths.transpiledParametersPath) {
+                        $fileAssociation.TranspiledParametersNew = $true
+                    }
+                }
+                return $resolvedArmFileAssociation
+            }
+        }
         function Resolve-ArmFileAssociation {
             [CmdletBinding()]
             param (
@@ -59,12 +122,6 @@
             )
 
             #region Initialization Prep
-            $common = @{
-                Level        = 'Host'
-                Tag          = 'pwsh'
-                FunctionName = 'Invoke-AzOpsPush'
-                Target       = $ScopeObject
-            }
 
             $result = [PSCustomObject] @{
                 TemplateFilePath          = $null
@@ -237,11 +294,6 @@
         }
         #endregion Utility Functions
 
-        $common = @{
-            Level = 'Host'
-            Tag   = 'git'
-        }
-
         $WhatIfPreferenceState = $WhatIfPreference
         $WhatIfPreference = $false
 
@@ -262,8 +314,6 @@
     process {
         if (-not $ChangeSet) { return }
         Assert-AzOpsInitialization -Cmdlet $PSCmdlet -StatePath $StatePath
-        #Supported resource types for deletion
-        $DeletionSupportedResourceType = (Get-PSFConfigValue -FullName 'AzOps.Core.DeletionSupportedResourceType')
         #region Categorize Input
         Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Deployment.Required'
         $deleteSet = @()
@@ -293,30 +343,47 @@
         }
         if ($DeleteSetContents -and $deleteSet) {
             Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete'
-            # Unique delimiter used to join, split and replace data in DeleteSetContents
-            $delimiter = (New-Guid).Guid
-            # Transform $DeleteSetContents for further processing
-            $DeleteSetContents = $DeleteSetContents -join $delimiter -split "$delimiter-- " -replace $delimiter,""
-            # Process each $deleteSet $item
-            foreach ($item in $deleteSet) {
-                Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $item
-                # Processing each $deleteSet, compare it to each $DeleteSetContents
-                foreach ($content in $DeleteSetContents) {
-                    if ($content.Contains($item)) {
-                        # Transform original first line in content with missing delimiter
-                        if ($content.StartsWith("-- ")) {
-                            $jsonValue = $content.replace("-- $item", "")
+            # Count if $DeleteSetContents contains 1 or less
+            if ($DeleteSetContents.Count -le 1) {
+                # DeleteSetContents has no file content or is malformed
+                Write-AzOpsMessage -LogLevel Error -LogString 'Invoke-AzOpsPush.Change.Delete.DeleteSetContents' -LogStringValues $DeleteSetContents
+            }
+            else {
+                # Iterate through each line in $DeleteSetContents
+                for ($i = 0; $i -lt $DeleteSetContents.Count; $i++) {
+                    $line = $DeleteSetContents[$i].Trim()
+                    # Check if the line starts with '-- ' and matches any filename in $deleteSet
+                    if ($line -match '^-- (.+)$') {
+                        $fileName = $matches[1]
+                        if ($deleteSet -contains $fileName) {
+                            Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Change.Delete.File' -LogStringValues $fileName
+                            # Collect lines until the next line starting with '--'
+                            $objectLines = @($line)
+                            $i++
+                            while ($i -lt $DeleteSetContents.Count) {
+                                $currentLine = $DeleteSetContents[$i].Trim()
+                                # Check if the line starts with '-- ' followed by any filename in $deleteSet
+                                if ($currentLine -match '^-- (.+)$' -and $deleteSet -contains $matches[1]) {
+                                    $i--
+                                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.NextTempFile' -LogStringValues $currentLine
+                                    break  # Exit the loop if the line starts with '-- ' and matches a filename in $deleteSet
+                                }
+                                $objectLines += $currentLine
+                                $i++
+                            }
+                            # When processed as designed there is no file present in the running branch.
+                            # To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
+                            if (-not(Test-Path -Path (Split-Path -Path $fileName))) {
+                                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.TempFile' -LogStringValues $fileName
+                                New-Item -Path (Split-Path -Path $fileName) -ItemType Directory | Out-Null
+                            }
+                            # Create $fileName and set $content
+                            $objectLines = $objectLines[1..$objectLines.Count]
+                            $content = $objectLines.replace("-- $fileName", "") -join "`r`n"
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Change.Delete.SetTempFileContent' -LogStringValues $fileName, $content
+                            Set-Content -Path $fileName -Value $content
+                            $i--  # Move back one step to process the next line properly
                         }
-                        # Transform remaining content
-                        else {
-                            $jsonValue = $content.replace($item, "")
-                        }
-                        # When processed as designed there is no file present in the running branch. To run a removal AzOps re-creates the file and content based on $DeleteSetContents momentarily for processing, it is disregarded afterwards.
-                        if (-not(Test-Path -Path (Split-Path -Path $item))) {
-                            New-Item -Path (Split-Path -Path $item) -ItemType Directory | Out-Null
-                        }
-                        # Update item
-                        Set-Content -Path $item -Value $jsonValue
                     }
                 }
             }
@@ -324,7 +391,7 @@
         #endregion Categorize Input
 
         #region Deploy State
-        $common.Tag = 'pwsh'
+
         # Nested Pipeline allows economizing on New-AzOpsStateDeployment having to run its "begin" block once only
         $newStateDeploymentCmd = { New-AzOpsStateDeployment -StatePath $StatePath }.GetSteppablePipeline()
         $newStateDeploymentCmd.Begin($true)
@@ -346,91 +413,45 @@
         $newStateDeploymentCmd.End()
         #endregion Deploy State
 
+        #region Create DeploymentList
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-
-            # Avoid duplicate entries in the deployment list
-            if ($addition.EndsWith(".parameters.json")) {
-                if ($addModifySet -contains $addition.Replace(".parameters.json", ".json") -or $addModifySet -contains $addition.Replace(".parameters.json", ".bicep")) {
-                    continue
-                }
-            }
-            if ($addition.EndsWith(".bicepparam")) {
-                if ($addModifySet -contains $addition.Replace(".bicepparam", ".bicep")) {
-                    continue
-                }
-            }
-
-            # Handle Bicep templates
-            if ($addition.EndsWith(".bicep")) {
-                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $addition -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
-                if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew) {
-                    $AzOpsTranspiledTemplate += $transpiledTemplatePaths.transpiledTemplatePath
-                }
-                if ($true -eq $transpiledTemplatePaths.transpiledParametersNew) {
-                    $AzOpsTranspiledParameter += $transpiledTemplatePaths.transpiledParametersPath
-                }
-                $addition = $transpiledTemplatePaths.transpiledTemplatePath
-            }
-
-            try {
-                $scopeObject = New-AzOpsScope -Path $addition -StatePath $StatePath -ErrorAction Stop
-            }
-            catch {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $addition -Target $addition -ErrorRecord $_
-                continue
-            }
-
-            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $addition -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
-            foreach ($fileAssociation in $resolvedArmFileAssociation) {
+            # Create a list of deployment file associations using the New-AzOpsList function
+            $deployFileAssociationList = New-AzOpsList -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            # Iterate through each file association in the list
+            foreach ($fileAssociation in $deployFileAssociationList) {
+                # Check if the transpiled template is new and add it to the collection if true
                 if ($true -eq $fileAssociation.transpiledTemplateNew) {
                     $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
                 }
+                # Check if the transpiled parameters are new and add them to the collection if true
                 if ($true -eq $fileAssociation.transpiledParametersNew) {
                     $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
                 }
             }
-            $resolvedArmFileAssociation
+            # Output the list of file associations for the current addition
+            $deployFileAssociationList
         }
+        #endregion Create DeploymentList
 
+        #region Create DeletionList
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
-
-            if ($deletion.EndsWith(".bicep")) {
-                continue
+            # Create a list of deletion file associations using the New-AzOpsList function
+            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            # Iterate through each file association in the list
+            foreach ($fileAssociation in $deletionFileAssociationList) {
+                # Check if the transpiled template is new and add it to the collection if true
+                if ($true -eq $fileAssociation.transpiledTemplateNew) {
+                    $AzOpsTranspiledTemplate += $fileAssociation.TemplateFilePath
+                }
+                # Check if the transpiled parameters are new and add them to the collection if true
+                if ($true -eq $fileAssociation.transpiledParametersNew) {
+                    $AzOpsTranspiledParameter += $fileAssociation.TemplateParameterFilePath
+                }
             }
-
-            $templateContent = Get-Content $deletion | ConvertFrom-Json -AsHashtable
-            $schemavalue = '$schema'
-            if ($templateContent.$schemavalue -like "*deploymentParameters.json#" -and (-not($templateContent.parameters.input.value.type -in $DeletionSupportedResourceType))) {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.SkipUnsupportedResource' -LogStringValues $deletion -Target $scopeObject
-                continue
-            }
-            elseif ($templateContent.$schemavalue -like "*deploymentTemplate.json#" -and (-not($templateContent.resources[0].type -in $DeletionSupportedResourceType))) {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.SkipUnsupportedResource' -LogStringValues $deletion -Target $scopeObject
-                continue
-            }
-
-            try {
-                $scopeObject = New-AzOpsScope -Path $deletion -StatePath $StatePath -ErrorAction Stop
-            }
-            catch {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $deletion, $StatePath -Target $deletion -ErrorRecord $_
-                continue
-            }
-
-            Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $deletion -AzOpsMainTemplate $AzOpsMainTemplate
+            # Output the list of file associations for the current deletion
+            $deletionFileAssociationList
         }
-
-        #Required deletion order
-        $deletionListPriority = @(
-            "locks",
-            "policyExemptions",
-            "policyAssignments",
-            "policySetDefinitions",
-            "policyDefinitions"
-        )
-
-        #Sort 'deletionList' based on 'deletionListPriority'
-        $deletionList = $deletionList | Sort-Object -Property {$deletionListPriority.IndexOf($_.ScopeObject.Resource)}
+        #endregion Create DeletionList
 
         #If addModifySet exists and no deploymentList has been generated at the same time as the StatePath root has additional directories and AllowMultipleTemplateParameterFiles is default false, exit with terminating error
         if (($addModifySet -and -not $deploymentList) -and (Get-ChildItem -Path $StatePath -Directory) -and ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $false)) {
@@ -444,90 +465,128 @@
         $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique
         $deploymentResult = @()
 
-        #Determine what deployment pattern to adopt serial or parallel
-        if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeployMultipleTemplateParameterFiles') -eq $true) {
-            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelCondition'
-            # Group deployments based on TemplateFilePath
-            $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
-            if ($groups) {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelGroup'
-                $processedTargets = @()
-                # Process each deployment and evaluate serial or parallel deployment pattern
-                foreach ($deployment in $uniqueDeployment) {
-                    if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
-                        # Deployment part of group association for parallel processing, process entire group as parallel deployment
-                        $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
-                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
-                        # Prepare Input Data for parallel processing
-                        $runspaceData = @{
-                            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
-                            StatePath                       = $StatePath
-                            WhatIfPreference                = $WhatIfPreference
-                            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
-                            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
-                            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
-                            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+        if ($uniqueDeployment) {
+            #Determine what deployment pattern to adopt serial or parallel
+            if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.ParallelDeployMultipleTemplateParameterFiles') -eq $true) {
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelCondition'
+                # Group deployments based on TemplateFilePath
+                $groups = $uniqueDeployment | Group-Object -Property TemplateFilePath | Where-Object { $_.Count -ge '2' -and $_.Name -ne $(Get-Item $AzOpsMainTemplate).FullName }
+                if ($groups) {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.ParallelGroup'
+                    $processedTargets = @()
+                    # Process each deployment and evaluate serial or parallel deployment pattern
+                    foreach ($deployment in $uniqueDeployment) {
+                        if ($deployment.TemplateFilePath -in $groups.Name -and $deployment -notin $processedTargets) {
+                            # Deployment part of group association for parallel processing, process entire group as parallel deployment
+                            $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
+                            # Prepare Input Data for parallel processing
+                            $runspaceData = @{
+                                AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
+                                StatePath                       = $StatePath
+                                WhatIfPreference                = $WhatIfPreference
+                                runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
+                                runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
+                                runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
+                                runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+                            }
+                            # Pass deployment targets for parallel processing and output deployment result for later
+                            $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
+                                $deployment = $_
+                                $runspaceData = $using:runspaceData
+
+                                Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
+                                $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
+
+                                & $azOps {
+                                    $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                                    $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                                    $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                                    $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                                }
+
+                                & $azOps {
+                                    $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
+                                }
+                            } -UseNewRunspace
+                            Clear-PSFMessage
+                            # Add targets to processed list to avoid duplicate deployment
+                            $processedTargets += $targets
                         }
-                        # Pass deployment targets for parallel processing and output deployment result for later
-                        $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
-                            $deployment = $_
-                            $runspaceData = $using:runspaceData
-
-                            Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
-                            $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
-
-                            & $azOps {
-                                $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
-                                $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
-                                $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
-                                $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
-                            }
-
-                            & $azOps {
-                                $deployment | New-AzOpsDeployment -WhatIf:$runspaceData.WhatIfPreference
-                            }
-                        } -UseNewRunspace
-                        Clear-PSFMessage
-                        # Add targets to processed list to avoid duplicate deployment
-                        $processedTargets += $targets
+                        elseif ($deployment -notin $processedTargets) {
+                            # Deployment not part of group association for parallel processing, process this as serial deployment
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
+                            $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+                        }
+                        else {
+                            # Deployment already processed by group association from parallel processing, skip this duplicate deployment
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Skip' -LogStringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+                        }
                     }
-                    elseif ($deployment -notin $processedTargets) {
-                        # Deployment not part of group association for parallel processing, process this as serial deployment
-                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
-                        $deploymentResult += $deployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
-                    }
-                    else {
-                        # Deployment already processed by group association from parallel processing, skip this duplicate deployment
-                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Skip' -LogStringValues $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
+                }
+                else {
+                    # No deployments with matching TemplateFilePath identified
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
+                    $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+                }
+            } else {
+                # Perform serial deployment only
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $uniqueDeployment.Count
+                $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+            }
+
+            if ($deploymentResult) {
+                # Output deploymentResult outside module
+                $deploymentResult
+                #Process deploymentResult and output result
+                foreach ($result in $deploymentResult) {
+                    Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
+                }
+            }
+        }
+
+        if ($deletionList) {
+            #Removal of Supported resourceTypes and Custom Templates
+            $deletionList = Set-AzOpsRemoveOrder -DeletionList $deletionList -Index { $_.ScopeObject.Resource }
+            $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference -DeleteSet (Resolve-Path -Path $deleteSet).Path
+            if ($removalJob.ScopeObject.Scope.Count -gt 0) {
+                Clear-PSFMessage
+                # Identify failed removal attempts for potential retries
+                $retry = $removalJob | Where-Object { $_.Status -eq 'failed' }
+                # If there are retries, log and attempt them again
+                if ($retry) {
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Invoke-AzOpsPush.Deletion.Retry' -LogStringValues $retry.Count
+                    Start-Sleep -Seconds 30
+                    # Reset the status of failed attempts and perform recursive removal
+                    foreach ($try in $retry) { $try.Status = $null }
+                    $removeActionRecursive = Remove-AzResourceRaw -InputObject $retry -Recursive
+                    $removeActionFail = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
+                    # If removal fails, log and attempt to fetch the resource causing the failure
+                    if ($removeActionFail) {
+                        Start-Sleep -Seconds 90
+                        $throwFail = $false
+                        # Check each failed removal and attempt to get the associated resource
+                        foreach ($fail in $removeActionFail) {
+                            $resource = $null
+                            $resource = Get-AzOpsResource -ScopeObject $fail.ScopeObject -ErrorAction SilentlyContinue
+                            # If the resource is found, log the failure
+                            if ($resource) {
+                                $throwFail = $true
+                                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Deletion.Failed' -LogStringValues $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+                            }
+                        }
+                        # If any failures occurred, throw an exception
+                        if ($throwFail) {
+                            throw
+                        }
                     }
                 }
             }
-            else {
-                # No deployments with matching TemplateFilePath identified
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $deployment.Count
-                $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
+            # If there are missing dependencies, log the error and throw an exception
+            if ($removalJob.dependencyMissing -eq $true) {
+                Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Dependency.Missing'
+                throw
             }
-        } else {
-            # Perform serial deployment only
-            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Serial' -LogStringValues $uniqueDeployment.Count
-            $deploymentResult += $uniqueDeployment | New-AzOpsDeployment -WhatIf:$WhatIfPreference
-        }
-
-        if ($deploymentResult) {
-            # Output deploymentResult outside module
-            $deploymentResult
-            #Process deploymentResult and output result
-            foreach ($result in $deploymentResult) {
-                Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
-            }
-        }
-
-        #Removal of Supported resourceTypes
-        $uniqueProperties = 'Scope', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $removalJob = $deletionList | Select-Object $uniqueProperties -Unique | Remove-AzOpsDeployment -WhatIf:$WhatIfPreference
-        if ($removalJob.dependencyMissing -eq $true) {
-            Write-AzOpsMessage -LogLevel Critical -LogString 'Invoke-AzOpsPush.Dependency.Missing'
-            throw
         }
         $stopWatch.Stop()
         Write-AzOpsMessage -LogLevel Important -LogString 'Invoke-AzOpsPush.Duration' -LogStringValues $stopWatch.Elapsed -Metric $stopWatch.Elapsed.TotalSeconds -MetricName 'AzOpsPush Time'

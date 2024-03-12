@@ -18,6 +18,10 @@
             The root folder under which to find the resource json.
         .PARAMETER Confirm
             If this switch is enabled, you will be prompted for confirmation before executing any operations that change state.
+        .PARAMETER WhatifExcludedChangeTypes
+            Exclude specific change types from WhatIf operations.
+        .PARAMETER WhatIfResultFormat
+            Accepts ResourceIdOnly or FullResourcePayloads.
         .PARAMETER WhatIf
             If this switch is enabled, no actions are performed but informational messages will be displayed that explain what would happen if the command were to run.
         .EXAMPLE
@@ -53,7 +57,11 @@
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
 
         [string[]]
-        $WhatifExcludedChangeTypes = (Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes')
+        $WhatifExcludedChangeTypes = (Get-PSFConfigValue -FullName 'AzOps.Core.WhatifExcludedChangeTypes'),
+
+        [string]
+        [ValidateSet("ResourceIdOnly","FullResourcePayloads")]
+        $WhatIfResultFormat
 
     )
 
@@ -96,6 +104,9 @@
             'TemplateFile'                = $TemplateFilePath
             'SkipTemplateParameterPrompt' = $true
             'Location'                    = $defaultDeploymentRegion
+        }
+        if ($WhatIfResultFormat) {
+            $parameters.ResultFormat = $WhatIfResultFormat
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {

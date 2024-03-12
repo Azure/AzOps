@@ -509,6 +509,18 @@
                         {
                             "type": "Microsoft.Resources/resourceGroups",
                             "apiVersion": "2019-10-01",
+                            "name": "RemovalSupport-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2019-10-01",
+                            "name": "CustomDeletion-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2019-10-01",
                             "name": "Lock1-azopsrg",
                             "location": "northeurope"
                         },
@@ -604,6 +616,69 @@
                                                 "sku": {
                                                     "name": "pergb2018"
                                                 }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-10-01",
+                            "name": "RemovalRGSupportDeploy",
+                            "resourceGroup": "RemovalSupport-azopsrg",
+                            "dependsOn": [
+                                "RemovalSupport-azopsrg"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "apiVersion": "2019-02-01",
+                                            "type": "Microsoft.Network/routeTables",
+                                            "name": "ForgetMeRouteTable",
+                                            "location": "northeurope",
+                                            "properties": {
+                                                "disableBgpRoutePropagation": "false"
+                                            }
+                                        }
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-10-01",
+                            "name": "CustomDeletion",
+                            "resourceGroup": "CustomDeletion-azopsrg",
+                            "dependsOn": [
+                                "CustomDeletion-azopsrg"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "type": "Microsoft.Authorization/policyAssignments",
+                                            "apiVersion": "2021-06-01",
+                                            "name": "TestPolicyAssignmentDeletion",
+                                            "properties": {
+                                                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
                                             }
                                         }
                                     ],
