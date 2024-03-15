@@ -15,6 +15,9 @@ env:
   github_email: "github-actions@github.com"
   github_commit_message: "GitHub Action syncing wiki from docs/wiki"
 
+permissions:
+  contents: write
+
 jobs:
   sync-wiki:
     name: Sync Wiki
