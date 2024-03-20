@@ -19,13 +19,13 @@
 
     process {
         Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsJqDependency.Validating'
-
+        $minVersion = New-Object System.Version("1.6")
         $result = (Invoke-AzOpsNativeCommand -ScriptBlock { jq --version } -IgnoreExitcode)
         $installed = $result -as [bool]
 
         if ($installed) {
-            [double]$version = ($result).Split("-")[1]
-            if ($version -ge 1.6) {
+            $version = New-Object System.Version(($result).Split("-")[1])
+            if ($version -ge $minVersion) {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Assert-AzOpsJqDependency.Success'
                 return
             }
