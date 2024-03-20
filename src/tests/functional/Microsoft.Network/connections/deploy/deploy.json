@@ -46,7 +46,7 @@
             "properties": {
                 "ipAddress": "20.219.217.108",
                 "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "idleTimeoutInMinutes": 4,
                 "dnsSettings": {
                     "domainNameLabel": "[parameters('publicIPAddressesName')]",
