@@ -40,7 +40,7 @@
             "name": "[parameters('publicIPAddressesName')]",
             "location": "northeurope",
             "sku": {
-                "name": "Basic",
+                "name": "Standard",
                 "tier": "Regional"
             },
             "properties": {
