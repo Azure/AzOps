@@ -40,13 +40,13 @@
             "name": "[parameters('publicIPAddressesName')]",
             "location": "northeurope",
             "sku": {
-                "name": "Basic",
+                "name": "Standard",
                 "tier": "Regional"
             },
             "properties": {
                 "ipAddress": "20.219.217.108",
                 "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "idleTimeoutInMinutes": 4,
                 "dnsSettings": {
                     "domainNameLabel": "[parameters('publicIPAddressesName')]",
