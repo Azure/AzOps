@@ -9,6 +9,8 @@
             Name under which to deploy the state.
         .PARAMETER TemplateFilePath
             Path where the ARM templates can be found.
+        .PARAMETER TemplateObject
+            TemplateObject where the templates content is stored in-memory.
         .PARAMETER TemplateParameterFilePath
             Path where the parameters of the ARM templates can be found.
         .PARAMETER Mode
@@ -43,6 +45,10 @@
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $TemplateFilePath = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [hashtable]
+        $TemplateObject,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [AllowEmptyString()]
@@ -89,9 +95,11 @@
         #endregion Resolve Scope
 
         #region Parse Content
-        $templateContent = Get-Content $TemplateFilePath | ConvertFrom-Json -AsHashtable
-
-        if ($templateContent.metadata._generator.name -eq 'bicep') {
+        if ($null -eq $TemplateObject) {
+            $TemplateFileContent = [System.IO.File]::ReadAllText($TemplateFilePath)
+            $TemplateObject = ConvertFrom-Json $TemplateFileContent -AsHashtable
+        }
+        if ($TemplateObject.metadata._generator.name -eq 'bicep') {
             # Detect bicep templates
             $bicepTemplate = $true
         }
@@ -101,7 +109,7 @@
         # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
         $defaultDeploymentRegion = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
         $parameters = @{
-            'TemplateFile'                = $TemplateFilePath
+            'TemplateObject'              = $TemplateObject
             'SkipTemplateParameterPrompt' = $true
             'Location'                    = $defaultDeploymentRegion
         }
@@ -109,7 +117,7 @@
             $parameters.ResultFormat = $WhatIfResultFormat
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
-        if ($scopeObject.resourcegroup -and $templateContent.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
+        if ($scopeObject.resourcegroup -and $TemplateObject.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
@@ -220,12 +228,12 @@
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 if ($parameters.TemplateParameterFile) {
-                    $deploymentResult.filePath = $parameters.TemplateFile
+                    $deploymentResult.filePath = $TemplateFilePath
                     $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
                     $deploymentResult.results = $results
                 }
                 else {
-                    $deploymentResult.filePath = $parameters.TemplateFile
+                    $deploymentResult.filePath = $TemplateFilePath
                     $deploymentResult.results = $results
                 }
             }
