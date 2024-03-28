@@ -462,7 +462,11 @@
         #Starting deployment
         $WhatIfPreference = $WhatIfPreferenceState
         $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
-        $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique
+        $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique | ForEach-Object {
+            $TemplateFileContent = [System.IO.File]::ReadAllText($_.TemplateFilePath)
+            $TemplateObject = ConvertFrom-Json $TemplateFileContent -AsHashtable
+            $_ | Add-Member -MemberType NoteProperty -Name 'TemplateObject' -Value $TemplateObject -PassThru
+        }
         $deploymentResult = @()
 
         if ($uniqueDeployment) {
