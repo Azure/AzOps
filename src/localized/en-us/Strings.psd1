@@ -158,6 +158,7 @@
     'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'                  = 'Executing partial discovery' #
     'Initialize-AzOpsEnvironment.ManagementGroup.Resolution'                        = 'Resolving {0} management groups' # $managementGroups.Count
     'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'           = 'No management group access, discovery will happen from subscription scope(s)'
+    'Initialize-AzOpsEnvironment.ManagementGroup.InsufficientPermissions'           = 'Insufficient permissions to register the ''Microsoft.Management'' resource provider. Register the resource provider manually or assign the Service Principal the Owner or Contributor role.'
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores
