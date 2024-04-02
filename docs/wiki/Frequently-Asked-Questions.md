@@ -43,7 +43,7 @@ A common example of invalid characters preventing successful operations in AzOps
 ## Management groups not showing up in repository
 
 If the [Microsoft.Management](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-services-resource-providers#management-resource-providers) resource provider is not registered in the subscription where AzOps is initialized, the engine is unable to list and create the correct folder structure for the management group hierarchy.
-Proceed to manually [register the Microsoft.Management resource provider the Azure Subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) or assign the AzOps Service Principal the permissions to perform the ```/register/action``` operation for the resource provider. The permission is included in the Contributor and Owner roles.
+Proceed to manually [register the Microsoft.Management resource provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) in the Azure Subscription or assign the AzOps Service Principal the permissions to perform the ```/register/action``` operation for the resource provider. The permission is included in the Contributor and Owner roles.
 
 ## Push fail with deployment already exists in location error
 
