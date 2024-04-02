@@ -7,6 +7,7 @@ This article answers frequently asked questions relating to AzOps.
 - [AzOps FAQ](#azops-faq)
   - [In this Section](#in-this-section)
   - [Subscriptions or resources not showing up in repository](#subscriptions-or-resources-not-showing-up-in-repository)
+  - [Management groups not showing up in repository](#management-groups-not-showing-up-in-repository)
   - [Push fail with deployment already exists in location error](#push-fail-with-deployment-already-exists-in-location-error)
   - [Does AzOps use temporary files](#does-azops-use-temporary-files)
   - [Pull fail with active pull request already exists error](#pull-fail-with-active-pull-request-already-exists-error)
@@ -38,6 +39,11 @@ To confirm if this applies to you, check the pipeline logs for any of the follow
 Remove the invalid resource or character and retry the operation.
 
 A common example of invalid characters preventing successful operations in AzOps is with [Visual Studio Enterprise](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0063p/) based subscriptions. The default resource name of said subscriptions contains the "`–`" [EN DASH](https://www.cogsci.ed.ac.uk/~richard/utf-8.cgi?input=2013&mode=hex) character. Example: `visual studio enterprise subscription – mpn`.
+
+## Management groups not showing up in repository
+
+If the [Microsoft.Management](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-services-resource-providers#management-resource-providers) resource provider is not registered in the subscription where AzOps is initialized, the engine is unable to list and create the correct folder structure for the management group hierarchy.
+Proceed to manually [register the Microsoft.Management resource provider the Azure Subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) or assign the AzOps Service Principal the permissions to perform the ```/register/action``` operation for the resource provider. The permission is included in the Contributor and Owner roles.
 
 ## Push fail with deployment already exists in location error
 
