@@ -119,11 +119,8 @@
             $managementGroups = Get-AzManagementGroup -ErrorAction Stop
         }
         catch {
-            if ($_.Exception.Message -match 'does not have authorization to perform action ''Microsoft.Management/register/action''') {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.InsufficientPermissions'
-            } else {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
-            }
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess' -LogStringValues $_
+            return
         }
 
         #region Validate root '/' permissions - different methods of getting current context depending on principalType
