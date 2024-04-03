@@ -95,10 +95,10 @@
                 try {
                     Write-PSFMessage -Level Verbose -Message "Deployment of $script:resourceType starting at $Scope scope."
                     if ($script:templateParametersFile) {
-                        $script:functionalTestDeploy = New-AzSubscriptionDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -TemplateParameterFile $script:templateParametersFile -Location $Location -Confirm:$false
+                        $script:functionalTestDeploy = New-AzDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -TemplateParameterFile $script:templateParametersFile -Location $Location -Confirm:$false
                     }
                     else {
-                        $script:functionalTestDeploy = New-AzSubscriptionDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location -Confirm:$false
+                        $script:functionalTestDeploy = New-AzDeployment -Name ($script:resourceType + 'testdeploy') -TemplateFile $script:templateFile -Location $Location -Confirm:$false
                     }
                     $script:return = [PSCustomObject]@{
                         functionalTestDeploy    = $script:functionalTestDeploy

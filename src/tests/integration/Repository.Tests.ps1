@@ -66,7 +66,7 @@ Describe "Repository" {
             Location                = "northeurope"
         }
         try {
-            New-AzSubscriptionDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
+            New-AzDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
             New-AzManagementGroupDeployment @params
             New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep" -TemplateParameterFile "$($global:testRoot)/templates/policywithuam.bicepparam"
             # Pause for resource consistency
