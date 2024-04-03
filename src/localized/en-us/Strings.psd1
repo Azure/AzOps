@@ -157,7 +157,7 @@
     'Initialize-AzOpsEnvironment.ManagementGroup.NoRootPermissions'                 = 'Principal {0} does not have permissions under / in tenant, enabling partial discovery' # $currentAzContext.Account.Id
     'Initialize-AzOpsEnvironment.ManagementGroup.PartialDiscovery'                  = 'Executing partial discovery' #
     'Initialize-AzOpsEnvironment.ManagementGroup.Resolution'                        = 'Resolving {0} management groups' # $managementGroups.Count
-    'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'           = 'No management group access, discovery will happen from subscription scope(s)'
+    'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'           = 'No management group access, failed with: {0}, discovery will happen from subscription scope(s)' # $_
     'Initialize-AzOpsEnvironment.Processing'                                        = 'Processing AzOps environment' #
     'Initialize-AzOpsEnvironment.Processing.Completed'                              = 'AzOps environment initialization concluded' #
     'Initialize-AzOpsEnvironment.ThrottleLimit.Adjustment'                          = 'Adjusting AzOps.Core.ThrottleLimit from {0} to 5 due to available CPU Cores ({1}) to ensure reliable and performant pipeline execution. For further details, refer to: https://github.com/azure/azops/wiki/performance-considerations' # $throttleLimit, $cpuCores

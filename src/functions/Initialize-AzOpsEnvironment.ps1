@@ -119,7 +119,7 @@
             $managementGroups = Get-AzManagementGroup -ErrorAction Stop
         }
         catch {
-            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess'
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Initialize-AzOpsEnvironment.ManagementGroup.NoManagementGroupAccess' -LogStringValues $_
             return
         }
 
