@@ -316,7 +316,7 @@
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             */
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(contains(parameters('input'), 'children'),not(empty(parameters('input').children))),
@@ -411,7 +411,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -509,7 +509,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -608,7 +608,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -705,7 +705,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -802,7 +802,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
