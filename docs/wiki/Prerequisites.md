@@ -17,7 +17,7 @@ AzOps pipelines can use either a Service Principal, or a Managed Identity if run
 - Assign Azure `Owner` role at the required scope to the Service Principal/Managed Identity
 - Add Service Principal/Managed Identity to Azure AD `Directory Readers` role
 
-> Note: Discovering Management groups requires the registration of the Azure resource provider `Microsoft.Management` in the Azure Subscription where AzOps is initialized. AzOps will attempt to [registered](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) `Microsoft.Management` if it's not already registered. If AzOps encounters any issues during this process, kindly ensure to manually register the resource provider.
+> Note: Discovering Management groups requires the registration of the Azure resource provider `Microsoft.Management` in the Azure Subscription where AzOps is initialized. AzOps will attempt to [register](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) `Microsoft.Management` if it's not already registered. If AzOps encounters any issues during this process, kindly ensure to manually register the resource provider.
 
 The Azure Active Directory [Directory Readers](https://learn.microsoft.com/azure/active-directory/roles/permissions-reference#directory-readers) role is required to discover Azure 'roleAssignments'. These permissions are used to enrich data around the role assignments with additional Azure AD context such as `ObjectType` and Azure AD object `DisplayName`.
 
