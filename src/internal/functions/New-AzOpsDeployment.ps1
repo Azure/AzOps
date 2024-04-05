@@ -130,7 +130,7 @@
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzSubscriptionDeployment'
+            $deploymentCommand = 'New-AzDeployment'
         }
         # Management Groups
         elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {

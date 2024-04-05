@@ -86,21 +86,21 @@
                         json('null')
                     )]",
         "apiVersionLookup": {
-            "Microsoft.Resources/resourceGroups":"2020-06-01",
-            "Microsoft.Authorization/policyAssignments": "2020-03-01",
-            "Microsoft.Authorization/policyDefinitions": "2020-03-01",
-            "Microsoft.Authorization/PolicySetDefinitions": "2020-03-01",
-            "Microsoft.Authorization/roleDefinitions": "2018-01-01-preview",
-            "Microsoft.Authorization/roleAssignments": "2020-04-01-preview",
-            "Microsoft.PolicyInsights/remediations": "2019-07-01",
-            "Microsoft.ContainerService/ManagedClusters": "2020-09-01",
-            "Microsoft.KeyVault/vaults":"2019-09-01",
+            "Microsoft.Resources/resourceGroups":"2023-07-01",
+            "Microsoft.Authorization/policyAssignments": "2023-04-01",
+            "Microsoft.Authorization/policyDefinitions": "2023-04-01",
+            "Microsoft.Authorization/policySetDefinitions": "2023-04-01",
+            "Microsoft.Authorization/roleDefinitions": "2022-04-01",
+            "Microsoft.Authorization/roleAssignments": "2022-04-01",
+            "Microsoft.PolicyInsights/remediations": "2021-10-01",
+            "Microsoft.ContainerService/managedClusters": "2024-02-01",
+            "Microsoft.KeyVault/vaults":"2023-07-01",
             "Microsoft.Network/virtualWans":  "2020-05-01",
             "Microsoft.Network/virtualHubs": "2020-05-01",
             "Microsoft.Network/virtualNetworks": "2020-06-01",
             "Microsoft.Network/azureFirewalls": "2020-06-01",
-            "/providers/Microsoft.Management/managementGroups": "2020-05-01",
-            "/subscriptions": "2020-05-01",
+            "/providers/Microsoft.Management/managementGroups": "2023-04-01",
+            "/subscriptions": "2021-10-01",
             "na": "9999-99-99",
             "": "0000-00-00"
         },
@@ -316,7 +316,7 @@
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             */
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(contains(parameters('input'), 'children'),not(empty(parameters('input').children))),
@@ -411,7 +411,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -509,7 +509,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -608,7 +608,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -705,7 +705,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(
@@ -802,7 +802,7 @@
             },
             "scope": "[concat('Microsoft.Management/managementGroups/',parameters('input').name)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
+            "apiVersion": "2023-07-01",
             "location": "[deployment().location]",
             "name": "[if(
                         and(

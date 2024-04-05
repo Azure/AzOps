@@ -53,7 +53,7 @@ Describe "SubscriptionOnly" {
 
         Write-PSFMessage -Level Verbose -Message "Creating repository test environment" -FunctionName "BeforeAll"
         try {
-            $rg = New-AzSubscriptionDeployment -Name 'AzOps-Tests-SubOnly-RG' -Location 'northeurope'  -TemplateParameterFile "$($global:testRoot)/templates/rgsubonlydeploy.parameters.json" -TemplateFile "$($global:testRoot)/templates/rgsubonlydeploy.bicep"
+            $rg = New-AzDeployment -Name 'AzOps-Tests-SubOnly-RG' -Location 'northeurope'  -TemplateParameterFile "$($global:testRoot)/templates/rgsubonlydeploy.parameters.json" -TemplateFile "$($global:testRoot)/templates/rgsubonlydeploy.bicep"
             $sta = New-AzResourceGroupDeployment -Name 'AzOps-Tests-SubOnly-Sta' -ResourceGroupName $rg.Parameters.resourceGroupName.Value -TemplateFile "$($global:testRoot)/templates/stasubonlydeploy.bicep"
             # Pause for resource consistency
             Start-Sleep -Seconds 120
