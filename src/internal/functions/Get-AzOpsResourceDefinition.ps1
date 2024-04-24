@@ -293,8 +293,8 @@
             }
             # Process Policies at Resource Group scope
             if (-not $SkipPolicy) {
-                if ($subscriptionsToIncludeResourceGroups) {
-                    Get-AzOpsPolicy -ScopeObject $scopeObject -Subscription $subscriptions -SubscriptionsToIncludeResourceGroups $subscriptionsToIncludeResourceGroups -ResourceGroup -StatePath $StatePath
+                if ($newSubscriptionsToIncludeResourceGroups) {
+                    Get-AzOpsPolicy -ScopeObject $scopeObject -Subscription $subscriptions -SubscriptionsToIncludeResourceGroups $newSubscriptionsToIncludeResourceGroups -ResourceGroup -StatePath $StatePath
                 }
                 else {
                     Get-AzOpsPolicy -ScopeObject $scopeObject -Subscription $subscriptions -ResourceGroup -StatePath $StatePath
