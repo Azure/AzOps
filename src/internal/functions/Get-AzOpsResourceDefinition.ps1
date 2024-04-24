@@ -29,6 +29,10 @@
             Skip discovery of roles for better performance.
         .PARAMETER StatePath
             The root folder under which to write the resource json.
+        .PARAMETER SubscriptionsToIncludeChildResource
+            Filter which Subscription IDs should include child resources in pull.
+        .PARAMETER SubscriptionsToIncludeResourceGroups
+            Filter which Subscription IDs should include Resource Groups in pull.
         .EXAMPLE
             $TenantRootId = '/providers/Microsoft.Management/managementGroups/{0}' -f (Get-AzTenant).Id
             Get-AzOpsResourceDefinition -scope $TenantRootId -Verbose
@@ -84,7 +88,13 @@
 
         [Parameter(Mandatory = $false)]
         [string]
-        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State')
+        $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
+
+        [string[]]
+        $SubscriptionsToIncludeChildResource = (Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeChildResource'),
+
+        [string[]]
+        $SubscriptionsToIncludeResourceGroups = (Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups')
     )
 
     begin {
@@ -222,8 +232,8 @@
             }
         }
         else {
-            if ((Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') -ne '*') {
-                $subscriptionsToIncludeResourceGroups = $subscriptions | Where-Object { $_.Id -in (Get-PSFConfigValue -FullName 'AzOps.Core.SubscriptionsToIncludeResourceGroups') }
+            if ($SubscriptionsToIncludeResourceGroups -ne '*') {
+                $subscriptionsToIncludeResourceGroups = $subscriptions | Where-Object { $_.Id -in $SubscriptionsToIncludeResourceGroups }
             }
             $query = "resourcecontainers | where type == 'microsoft.resources/subscriptions/resourcegroups' | where managedBy == '' | order by ['id'] asc"
             if ($subscriptionsToIncludeResourceGroups) {
@@ -324,8 +334,11 @@
             else {
                 Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingResources' -Target $ScopeObject
             }
-            # Process resources as scope in parallel, look for childResource
+            # Process Child resources at resource scope in parallel
             if (-not $SkipResource -and -not $SkipChildResource) {
+                if ($SubscriptionsToIncludeChildResource -ne '*') {
+                    $resources = $resources | Where-Object { $_.subscriptionId -in $SubscriptionsToIncludeChildResource }
+                }
                 $resources | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
                     $resource = $_
                     $runspaceData = $using:runspaceData

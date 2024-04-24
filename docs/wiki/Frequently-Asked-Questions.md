@@ -158,6 +158,8 @@ Yes, ensure the following setting combinations are applied (replace `rgname1`, `
 
     "Core.SkipResourceGroup": false
 
+    "Core.SubscriptionsToIncludeChildResource": ["SubscriptionId1","SubscriptionId2"]
+
     "Core.SubscriptionsToIncludeResourceGroups": ["SubscriptionId1","SubscriptionId2"]
 ```
 
