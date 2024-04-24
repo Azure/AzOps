@@ -68,7 +68,8 @@ if (Test-Path -Path $generatedRoot) {
 
 # Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
 
-Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
+Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeChildResource -Value @($script:subscriptionId)
+Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value @($script:subscriptionId)
 Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
 Set-PSFConfig -FullName AzOps.Core.SkipPim -Value $false
 $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
