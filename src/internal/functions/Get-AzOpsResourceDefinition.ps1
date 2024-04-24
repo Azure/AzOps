@@ -232,12 +232,15 @@
             }
         }
         else {
-            if ($SubscriptionsToIncludeResourceGroups -ne '*') {
-                $subscriptionsToIncludeResourceGroups = $subscriptions | Where-Object { $_.Id -in $SubscriptionsToIncludeResourceGroups }
-            }
             $query = "resourcecontainers | where type == 'microsoft.resources/subscriptions/resourcegroups' | where managedBy == '' | order by ['id'] asc"
-            if ($subscriptionsToIncludeResourceGroups) {
-                $resourceGroups = Search-AzOpsAzGraph -Subscription $subscriptionsToIncludeResourceGroups -Query $query -ErrorAction Stop
+            if ($SubscriptionsToIncludeResourceGroups -ne '*') {
+                $newSubscriptionsToIncludeResourceGroups = $subscriptions | Where-Object { $_.Id -in $SubscriptionsToIncludeResourceGroups }
+                if ($newSubscriptionsToIncludeResourceGroups) {
+                    $resourceGroups = Search-AzOpsAzGraph -Subscription $newSubscriptionsToIncludeResourceGroups -Query $query -ErrorAction Stop
+                }
+                else {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Subscription.NotFound' -Target $ScopeObject
+                }
             }
             else {
                 $resourceGroups = Search-AzOpsAzGraph -Subscription $subscriptions -Query $query -ErrorAction Stop
