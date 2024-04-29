@@ -48,7 +48,7 @@
     process {
         if ($CompareDeploymentToDeletion) {
             # Avoid adding files destined for deletion to a deployment list
-            if ($BicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+            if ($BicepTemplatePath -in $deleteSet -or $BicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
                 Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.DeployDeletionOverlap' -LogStringValues $BicepTemplatePath
                 continue
             }
@@ -79,7 +79,7 @@
             }
             if ($CompareDeploymentToDeletion) {
                 # Avoid adding files destined for deletion to a deployment list
-                if ($bicepParametersPath -in $deleteSet) {
+                if ($bicepParametersPath -in $deleteSet -or $bicepParametersPath -in ($deleteSet | Resolve-Path).Path) {
                     Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.DeployDeletionOverlap' -LogStringValues $bicepParametersPath
                     $skipParameters = $true
                 }

@@ -62,7 +62,7 @@
 
             # Avoid adding files destined for deletion to a deployment list
             if ($CompareDeploymentToDeletion) {
-                if ($FilePath -in $deleteSet) {
+                if ($FilePath -in $deleteSet -or $FilePath -in ($deleteSet | Resolve-Path).Path) {
                     Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $FilePath
                     continue
                 }
@@ -177,7 +177,7 @@
                         if (Test-Path $templatePath) {
                             if ($CompareDeploymentToDeletion) {
                                 # Avoid adding files destined for deletion to a deployment list
-                                if ($templatePath -in ($deleteSet | Resolve-Path).Path) {
+                                if ($templatePath -in $deleteSet -or $templatePath -in ($deleteSet | Resolve-Path).Path) {
                                     Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $templatePath
                                     return
                                 }
@@ -192,7 +192,7 @@
                         elseif (Test-Path $bicepTemplatePath) {
                             if ($CompareDeploymentToDeletion) {
                                 # Avoid adding files destined for deletion to a deployment list
-                                if ($bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+                                if ($bicepTemplatePath -in $deleteSet -or $bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
                                     Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $bicepTemplatePath
                                     return
                                 }
@@ -218,7 +218,7 @@
                         if (Test-Path $bicepTemplatePath) {
                             if ($CompareDeploymentToDeletion) {
                                 # Avoid adding files destined for deletion to a deployment list
-                                if ($bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+                                if ($bicepTemplatePath -in $deleteSet -or $bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
                                     Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $bicepTemplatePath
                                     return
                                 }
@@ -280,7 +280,7 @@
             if (Test-Path -Path $parameterPath) {
                 if ($CompareDeploymentToDeletion) {
                     # Avoid adding files destined for deletion to a deployment list
-                    if ($parameterPath -in ($deleteSet | Resolve-Path).Path) {
+                    if ($parameterPath -in $deleteSet -or $parameterPath -in ($deleteSet | Resolve-Path).Path) {
                         Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $parameterPath
                         $skipParameters = $true
                     }
@@ -301,7 +301,7 @@
                     foreach ($paramFile in $paramFileList) {
                         if ($CompareDeploymentToDeletion) {
                             # Avoid adding files destined for deletion to a deployment list
-                            if ($paramFile.VersionInfo.FileName -in ($deleteSet | Resolve-Path).Path) {
+                            if ($paramFile.VersionInfo.FileName -in $deleteSet -or $paramFile.VersionInfo.FileName -in ($deleteSet | Resolve-Path).Path) {
                                 Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $paramFile.VersionInfo.FileName
                                 continue
                             }
