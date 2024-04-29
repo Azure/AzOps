@@ -33,7 +33,9 @@
         [string[]]
         $ConvertedTemplate,
         [string[]]
-        $ConvertedParameter
+        $ConvertedParameter,
+        [switch]
+        $CompareDeploymentToDeletion
     )
 
     begin {
@@ -44,6 +46,13 @@
         $transpiledParametersNew = $false
     }
     process {
+        if ($CompareDeploymentToDeletion) {
+            # Avoid adding files destined for deletion to a deployment list
+            if ($BicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+                Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.DeployDeletionOverlap' -LogStringValues $BicepTemplatePath
+                continue
+            }
+        }
         $transpiledTemplatePath = [IO.Path]::GetFullPath("$($BicepTemplatePath -replace '\.bicep', '.json')")
         if ($transpiledTemplatePath -notin $ConvertedTemplate) {
             # Convert bicep template
@@ -68,7 +77,14 @@
                 $bicepParametersPath = $BicepParamTemplatePath
                 Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -LogStringValues $BicepTemplatePath, $bicepParametersPath
             }
-            if ($bicepParametersPath -and (Test-Path $bicepParametersPath)) {
+            if ($CompareDeploymentToDeletion) {
+                # Avoid adding files destined for deletion to a deployment list
+                if ($bicepParametersPath -in $deleteSet) {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.DeployDeletionOverlap' -LogStringValues $bicepParametersPath
+                    $skipParameters = $true
+                }
+            }
+            if (-not $skipParameters -and $bicepParametersPath -and (Test-Path $bicepParametersPath)) {
                 $transpiledParametersPath = [IO.Path]::GetFullPath("$($bicepParametersPath -replace '\.bicepparam', '.parameters.json')")
                 if ($transpiledParametersPath -notin $ConvertedParameter) {
                     # Convert bicepparam to ARM parameter file
