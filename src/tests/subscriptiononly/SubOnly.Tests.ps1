@@ -1,6 +1,6 @@
 ﻿<#
 SubOnly.Tests.ps1
-The tests within this file validate that the `Invoke-AzOpsPull` function is invoking as expected with the correct output data.
+The tests within this file validate that AzOps is invoking as expected with the correct output data.
 This file must be invoked by the Pester.ps1 file as the Global variable testroot is required for invocation.
 #>
 
