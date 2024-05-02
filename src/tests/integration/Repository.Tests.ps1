@@ -55,8 +55,9 @@ Describe "Repository" {
         Write-PSFMessage -Level Verbose -Message "Creating repository test environment" -FunctionName "BeforeAll"
         $templateFile = Join-Path -Path $global:testroot -ChildPath "templates/azuredeploy.jsonc"
         $templateParameters = @{
-            "tenantId"       = "$script:tenantId"
-            "subscriptionId" = "$script:subscriptionId"
+            "tenantId"       = $script:tenantId
+            "subscriptionId" = $script:subscriptionId
+            "otherSubscriptionId" = $otherSubscription[0].Id
         }
         $params = @{
             ManagementGroupId       = "$script:tenantId"
@@ -164,7 +165,8 @@ Describe "Repository" {
         #endregion PartialMgDiscoveryRoot Pull
 
         #region GeneratedRoot Pull
-        Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value $script:subscriptionId
+        Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeChildResource -Value @($script:subscriptionId)
+        Set-PSFConfig -FullName AzOps.Core.SubscriptionsToIncludeResourceGroups -Value @($script:subscriptionId,$otherSubscription[0].Id)
         Set-PSFConfig -FullName AzOps.Core.PartialMgDiscoveryRoot -Value @()
         Set-PSFConfig -FullName AzOps.Core.State -Value $generatedRoot
         Set-PSFConfig -FullName AzOps.Core.SkipLock -Value $false
@@ -287,7 +289,7 @@ Describe "Repository" {
         $script:subscriptionFile = ($script:subscriptionPath).FullName
         Write-PSFMessage -Level Debug -Message "SubscriptionFile: $($script:subscriptionFile)" -FunctionName "BeforeAll"
 
-        $script:resourceGroupPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroup.ResourceGroupName).toLower()).json")
+        $script:resourceGroupPath = ($filePaths | Where-Object { $_.Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroup.ResourceGroupName).toLower()).json" -and $_.FullName -match $script:subscriptionId })
         $script:resourceGroupDirectory = ($script:resourceGroupPath).Directory
         $script:resourceGroupFile = ($script:resourceGroupPath).FullName
         $script:resourceGroupDeploymentName = "AzOps-{0}-{1}" -f $($script:resourceGroupPath.Name.Replace(".json", '')), $deploymentLocationId
@@ -1024,6 +1026,9 @@ Describe "Repository" {
         It "Rule Collection Group deployment should be successful" {
             $script:ruleCollectionDeployment = Get-AzResourceGroupDeployment -ResourceGroupName 'App1-azopsrg' -Name $script:ruleCollectionDeploymentName
             $ruleCollectionDeployment.ProvisioningState | Should -Be "Succeeded"
+        }
+        It "Validate SubscriptionsToIncludeChildResource filter by ensuring only one rulegroup child item is pulled back" {
+            $script:ruleCollectionGroupsPath.Count | Should -Be 1
         }
         #endregion
 

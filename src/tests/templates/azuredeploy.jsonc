@@ -7,6 +7,9 @@
         },
         "subscriptionId": {
             "type": "string"
+        },
+        "otherSubscriptionId": {
+            "type": "string"
         }
     },
     "functions": [],
@@ -817,6 +820,138 @@
                                                 "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
                                             }
                                         }
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - otherSubscription-x - App1-azopsrg
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "AzOps-Tests-otherNested",
+            "subscriptionId": "[parameters('otherSubscriptionId')]",
+            "location": "northeurope",
+            "dependsOn": [],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2019-10-01",
+                            "name": "App1-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-10-01",
+                            "name": "RouteTableAndPolicy",
+                            "resourceGroup": "App1-azopsrg",
+                            "dependsOn": [
+                                "App1-azopsrg"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "type": "Microsoft.Network/firewallPolicies",
+                                            "name": "TestPolicy",
+                                            "apiVersion": "2021-06-01",
+                                            "location": "eastus",
+                                            "tags": {},
+                                            "properties": {
+                                                "sku": {
+                                                    "tier": "Standard"
+                                                },
+                                                "threatIntelMode": "Alert",
+                                                "threatIntelWhitelist": {
+                                                    "fqdns": [],
+                                                    "ipAddresses": []
+                                                },
+                                                "childPolicies": [],
+                                                "ruleCollectionGroups": [
+                                                ],
+                                                "firewalls": []
+                                            }
+                                        }
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2019-10-01",
+                            "name": "RuleGroupCollection",
+                            "resourceGroup": "App1-azopsrg",
+                            "dependsOn": [
+                                "RouteTableAndPolicy"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                                            "apiVersion": "2020-11-01",
+                                            "name": "TestPolicy/TestGroup",
+                                            "location": "eastus",
+                                            "properties": {
+                                                "priority": 100,
+                                                "ruleCollections": [
+                                                    {
+                                                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                                                        "action": {
+                                                            "type": "Allow"
+                                                        },
+                                                        "rules": [
+                                                            {
+                                                                "ruleType": "NetworkRule",
+                                                                "name": "Test",
+                                                                "ipProtocols": [
+                                                                    "TCP"
+                                                                ],
+                                                                "sourceAddresses": [
+                                                                    "10.100.100.0/24"
+                                                                ],
+                                                                "sourceIpGroups": [],
+                                                                "destinationAddresses": [
+                                                                    "10.200.201.0/24"
+                                                                ],
+                                                                "destinationIpGroups": [],
+                                                                "destinationFqdns": [],
+                                                                "destinationPorts": [
+                                                                    "3389"
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "name": "TestRule",
+                                                        "priority": 101
+                                                    }
+                                                ]
+                                            }
+                                        }
+
                                     ],
                                     "outputs": {
                                     }
