@@ -51,6 +51,7 @@
     'AzOpsScope.InitializeMemberVariablesFromFile.resource'                         = 'Determine scope based on ResourceType {0} and Resource Name {1}' # ResourceType and #Resource Name
     'AzOpsScope.ChildResource.InitializeMemberVariables'                            = 'Determine scope of Child Resource based on ResourceType {0}, Resource Name {1} and Parent ResourceID {2}' # ResourceType, Resource Name, Parent ResourceId
 
+    'ConvertFrom-AzOpsBicepTemplate.Resolve.DeployDeletionOverlap'                  = 'The file: {0} is targeted for deletion, skipping deployment file association' #
     'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate'                   = 'Converting Bicep template ({0}) to ARM Template JSON ({1})' # $BicepTemplatePath, $transpiledTemplatePath
     'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate.Error'             = 'Failed to convert Bicep template ({0}) to ARM Template JSON' # $BicepTemplatePath
     'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam'                             = 'Determine if Bicep template ({0}) has a bicepparam file at ({1})' # $BicepTemplatePath, $bicepParametersPath
@@ -210,6 +211,7 @@
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Duration'                                                     = 'AzOps Push completed in {0}' # $stopWatch.Elapsed
+    'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap'                                = 'The file: {0} is targeted for deletion, skipping deployment file association' #
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $bicepTemplatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName

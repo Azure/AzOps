@@ -55,8 +55,18 @@
                 [string[]]
                 $ConvertedTemplate,
                 [string[]]
-                $ConvertedParameter
+                $ConvertedParameter,
+                [switch]
+                $CompareDeploymentToDeletion
             )
+
+            # Avoid adding files destined for deletion to a deployment list
+            if ($CompareDeploymentToDeletion) {
+                if ($FilePath -in $deleteSet -or $FilePath -in ($deleteSet | Resolve-Path).Path) {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $FilePath
+                    continue
+                }
+            }
 
             # Avoid duplicate entries in the deployment list
             if ($FilePath.EndsWith(".parameters.json")) {
@@ -72,7 +82,7 @@
 
             # Handle Bicep templates
             if ($FilePath.EndsWith(".bicep")) {
-                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $FilePath -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $FilePath -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                 if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew) {
                     $ConvertedTemplate += $transpiledTemplatePaths.transpiledTemplatePath
                 }
@@ -93,7 +103,7 @@
             }
 
             # Resolve ARM file association
-            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $FilePath -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+            $resolvedArmFileAssociation = Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $FilePath -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
             if ($resolvedArmFileAssociation) {
                 foreach ($fileAssociation in $resolvedArmFileAssociation) {
                     if ($true -eq $transpiledTemplatePaths.transpiledTemplateNew -and $fileAssociation.TemplateFilePath -eq $transpiledTemplatePaths.transpiledTemplatePath) {
@@ -118,7 +128,9 @@
                 [string[]]
                 $ConvertedTemplate,
                 [string[]]
-                $ConvertedParameter
+                $ConvertedParameter,
+                [switch]
+                $CompareDeploymentToDeletion
             )
 
             #region Initialization Prep
@@ -163,6 +175,13 @@
                             $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
                         }
                         if (Test-Path $templatePath) {
+                            if ($CompareDeploymentToDeletion) {
+                                # Avoid adding files destined for deletion to a deployment list
+                                if ($templatePath -in $deleteSet -or $templatePath -in ($deleteSet | Resolve-Path).Path) {
+                                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $templatePath
+                                    return
+                                }
+                            }
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundTemplate' -LogStringValues $FilePath, $templatePath
                             $result.TemplateFilePath = $templatePath
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
@@ -171,8 +190,15 @@
                             return $result
                         }
                         elseif (Test-Path $bicepTemplatePath) {
+                            if ($CompareDeploymentToDeletion) {
+                                # Avoid adding files destined for deletion to a deployment list
+                                if ($bicepTemplatePath -in $deleteSet -or $bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+                                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $bicepTemplatePath
+                                    return
+                                }
+                            }
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam -ConvertedTemplate $ConvertedTemplate
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -SkipParam -ConvertedTemplate $ConvertedTemplate -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                             $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
@@ -190,8 +216,15 @@
                             $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
                         }
                         if (Test-Path $bicepTemplatePath) {
+                            if ($CompareDeploymentToDeletion) {
+                                # Avoid adding files destined for deletion to a deployment list
+                                if ($bicepTemplatePath -in $deleteSet -or $bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
+                                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $bicepTemplatePath
+                                    return
+                                }
+                            }
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
-                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                            $transpiledTemplatePaths = ConvertFrom-AzOpsBicepTemplate -BicepTemplatePath $bicepTemplatePath -BicepParamTemplatePath $fileItem.FullName -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                             $result.TranspiledTemplateNew = $transpiledTemplatePaths.transpiledTemplateNew
                             $result.TranspiledParametersNew = $transpiledTemplatePaths.transpiledParametersNew
                             $result.TemplateFilePath = $transpiledTemplatePaths.transpiledTemplatePath
@@ -245,8 +278,20 @@
             $result.TemplateFilePath = $fileItem.FullName
             $parameterPath = Join-Path $fileItem.Directory.FullName -ChildPath ($fileItem.BaseName + '.parameters' + (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'))
             if (Test-Path -Path $parameterPath) {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterFound' -LogStringValues $FilePath, $parameterPath
-                $result.TemplateParameterFilePath = $parameterPath
+                if ($CompareDeploymentToDeletion) {
+                    # Avoid adding files destined for deletion to a deployment list
+                    if ($parameterPath -in $deleteSet -or $parameterPath -in ($deleteSet | Resolve-Path).Path) {
+                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $parameterPath
+                        $skipParameters = $true
+                    }
+                }
+                else {
+                    $skipParameters = $false
+                }
+                if (-not $skipParameters) {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterFound' -LogStringValues $FilePath, $parameterPath
+                    $result.TemplateParameterFilePath = $parameterPath
+                }
             }
             elseif ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.DeployAllMultipleTemplateParameterFiles') -eq $true) {
                 # Check for multiple associated template parameter files
@@ -254,10 +299,17 @@
                 if ($paramFileList) {
                     $multiResult = @()
                     foreach ($paramFile in $paramFileList) {
+                        if ($CompareDeploymentToDeletion) {
+                            # Avoid adding files destined for deletion to a deployment list
+                            if ($paramFile.VersionInfo.FileName -in $deleteSet -or $paramFile.VersionInfo.FileName -in ($deleteSet | Resolve-Path).Path) {
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $paramFile.VersionInfo.FileName
+                                continue
+                            }
+                        }
                         # Process possible parameter files for template equivalent
                         if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $paramFile.FullName
-                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter
+                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                         }
                     }
                     if ($multiResult) {
@@ -416,7 +468,7 @@
         #region Create DeploymentList
         $deploymentList = foreach ($addition in $addModifySet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             # Create a list of deployment file associations using the New-AzOpsList function
-            $deployFileAssociationList = New-AzOpsList -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            $deployFileAssociationList = New-AzOpsList -FilePath $addition -FileSet $addModifySet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter -CompareDeploymentToDeletion
             # Iterate through each file association in the list
             foreach ($fileAssociation in $deployFileAssociationList) {
                 # Check if the transpiled template is new and add it to the collection if true
