@@ -1167,6 +1167,22 @@ Describe "Repository" {
         }
         #endregion
 
+        #region Bicep multiple parameter files with change, suffix appears multiple times in the path of the associated template
+        It "Deploy Bicep base template with parameter files where suffix appears multiple times in path" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".\\w+"
+            $script:bicepRepeatSuffixPath = Get-ChildItem -Path "$($global:testRoot)/templates/rtsuffix0102*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:bicepRepeatSuffixPath.FullName[0])",
+                "A`t$($script:bicepRepeatSuffixPath.FullName[1])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Start-Sleep -Seconds 5
+            $script:bicepRepeatSuffixPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtsuffix*"}
+            $script:bicepRepeatSuffixPathDeployment.Count | Should -Be 2
+        }
+        #endregion
+
         #region Bicep base template with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to true Test should not deploy
         It "Try deployment of Bicep base template with missing defaultValue parameter with no 1-1 parameter file and AllowMultipleTemplateParameterFile set to true, Test should not deploy and exit gracefully" {
             Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
