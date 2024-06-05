@@ -1170,7 +1170,7 @@ Describe "Repository" {
         #region Bicep multiple parameter files with change, suffix appears multiple times in the path of the associated template
         It "Deploy Bicep base template with parameter files where suffix appears multiple times in path" {
             Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
-            Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".\\w+"
+            Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".\w+"
             $script:bicepRepeatSuffixPath = Get-ChildItem -Path "$($global:testRoot)/templates/rtsuffix0102*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
             $changeSet = @(
                 "A`t$($script:bicepRepeatSuffixPath.FullName[0])",
@@ -1180,6 +1180,7 @@ Describe "Repository" {
             Start-Sleep -Seconds 5
             $script:bicepRepeatSuffixPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtsuffix*"}
             $script:bicepRepeatSuffixPathDeployment.Count | Should -Be 2
+            Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".x"
         }
         #endregion
 

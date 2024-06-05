@@ -53,7 +53,7 @@
                 continue
             }
         }
-        $transpiledTemplatePath = [IO.Path]::GetFullPath("$($BicepTemplatePath -replace '\.bicep', '.json')")
+        $transpiledTemplatePath = [IO.Path]::GetFullPath("$($BicepTemplatePath -replace '\.bicep$', '.json')")
         if ($transpiledTemplatePath -notin $ConvertedTemplate) {
             # Convert bicep template
             Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepTemplate' -LogStringValues $BicepTemplatePath, $transpiledTemplatePath
@@ -69,7 +69,7 @@
         if (-not $SkipParam) {
             if (-not $BicepParamTemplatePath) {
                 # Check if bicep template has associated bicepparam file
-                $bicepParametersPath = $BicepTemplatePath -replace '\.bicep', '.bicepparam'
+                $bicepParametersPath = $BicepTemplatePath -replace '\.bicep$', '.bicepparam'
                 Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.BicepParam' -LogStringValues $BicepTemplatePath, $bicepParametersPath
             }
             elseif ($BicepParamTemplatePath) {
@@ -85,7 +85,7 @@
                 }
             }
             if (-not $skipParameters -and $bicepParametersPath -and (Test-Path $bicepParametersPath)) {
-                $transpiledParametersPath = [IO.Path]::GetFullPath("$($bicepParametersPath -replace '\.bicepparam', '.parameters.json')")
+                $transpiledParametersPath = [IO.Path]::GetFullPath("$($bicepParametersPath -replace '\.bicepparam$', '.parameters.json')")
                 if ($transpiledParametersPath -notin $ConvertedParameter) {
                     # Convert bicepparam to ARM parameter file
                     Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertFrom-AzOpsBicepTemplate.Resolve.ConvertBicepParam' -LogStringValues $bicepParametersPath, $transpiledParametersPath

@@ -171,8 +171,8 @@
                             $bicepTemplatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-3])\.parameters.json$", '.bicep'
                         }
                         else {
-                            $templatePath = $fileItem.FullName -replace '\.parameters.json', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
-                            $bicepTemplatePath = $fileItem.FullName -replace '.parameters.json', '.bicep'
+                            $templatePath = $fileItem.FullName -replace '\.parameters.json$', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+                            $bicepTemplatePath = $fileItem.FullName -replace '\.parameters.json$', '.bicep'
                         }
                         if (Test-Path $templatePath) {
                             if ($CompareDeploymentToDeletion) {
@@ -213,7 +213,7 @@
                             $bicepTemplatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-2])\.bicepparam$", '.bicep'
                         }
                         else {
-                            $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam', '.bicep'
+                            $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam$', '.bicep'
                         }
                         if (Test-Path $bicepTemplatePath) {
                             if ($CompareDeploymentToDeletion) {
