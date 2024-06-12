@@ -139,7 +139,7 @@ Describe "Repository" {
             $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
-            $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
+            $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $script:resourceGroup.ResourceGroupName)
             $script:policyAssignmentsDeletion = Get-AzPolicyAssignment -Name "TestPolicyAssignmentDeletion" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupCustomDeletion.ResourceGroupName)"
             $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
@@ -1162,7 +1162,7 @@ Describe "Repository" {
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
             Start-Sleep -Seconds 5
-            $script:bicepMultiParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtmultibasex*"}
+            $script:bicepMultiParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtmultibasex*"}
             $script:bicepMultiParamPathDeployment.Count | Should -Be 2
         }
         #endregion
@@ -1178,7 +1178,7 @@ Describe "Repository" {
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
             Start-Sleep -Seconds 5
-            $script:bicepRepeatSuffixPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtsuffix*"}
+            $script:bicepRepeatSuffixPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtsuffix*"}
             $script:bicepRepeatSuffixPathDeployment.Count | Should -Be 2
             Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".x"
         }
@@ -1214,8 +1214,28 @@ Describe "Repository" {
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
             Start-Sleep -Seconds 5
-            $script:deployAllRtParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroup).ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtbasex*"}
+            $script:deployAllRtParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtbasex*"}
             $script:deployAllRtParamPathDeployment.Count | Should -Be 2
+        }
+        #endregion
+
+        #region Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments [3] and avoid [1] decoy
+        It "Deploy Bicep template with change, AzOps set to resolve corresponding parameter files and create multiple deployments [3] and avoid [1] decoy" {
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $true
+            $script:deployAllRtFilesPath = Get-ChildItem -Path "$($global:testRoot)/templates/deployallrt.westeurope*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $script:deployAllRt2FilesPath = Get-ChildItem -Path "$($global:testRoot)/templates/deployallrt2.westeurope.bicep" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $script:decoyRtFilesPath = Get-ChildItem -Path "$($global:testRoot)/templates/decoy.westeurope*" | Copy-Item -Destination $script:resourceGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployAllRtFilesPath.FullName[0])",
+                "A`t$($script:deployAllRt2FilesPath.FullName)"
+            )
+            $testFiles = Invoke-AzOpsPush -ChangeSet $changeSet
+            $? | Should -Be $true
+            $testFiles.Count | Should -Be 3
+            Start-Sleep -Seconds 5
+            $script:deployAllRtDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "deployallrtwex*" -or $_.name -like "deployallrt2wex*"}
+            $script:deployAllRtDeployment.Count | Should -Be 3
         }
         #endregion
 
@@ -1232,7 +1252,7 @@ Describe "Repository" {
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
             Start-Sleep -Seconds 30
-            $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $($script:resourceGroupParallelDeploy).ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
+            $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroupParallelDeploy.ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
             $query = "resourcechanges | where resourceGroup =~ '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp), targetResourceId=tostring(properties.targetResourceId) | summarize arg_max(changeTime, *) by targetResourceId | project changeTime, targetResourceId, properties.changeType, properties.targetResourceType | order by changeTime asc"
             $createTime = Search-AzGraph -Query $query -Subscription $script:subscriptionId
