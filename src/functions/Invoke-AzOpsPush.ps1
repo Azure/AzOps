@@ -322,7 +322,7 @@
                     }
                     else {
                         Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
-                        if (-not (Test-TemplateDefaultParameters -FilePath $FilePath)) {
+                        if (-not (Test-TemplateDefaultParameter -FilePath $FilePath)) {
                             continue
                         }
                     }
@@ -331,7 +331,7 @@
             else {
                 Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
                 if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true) {
-                    if (-not (Test-TemplateDefaultParameters -FilePath $FilePath)) {
+                    if (-not (Test-TemplateDefaultParameter -FilePath $FilePath)) {
                         continue
                     }
                 }
@@ -344,7 +344,7 @@
             $result
             #endregion Case: Template File
         }
-        function Test-TemplateDefaultParameters {
+        function Test-TemplateDefaultParameter {
             param(
                 [string]$FilePath
             )
