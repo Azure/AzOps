@@ -158,7 +158,7 @@
             #region Case: Parameters File
             if (($fileItem.Name.EndsWith('.parameters.json')) -or ($fileItem.Name.EndsWith('.bicepparam'))) {
                 $result.TemplateParameterFilePath = $fileItem.FullName
-                $deploymentName = $fileItem.Name -replace (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix'), '' -replace ' ', '_' -replace '\.bicepparam', ''
+                $deploymentName = $fileItem.Name -replace "\.parameters\$(Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')$", '' -replace ' ', '_' -replace '\.bicepparam$', ''
                 if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
                 $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
 
@@ -167,12 +167,12 @@
                     { $_.EndsWith('.parameters.json') } {
                         if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and $fileItem.FullName.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) {
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $FilePath
-                            $templatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-3])\.parameters.json$", '.json'
-                            $bicepTemplatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-3])\.parameters.json$", '.bicep'
+                            $templatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-3])\.parameters\.json$", '.json'
+                            $bicepTemplatePath = $fileItem.FullName -replace "\.$($fileItem.FullName.Split('.')[-3])\.parameters\.json$", '.bicep'
                         }
                         else {
-                            $templatePath = $fileItem.FullName -replace '\.parameters.json$', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
-                            $bicepTemplatePath = $fileItem.FullName -replace '\.parameters.json$', '.bicep'
+                            $templatePath = $fileItem.FullName -replace '\.parameters\.json$', (Get-PSFConfigValue -FullName 'AzOps.Core.TemplateParameterFileSuffix')
+                            $bicepTemplatePath = $fileItem.FullName -replace '\.parameters\.json$', '.bicep'
                         }
                         if (Test-Path $templatePath) {
                             if ($CompareDeploymentToDeletion) {
@@ -299,17 +299,21 @@
                 if ($paramFileList) {
                     $multiResult = @()
                     foreach ($paramFile in $paramFileList) {
-                        if ($CompareDeploymentToDeletion) {
-                            # Avoid adding files destined for deletion to a deployment list
-                            if ($paramFile.VersionInfo.FileName -in $deleteSet -or $paramFile.VersionInfo.FileName -in ($deleteSet | Resolve-Path).Path) {
-                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $paramFile.VersionInfo.FileName
-                                continue
+                        # Check if the parameter file's name matches the expected pattern
+                        $escapedBaseName = $fileItem.BaseName -replace '\.', '\.'
+                        if ($paramFile.BaseName -match "^$escapedBaseName(\$(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix'))") {
+                            if ($CompareDeploymentToDeletion) {
+                                # Avoid adding files destined for deletion to a deployment list
+                                if ($paramFile.VersionInfo.FileName -in $deleteSet -or $paramFile.VersionInfo.FileName -in ($deleteSet | Resolve-Path).Path) {
+                                    Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap' -LogStringValues $paramFile.VersionInfo.FileName
+                                    continue
+                                }
                             }
-                        }
-                        # Process possible parameter files for template equivalent
-                        if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
-                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $paramFile.FullName
-                            $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
+                            # Process parameter files for template equivalent
+                            if (($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-3]) -or ($fileItem.FullName.Split('.')[-2] -eq $paramFile.FullName.Split('.')[-4])) {
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile' -LogStringValues $paramFile.FullName
+                                $multiResult += Resolve-ArmFileAssociation -ScopeObject $scopeObject -FilePath $paramFile -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $ConvertedTemplate -ConvertedParameter $ConvertedParameter -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
+                            }
                         }
                     }
                     if ($multiResult) {
@@ -318,20 +322,16 @@
                     }
                     else {
                         Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
+                        if (-not (Test-TemplateDefaultParameter -FilePath $FilePath)) {
+                            continue
+                        }
                     }
-
                 }
             }
             else {
                 Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ParameterNotFound' -LogStringValues $FilePath, $parameterPath
                 if ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true) {
-                    # Check for template parameters without defaultValue
-                    $defaultValueContent = Get-Content $FilePath
-                    $missingDefaultParam = $defaultValueContent | jq '.parameters | with_entries(select(.value.defaultValue == null))' | ConvertFrom-Json -AsHashtable
-                    if ($missingDefaultParam.Count -ge 1) {
-                        # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
-                        $missingString = foreach ($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
-                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -LogStringValues $FilePath, ($missingString | Out-String -NoNewline)
+                    if (-not (Test-TemplateDefaultParameter -FilePath $FilePath)) {
                         continue
                     }
                 }
@@ -343,6 +343,27 @@
 
             $result
             #endregion Case: Template File
+        }
+        function Test-TemplateDefaultParameter {
+            param(
+                [string]$FilePath
+            )
+
+            # Read the template file
+            $defaultValueContent = Get-Content $FilePath
+            # Check for parameters without a default value using jq
+            $missingDefaultParam = $defaultValueContent | jq '.parameters | with_entries(select(.value.defaultValue == null))' | ConvertFrom-Json -AsHashtable
+            if ($missingDefaultParam.Count -ge 1) {
+                # Skip template deployment when template parameters without defaultValue are found and no parameter file identified
+                $missingString = foreach ($item in $missingDefaultParam.Keys.GetEnumerator()) {"$item,"}
+                # Log a debug message with the missing parameters
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue' -LogStringValues $FilePath, ($missingString | Out-String -NoNewline)
+                # Missing default value were found
+                return $false
+            } else {
+                # Default values found
+                return $true
+            }
         }
         #endregion Utility Functions
 
