@@ -10,11 +10,23 @@
     "variables": {},
     "resources": [
         {
-            "type": .ResourceType,
+            "type": .Type,
             "name": .Name,
             "apiVersion": "0000-00-00",
-            "properties": .Properties
+            "properties": {
+                "assignmentScopeValidation": .AssignmentScopeValidation,
+                "description": .Description,
+                "displayName": .DisplayName,
+                "exemptionCategory": .ExemptionCategory,
+                "expiresOn": .ExpiresOn,
+                "metadata": .Metadata,
+                "policyAssignmentId": .PolicyAssignmentId,
+                "policyDefinitionReferenceIds": .PolicyDefinitionReferenceIds,
+                "resourceSelector": .ResourceSelector,
+            }
         }
     ],
     "outputs": {}
 }
+| del(.. | select(. == null))
+| del(.. | select(. == ""))

@@ -42,7 +42,7 @@
             }
             # Gather policyExemption with retry and backoff support from Invoke-AzOpsScriptBlock
             Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
-                Get-AzPolicyExemption @parameters -WarningAction SilentlyContinue -ErrorAction Stop | Where-Object ResourceId -match $parameters.Scope
+                Get-AzPolicyExemption @parameters -WarningAction SilentlyContinue -ErrorAction Stop | Where-Object Id -match $parameters.Scope
             } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
         }
         catch {
