@@ -54,6 +54,10 @@
         Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Policy Assignments', $ScopeObject.Scope
         $policyAssignments = Get-AzOpsPolicyAssignment -ScopeObject $ScopeObject -Subscription $Subscription -SubscriptionsToIncludeResourceGroups $SubscriptionsToIncludeResourceGroups -ResourceGroup $ResourceGroup
         $policyAssignments | ConvertTo-AzOpsState -StatePath $StatePath
+        # Process policy exemptions
+        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Detail' -LogStringValues 'Policy Exemptions', $ScopeObject.Scope
+        $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $ScopeObject -Subscription $Subscription -SubscriptionsToIncludeResourceGroups $SubscriptionsToIncludeResourceGroups -ResourceGroup $ResourceGroup
+        $policyExemptions | ConvertTo-AzOpsState -StatePath $StatePath
     }
 
 }
