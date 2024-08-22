@@ -59,31 +59,34 @@
                 $resourceToDelete
             )
             $dependency = @()
-            if ($resourceToDelete.ResourceType -in $DeletionSupportedResourceType) {
-                if ($resourceToDelete.SubscriptionId) {
-                    $depLock = Get-AzResourceLock -Scope "/subscriptions/$($resourceToDelete.SubscriptionId)"
+            if ($resourceToDelete.Type -in $DeletionSupportedResourceType) {
+                $subPattern = '^/subscriptions/([0-9a-fA-F-]{36})'
+                $rgPattern = '^/subscriptions/([0-9a-fA-F-]{36})/resourceGroups/([^/]+)'
+                if ($resourceToDelete.Id -match $subPattern) {
+                    $deletionScope = $matches[0]
+                    $depLock = Get-AzResourceLock -Scope $deletionScope
                     if ($depLock) {
                         foreach ($lock in $depLock) {
-                            if ($lock.ResourceGroupName -eq $resourceToDelete.ResourceGroupName) {
-                                #Filter through each return and validate resource is not at child resource scope
-                                if ($lock.ResourceId -notlike '*/resourcegroups/*/providers/*/providers/*') {
+                            #Filter through each return and validate if resource has rg and is not at child resource scope
+                            if ($lock.ResourceId -match $rgPattern) {
+                                if ($resourceToDelete.Id.StartsWith($matches[0]) -and $lock.ResourceId -notlike '*/resourcegroups/*/providers/*/providers/*') {
                                     $dependency += [PSCustomObject]@{
-                                        ResourceType = 'locks'
-                                        ResourceId = $lock.ResourceId
+                                        Type = 'locks'
+                                        Id = $lock.ResourceId
                                     }
                                 }
                             }
                             elseif ($lock.ResourceId -notlike '*/resourcegroups/*') {
                                 $dependency += [PSCustomObject]@{
-                                    ResourceType = 'locks'
-                                    ResourceId = $lock.ResourceId
+                                    Type = 'locks'
+                                    Id = $lock.ResourceId
                                 }
                             }
                         }
-                    }
-                    if ($dependency) {
-                        $dependency = $dependency | Sort-Object ResourceId -Unique
-                        return $dependency
+                        if ($dependency) {
+                            $dependency = $dependency | Sort-Object Id -Unique | Where-Object {$_.Id -ne $resourceToDelete.Id}
+                            return $dependency
+                        }
                     }
                 }
             }
@@ -93,16 +96,16 @@
                 $resourceToDelete
             )
             $dependency = @()
-            if ($resourceToDelete.ResourceType -in $DeletionSupportedResourceType) {
-                switch ($resourceToDelete.ResourceType) {
+            if ($resourceToDelete.Type -in $DeletionSupportedResourceType) {
+                switch ($resourceToDelete.Type) {
                     'Microsoft.Authorization/policyAssignments' {
                         $depPolicyAssignment = $resourceToDelete
                     }
                     'Microsoft.Authorization/policyDefinitions' {
-                        $depPolicyAssignment = Get-AzPolicyAssignment -PolicyDefinitionId $resourceToDelete.PolicyDefinitionId -ErrorAction SilentlyContinue
+                        $depPolicyAssignment = Get-AzPolicyAssignment -PolicyDefinitionId $resourceToDelete.Id -ErrorAction SilentlyContinue
                     }
                     'Microsoft.Authorization/policySetDefinitions' {
-                        $query = "PolicyResources | where type == 'microsoft.authorization/policyassignments' and properties.policyDefinitionId == '$($resourceToDelete.PolicySetDefinitionId)' | order by id asc"
+                        $query = "PolicyResources | where type == 'microsoft.authorization/policyassignments' and properties.policyDefinitionId == '$($resourceToDelete.Id)' | order by id asc"
                         $depPolicyAssignment = Search-AzGraphDeletionDependency -query $query
                         if ($depPolicyAssignment) {
                             #Loop through each return from graph cache and validate resource is still present in Azure
@@ -114,23 +117,23 @@
             if ($depPolicyAssignment) {
                 foreach ($policyAssignment in $depPolicyAssignment) {
                     $dependency += [PSCustomObject]@{
-                        ResourceType = $policyAssignment.ResourceType
-                        ResourceId = $policyAssignment.ResourceId
+                        Type = $policyAssignment.Type
+                        Id = $policyAssignment.Id
                     }
-                    if ($policyAssignment.Identity.IdentityType -eq 'SystemAssigned') {
+                    if ($policyAssignment.IdentityType -eq 'SystemAssigned') {
                         $depSystemAssignedRoleAssignment = $null
-                        $depSystemAssignedRoleAssignment = Get-AzRoleAssignment -ObjectId $policyAssignment.Identity.PrincipalId -Scope $policyAssignment.Properties.Scope
+                        $depSystemAssignedRoleAssignment = Get-AzRoleAssignment -ObjectId $policyAssignment.IdentityPrincipalId -Scope $policyAssignment.Scope
                         if ($depSystemAssignedRoleAssignment) {
                             foreach ($roleAssignmentId in $depSystemAssignedRoleAssignment.RoleAssignmentId) {
                                 #Filter through each return and validate resource is not at child resource scope
                                 if ($roleAssignmentId -notlike '*/resourcegroups/*/providers/*/providers/*') {
                                     $dependency += [PSCustomObject]@{
-                                        ResourceType = 'roleAssignments'
-                                        ResourceId = $roleAssignmentId
+                                        Type = 'roleAssignments'
+                                        Id = $roleAssignmentId
                                     }
                                 }
                                 else {
-                                    Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceDependencyNested' -LogStringValues $roleAssignmentId, $policyAssignment.ResourceId
+                                    Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceDependencyNested' -LogStringValues $roleAssignmentId, $policyAssignment.Id
                                 }
                             }
                         }
@@ -138,7 +141,7 @@
                 }
             }
             if ($dependency) {
-                $dependency = $dependency | Sort-Object ResourceId -Unique | Where-Object {$_.ResourceId -ne $resourceToDelete.ResourceId}
+                $dependency = $dependency | Sort-Object Id -Unique | Where-Object {$_.Id -ne $resourceToDelete.Id}
                 return $dependency
             }
         }
@@ -146,7 +149,7 @@
             param (
                 $resourceToDelete
             )
-            if ($resourceToDelete.ResourceType -eq 'Microsoft.Authorization/policyDefinitions') {
+            if ($resourceToDelete.Type -eq 'Microsoft.Authorization/policyDefinitions') {
                 $dependency = @()
                 $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | project id, type, policyDefinitions = (properties.policyDefinitions) | mv-expand policyDefinitions | project id, type, policyDefinitionId = tostring(policyDefinitions.policyDefinitionId) | where policyDefinitionId == '$($resourceToDelete.PolicyDefinitionId)' | order by policyDefinitionId asc | order by id asc"
                 $depPolicySetDefinition = Search-AzGraphDeletionDependency -query $query
@@ -156,8 +159,8 @@
                         $policy = Get-AzPolicySetDefinition -Id $policySetDefinition.Id -ErrorAction SilentlyContinue
                         if ($policy) {
                             $dependency += [PSCustomObject]@{
-                                ResourceType = $policy.ResourceType
-                                ResourceId = $policy.PolicySetDefinitionId
+                                Type = $policy.Type
+                                Id = $policy.Id
                             }
                             $dependency += Get-AzPolicyAssignmentDeletionDependency -resourceToDelete $policy
                         }
@@ -280,7 +283,7 @@
                     }
                 }
                 'roleAssignments' {
-                    $resourceToDelete = Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }
+                    $resourceToDelete = (Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }).Content | ConvertFrom-Json -Depth 100
                     if ($resourceToDelete) {
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
@@ -288,8 +291,9 @@
                 'resourceGroups' {
                     $resourceToDelete = Get-AzResourceGroup -Id $scopeObject.Scope -ErrorAction SilentlyContinue
                     if ($resourceToDelete) {
-                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "ResourceType" -Value "$($scopeObject.Type)"
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "Type" -Value "$($scopeObject.Type)"
                         $resourceToDelete | Add-Member -MemberType NoteProperty -Name "SubscriptionId" -Value "$($scopeObject.Subscription)"
+                        $resourceToDelete | Add-Member -MemberType NoteProperty -Name "Id" -Value "$($resourceToDelete.ResourceId)"
                         $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
                     }
                 }
@@ -303,9 +307,9 @@
             }
             if ($dependency) {
                 foreach ($resource in $dependency) {
-                    if ($resource.ResourceId -notin $deletionList.ScopeObject.Scope) {
-                        Write-AzOpsMessage -LogLevel Critical -LogString 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -LogStringValues $resource.ResourceId, $scopeObject.Scope
-                        $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.ResourceId, $scopeObject.scope, [environment]::NewLine
+                    if ($resource.Id -notin $deletionList.ScopeObject.Scope) {
+                        Write-AzOpsMessage -LogLevel Critical -LogString 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -LogStringValues $resource.Id, $scopeObject.Scope
+                        $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.Id, $scopeObject.scope, [environment]::NewLine
                         Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         $dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
