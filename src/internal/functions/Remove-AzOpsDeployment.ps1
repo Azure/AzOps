@@ -151,7 +151,7 @@
             )
             if ($resourceToDelete.Type -eq 'Microsoft.Authorization/policyDefinitions') {
                 $dependency = @()
-                $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | project id, type, policyDefinitions = (properties.policyDefinitions) | mv-expand policyDefinitions | project id, type, policyDefinitionId = tostring(policyDefinitions.policyDefinitionId) | where policyDefinitionId == '$($resourceToDelete.PolicyDefinitionId)' | order by policyDefinitionId asc | order by id asc"
+                $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions' and properties.policyType == 'Custom' | project id, type, policyDefinitions = (properties.policyDefinitions) | mv-expand policyDefinitions | project id, type, policyDefinitionId = tostring(policyDefinitions.policyDefinitionId) | where policyDefinitionId == '$($resourceToDelete.Id)' | order by policyDefinitionId asc | order by id asc"
                 $depPolicySetDefinition = Search-AzGraphDeletionDependency -query $query
                 if ($depPolicySetDefinition) {
                     $depPolicySetDefinition = foreach ($policySetDefinition in $depPolicySetDefinition) {
@@ -167,7 +167,7 @@
                     }
                 }
                 if ($dependency) {
-                    $dependency = $dependency | Sort-Object ResourceId -Unique | Where-Object {$_.ResourceId -ne $resourceToDelete.ResourceId}
+                    $dependency = $dependency | Sort-Object Id -Unique | Where-Object {$_.Id -ne $resourceToDelete.Id}
                     return $dependency
                 }
             }

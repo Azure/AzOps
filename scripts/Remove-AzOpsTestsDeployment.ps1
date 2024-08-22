@@ -69,6 +69,7 @@
                 foreach ($subscription in $cleanupSub) {
                     $null = Set-AzContext -SubscriptionId $subscription.Id
                     $null = Get-AzResourceLock | Remove-AzResourceLock -Force
+                    Start-Sleep -Seconds 15
                     $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -like "*-azopsrg"}
                     $script:roleAssignmentsCleanBase = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
                     $script:roleAssignments = foreach ($roleAssignment in $script:roleAssignmentsCleanBase) {
