@@ -152,18 +152,12 @@
                             $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                             $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
                         }
-                        # Process Privileged Identity Management resources, Policies and Roles at managementGroup scope
-                        if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipRole)) {
+                        # Process Privileged Identity Management resources and Roles at managementGroup scope
+                        if ((-not $using:SkipPim) -or (-not $using:SkipRole)) {
                             & $azOps {
                                 $ScopeObject = New-AzOpsScope -Scope $managementgroup.id -StatePath $runspaceData.Statepath -ErrorAction Stop
                                 if (-not $using:SkipPim) {
                                     Get-AzOpsPim -ScopeObject $ScopeObject -StatePath $runspaceData.Statepath
-                                }
-                                if (-not $using:SkipPolicy) {
-                                    $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $ScopeObject
-                                    if ($policyExemptions) {
-                                        $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
-                                    }
                                 }
                                 if (-not $using:SkipRole) {
                                     Get-AzOpsRole -ScopeObject $ScopeObject -StatePath $runspaceData.Statepath
@@ -196,18 +190,12 @@
                     $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                     $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
                 }
-                # Process Privileged Identity Management resources, Policies, Locks and Roles at subscription scope
-                if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipLock) -or (-not $using:SkipRole)) {
+                # Process Privileged Identity Management resources, Locks and Roles at subscription scope
+                if ((-not $using:SkipPim) -or (-not $using:SkipLock) -or (-not $using:SkipRole)) {
                     & $azOps {
                         $scopeObject = New-AzOpsScope -Scope ($subscription.Type + '/' + $subscription.Id) -StatePath $runspaceData.Statepath -ErrorAction Stop
                         if (-not $using:SkipPim) {
                             Get-AzOpsPim -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
-                        }
-                        if (-not $using:SkipPolicy) {
-                            $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $scopeObject
-                            if ($policyExemptions) {
-                                $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
-                            }
                         }
                         if (-not $using:SkipLock) {
                             Get-AzOpsResourceLock -ScopeObject $scopeObject -StatePath $runspaceData.Statepath
@@ -264,8 +252,8 @@
                     & $azOps {
                         ConvertTo-AzOpsState -Resource $resourceGroup -StatePath $runspaceData.Statepath
                     }
-                    # Process Privileged Identity Management resources, Policies, Locks and Roles at resource group scope
-                    if ((-not $using:SkipPim) -or (-not $using:SkipPolicy) -or (-not $using:SkipRole) -or (-not $using:SkipLock)) {
+                    # Process Privileged Identity Management resources, Locks and Roles at resource group scope
+                    if ((-not $using:SkipPim) -or (-not $using:SkipRole) -or (-not $using:SkipLock)) {
                         & $azOps {
                             $rgScopeObject = New-AzOpsScope -Scope $resourceGroup.id -StatePath $runspaceData.Statepath -ErrorAction Stop
                             if (-not $using:SkipLock) {
@@ -273,12 +261,6 @@
                             }
                             if (-not $using:SkipPim) {
                                 Get-AzOpsPim -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath
-                            }
-                            if (-not $using:SkipPolicy) {
-                                $policyExemptions = Get-AzOpsPolicyExemption -ScopeObject $rgScopeObject
-                                if ($policyExemptions) {
-                                    $policyExemptions | ConvertTo-AzOpsState -StatePath $runspaceData.Statepath
-                                }
                             }
                             if (-not $using:SkipRole) {
                                 Get-AzOpsRole -ScopeObject $rgScopeObject -StatePath $runspaceData.Statepath

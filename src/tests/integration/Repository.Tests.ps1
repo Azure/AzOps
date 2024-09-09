@@ -664,7 +664,7 @@ Describe "Repository" {
             $policyAssignmentDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         It "Policy Assignments deletion should be successful" {
-            $policyAssignmentDeletion = Get-AzPolicyAssignment -Id $script:policyAssignments.PolicyAssignmentId -ErrorAction SilentlyContinue
+            $policyAssignmentDeletion = Get-AzPolicyAssignment -Id $script:policyAssignments.Id -ErrorAction SilentlyContinue
             $policyAssignmentDeletion | Should -Be $Null
         }
         #endregion
@@ -701,7 +701,7 @@ Describe "Repository" {
             $fileContents.resources[0].identity.userAssignedIdentities | Should -BeTrue
         }
         It "Policy Assignments with UAM deployment should be successful" {
-            $script:policyAssignmentUamDeployment = Get-AzResourceGroupDeployment -Name $script:policyAssignmentsUamDeploymentName -ResourceGroupName $script:policyAssignmentsUam.ResourceGroupName
+            $script:policyAssignmentUamDeployment = Get-AzResourceGroupDeployment -Name $script:policyAssignmentsUamDeploymentName -ResourceGroupName ($script:policyAssignmentsUam.Scope).Split('/')[-1]
             $policyAssignmentUamDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         #endregion
@@ -734,12 +734,14 @@ Describe "Repository" {
             $policyDefinitionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         It "Policy Definitions deletion should be successful" {
-            $policyDefinitionDeletion = Get-AzPolicyDefinition -Id $script:policyDefinitions.PolicyDefinitionId -ErrorAction SilentlyContinue
-            if ($policyDefinitionDeletion) {
-                $policyDefinitionDeletion.PolicyDefinitionId[0] | Should -Not -Be $script:policyDefinitions.PolicyDefinitionId
+            try {
+                $policyDefinitionDeletion = Get-AzPolicyDefinition -Id $script:policyDefinitions.Id -ErrorAction Stop
+                if ($policyDefinitionDeletion) {
+                    $policyDefinitionDeletion.Id[0] | Should -Not -Be $script:policyDefinitions.Id
+                }
             }
-            else {
-                $policyDefinitionDeletion | Should -Be $Null
+            catch {
+                $_.Exception.Message | Should -Match "\[PolicyDefinitionNotFound\] : The policy definition '.*' could not be found."
             }
         }
         #endregion
@@ -772,12 +774,14 @@ Describe "Repository" {
             $policySetDefinitionDeployment.ProvisioningState | Should -Be "Succeeded"
         }
         It "PolicySetDefinitions deletion should be successful" {
-            $policySetDefinitionDeletion = Get-AzPolicySetDefinition -Id $script:policySetDefinitions.PolicySetDefinitionId -ErrorAction SilentlyContinue
-            if ($policySetDefinitionDeletion) {
-                $policySetDefinitionDeletion.PolicySetDefinitionId[0] | Should -Not -Be $script:policySetDefinitions.PolicySetDefinitionId
+            try {
+                $policySetDefinitionDeletion = Get-AzPolicySetDefinition -Id $script:policySetDefinitions.Id -ErrorAction Stop
+                if ($policySetDefinitionDeletion) {
+                    $policySetDefinitionDeletion.Id[0] | Should -Not -Be $script:policySetDefinitions.Id
+                }
             }
-            else {
-                $policySetDefinitionDeletion | Should -Be $Null
+            catch {
+                $_.Exception.Message | Should -Match "\[PolicySetDefinitionNotFound\] : The policy set definition '.*' could not be found."
             }
         }
         #endregion
@@ -1318,7 +1322,7 @@ Describe "Repository" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
             (Get-AzResource -ResourceGroupName $script:resourceGroupCustomDeletion.ResourceGroupName).Count | Should -Be 0
-            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.ResourceId -ErrorAction SilentlyContinue | Should -Be $Null
+            Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.Id -ErrorAction SilentlyContinue | Should -Be $Null
         }
         #endregion
     }
