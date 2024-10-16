@@ -26,16 +26,28 @@
 
         # Process RoleEligibilitySchedule which is used to construct AzOpsRoleEligibilityScheduleRequest
         Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing' -LogStringValues $ScopeObject.Scope -Target $ScopeObject
-        $roleEligibilitySchedules = Get-AzRoleEligibilitySchedule -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object {$_.Scope -eq $ScopeObject.Scope}
+
+        $roleEligibilitySchedules = Invoke-AzOpsScriptBlock -ArgumentList @($ScopeObject) -ScriptBlock {
+            Get-AzRoleEligibilitySchedule -Scope $ScopeObject.Scope -WarningAction SilentlyContinue -ErrorAction Stop | Where-Object { $_.Scope -eq $ScopeObject.Scope }
+        } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+
         if ($roleEligibilitySchedules) {
-            foreach ($roleEligibilitySchedule in $roleEligibilitySchedules) {
-                # Process roleEligibilitySchedule together with RoleEligibilityScheduleRequest
-                $roleEligibilityScheduleRequest = Get-AzRoleEligibilityScheduleRequest -Scope $ScopeObject.Scope -Name $roleEligibilitySchedule.Name -ErrorAction SilentlyContinue
-                if ($roleEligibilityScheduleRequest) {
-                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Assignment' -LogStringValues $roleEligibilitySchedule.Name -Target $ScopeObject
-                    # Construct AzOpsRoleEligibilityScheduleRequest by combining information from roleEligibilitySchedule and roleEligibilityScheduleRequest
-                    [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule, $roleEligibilityScheduleRequest)
-                }
+            $roleEligibilityScheduleRequests = Invoke-AzOpsScriptBlock -ArgumentList @($ScopeObject) -ScriptBlock {
+                Get-AzRoleEligibilityScheduleRequest -Scope $ScopeObject.Scope -ErrorAction Stop 
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        } 
+        
+        if (-not $roleEligibilityScheduleRequests) {
+            return
+        }
+        
+        foreach ($roleEligibilitySchedule in $roleEligibilitySchedules) {
+            # Process roleEligibilitySchedule together with RoleEligibilityScheduleRequest
+            $roleEligibilityScheduleRequest = $roleEligibilityScheduleRequests.Where{ $_.TargetRoleEligibilityScheduleId -eq $roleEligibilitySchedule.Id }
+            if ($roleEligibilityScheduleRequest -and $roleEligibilityScheduleRequest.Count -eq 1) {
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Assignment' -LogStringValues $roleEligibilitySchedule.Name -Target $ScopeObject
+                # Construct AzOpsRoleEligibilityScheduleRequest by combining information from roleEligibilitySchedule and roleEligibilityScheduleRequest
+                [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule, $roleEligibilityScheduleRequest)
             }
         }
     }
