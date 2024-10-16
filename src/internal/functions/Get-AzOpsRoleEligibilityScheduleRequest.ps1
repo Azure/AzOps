@@ -35,6 +35,9 @@
                     Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Assignment' -LogStringValues $roleEligibilitySchedule.Name -Target $ScopeObject
                     # Construct AzOpsRoleEligibilityScheduleRequest by combining information from roleEligibilitySchedule and roleEligibilityScheduleRequest
                     [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule, $roleEligibilityScheduleRequest)
+                else {
+                    Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing' -LogStringValues "No RoleEligibilityScheduleRequest found for RoleEligibilitySchedule in scope: $($ScopeObject.scope), creating template based on RoleEligibilitySchedule" -Target $ScopeObject
+                    [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule)
                 }
             }
         }
