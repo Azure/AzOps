@@ -30,13 +30,16 @@
         if ($roleEligibilitySchedules) {
             foreach ($roleEligibilitySchedule in $roleEligibilitySchedules) {
                 # Process roleEligibilitySchedule together with RoleEligibilityScheduleRequest
+                $roleEligibilityScheduleRequest = $null
                 $roleEligibilityScheduleRequest = Get-AzRoleEligibilityScheduleRequest -Scope $ScopeObject.Scope -Name $roleEligibilitySchedule.Name -ErrorAction SilentlyContinue
                 if ($roleEligibilityScheduleRequest) {
                     Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Assignment' -LogStringValues $roleEligibilitySchedule.Name -Target $ScopeObject
                     # Construct AzOpsRoleEligibilityScheduleRequest by combining information from roleEligibilitySchedule and roleEligibilityScheduleRequest
                     [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule, $roleEligibilityScheduleRequest)
+                }
                 else {
-                    Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing' -LogStringValues "No RoleEligibilityScheduleRequest found for RoleEligibilitySchedule in scope: $($ScopeObject.scope), creating template based on RoleEligibilitySchedule" -Target $ScopeObject
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing.NotFound' -LogStringValues $ScopeObject.Scope, $roleEligibilitySchedule.Name -Target $ScopeObject
+                    # Construct AzOpsRoleEligibilityScheduleRequest from roleEligibilitySchedule since no AzRoleEligibilityScheduleRequest was found
                     [AzOpsRoleEligibilityScheduleRequest]::new($roleEligibilitySchedule)
                 }
             }

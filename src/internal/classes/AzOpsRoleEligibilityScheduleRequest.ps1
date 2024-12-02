@@ -20,7 +20,7 @@
                 StartDateTime  = $roleEligibilitySchedule.StartDateTime
             }
         }
-        $this.Id = $roleEligibilityScheduleRequest.Id
+        $this.Id = $roleEligibilitySchedule.RequestId
         $this.Name = $roleEligibilitySchedule.Name
         $this.ResourceType = $roleEligibilityScheduleRequest.Type
     }
