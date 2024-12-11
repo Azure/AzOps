@@ -55,7 +55,7 @@ RequiredModules = @(@{ModuleName = 'PSFramework'; RequiredVersion = '1.12.346'; 
                @{ModuleName = 'Az.Accounts'; RequiredVersion = '4.0.0'; }, 
                @{ModuleName = 'Az.Billing'; RequiredVersion = '2.1.0'; }, 
                @{ModuleName = 'Az.ResourceGraph'; RequiredVersion = '1.0.1'; }, 
-               @{ModuleName = 'Az.Resources'; RequiredVersion = '7.7.0'; })
+               @{ModuleName = 'Az.Resources'; RequiredVersion = '7.6.0'; })
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
