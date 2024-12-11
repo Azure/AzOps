@@ -132,6 +132,7 @@
     'Get-AzOpsRoleDefinition.Definition'                                            = 'Processing object {0}' # $roleDefinition.id
 
     'Get-AzOpsRoleEligibilityScheduleRequest.Processing'                            = 'Retrieving Privileged Identity Management RoleEligibilitySchedule at [{0}]' # $ScopeObject.Scope
+    'Get-AzOpsRoleEligibilityScheduleRequest.Processing.NotFound'                   = 'No RoleEligibilityScheduleRequest found at [{0}] for RoleEligibilitySchedule [{1}], creating template based on RoleEligibilitySchedule' # $ScopeObject.Scope, $roleEligibilitySchedule.Name
     'Get-AzOpsRoleEligibilityScheduleRequest.Assignment'                            = 'Found Privileged Identity Management RoleEligibilityScheduleRequest assignment [{0}]' # $roleEligibilitySchedule.Name
 
     'Get-AzOpsSubscription.Excluded.Offers'                                         = 'Excluded subscription offers: {0}' # ($ExcludedOffers -join ',')
