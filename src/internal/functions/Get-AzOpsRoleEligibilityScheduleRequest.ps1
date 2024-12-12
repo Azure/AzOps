@@ -26,12 +26,29 @@
 
         # Process RoleEligibilitySchedule which is used to construct AzOpsRoleEligibilityScheduleRequest
         Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing' -LogStringValues $ScopeObject.Scope -Target $ScopeObject
-        $roleEligibilitySchedules = Get-AzRoleEligibilitySchedule -Scope $ScopeObject.Scope -WarningAction SilentlyContinue | Where-Object {$_.Scope -eq $ScopeObject.Scope}
+        try {
+            $parameters = @{
+                Scope = $ScopeObject.Scope
+            }
+            $roleEligibilitySchedules = Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                Get-AzRoleEligibilitySchedule @parameters -WarningAction SilentlyContinue -ErrorAction Stop | Where-Object { $_.Scope -eq $parameters.Scope }
+            } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction Stop
+        }
+        catch {
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Processing.Failed' -LogStringValues $_
+            return
+        }
         if ($roleEligibilitySchedules) {
             foreach ($roleEligibilitySchedule in $roleEligibilitySchedules) {
                 # Process roleEligibilitySchedule together with RoleEligibilityScheduleRequest
+                $parameters = @{
+                    Scope = $ScopeObject.Scope
+                    Name = $roleEligibilitySchedule.Name
+                }
                 $roleEligibilityScheduleRequest = $null
-                $roleEligibilityScheduleRequest = Get-AzRoleEligibilityScheduleRequest -Scope $ScopeObject.Scope -Name $roleEligibilitySchedule.Name -ErrorAction SilentlyContinue
+                $roleEligibilityScheduleRequest = Invoke-AzOpsScriptBlock -ArgumentList $parameters -ScriptBlock {
+                    Get-AzRoleEligibilityScheduleRequest @parameters -ErrorAction SilentlyContinue
+                } -RetryCount 3 -RetryWait 5 -RetryType Exponential -ErrorAction SilentlyContinue
                 if ($roleEligibilityScheduleRequest) {
                     Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsRoleEligibilityScheduleRequest.Assignment' -LogStringValues $roleEligibilitySchedule.Name -Target $ScopeObject
                     # Construct AzOpsRoleEligibilityScheduleRequest by combining information from roleEligibilitySchedule and roleEligibilityScheduleRequest
