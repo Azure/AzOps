@@ -98,6 +98,8 @@
     'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
     'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
 
+    'Get-AzOpsResource.Failed'                                                      = 'Failed retrieving resource with error: {0}' # $_
+
     'Get-AzOpsResourceLock.ResourceGroup'                                           = 'Retrieving Resource Locks for Resource Group {0}' # $ScopeObject.ResourceGroup
     'Get-AzOpsResourceLock.Failed'                                                  = 'Failed retrieving Resource Locks {0}' # $_
     'Get-AzOpsResourceLock.Subscription'                                            = 'Retrieving Resource Locks for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
