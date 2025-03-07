@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/powershell:lts-debian-11
+FROM mcr.microsoft.com/powershell:debian-12
 
 # [Option] Install zsh
 ARG INSTALL_ZSH="true"
