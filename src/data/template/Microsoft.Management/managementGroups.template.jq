@@ -8,7 +8,7 @@ then
     then
       {
           "type": "Microsoft.Management/managementGroups",
-          "apiVersion": "2020-05-01",
+          "apiVersion": "2023-04-01",
           "name": $item.Name,
           "scope": "/",
           "properties": {
@@ -24,7 +24,7 @@ then
     then
       {
           "type": "Microsoft.Management/managementGroups/subscriptions",
-          "apiVersion": "2021-04-01",
+          "apiVersion": "2023-04-01",
           "name": ($input.Name + "/" + $item.Name),
           "scope": "/"
       }
@@ -64,7 +64,7 @@ end
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2024-11-01",
       "name": "AzOps-microsoft.management_managementgroups-nested",
       "location": "[deployment().location]",
       "properties": {
