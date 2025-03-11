@@ -22,7 +22,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/localNetworkGateways",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('localNetworkGatewayName')]",
             "location": "northeurope",
             "properties": {
@@ -36,7 +36,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('publicIPAddressesName')]",
             "location": "northeurope",
             "sku": {
@@ -57,7 +57,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('virtualNetworkName')]",
             "location": "northeurope",
             "properties": {
@@ -83,7 +83,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/GatewaySubnet')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
@@ -97,7 +97,7 @@
         },
         {
             "type": "Microsoft.Network/connections",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('connectionName')]",
             "location": "northeurope",
             "dependsOn": [
@@ -127,7 +127,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworkGateways",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('virtualNetworkGatewayName')]",
             "location": "northeurope",
             "dependsOn": [

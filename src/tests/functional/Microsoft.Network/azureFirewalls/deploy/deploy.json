@@ -29,7 +29,7 @@
     },
     "resources": [
         {
-            "apiVersion": "2021-05-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/publicIpAddresses",
             "name": "[parameters('publicIpAddressName')]",
             "location": "[parameters('location')]",
@@ -46,7 +46,7 @@
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
-            "apiVersion": "2021-05-01",
+            "apiVersion": "2024-05-01",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -65,7 +65,7 @@
             "tags": {}
         },
         {
-            "apiVersion": "2021-05-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/firewallPolicies",
             "resources": [],
             "properties": {
@@ -81,7 +81,7 @@
             "tags": {}
         },
         {
-            "apiVersion": "2021-05-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/azureFirewalls",
             "name": "[parameters('azureFirewallName')]",
             "location": "[parameters('location')]",

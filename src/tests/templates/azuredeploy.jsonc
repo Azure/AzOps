@@ -485,6 +485,34 @@
             },
             "scope": "/"
         },
+        // Empty 'delay' deployments to ensure subscription move and policy assignment have been replicated before submitting subscription deployments
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-11-01",
+            "name": "[concat('delayForMore', copyIndex())]",
+            "location": "[deployment().location]",
+            "scope": "/",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]"
+            ],
+            "copy": {
+                "batchSize": 1,
+                "count": 5,
+                "mode": "Serial",
+                "name": "waitingCompletionAdditional"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [],
+                    "outputs": {}
+                }
+            }
+        },
         // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - App1-azopsrg
         {
             "type": "Microsoft.Resources/deployments",
@@ -495,7 +523,8 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
                 "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]",
-                "waitingCompletion"
+                "waitingCompletion",
+                "waitingCompletionAdditional"
             ],
             "properties": {
                 "mode": "Incremental",

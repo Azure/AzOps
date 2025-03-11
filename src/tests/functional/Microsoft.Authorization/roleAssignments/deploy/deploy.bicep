@@ -4,11 +4,11 @@ param principalId string = '4dacdaa1-2044-490c-a603-36f80b6aaa0c'
 targetScope = 'subscription'
 
 @description('This is the built-in Reader role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader')
-resource readerRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource readerRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
   name: roleDefinitionResourceId
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(subscription().id, principalId, roleDefinitionResourceId)
   properties: {
     roleDefinitionId: readerRoleDefinition.id

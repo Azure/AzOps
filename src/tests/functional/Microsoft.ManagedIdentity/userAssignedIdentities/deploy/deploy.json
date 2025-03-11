@@ -21,7 +21,7 @@
         {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
             "name": "[parameters('userMsiName')]",
-            "apiVersion": "2018-11-30",
+            "apiVersion": "2024-11-30",
             "location": "[parameters('location')]"
         }
     ]
