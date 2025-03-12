@@ -353,7 +353,7 @@
                                 param (
                                     $ExportParameters
                                 )
-                                $param = $ExportParameters
+                                $param = $ExportParameters | Write-Output
                                 Export-AzResourceGroup @param -Confirm:$false -Force -ErrorAction Stop | Out-Null
                             } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
                         }
