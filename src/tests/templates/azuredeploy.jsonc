@@ -494,7 +494,8 @@
             "scope": "/",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
-                "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]"
+                "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]",
+                "waitingCompletion"
             ],
             "copy": {
                 "batchSize": 1,
