@@ -330,6 +330,6 @@
     'Set-AzOpsWhatIfOutput.WhatIfFileAdding'                                        = 'Adding content to WhatIf {0} file for template {1} with parameter file {2}' # '<type>', $FilePath, $ParameterFilePath
     'Set-AzOpsWhatIfOutput.WhatIfFileMax'                                           = 'WhatIf markdown and json files have reached character limit, unable to append more information to files. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
     'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf have reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
-    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results
+    'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results or $allResults
     'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'                                       = 'Removing WhatIf markdown and json files lingering from previous run' #
 }

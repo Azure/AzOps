@@ -36,7 +36,7 @@
         // Policy Definition and SetDefinition - Test Root
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2024-11-01",
             "name": "Test-Policy-Definition-Nested",
             "location": "northeurope",
             "dependsOn": [
@@ -50,7 +50,7 @@
                     "resources": [
                         {
                         	"type": "Microsoft.Authorization/policyDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicyDefinition",
                         	"properties": {
                         		"displayName": "AzOps - Deploy network watcher when virtual networks are created",
@@ -107,7 +107,7 @@
                         },
                         {
                         	"type": "Microsoft.Authorization/policySetDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicySetDefinition",
                         	"properties": {
                         		"displayName": "AzOps - Flow logs should be configured and enabled for every network security group",
@@ -143,7 +143,7 @@
                         },
                         {
                         	"type": "Microsoft.Authorization/policyDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicyDefinitionDep",
                         	"properties": {
                         		"displayName": "AzOpsDep - Deploy network watcher when virtual networks are created",
@@ -200,7 +200,7 @@
                         },
                         {
                             "type": "Microsoft.Authorization/policyAssignments",
-                            "apiVersion": "2021-06-01",
+                            "apiVersion": "2025-01-01",
                             "name": "TestPolicyAssignmentDep",
                             "location": "westeurope",
                             "identity": {
@@ -215,7 +215,7 @@
                         },
                         {
                         	"type": "Microsoft.Authorization/policySetDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicySetDefinitionDep",
                         	"properties": {
                         		"displayName": "AzOpsDep - Flow logs should be configured and enabled for every network security group",
@@ -251,7 +251,7 @@
                         },
                         {
                             "type": "Microsoft.Authorization/policyAssignments",
-                            "apiVersion": "2021-06-01",
+                            "apiVersion": "2025-01-01",
                             "name": "TestPolicyAssDepDef",
                             "properties": {
                                 "policyDefinitionId": "[concat('/providers/Microsoft.Management/managementGroups/', guid('Test'), '/providers/Microsoft.Authorization/policySetDefinitions/TestPolicySetDefinitionDep')]"
@@ -262,7 +262,7 @@
                         },
                         {
                         	"type": "Microsoft.Authorization/policyDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicyDefinitionDe2",
                         	"properties": {
                         		"displayName": "AzOpsDep2 - Deploy network watcher when virtual networks are created",
@@ -319,7 +319,7 @@
                         },
                         {
                         	"type": "Microsoft.Authorization/policySetDefinitions",
-                        	"apiVersion": "2021-06-01",
+                        	"apiVersion": "2025-01-01",
                         	"name": "TestPolicySetDefinitionDe2",
                             "dependsOn": [
                                 "TestPolicyDefinitionDe2"
@@ -403,7 +403,7 @@
         // Policy Assignment - Test - Platform - Management
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2024-11-01",
             "name": "Test-Policy-Assignment-Nested",
             "location": "northeurope",
             "dependsOn": [
@@ -417,7 +417,7 @@
                     "resources": [
                         {
                             "type": "Microsoft.Authorization/policyAssignments",
-                            "apiVersion": "2021-06-01",
+                            "apiVersion": "2025-01-01",
                             "name": "TestPolicyAssignment",
                             "properties": {
                                 "metadata": {
@@ -435,7 +435,7 @@
         // Empty 'delay' deployments to ensure roleAssignments have been replicated before submitting subscription deployments
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2024-11-01",
             "name": "[concat('delayFor', copyIndex())]",
             "location": "[deployment().location]",
             "scope": "/",
@@ -462,7 +462,7 @@
         // Subscription - Test - Platform - Management - Subscription-0
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2024-11-01",
             "name": "AzOps-Test-Move-Subscription",
             "location": "northeurope",
             "dependsOn": [
@@ -485,17 +485,47 @@
             },
             "scope": "/"
         },
+        // Empty 'delay' deployments to ensure subscription move and policy assignment have been replicated before submitting subscription deployments
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-11-01",
+            "name": "[concat('delayForMore', copyIndex())]",
+            "location": "[deployment().location]",
+            "scope": "/",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
+                "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]",
+                "waitingCompletion"
+            ],
+            "copy": {
+                "batchSize": 1,
+                "count": 10,
+                "mode": "Serial",
+                "name": "waitingCompletionAdditional"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [],
+                    "outputs": {}
+                }
+            }
+        },
         // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - Subscription-0 - App1-azopsrg
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2024-11-01",
             "name": "AzOps-Tests-Nested",
             "subscriptionId": "[parameters('subscriptionId')]",
             "location": "northeurope",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'Test-Policy-Assignment-Nested')]",
                 "[resourceId('Microsoft.Resources/deployments', 'AzOps-Test-Move-Subscription')]",
-                "waitingCompletion"
+                "waitingCompletion",
+                "waitingCompletionAdditional"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -505,43 +535,43 @@
                     "resources": [
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "App1-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RemovalSupport-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "CustomDeletion-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "Lock1-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "Lock2-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "ParallelDeploy-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Authorization/roleAssignments",
-                            "apiVersion": "2021-04-01-preview",
+                            "apiVersion": "2022-04-01",
                             "name": "[guid('RoleAssignmentTest')]",
                             "properties": {
                                 "roleDefinitionId": "[concat('/subscriptions/', parameters('subscriptionId'), '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
@@ -564,7 +594,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RouteTableAndPolicy",
                             "resourceGroup": "App1-azopsrg",
                             "dependsOn": [
@@ -629,7 +659,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RemovalRGSupportDeploy",
                             "resourceGroup": "RemovalSupport-azopsrg",
                             "dependsOn": [
@@ -661,7 +691,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "CustomDeletion",
                             "resourceGroup": "CustomDeletion-azopsrg",
                             "dependsOn": [
@@ -678,7 +708,7 @@
                                     "resources": [
                                         {
                                             "type": "Microsoft.Authorization/policyAssignments",
-                                            "apiVersion": "2021-06-01",
+                                            "apiVersion": "2025-01-01",
                                             "name": "TestPolicyAssignmentDeletion",
                                             "properties": {
                                                 "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
@@ -692,7 +722,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RuleGroupCollection",
                             "resourceGroup": "App1-azopsrg",
                             "dependsOn": [
@@ -756,7 +786,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "LockTest",
                             "resourceGroup": "Lock1-azopsrg",
                             "dependsOn": [
@@ -788,7 +818,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "LockTest2",
                             "resourceGroup": "Lock2-azopsrg",
                             "dependsOn": [
@@ -814,7 +844,7 @@
                                         },
                                         {
                                             "type": "Microsoft.Authorization/policyAssignments",
-                                            "apiVersion": "2021-06-01",
+                                            "apiVersion": "2025-01-01",
                                             "name": "TestPolicyAssignment2",
                                             "properties": {
                                                 "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
@@ -833,7 +863,7 @@
         // Resource Group, Role Assignment, Policy Exemption and Route Table - Test - Platform - Management - otherSubscription-x - App1-azopsrg
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2024-11-01",
             "name": "AzOps-Tests-otherNested",
             "subscriptionId": "[parameters('otherSubscriptionId')]",
             "location": "northeurope",
@@ -846,13 +876,13 @@
                     "resources": [
                         {
                             "type": "Microsoft.Resources/resourceGroups",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "App1-azopsrg",
                             "location": "northeurope"
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RouteTableAndPolicy",
                             "resourceGroup": "App1-azopsrg",
                             "dependsOn": [
@@ -896,7 +926,7 @@
                         },
                         {
                             "type": "Microsoft.Resources/deployments",
-                            "apiVersion": "2019-10-01",
+                            "apiVersion": "2024-11-01",
                             "name": "RuleGroupCollection",
                             "resourceGroup": "App1-azopsrg",
                             "dependsOn": [

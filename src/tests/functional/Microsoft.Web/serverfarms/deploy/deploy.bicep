@@ -2,7 +2,7 @@ param appServicePlanName string = uniqueString(resourceGroup().id)
 param sku string = 'S1'
 param location string = resourceGroup().location
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: appServicePlanName
   location: location
   properties: {

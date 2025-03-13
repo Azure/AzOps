@@ -1,7 +1,7 @@
 param staName string = 'staazops${uniqueString(resourceGroup().id)}'
 param location string = resourceGroup().location
 
-resource storage_resource 'Microsoft.Storage/storageAccounts@2021-08-01' = {
+resource storage_resource 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   name: staName
   location: location
   kind: 'StorageV2'

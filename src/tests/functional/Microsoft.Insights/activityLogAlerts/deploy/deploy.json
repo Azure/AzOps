@@ -65,7 +65,7 @@
 		{
             "name": "[parameters('actionGroupName')]",
             "type": "microsoft.insights/actionGroups",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2023-01-01",
             "location": "[parameters('location')]",
             "properties": {
                 "groupShortName": "[parameters('groupShortName')]",

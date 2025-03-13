@@ -29,7 +29,7 @@
         {
             "name": "[parameters('virtualNetworkName')]",
             "type": "Microsoft.Network/VirtualNetworks",
-            "apiVersion": "2021-01-01",
+            "apiVersion": "2024-05-01",
             "location": "[parameters('location')]",
             "dependsOn": [],
             "tags": {},
@@ -51,7 +51,7 @@
         {
             "name": "[parameters('nic0_name')]",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-11-01",
+            "apiVersion": "2024-05-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/VirtualNetworks/', parameters('virtualNetworkName'))]"

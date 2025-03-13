@@ -52,7 +52,7 @@
     "resources": [
         {
             "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2024-11-01",
             "name": "[parameters('keyVaultName')]",
             "location": "[parameters('location')]",
             "properties": {
@@ -67,7 +67,7 @@
         {
             "name": "[parameters('virtualNetworkName')]",
             "type": "Microsoft.Network/VirtualNetworks",
-            "apiVersion": "2021-01-01",
+            "apiVersion": "2024-05-01",
             "location": "[parameters('location')]",
             "dependsOn": [],
             "properties": {
@@ -87,7 +87,7 @@
         },
         {
             "type": "Microsoft.Network/privateEndpoints",
-            "apiVersion": "2020-07-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('privateEndpointName')]",
             "location": "[parameters('location')]",
             "dependsOn":[

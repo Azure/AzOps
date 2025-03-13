@@ -32,7 +32,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/localNetworkGateways",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('localNetworkGatewayName')]",
             "location": "[parameters('location')]",
             "properties": {

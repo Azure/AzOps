@@ -4,7 +4,7 @@ param location string = resourceGroup().location
 
 var storageName = '${toLower(staName)}${uniqueString(resourceGroup().id)}'
 
-resource rt 'Microsoft.Network/routeTables@2023-04-01' = {
+resource rt 'Microsoft.Network/routeTables@2024-05-01' = {
   name: name
   location: location
   properties: {
@@ -14,7 +14,7 @@ resource rt 'Microsoft.Network/routeTables@2023-04-01' = {
   }
 }
 
-resource storage_resource 'Microsoft.Storage/storageAccounts@2021-08-01' = {
+resource storage_resource 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   name: storageName
   location: location
   kind: 'StorageV2'

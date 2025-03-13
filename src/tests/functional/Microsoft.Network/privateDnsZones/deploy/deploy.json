@@ -20,7 +20,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/privateDnsZones",
-            "apiVersion": "2018-09-01",
+            "apiVersion": "2024-06-01",
             "name": "[parameters('privateDnsZoneName')]",
             "location": "[parameters('location')]"
         }

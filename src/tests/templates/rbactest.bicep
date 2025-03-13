@@ -4,7 +4,7 @@ param location string
 param roleDefinitionId string
 targetScope = 'subscription'
 
-resource assignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+resource assignment 'Microsoft.Authorization/policyAssignments@2025-01-01' = {
     name: policyAssignmentName
     location: location
     identity: {

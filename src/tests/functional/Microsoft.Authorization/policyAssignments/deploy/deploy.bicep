@@ -3,7 +3,7 @@ param policyDefinitionID string = '/providers/Microsoft.Authorization/policyDefi
 
 targetScope = 'resourceGroup'
 
-resource assignment 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
+resource assignment 'Microsoft.Authorization/policyAssignments@2025-01-01' = {
     name: policyAssignmentName
     properties: {
         policyDefinitionId: policyDefinitionID
