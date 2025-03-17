@@ -110,6 +110,8 @@
         }
         $script:AzOpsSubscriptions = Get-AzOpsSubscription -ExcludedOffers $ExcludedSubOffer -ExcludedStates $ExcludedSubState -TenantId $tenantId
         $script:AzOpsResourceProvider = Get-AzResourceProvider -ListAvailable
+        $query = "Resources | project type, apiVersion | union (PolicyResources | project type, apiVersion) | union (ResourceContainers | project type, apiVersion) | where isnotnull(apiVersion) | summarize apiVersion=max(apiVersion) by type | order by type asc"
+        $script:AzOpsGraphResourceProvider = Search-AzOpsAzGraph -UseTenantScope -Query $query
         $script:AzOpsAzManagementGroup = @()
         $script:AzOpsPartialRoot = @()
         #endregion Initialize & Prepare

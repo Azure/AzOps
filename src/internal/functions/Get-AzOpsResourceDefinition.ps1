@@ -103,14 +103,15 @@
         $maxRetryCount = 3
         # Prepare Input Data for parallel processing
         $runspaceData = @{
-            AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
-            StatePath                       = $StatePath
-            runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
-            runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
-            runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
-            runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
-            BackoffMultiplier               = $backoffMultiplier
-            MaxRetryCount                   = $maxRetryCount
+            AzOpsPath                            = "$($script:ModuleRoot)\AzOps.psd1"
+            StatePath                            = $StatePath
+            runspace_AzOpsAzManagementGroup      = $script:AzOpsAzManagementGroup
+            runspace_AzOpsSubscriptions          = $script:AzOpsSubscriptions
+            runspace_AzOpsPartialRoot            = $script:AzOpsPartialRoot
+            runspace_AzOpsResourceProvider       = $script:AzOpsResourceProvider
+            runspace_AzOpsGraphResourceProvider  = $script:AzOpsGraphResourceProvider
+            BackoffMultiplier                    = $backoffMultiplier
+            MaxRetryCount                        = $maxRetryCount
         }
     }
 
@@ -151,6 +152,7 @@
                             $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                             $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                             $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                            $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                         }
                         # Process Privileged Identity Management resources and Roles at managementGroup scope
                         if ((-not $using:SkipPim) -or (-not $using:SkipRole)) {
@@ -189,6 +191,7 @@
                     $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                     $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                     $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                    $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                 }
                 # Process Privileged Identity Management resources, Locks and Roles at subscription scope
                 if ((-not $using:SkipPim) -or (-not $using:SkipLock) -or (-not $using:SkipRole)) {
@@ -247,6 +250,7 @@
                         $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                         $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                         $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                        $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                     }
                     # Create Resource Group in file system
                     & $azOps {
@@ -336,6 +340,7 @@
                         $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                         $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                         $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                        $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                     }
                     $context = Get-AzContext
                     $context.Subscription.Id = $resource.subscriptionId

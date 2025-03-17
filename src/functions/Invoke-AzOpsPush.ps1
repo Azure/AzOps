@@ -559,13 +559,14 @@
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
                             # Prepare Input Data for parallel processing
                             $runspaceData = @{
-                                AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
-                                StatePath                       = $StatePath
-                                WhatIfPreference                = $WhatIfPreference
-                                runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
-                                runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
-                                runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
-                                runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+                                AzOpsPath                            = "$($script:ModuleRoot)\AzOps.psd1"
+                                StatePath                            = $StatePath
+                                WhatIfPreference                     = $WhatIfPreference
+                                runspace_AzOpsAzManagementGroup      = $script:AzOpsAzManagementGroup
+                                runspace_AzOpsSubscriptions          = $script:AzOpsSubscriptions
+                                runspace_AzOpsPartialRoot            = $script:AzOpsPartialRoot
+                                runspace_AzOpsResourceProvider       = $script:AzOpsResourceProvider
+                                runspace_AzOpsGraphResourceProvider  = $script:AzOpsGraphResourceProvider
                             }
                             # Pass deployment targets for parallel processing and output deployment result for later
                             $deploymentResult += $targets | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
@@ -580,6 +581,7 @@
                                     $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                                     $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                                     $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                                    $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                                 }
 
                                 & $azOps {

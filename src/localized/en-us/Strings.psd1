@@ -72,6 +72,7 @@
     'ConvertTo-AzOpsState.GenerateTemplate.ResourceTypeName'                        = 'Resource type: {0}' # $resourceTypeName
     'ConvertTo-AzOpsState.GenerateTemplate.ResourceApiTypeName'                     = 'Resource api type: {0}' # $resourceApiTypeName
     'ConvertTo-AzOpsState.GenerateTemplate.ApiVersion'                              = 'Determined api version: {1} for resource type name: {0}' # $resourceType, $apiVersions
+    'ConvertTo-AzOpsState.GenerateTemplate.ApiVersionGraphOverride'                 = 'Determined that AzResourceProvider api version: {0} did not match Graph api version: {1} for resource type name: {2}, overriding with Graph api version.' # $apiVersion, $graphApiVersion, $resourceType
     'ConvertTo-AzOpsState.GenerateTemplate.NoApiVersion'                            = 'Unable to determine api version from resource type name: {0}' # $resourceTypeName
     'ConvertTo-AzOpsState.GenerateTemplate.ChildResource'                           = 'Appending child resource name: {0}' # $resourceName
     'ConvertTo-AzOpsState.ObjectType.Resolved.Generic'                              = 'Unable to determine object type: {0}' # $($_.GetType())
