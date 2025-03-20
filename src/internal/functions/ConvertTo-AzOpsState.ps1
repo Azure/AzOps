@@ -236,8 +236,8 @@
                         }
                         # Compare Providers - List API version to Graph API version
                         $graphApiVersion = ($script:AzOpsGraphResourceProvider | Where-Object { $_.type -eq "$providerNamespace/$resourceApiTypeName" })?.apiVersion
-                        if ($null -ne $graphApiVersion -and $apiVersion -ne $graphApiVersion) {
-                            # If the Graph API version is not null and differs from the current API version, update the API version
+                        if ($null -ne $graphApiVersion -and $apiVersion -ne $graphApiVersion -and $graphApiVersion -in $apiVersions) {
+                            # If the Graph API version is not null and differs from the current API version while also existing in $apiVersions, update the API version
                             Write-AzOpsMessage -LogLevel Debug -LogString 'ConvertTo-AzOpsState.GenerateTemplate.ApiVersionGraphOverride' -LogStringValues $apiVersion, $graphApiVersion, $resourceType
                             $apiVersion = $graphApiVersion
                         }
