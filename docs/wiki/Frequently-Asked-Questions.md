@@ -10,6 +10,7 @@ This article answers frequently asked questions relating to AzOps.
   - [Management groups not showing up in repository](#management-groups-not-showing-up-in-repository)
   - [Push fail with deployment already exists in location error](#push-fail-with-deployment-already-exists-in-location-error)
   - [Does AzOps use temporary files](#does-azops-use-temporary-files)
+  - [How does AzOps Pull set Api version](#how-does-azops-pull-set-api-version)
   - [Pull fail with active pull request already exists error](#pull-fail-with-active-pull-request-already-exists-error)
   - [Discovery scenarios and settings](#discovery-scenarios-and-settings)
     - [**I want to discover all resources across all resource groups in one specific subscription**](#i-want-to-discover-all-resources-across-all-resource-groups-in-one-specific-subscription)
@@ -70,6 +71,23 @@ Yes, during runtime AzOps identifies the systems temporary directory `[System.IO
 AzOps utilizes the temporary directory for storing temporary information either used at processing time by AzOps (e.g. export and conversion of child resources) or information that is intended to be picked up by pipeline after AzOps module execution (e.g. `OUTPUT.md / OUTPUT.json`).
 
 >Due to the different usage patterns of temporary files they are either created and deleted during module invocation or created and left for further processing at a later stage. As a part of AzOps invocation the initialize procedure looks for lingering temporary files (e.g. `OUTPUT.md / OUTPUT.json`) and removes them to ensure a clean execution.
+
+## How does AzOps Pull set Api version
+
+When AzOps performs a Pull it gathers resource information and performs several formatting steps to ensure a deployable template is generated. During these steps AzOps dynamically determines the Api version of each resource.
+
+To make this determination the following information and logic is utilized:
+
+First AzOps performs:
+- `Get-AzResourceProvider -ListAvailable` gathers available resource providers and their api versions from ARM.
+
+Based on this information AzOps derives ga and preview versions from `Get-AzResourceProvider` and prefers the latest ga version, unless there is no ga version then a preview version is considered.
+
+>Due to that api versions gathered at this step could be versions that are being rolled out and might not be available everywhere AzOps corroborate this with additional data in the next step to avoid inconsistencies as new api versions are rolled out.
+
+- `Search-AzGraph -UseTenantScope -Query $Query -AllowPartialScope` gathers available api version from Azure Resource Graph.
+
+Based on this additional datapoint AzOps derives if the api version from `Get-AzResourceProvider` and `Search-AzGraph` differ while the `Search-AzGraph` version exists in `Get-AzResourceProvider` and overrides the `Get-AzResourceProvider` version if they don’t match.
 
 ## Pull fail with active pull request already exists error
 
