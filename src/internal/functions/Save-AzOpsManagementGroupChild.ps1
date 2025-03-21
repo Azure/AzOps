@@ -113,12 +113,13 @@
         if ($subscriptions) {
             # Prepare Input Data for parallel processing
             $runspaceData = @{
-                AzOpsPath                       = "$($script:ModuleRoot)\AzOps.psd1"
-                StatePath                       = $StatePath
-                runspace_AzOpsAzManagementGroup = $script:AzOpsAzManagementGroup
-                runspace_AzOpsSubscriptions     = $script:AzOpsSubscriptions
-                runspace_AzOpsPartialRoot       = $script:AzOpsPartialRoot
-                runspace_AzOpsResourceProvider  = $script:AzOpsResourceProvider
+                AzOpsPath                            = "$($script:ModuleRoot)\AzOps.psd1"
+                StatePath                            = $StatePath
+                runspace_AzOpsAzManagementGroup      = $script:AzOpsAzManagementGroup
+                runspace_AzOpsSubscriptions          = $script:AzOpsSubscriptions
+                runspace_AzOpsPartialRoot            = $script:AzOpsPartialRoot
+                runspace_AzOpsResourceProvider       = $script:AzOpsResourceProvider
+                runspace_AzOpsGraphResourceProvider  = $script:AzOpsGraphResourceProvider
             }
             $subscriptions | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
                 $subscription = $_
@@ -132,6 +133,7 @@
                     $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
                     $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
                     $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                    $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                 }
 
                 & $azOps {
