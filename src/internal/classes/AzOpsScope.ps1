@@ -173,6 +173,14 @@
                 $resourcePath = $null
             }
 
+            if ($resourcePath.languageVersion -eq '2.0') {
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, '2.0' -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+                $resourcePath.resources = $resourcePath.resources.Values
+            }
+            else {
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, '1.0' -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+            }
+
             switch ($resourcePath) {
                 { $_.parameters.input.value.Keys -contains "ResourceId" } {
                     # Parameter Files - resource from parameters file
