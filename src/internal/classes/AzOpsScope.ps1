@@ -173,7 +173,7 @@
                 $resourcePath = $null
             }
 
-            if ($resourcePath.languageVersion -eq '2.0') {
+            if ($resourcePath -and $resourcePath.languageVersion -eq '2.0') {
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, '2.0' -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
                 $resourcePath.resources = $resourcePath.resources.Values
             }
