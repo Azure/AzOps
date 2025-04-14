@@ -283,9 +283,12 @@
                     }
                 }
                 'roleAssignments' {
-                    $resourceToDelete = (Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" | Where-Object { $_.StatusCode -eq 200 }).Content | ConvertFrom-Json -Depth 100
-                    if ($resourceToDelete) {
-                        $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                    $response = Invoke-AzRestMethod -Path "$($scopeObject.Scope)?api-version=2022-04-01" -ErrorAction SilentlyContinue
+                    if ($response.StatusCode -eq 200) {
+                        $resourceToDelete = $response.Content | ConvertFrom-Json -Depth 100
+                        if ($resourceToDelete) {
+                            $dependency += Get-AzLocksDeletionDependency -resourceToDelete $resourceToDelete
+                        }
                     }
                 }
                 'resourceGroups' {
