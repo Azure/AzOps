@@ -173,6 +173,32 @@
                 $resourcePath = $null
             }
 
+            if ($resourcePath -and $resourcePath.ContainsKey('languageVersion')) {
+                if ($resourcePath.languageVersion -eq '2.0') {
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, $resourcePath.languageVersion -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+                    $resourcePath.resources = $resourcePath.resources.Values
+                }
+                elseif ($resourcePath.languageVersion -eq '1.0') {
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, $resourcePath.languageVersion -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+                }
+                else {
+                    # Handle unknown or experimental languageVersion
+                    # Fallback behavior for unknown versions
+                    if ($resourcePath.languageVersion -like '2.*') {
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.AssumedCompatibility' -LogStringValues $Path, $resourcePath.languageVersion -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+                        $resourcePath.resources = $resourcePath.resources.Values
+                    }
+                    else {
+                        Write-AzOpsMessage -LogLevel Error -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.UnsupportedLanguageVersion' -LogStringValues $Path, $resourcePath.languageVersion -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+                        throw "Unsupported languageVersion '$($resourcePath.languageVersion)' in file $Path."
+                    }
+                }
+            }
+            else {
+                # Assume languageVersion is 1.0 if missing
+                Write-AzOpsMessage -LogLevel InternalComment -LogString 'AzOpsScope.InitializeMemberVariablesFromFile.LanguageVersion' -LogStringValues $Path, '1.0' -FunctionName "InitializeMemberVariablesFromFile" -ModuleName "AzOps"
+            }
+
             switch ($resourcePath) {
                 { $_.parameters.input.value.Keys -contains "ResourceId" } {
                     # Parameter Files - resource from parameters file
