@@ -39,12 +39,30 @@
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]
+        $DeploymentStackTemplateFilePath,
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [object]
+        $DeploymentStackSettings,
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $DeploymentName = "azops-template-deployment",
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $TemplateFilePath = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]
+        $TemporaryTemplateFilePath,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [hashtable]
@@ -108,10 +126,26 @@
         #region Process Scope
         # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
         $defaultDeploymentRegion = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
-        $parameters = @{
-            'TemplateObject'              = $TemplateObject
-            'SkipTemplateParameterPrompt' = $true
-            'Location'                    = $defaultDeploymentRegion
+        if ($null -eq $DeploymentStackSettings) {
+            $parameters = @{
+                'TemplateObject'              = $TemplateObject
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
+        }
+        elseif ($TemporaryTemplateFilePath) {
+            $parameters = @{
+                'TemplateFile'                = $TemporaryTemplateFilePath
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
+        }
+        else {
+            $parameters = @{
+                'TemplateFile'                = $TemplateFilePath
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
         }
         if ($WhatIfResultFormat) {
             $parameters.ResultFormat = $WhatIfResultFormat
@@ -121,7 +155,11 @@
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzResourceGroupDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzResourceGroupDeploymentStack'
+            } else {
+                $deploymentCommand = 'New-AzResourceGroupDeployment'
+            }
             $parameters.ResourceGroupName = $scopeObject.resourcegroup
             $parameters.Remove('Location')
         }
@@ -130,14 +168,22 @@
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzSubscriptionDeploymentStack'
+            } else {
+                $deploymentCommand = 'New-AzDeployment'
+            }
         }
         # Management Groups
         elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $parameters.ManagementGroupId = $scopeObject.managementgroup
             $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzManagementGroupDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzManagementGroupDeploymentStack'
+            } else {
+                $deploymentCommand = 'New-AzManagementGroupDeployment'
+            }
         }
         # Tenant deployments
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
@@ -241,16 +287,24 @@
             if ($parameters.ExcludeChangeType) {
                 $parameters.Remove('ExcludeChangeType')
             }
+            if ($null -ne $DeploymentStackSettings) {
+                $parameters += $DeploymentStackSettings
+            }
             $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
+            if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand")) {
                 if (-not $invalidTemplate) {
-                    $deploymentResult.deployment = & $deploymentCommand @parameters
+                    $deploymentResult.deployment = & $deploymentCommand @parameters -Force:$true
                 }
             }
             else {
                 # Exit deployment
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
+        }
+        #Cleanup
+        if ($TemporaryTemplateFilePath) {
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove' -LogStringValues $TemporaryTemplateFilePath
+            Remove-Item -Path $TemporaryTemplateFilePath -Force -ErrorAction SilentlyContinue -WhatIf:$false
         }
         #Return
         if ($deploymentResult) {

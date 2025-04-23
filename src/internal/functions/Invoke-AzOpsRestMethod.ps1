@@ -13,7 +13,7 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [Object]
+        [object]
         $Path,
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $Method

@@ -215,6 +215,10 @@
     'Invoke-AzOpsPush.Deployment.Skip'                                              = 'Skipping deployment of template: {0} with parameter: {1}, its already been deployed' # $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deployment.ParallelCondition'                                 = 'Parallel deployment condition true' #
     'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified multiple deployments with matching TemplateFilePath' # $groups
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Create'   = 'Attempting to create temporary processing deployment template file of [{0}] to support DeploymentStack' # $target.TemplateFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Exist'    = 'Temporary processing deployment template file [{0}] already exists for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Remove'   = 'Removing temporary processing deployment template file [{0}]' # $tempDeploymentFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.New'      = 'Create temporary processing deployment template file [{0}] for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Duration'                                                     = 'AzOps Push completed in {0}' # $stopWatch.Elapsed
@@ -230,6 +234,10 @@
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template: {0}, at: {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
+    'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath'                      = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath, $TemplateFilePath
+    'Invoke-AzOpsPush.Resolve.NoDeploymentStackFound'                               = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
+    'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack'                          = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $deploymentStackPath
+    'Invoke-AzOpsPush.Resolve.DeploymentStack.Metadata.AzOps'                       = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand'                                                     = 'Execution of ScriptBlock: {{{0}}} returned: {{{1}}}' # $ScriptBlock, $_
@@ -246,6 +254,7 @@
     'New-AzOpsScope.Path.NotFound'                                                  = 'Path not found: {0}' # $Path
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #
 
+    'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove'           = 'Removing temporary processing deployment template file [{0}]' # $TemporaryTemplateFilePath
     'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
     'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for {0}' # $scopeObject
