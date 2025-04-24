@@ -89,6 +89,11 @@
     'Get-AzOpsCurrentPrincipal.AccountType'                                         = 'Current AccountType is {0}' #$AzContext.Account.Type
     'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
+    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath/$parentStackPath, $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $stackTemplatePath/$parentStackPath
+    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
+
     'Get-AzOpsManagementGroup.Failed'                                               = 'Get-AzManagementGroup -GroupId {0} failed' #$ManagementGroup
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
@@ -234,10 +239,6 @@
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template: {0}, at: {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
-    'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath'                      = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath/$parentStackPath, $TemplateFilePath
-    'Invoke-AzOpsPush.Resolve.NoDeploymentStackFound'                               = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
-    'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack'                          = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $stackTemplatePath/$parentStackPath
-    'Invoke-AzOpsPush.Resolve.DeploymentStack.Metadata.AzOps'                       = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
     'Invoke-AzOpsNativeCommand'                                                     = 'Execution of ScriptBlock: {{{0}}} returned: {{{1}}}' # $ScriptBlock, $_
