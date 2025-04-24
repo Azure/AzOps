@@ -402,50 +402,50 @@
                 }
 
                 if ($TemplateFilePath.EndsWith('.json') -and -not $TemplateFilePath.EndsWith('parameters.json')) {
-                    $stackTemplatePath = $TemplateFilePath -replace '\.json$', '.deploymentStacks.json'
-                    if (Test-Path $stackTemplatePath) {
-                        Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $stackTemplatePath, $TemplateFilePath
-                        $result.DeploymentStackTemplateFilePath = $stackTemplatePath
-                        $result.DeploymentStackSettings = Get-Content -Path $stackTemplatePath -Raw | ConvertFrom-Json -Depth 100 |
-                            ForEach-Object {
-                                $_.PSObject.Properties.Remove('excludedAzOpsFiles')
-                                $_
-                            } | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
-                        return $result
+                    # Generate a list of potential file names to check
+                    $fileName = Split-Path -Path $TemplateFilePath -Leaf
+                    $fileVariants = @($fileName)
+                    if ($fileName -like '*.json') {
+                        $fileVariants += $fileName -replace '\.json$', '.bicep'
                     }
-                    $deploymentStackPath = Join-Path -Path (Split-Path -Path $TemplateFilePath) -ChildPath ".deploymentStacks.json"
-                    if (Test-Path $deploymentStackPath) {
-                        $fileName = Split-Path -Path $TemplateFilePath -Leaf
-                        $stackContent = Get-Content -Path $deploymentStackPath -Raw | ConvertFrom-Json -Depth 100
+                    elseif ($fileName -like '*.bicep') {
+                        $fileVariants += $fileName -replace '\.bicep$', '.json'
+                    }
+                    $stackTemplatePath = $TemplateFilePath -replace '\.json$', '.deploymentStacks.json'
+                    $parentStackPath = Join-Path -Path (Split-Path -Path $TemplateFilePath) -ChildPath ".deploymentStacks.json"
+                    if (Test-Path $stackTemplatePath) {
+                        $stackContent = Get-Content -Path $stackTemplatePath -Raw | ConvertFrom-Json -Depth 100
                         if ($stackContent.excludedAzOpsFiles -and $stackContent.excludedAzOpsFiles.Count -gt 0) {
-                            # Generate a list of potential file names to check
-                            $fileVariants = @($fileName)
-                            if ($fileName -like '*.json') {
-                                $fileVariants += $fileName -replace '\.json$', '.bicep'
-                            }
-                            elseif ($fileName -like '*.bicep') {
-                                $fileVariants += $fileName -replace '\.bicep$', '.json'
-                            }
                             # Check if any of the file variants match the exclusion patterns
                             if ($fileVariants | Where-Object { $stackContent.excludedAzOpsFiles -match $_ }) {
-                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack' -LogStringValues $TemplateFilePath, $deploymentStackPath
-                                return $result
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack' -LogStringValues $TemplateFilePath, $stackTemplatePath
                             }
                             else {
-                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $deploymentStackPath, $TemplateFilePath
-                                $result.DeploymentStackTemplateFilePath = $deploymentStackPath
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $stackTemplatePath, $TemplateFilePath
+                                $result.DeploymentStackTemplateFilePath = $stackTemplatePath
                                 $stackContent.PSObject.Properties.Remove('excludedAzOpsFiles')
                                 $result.DeploymentStackSettings = $stackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
                                 return $result
                             }
                         }
-                        else {
-                            Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $deploymentStackPath, $TemplateFilePath
-                            $result.DeploymentStackTemplateFilePath = $deploymentStackPath
-                            $result.DeploymentStackSettings = $stackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
-                            return $result
+                    }
+                    if (Test-Path $parentStackPath) {
+                        $fileName = Split-Path -Path $TemplateFilePath -Leaf
+                        $parentStackContent = Get-Content -Path $parentStackPath -Raw | ConvertFrom-Json -Depth 100
+                        if ($parentStackContent.excludedAzOpsFiles -and $parentStackContent.excludedAzOpsFiles.Count -gt 0) {
+                            # Check if any of the file variants match the exclusion patterns
+                            if ($fileVariants | Where-Object { $parentStackContent.excludedAzOpsFiles -match $_ }) {
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack' -LogStringValues $TemplateFilePath, $parentStackPath
+                                return $result
+                            }
+                            else {
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $parentStackPath, $TemplateFilePath
+                                $result.DeploymentStackTemplateFilePath = $parentStackPath
+                                $parentStackContent.PSObject.Properties.Remove('excludedAzOpsFiles')
+                                $result.DeploymentStackSettings = $parentStackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+                                return $result
+                            }
                         }
-
                     }
                     else {
                         Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Resolve.NoDeploymentStackFound' -LogStringValues $TemplateFilePath

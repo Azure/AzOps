@@ -234,9 +234,9 @@
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.ParameterNotFound'                                    = 'No parameter file found for template: {0}, at: {1}' # $FilePath, $parameterPath
     'Invoke-AzOpsPush.Resolve.NotFoundParamFileDefaultValue'                        = 'Template {0} with parameter: {1} missing defaultValue and no parameter file found, skip deployment' # $FilePath, $missingString
-    'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath'                      = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath, $TemplateFilePath
+    'Invoke-AzOpsPush.Resolve.DeploymentStackTemplateFilePath'                      = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath/$parentStackPath, $TemplateFilePath
     'Invoke-AzOpsPush.Resolve.NoDeploymentStackFound'                               = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
-    'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack'                          = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $deploymentStackPath
+    'Invoke-AzOpsPush.Resolve.ExcludedFromDeploymentStack'                          = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $stackTemplatePath/$parentStackPath
     'Invoke-AzOpsPush.Resolve.DeploymentStack.Metadata.AzOps'                       = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Invoke-AzOpsPush.Scope.Failed'                                                 = 'Failed to read {0} as part of {1}' # $addition, $StatePath
 
