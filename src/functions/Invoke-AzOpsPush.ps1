@@ -92,6 +92,27 @@
                 $FilePath = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
+            # Handle DeploymentStacks templates
+            if ($FilePath.EndsWith(".deploymentStacks.json")) {
+                # Retrieve reverse lookup template paths for the deployment stack
+                $azOpsDeploymentStackReverseLookupTemplatePaths = Get-AzOpsDeploymentStackSetting -TemplateFilePath $FilePath -ReverseLookup
+                # Check if reverse lookup template paths are found
+                if ($null -ne $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
+                    # Iterate through each reverse lookup template path with New-AzOpsList
+                    $reverseLookupDeploymentStacksTemplates = foreach ($templatePath in $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
+                        New-AzOpsList -FilePath $templatePath
+                    }
+                    # If templates are successfully created, return them
+                    if ($reverseLookupDeploymentStacksTemplates) {
+                        return $reverseLookupDeploymentStacksTemplates
+                    }
+                }
+                else {
+                    # Skip processing if no reverse lookup template paths are found
+                    continue
+                }
+            }
+
             try {
                 # Create scope object from the given file path
                 $scopeObject = New-AzOpsScope -Path $FilePath -StatePath $StatePath -ErrorAction Stop
@@ -522,7 +543,29 @@
         #region Create DeletionList
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             # Create a list of deletion file associations using the New-AzOpsList function
-            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter |
+            Where-Object {
+                # Normalize paths by removing or replacing extensions for comparison
+                $normalizedDeleteSet = $deleteSet | ForEach-Object {
+                    $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+                }
+                $normalizedResolvedDeleteSet = ($deleteSet | Resolve-Path).Path | ForEach-Object {
+                    $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+                }
+                # Include items if TemplateFilePath or TemplateParameterFilePath matches the normalized delete set
+                if ($_.TemplateFilePath -in $normalizedDeleteSet -or $_.TemplateFilePath -in $normalizedResolvedDeleteSet) {
+                    return $true
+                }
+                if ($_.TemplateParameterFilePath -in $normalizedDeleteSet -or $_.TemplateParameterFilePath -in $normalizedResolvedDeleteSet) {
+                    return $true
+                }
+                # Exclude file associations where the condition is true
+                -not (
+                    $_ -and
+                    ($null -ne $_.DeploymentStackTemplateFilePath -and
+                    ($_.DeploymentStackTemplateFilePath -notin $deleteSet -or $_.DeploymentStackTemplateFilePath -notin ($deleteSet | Resolve-Path).Path))
+                )
+            }
             # Iterate through each file association in the list
             foreach ($fileAssociation in $deletionFileAssociationList) {
                 # Check if the transpiled template is new and add it to the collection if true

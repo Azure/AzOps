@@ -10,6 +10,9 @@
             The function also handles exclusions defined in the stack configuration and logs relevant messages for debugging and tracing purposes.
         .PARAMETER TemplateFilePath
             The file path of the template to be processed. This should point to a JSON or Bicep file that may be part of a deployment stack.
+        .PARAMETER ReverseLookup
+            Indicates whether the function should perform a reverse lookup to identify the associated template file(s) for a given deployment stack file.
+            When specified, the function attempts to resolve and return the template file paths that are part of the deployment stack configuration.
         .EXAMPLE
             > $result = Get-AzOpsDeploymentStackSetting -TemplateFilePath "C:\Templates\example.bicep"
     #>
@@ -18,19 +21,66 @@
     param (
         [Parameter(ValueFromPipeline = $true)]
         [string]
-        $TemplateFilePath
+        $TemplateFilePath,
+        [Parameter(ValueFromPipeline = $true)]
+        [switch]
+        $ReverseLookup
     )
 
     begin {
         $result = [PSCustomObject] @{
             DeploymentStackTemplateFilePath = $null
             DeploymentStackSettings         = $null
+            ReverseLookupTemplateFilePath   = $null
         }
     }
 
     process {
 
-        $templateContent = Get-Content -Path $TemplateFilePath | ConvertFrom-Json -AsHashtable
+        if ($ReverseLookup -and $TemplateFilePath.EndsWith('.deploymentStacks.json')) {
+            if ((Split-Path -Path $TemplateFilePath -Leaf) -eq '.deploymentStacks.json') {
+                # This is a root stack file
+                $folderPath = Split-Path -Path $TemplateFilePath -Parent
+                $folderPathLookup = Join-Path -Path $folderPath -ChildPath '*'
+                $files = Get-ChildItem -Path $folderPathLookup -File -Include *.bicep, *.json | Select-Object -ExpandProperty FullName
+                $returnFiles = @()
+                foreach ($file in $files) {
+                    if ($file.EndsWith('.json')) {
+                        $fileContent = Get-Content -Path $file | ConvertFrom-Json -AsHashtable
+                        if ($fileContent.metadata._generator.name -eq "AzOps") {
+                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $file
+                        }
+                        else {
+                            $returnFiles += $file
+                        }
+                    }
+                    else {
+                        $returnFiles += $file
+                    }
+                }
+                $result.ReverseLookupTemplateFilePath = $returnFiles
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath' -LogStringValues $TemplateFilePath, $result.ReverseLookupTemplateFilePath
+                return $result
+            }
+            else {
+                # This is a dedicated template stack file
+                if (Test-Path ($TemplateFilePath -replace '\.deploymentStacks.json$', '.bicep')) {
+                    $result.ReverseLookupTemplateFilePath = $TemplateFilePath -replace '\.deploymentStacks.json$', '.bicep'
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath' -LogStringValues $TemplateFilePath, $result.ReverseLookupTemplateFilePath
+                    return $result
+                }
+                if (Test-Path ($TemplateFilePath -replace '\.json$', '.json')) {
+                    $result.ReverseLookupTemplateFilePath = $TemplateFilePath -replace '\.json$', '.json'
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath' -LogStringValues $TemplateFilePath, $result.ReverseLookupTemplateFilePath
+                    return $result
+                }
+            }
+        }
+        elseif ($ReverseLookup) {
+            return
+        }
+
+        $templateContent = Get-Content -Path $TemplateFilePath -Raw | ConvertFrom-Json -AsHashtable
         if ($templateContent.metadata._generator.name -eq "AzOps") {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $TemplateFilePath
             return
@@ -63,6 +113,13 @@
                         return $result
                     }
                 }
+                else {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $stackTemplatePath, $TemplateFilePath
+                    $result.DeploymentStackTemplateFilePath = $stackTemplatePath
+                    if ($stackContent.excludedAzOpsFiles) { $stackContent.PSObject.Properties.Remove('excludedAzOpsFiles') }
+                    $result.DeploymentStackSettings = $stackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+                    return $result
+                }
             }
             if (Test-Path $parentStackPath) {
                 $fileName = Split-Path -Path $TemplateFilePath -Leaf
@@ -80,6 +137,13 @@
                         $result.DeploymentStackSettings = $parentStackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
                         return $result
                     }
+                }
+                else {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $parentStackPath, $TemplateFilePath
+                    $result.DeploymentStackTemplateFilePath = $parentStackPath
+                    if ($parentStackContent.excludedAzOpsFiles) { $parentStackContent.PSObject.Properties.Remove('excludedAzOpsFiles') }
+                    $result.DeploymentStackSettings = $parentStackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+                    return $result
                 }
             }
             else {

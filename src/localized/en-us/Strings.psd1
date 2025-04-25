@@ -93,6 +93,7 @@
     'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $stackTemplatePath/$parentStackPath
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath'                = 'ReverseLookup found template [{1}] for DeploymentStack [{0}]' # $TemplateFilePath, $result.ReverseLookupTemplateFilePath
 
     'Get-AzOpsManagementGroup.Failed'                                               = 'Get-AzManagementGroup -GroupId {0} failed' #$ManagementGroup
 
