@@ -100,7 +100,7 @@
                 if ($null -ne $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
                     # Iterate through each reverse lookup template path with New-AzOpsList
                     $reverseLookupDeploymentStacksTemplates = foreach ($templatePath in $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
-                        New-AzOpsList -FilePath $templatePath
+                        New-AzOpsList -FilePath $templatePath -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                     }
                     # If templates are successfully created, return them
                     if ($reverseLookupDeploymentStacksTemplates) {
@@ -541,17 +541,17 @@
         #endregion Create DeploymentList
 
         #region Create DeletionList
+        # Normalize paths by removing or replacing extensions for comparison
+        $normalizedDeleteSet = $deleteSet | ForEach-Object {
+            $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+        }
+        $normalizedResolvedDeleteSet = ($deleteSet | Resolve-Path).Path | ForEach-Object {
+            $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+        }
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             # Create a list of deletion file associations using the New-AzOpsList function
             $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter |
             Where-Object {
-                # Normalize paths by removing or replacing extensions for comparison
-                $normalizedDeleteSet = $deleteSet | ForEach-Object {
-                    $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
-                }
-                $normalizedResolvedDeleteSet = ($deleteSet | Resolve-Path).Path | ForEach-Object {
-                    $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
-                }
                 # Include items if TemplateFilePath or TemplateParameterFilePath matches the normalized delete set
                 if ($_.TemplateFilePath -in $normalizedDeleteSet -or $_.TemplateFilePath -in $normalizedResolvedDeleteSet) {
                     return $true

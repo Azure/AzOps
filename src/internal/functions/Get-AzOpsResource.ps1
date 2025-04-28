@@ -15,11 +15,17 @@
     param (
         [Parameter(Mandatory = $true)]
         [AzOpsScope]
-        $ScopeObject
+        $ScopeObject,
+
+        [string]
+        $DeploymentStackName
     )
 
     process {
         Set-AzOpsContext -ScopeObject $ScopeObject
+        if ($DeploymentStackName -and $ScopeObject.Resource -ne 'deploymentStacks') {
+            $ScopeObject.Resource = 'deploymentStacks'
+        }
         try {
             switch ($ScopeObject.Resource) {
                 # Check if the resource exist
@@ -43,6 +49,34 @@
                 }
                 'resourceGroups' {
                     $resource = Get-AzResourceGroup -Id $scopeObject.Scope -ErrorAction SilentlyContinue
+                }
+                'deploymentStacks' {
+                    if ($ScopeObject.ResourceGroup) {
+                        if ($DeploymentStackName) {
+                            $resource = Get-AzResourceGroupDeploymentStack -Name $DeploymentStackName -ResourceGroupName $ScopeObject.ResourceGroup -ErrorAction SilentlyContinue
+                        }
+                        else {
+                            $resource = Get-AzResourceGroupDeploymentStack -ResourceId $ScopeObject.Scope -ErrorAction SilentlyContinue
+                        }
+
+                    }
+                    elseif ($ScopeObject.Subscription) {
+                        if ($DeploymentStackName) {
+                            $resource = Get-AzSubscriptionDeploymentStack -Name $DeploymentStackName -ErrorAction SilentlyContinue
+                        }
+                        else {
+                            $resource = Get-AzSubscriptionDeploymentStack -ResourceId $ScopeObject.Scope -ErrorAction SilentlyContinue
+                        }
+
+                    }
+                    elseif ($ScopeObject.ManagementGroup) {
+                        if ($DeploymentStackName) {
+                            $resource = Get-AzManagementGroupDeploymentStack -Name $DeploymentStackName -ManagementGroupId $ScopeObject.ManagementGroup -ErrorAction SilentlyContinue
+                        }
+                        else {
+                            $resource = Get-AzManagementGroupDeploymentStack -ResourceIdd $ScopeObject.Scope -ErrorAction SilentlyContinue
+                        }
+                    }
                 }
                 default {
                     $resource = Get-AzResource -ResourceId $ScopeObject.Scope -ErrorAction SilentlyContinue
