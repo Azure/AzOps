@@ -102,9 +102,16 @@
                     $reverseLookupDeploymentStacksTemplates = foreach ($templatePath in $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
                         New-AzOpsList -FilePath $templatePath -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
                     }
-                    # If templates are successfully created, return them
                     if ($reverseLookupDeploymentStacksTemplates) {
-                        return $reverseLookupDeploymentStacksTemplates
+                        # Ensure DeploymentStackTemplateFilePath is in $FileSet
+                        $filteredReverseLookupDeploymentStacksTemplates = $reverseLookupDeploymentStacksTemplates | Where-Object { $_.DeploymentStackTemplateFilePath -in (Resolve-Path -Path $FileSet).Path }
+                        if ($filteredReverseLookupDeploymentStacksTemplates) {
+                            return $filteredReverseLookupDeploymentStacksTemplates
+                        }
+                        else {
+                            # Skip processing if no reverse lookup template paths are found
+                            continue
+                        }
                     }
                 }
                 else {
