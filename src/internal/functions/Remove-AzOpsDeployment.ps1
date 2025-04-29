@@ -428,15 +428,6 @@
                             $allResults += $results
                         }
                     }
-                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
-                    if ($retry.Count -gt 0) {
-                        # Retry failed removals recursively
-                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.Resource.RetryCount' -LogStringValues $retry.Count
-                        foreach ($try in $retry) { $try.Status = $null }
-                        $removeActionRecursive = Remove-AzResourceRaw -InputObject $retry -Recursive
-                        $removeActionRecursiveRemaining = $removeActionRecursive | Where-Object { $_.Status -eq 'failed' }
-                        return $removeActionRecursiveRemaining
-                    }
                 }
                 else {
                     # No resource to remove was found

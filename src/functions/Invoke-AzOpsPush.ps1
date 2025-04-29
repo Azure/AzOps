@@ -92,7 +92,7 @@
                 $FilePath = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
-            # Handle DeploymentStacks templates
+            # Handle AzOps DeploymentStacks templates
             if ($FilePath.EndsWith(".deploymentStacks.json")) {
                 # Retrieve reverse lookup template paths for the deployment stack
                 $azOpsDeploymentStackReverseLookupTemplatePaths = Get-AzOpsDeploymentStackSetting -TemplateFilePath $FilePath -ReverseLookup

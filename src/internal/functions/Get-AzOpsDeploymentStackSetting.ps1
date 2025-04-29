@@ -15,6 +15,19 @@
             When specified, the function attempts to resolve and return the template file paths that are part of the deployment stack configuration.
         .EXAMPLE
             > $result = Get-AzOpsDeploymentStackSetting -TemplateFilePath "C:\Templates\example.bicep"
+            > $result
+
+            DeploymentStackTemplateFilePath : C:\Templates\example.deploymentStacks.json
+            DeploymentStackSettings         : @{property1=value1; property2=value2}
+            ReverseLookupTemplateFilePath   :
+
+        .EXAMPLE
+            > $result = Get-AzOpsDeploymentStackSetting -TemplateFilePath "C:\Templates\.deploymentStacks.json" -ReverseLookup
+            > $result
+
+            DeploymentStackTemplateFilePath :
+            DeploymentStackSettings         :
+            ReverseLookupTemplateFilePath   : {C:\Templates\example1.bicep, C:\Templates\example2.json}
     #>
 
     [CmdletBinding()]
