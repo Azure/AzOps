@@ -126,8 +126,8 @@
             }
             catch {
                 # Log a warning message if creating the scope object fails
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath -Target $FilePath -ErrorRecord $_
-                continue
+                Write-AzOpsMessage -LogLevel Error -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath, $StatePath -Target $FilePath -ErrorRecord $_
+                return
             }
 
             # Resolve ARM file association
