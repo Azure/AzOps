@@ -10,11 +10,13 @@
             The function also handles exclusions defined in the stack configuration and logs relevant messages for debugging and tracing purposes.
         .PARAMETER TemplateFilePath
             The file path of the template to be processed. This should point to a JSON or Bicep file that may be part of a deployment stack.
+        .PARAMETER ScopeObject
+            An optional object that specifies the deployment scope, such as ResourceGroup, Subscription, or ManagementGroup.
         .PARAMETER ReverseLookup
             Indicates whether the function should perform a reverse lookup to identify the associated template file(s) for a given deployment stack file.
             When specified, the function attempts to resolve and return the template file paths that are part of the deployment stack configuration.
         .EXAMPLE
-            > $result = Get-AzOpsDeploymentStackSetting -TemplateFilePath "C:\Templates\example.bicep"
+            > $result = Get-AzOpsDeploymentStackSetting -TemplateFilePath "C:\Templates\example.bicep" -ScopeObject (New-AzOpsScope -Path C:\Templates\example.bicep)
             > $result
 
             DeploymentStackTemplateFilePath : C:\Templates\example.deploymentStacks.json
@@ -30,26 +32,22 @@
             ReverseLookupTemplateFilePath   : {C:\Templates\example1.bicep, C:\Templates\example2.json}
     #>
 
+    #region Parameters
     [CmdletBinding()]
     param (
-        [Parameter(ValueFromPipeline = $true)]
+        [Parameter(Mandatory=$true, ValueFromPipeline = $true)]
         [string]
         $TemplateFilePath,
+        [Parameter(ValueFromPipeline = $true)]
+        [object]
+        $ScopeObject,
         [Parameter(ValueFromPipeline = $true)]
         [switch]
         $ReverseLookup
     )
+    #endregion
 
     begin {
-        # Initialize the result object with default null values
-        $result = [PSCustomObject] @{
-            DeploymentStackTemplateFilePath = $null
-            DeploymentStackSettings         = $null
-            ReverseLookupTemplateFilePath   = $null
-        }
-    }
-
-    process {
         function Get-AzOpsDeploymentStackSettingReverseLookup {
             param (
                 [string]
@@ -64,10 +62,10 @@
                 $folderPathLookup = Join-Path -Path $folderPath -ChildPath '*'
 
                 # Retrieve all Bicep and JSON files in the folder
-                $files = Get-ChildItem -Path $folderPathLookup -File -Include *.bicep, *.json -Exclude *.deploymentStacks.json | Select-Object -ExpandProperty FullName
-                $returnFiles = @()
+                $allTemplateFiles = Get-ChildItem -Path $folderPathLookup -File -Include *.bicep, *.json -Exclude *.deploymentStacks.json | Select-Object -ExpandProperty FullName
+                $nonAzOpsFiles = @()
 
-                foreach ($file in $files) {
+                foreach ($file in $allTemplateFiles) {
                     if ($file.EndsWith('.json')) {
                         # Check if the JSON file has AzOps metadata
                         $fileContent = Get-Content -Path $file | ConvertFrom-Json -AsHashtable
@@ -75,16 +73,16 @@
                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $file
                         }
                         else {
-                            $returnFiles += $file
+                            $nonAzOpsFiles += $file
                         }
                     }
                     else {
-                        $returnFiles += $file
+                        $nonAzOpsFiles += $file
                     }
                 }
 
                 # Update the result object with the resolved file paths
-                $result.ReverseLookupTemplateFilePath = $returnFiles
+                $result.ReverseLookupTemplateFilePath = $nonAzOpsFiles
                 Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath' -LogStringValues $TemplateFilePath, $result.ReverseLookupTemplateFilePath
                 return $result
             }
@@ -111,13 +109,58 @@
                 [array]
                 $FileVariants,
                 [PSCustomObject]
-                $result
+                $result,
+                [object]
+                $ScopeObject
             )
 
             # Check if the stack file exists
             if (Test-Path $StackPath) {
-                $stackContent = Get-Content -Path $StackPath -Raw | ConvertFrom-Json -Depth 100
+                try {
+                    # Read and parse the JSON content from the stack file
+                    $stackContent = Get-Content -Path $StackPath -Raw | ConvertFrom-Json -AsHashtable
+                }
+                catch {
+                    # Handle errors during JSON conversion or other operations
+                    Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsDeploymentStackSetting.DeploymentStackSetting.Error' -LogStringValues $StackPath, $TemplateFilePath
+                    $result.DeploymentStackTemplateFilePath = $StackPath
+                    $result.DeploymentStackSettings = $null
+                    return $result
+                }
+                if ($ScopeObject.ResourceGroup -and $ScopeObject.ResourceGroup -ne "") {
+                    $command = "New-AzResourceGroupDeploymentStack"
+                }
+                elseif ($ScopeObject.Subscription -and $ScopeObject.Subscription -ne "") {
+                    $command = "New-AzSubscriptionDeploymentStack"
+                }
+                elseif ($ScopeObject.ManagementGroup -and $ScopeObject.ManagementGroup -ne "") {
+                    $command = "New-AzManagementGroupDeploymentStack"
+                }
+                else {
+                    $command = "New-AzResourceGroupDeploymentStack"
+                }
+                $allowedSettings = @(
+                    "ActionOnUnmanage",
+                    "DenySettingsMode",
+                    "DenySettingsExcludedPrincipal",
+                    "DenySettingsExcludedAction",
+                    "DenySettingsApplyToChildScopes",
+                    "BypassStackOutOfSyncError"
+                )
+                # Get the valid parameters for the command
+                $validParameters = (Get-Command $command).Parameters.Keys | Where-Object { $_ -in $allowedSettings }
 
+                # Initialize an empty hashtable to store the filtered parameters
+                $finalParameters = @{}
+
+                # Iterate over the keys in the stack content
+                foreach ($key in $stackContent.Keys) {
+                    # Check if the key is a valid parameter
+                    if ($validParameters -contains $key) {
+                        # Add the key-value pair to the prepared parameters
+                        $finalParameters[$key] = $stackContent[$key]
+                    }
+                }
                 # Handle excluded files
                 if ($stackContent.excludedAzOpsFiles -and ($stackContent.excludedAzOpsFiles).Count -gt 0) {
                     if ($FileVariants | Where-Object { $stackContent.excludedAzOpsFiles -match $_ }) {
@@ -128,20 +171,14 @@
                         # Update the result object if the file is not excluded
                         Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $StackPath, $TemplateFilePath
                         $result.DeploymentStackTemplateFilePath = $StackPath
-                        if ($stackContent.excludedAzOpsFiles) {
-                            $stackContent.PSObject.Properties.Remove('excludedAzOpsFiles')
-                        }
-                        $result.DeploymentStackSettings = $stackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+                        $result.DeploymentStackSettings = $finalParameters
                     }
                 }
                 else {
                     # Update the result object if there are no excluded files
                     Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath' -LogStringValues $StackPath, $TemplateFilePath
                     $result.DeploymentStackTemplateFilePath = $StackPath
-                    if ($stackContent.excludedAzOpsFiles) {
-                        $stackContent.PSObject.Properties.Remove('excludedAzOpsFiles')
-                    }
-                    $result.DeploymentStackSettings = $stackContent | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+                    $result.DeploymentStackSettings = $finalParameters
                 }
                 return $result
             }
@@ -152,6 +189,15 @@
             }
 
         }
+        # Initialize the result object with default null values
+        $result = [PSCustomObject] @{
+            DeploymentStackTemplateFilePath = $null
+            DeploymentStackSettings         = $null
+            ReverseLookupTemplateFilePath   = $null
+        }
+    }
+
+    process {
         # Handle ReverseLookup Mode
         if ($ReverseLookup) {
             $validatedResult = Get-AzOpsDeploymentStackSettingReverseLookup -TemplateFilePath $TemplateFilePath -result $result
@@ -184,13 +230,13 @@
             $stackTemplatePath = $TemplateFilePath -replace '\.json$', '.deploymentStacks.json'
             $parentStackPath = Join-Path -Path (Split-Path -Path $TemplateFilePath) -ChildPath ".deploymentStacks.json"
 
-            $evaluateStackTemplatePath = Get-AzOpsDeploymentStackFile -StackPath $stackTemplatePath -TemplateFilePath $TemplateFilePath -FileVariants $fileVariants -result $result
+            $evaluateStackTemplatePath = Get-AzOpsDeploymentStackFile -StackPath $stackTemplatePath -TemplateFilePath $TemplateFilePath -FileVariants $fileVariants -result $result -ScopeObject $ScopeObject
             if ($evaluateStackTemplatePath.DeploymentStackTemplateFilePath) {
                 $result = $evaluateStackTemplatePath
                 return $result
             }
             else {
-                $evaluateParentStackPath = Get-AzOpsDeploymentStackFile -StackPath $parentStackPath -TemplateFilePath $TemplateFilePath -FileVariants $fileVariants -result $result
+                $evaluateParentStackPath = Get-AzOpsDeploymentStackFile -StackPath $parentStackPath -TemplateFilePath $TemplateFilePath -FileVariants $fileVariants -result $result -ScopeObject $ScopeObject
                 if ($evaluateParentStackPath.DeploymentStackTemplateFilePath) {
                     $result = $evaluateParentStackPath
                     return $result

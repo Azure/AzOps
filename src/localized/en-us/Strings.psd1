@@ -89,9 +89,10 @@
     'Get-AzOpsCurrentPrincipal.AccountType'                                         = 'Current AccountType is {0}' #$AzContext.Account.Type
     'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
-    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $stackTemplatePath/$parentStackPath, $TemplateFilePath
-    'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $TemplateFilePath
-    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $stackTemplatePath/$parentStackPath
+    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $StackPath, $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.DeploymentStackSetting.Error'                  = 'Error reading DeploymentStackSetting in [{0}] for template [{1}]' # $StackPath $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $StackPath
+    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $StackPath
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath'                = 'ReverseLookup found template [{1}] for DeploymentStack [{0}]' # $TemplateFilePath, $result.ReverseLookupTemplateFilePath
 

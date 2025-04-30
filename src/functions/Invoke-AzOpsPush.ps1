@@ -217,7 +217,7 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
-                            $deploymentStack = $result.TemplateFilePath | Get-AzOpsDeploymentStackSetting
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ScopeObject $result.ScopeObject
                             $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
                             $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
@@ -237,7 +237,7 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
-                            $deploymentStack = $result.TemplateFilePath | Get-AzOpsDeploymentStackSetting
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ScopeObject $result.ScopeObject
                             $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
                             $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
@@ -268,7 +268,7 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
-                            $deploymentStack = $result.TemplateFilePath | Get-AzOpsDeploymentStackSetting
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ScopeObject $result.ScopeObject
                             $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
                             $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
@@ -378,7 +378,7 @@
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
             if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
             $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
-            $deploymentStack = $result.TemplateFilePath | Get-AzOpsDeploymentStackSetting
+            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ScopeObject $result.ScopeObject
             $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
             $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
             $result
