@@ -122,7 +122,7 @@
                 }
                 catch {
                     # Handle errors during JSON conversion or other operations
-                    Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsDeploymentStackSetting.DeploymentStackSetting.Error' -LogStringValues $StackPath, $TemplateFilePath
+                    Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsDeploymentStackSetting.Setting.Error' -LogStringValues $StackPath, $TemplateFilePath
                     $result.DeploymentStackTemplateFilePath = $StackPath
                     $result.DeploymentStackSettings = $null
                     return $result
@@ -137,7 +137,8 @@
                     $command = "New-AzManagementGroupDeploymentStack"
                 }
                 else {
-                    $command = "New-AzResourceGroupDeploymentStack"
+                    Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsDeploymentStackSetting.Scope.Error' -LogStringValues $StackPath, $TemplateFilePath
+                    return $result
                 }
                 $allowedSettings = @(
                     "ActionOnUnmanage",
