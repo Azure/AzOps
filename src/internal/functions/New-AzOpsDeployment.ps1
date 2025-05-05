@@ -234,6 +234,7 @@
             $deploymentResult = [PSCustomObject]@{
                 filePath    = ''
                 parameterFilePath = ''
+                deploymentStackTemplateFilePath = $DeploymentStackTemplateFilePath
                 results = ''
                 deployment = ''
             }

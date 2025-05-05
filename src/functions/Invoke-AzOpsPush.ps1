@@ -707,7 +707,7 @@
                 if ($WhatIfPreference) {
                     #Process deploymentResult and output result
                     foreach ($result in $deploymentResult) {
-                        Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
+                        Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results -DeploymentStackTemplateFilePath $result.deploymentStackTemplateFilePath
                     }
                 }
             }
