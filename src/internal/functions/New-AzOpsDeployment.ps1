@@ -153,37 +153,40 @@
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $TemplateObject.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
                 $deploymentCommand = 'New-AzResourceGroupDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroupDeploymentStack.Processing' -LogStringValues $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
             } else {
                 $deploymentCommand = 'New-AzResourceGroupDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             }
             $parameters.ResourceGroupName = $scopeObject.resourcegroup
             $parameters.Remove('Location')
         }
         # Subscriptions
         elseif ($scopeObject.subscription) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
                 $deploymentCommand = 'New-AzSubscriptionDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.SubscriptionDeploymentStack.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
             } else {
                 $deploymentCommand = 'New-AzDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             }
         }
         # Management Groups
         elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $parameters.ManagementGroupId = $scopeObject.managementgroup
             $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
                 $deploymentCommand = 'New-AzManagementGroupDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroupDeploymentStack.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
             } else {
                 $deploymentCommand = 'New-AzManagementGroupDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             }
         }
         # Tenant deployments

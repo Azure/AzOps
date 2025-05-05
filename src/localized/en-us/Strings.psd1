@@ -259,14 +259,17 @@
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #
 
     'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove'           = 'Removing temporary processing deployment template file [{0}]' # $TemporaryTemplateFilePath
-    'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for [{1}]' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.ManagementGroupDeploymentStack.Processing'                 = 'Attempting [Management Group] DeploymentStack deployment in [{0}] for [{1}] with [{2}]' # $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
-    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for {0}' # $scopeObject
+    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for [{0}]' # $scopeObject
+    'New-AzOpsDeployment.ResourceGroupDeploymentStack.Processing'                   = 'Attempting [resource Group] DeploymentStack deployment for [{0}] with [{1}]' # $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.Root.Processing'                                           = 'Attempting [Tenant Scope] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.Scope.Empty'                                               = 'Unable to determine the scope of template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
-    'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for [{1}]' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.SubscriptionDeploymentStack.Processing'                    = 'Attempting [Subscription] DeploymentStack deployment in [{0}] for [{1}] with [{2}]' # $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.TemplateParameterError'                                    = 'Error due to empty parameter - will not attempt to deploy template. Error can be ignored for bicep modules.' # $
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError
