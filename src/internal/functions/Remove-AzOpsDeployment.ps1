@@ -318,7 +318,9 @@
             if (-not $resourceToDelete) {
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
-                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                if ($WhatIfPreference) {
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                }
                 return
             }
             if ($dependency) {
@@ -326,9 +328,11 @@
                     if ($resource.Id -notin $deletionList.ScopeObject.Scope) {
                         Write-AzOpsMessage -LogLevel Critical -LogString 'Remove-AzOpsDeployment.ResourceDependencyNotFound' -LogStringValues $resource.Id, $scopeObject.Scope
                         $results = 'Missing resource dependency:{2}{0} for successful deletion of {1}.{2}{2}Please add dependent resource to pull request and retry.' -f $resource.Id, $scopeObject.scope, [environment]::NewLine
-                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         $dependencyMissing = [PSCustomObject]@{
                             dependencyMissing = $true
+                        }
+                        if ($WhatIfPreference) {
+                            Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         }
                     }
                 }
@@ -337,7 +341,9 @@
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
-                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                if ($WhatIfPreference) {
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                }
             }
             if ($dependencyMissing) {
                 return $dependencyMissing
@@ -346,7 +352,9 @@
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
-                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                if ($WhatIfPreference) {
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                }
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
                 $null = Remove-AzResourceRaw -ScopeObject $scopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
@@ -367,7 +375,7 @@
                 # Check if the resource exists
                 $resource = Get-AzOpsResource -DeploymentStackName $removeJobName -ScopeObject $scopeObject -ErrorAction SilentlyContinue
                 if ($resource) {
-                    $deploymentStackScopeObject = New-AzOpsScope -Scope $resource.Id
+                    $deploymentStackScopeObject = New-AzOpsScope -Scope $resource.Id -WhatIf:$false
                     $results = 'What if successful:{1}Performing the operation:{1}Deletion of Deployment Stack: {0}{1}with resourcesCleanupAction: {2}, resourceGroupsCleanupAction: {3}, managementGroupsCleanupAction: {4}{1}with associated resource: {1}{5}.' -f $deploymentStackScopeObject.Scope, [environment]::NewLine, $resource.resourcesCleanupAction, $resource.resourceGroupsCleanupAction, $resource.managementGroupsCleanupAction, ($resource.Resources.Id | Out-String)
                     $allResults += $results
                     Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
@@ -433,7 +441,9 @@
                     # No resource to remove was found
                     Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                     $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.Scope, [environment]::NewLine
-                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
+                    if ($WhatIfPreference) {
+                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
+                    }
                     return
                 }
             }
@@ -465,7 +475,9 @@
                     Write-AzOpsMessage -LogLevel Warning -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $allResults
                 }
             }
-            Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
+            if ($WhatIfPreference) {
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
+            }
             if ($retry.Count -gt 0) {
                 # Retry failed removals recursively
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzOpsDeployment.Resource.RetryCount' -LogStringValues $retry.Count

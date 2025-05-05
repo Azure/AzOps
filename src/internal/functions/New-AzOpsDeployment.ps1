@@ -34,6 +34,7 @@
             filePath                       /root/managementgroup/subscription/resourcegroup/template.json
             parameterFilePath              /root/managementgroup/subscription/resourcegroup/template.parameters.json
             results                        Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.Deployments.PSWhatIfOperationResult
+            deployment                     Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentStack
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -239,55 +240,42 @@
             if ($WhatifExcludedChangeTypes) {
                 $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
             }
-            # Get predictive deployment results from WhatIf API
-            $results = & $whatIfCommand @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($resultsError) {
-                $resultsErrorMessage = $resultsError.exception.InnerException.Message
-                # Ignore errors for bicep modules
-                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                    $invalidTemplate = $true
-                }
-                # Handle WhatIf prediction errors
-                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
-                    if ($parameters.TemplateParameterFile) {
-                        $deploymentResult.filePath = $parameters.TemplateFile
-                        $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+            # Code to execute only when -WhatIf:$true is passed
+            if ($WhatIfPreference) {
+                # Get predictive deployment results from WhatIf API
+                $results = & $whatIfCommand @parameters -ErrorAction Continue -ErrorVariable resultsError
+                if ($resultsError) {
+                    $resultsErrorMessage = $resultsError.exception.InnerException.Message
+                    # Ignore errors for bicep modules
+                    if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                        $invalidTemplate = $true
+                    }
+                    # Handle WhatIf prediction errors
+                    elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
                         $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                     }
                     else {
-                        $deploymentResult.filePath = $parameters.TemplateFile
-                        $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
+                        throw $resultsErrorMessage
                     }
                 }
-                else {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
-                    throw $resultsErrorMessage
-                }
-            }
-            elseif ($results.Error) {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateError' -LogStringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
-            else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
-                Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                if ($parameters.TemplateParameterFile) {
-                    $deploymentResult.filePath = $TemplateFilePath
-                    $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
-                    $deploymentResult.results = $results
+                elseif ($results.Error) {
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateError' -LogStringValues $TemplateFilePath -Target $scopeObject
+                    return
                 }
                 else {
-                    $deploymentResult.filePath = $TemplateFilePath
-                    $deploymentResult.results = $results
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 }
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
             if ($parameters.ExcludeChangeType) {
                 $parameters.Remove('ExcludeChangeType')
             }
-            if ($null -ne $DeploymentStackSettings) {
+            if ($deploymentCommand -match 'DeploymentStack$') {
+                # Add Force parameter for deploymentStack cmdlets
                 $DeploymentStackSettings['Force'] = $true
                 $parameters += $DeploymentStackSettings
             }
@@ -309,6 +297,18 @@
         }
         #Return
         if ($deploymentResult) {
+            if ($parameters.TemplateParameterFile) {
+                $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+            }
+            if ($parameters.TemplateFile) {
+                $deploymentResult.filePath = $parameters.TemplateFile
+            }
+            else {
+                $deploymentResult.filePath = $TemplateFilePath
+            }
+            if ($deploymentResult.results -eq '') {
+                $deploymentResult.results = $results
+            }
             return $deploymentResult
         }
     }
