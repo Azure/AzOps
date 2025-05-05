@@ -288,12 +288,13 @@
                 $parameters.Remove('ExcludeChangeType')
             }
             if ($null -ne $DeploymentStackSettings) {
+                $DeploymentStackSettings['Force'] = $true
                 $parameters += $DeploymentStackSettings
             }
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand")) {
                 if (-not $invalidTemplate) {
-                    $deploymentResult.deployment = & $deploymentCommand @parameters -Force:$true
+                    $deploymentResult.deployment = & $deploymentCommand @parameters
                 }
             }
             else {
