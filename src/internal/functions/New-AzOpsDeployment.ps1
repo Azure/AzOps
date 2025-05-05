@@ -95,7 +95,7 @@
 
         #region Resolve Scope
         try {
-            if ($TemplateParameterFilePath) {
+            if ($TemplateParameterFilePath -and $TemplateFilePath -eq (Resolve-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')).Path) {
                 $scopeObject = New-AzOpsScope -Path $TemplateParameterFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
             }
             else {
