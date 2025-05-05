@@ -376,7 +376,7 @@
                 $resource = Get-AzOpsResource -DeploymentStackName $removeJobName -ScopeObject $scopeObject -ErrorAction SilentlyContinue
                 if ($resource) {
                     $deploymentStackScopeObject = New-AzOpsScope -Scope $resource.Id -WhatIf:$false
-                    $results = 'What if successful:{1}Performing the operation:{1}Deletion of Deployment Stack: {0}{1}with resourcesCleanupAction: {2}, resourceGroupsCleanupAction: {3}, managementGroupsCleanupAction: {4}{1}with associated resource: {1}{5}.' -f $deploymentStackScopeObject.Scope, [environment]::NewLine, $resource.resourcesCleanupAction, $resource.resourceGroupsCleanupAction, $resource.managementGroupsCleanupAction, ($resource.Resources.Id | Out-String)
+                    $results = 'What if successful:{1}Performing the operation:{1}Deletion of Deployment Stack: {0}{1}Actions: resourcesCleanupAction: {2}, resourceGroupsCleanupAction: {3}, managementGroupsCleanupAction: {4}{1}Associated resources: {1}{5}' -f $deploymentStackScopeObject.Scope, [environment]::NewLine, $resource.resourcesCleanupAction, $resource.resourceGroupsCleanupAction, $resource.managementGroupsCleanupAction, ($resource.Resources.Id | Out-String)
                     $allResults += $results
                     Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
                     Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
