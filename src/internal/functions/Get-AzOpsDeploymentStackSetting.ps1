@@ -322,7 +322,7 @@
                 return $result
             }
         }
-        if (-not $TemplateFilePath.EndsWith('.json') -or ($file.EndsWith('parameters.json'))) {
+        if (-not $TemplateFilePath.EndsWith('.json') -or ($TemplateFilePath.EndsWith('parameters.json'))) {
             Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.NoJson' -LogStringValues $TemplateFilePath
             return
         }
