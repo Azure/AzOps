@@ -333,7 +333,6 @@
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $TemplateFilePath
                 return
             }
-
         }
         catch {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Template.Error' -LogStringValues $TemplateFilePath
