@@ -322,6 +322,10 @@
                 return $result
             }
         }
+        if (-not $TemplateFilePath.EndsWith('.json')) {
+            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.NoJson' -LogStringValues $TemplateFilePath
+            return
+        }
         try {
             # Process the template file to determine its deployment stack configuration
             $templateContent = Get-Content -Path $TemplateFilePath -Raw | ConvertFrom-Json -AsHashtable

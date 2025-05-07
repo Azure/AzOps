@@ -97,6 +97,7 @@
     'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}] due to exclusion match: [{2}]' # $TemplateFilePath, $StackPath, $matchedFile
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath'                = 'ReverseLookup found template [{1}] for DeploymentStack [{0}]' # $TemplateFilePath, $result.ReverseLookupTemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.NoJson'                                = 'The specified file is not a json file! Skipping {0}' # $TemplateFilePath
 
     'Get-AzOpsManagementGroup.Failed'                                               = 'Get-AzManagementGroup -GroupId {0} failed' #$ManagementGroup
 
