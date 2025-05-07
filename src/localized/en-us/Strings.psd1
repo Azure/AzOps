@@ -90,6 +90,7 @@
     'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $StackPath, $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Template.Error'                                = 'Error reading template [{0}] during DeploymentStackSetting processing' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Setting.Error'                                 = 'Error reading DeploymentStackSetting in [{0}] for template [{1}]' # $StackPath $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Scope.Error'                                   = 'Error unable to find supported DeploymentStack scope at [{0}] for template [{1}]' # $StackPath $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $StackPath

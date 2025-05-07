@@ -322,10 +322,17 @@
                 return $result
             }
         }
-        # Process the template file to determine its deployment stack configuration
-        $templateContent = Get-Content -Path $TemplateFilePath -Raw | ConvertFrom-Json -AsHashtable
-        if ($templateContent.metadata._generator.name -eq "AzOps") {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $TemplateFilePath
+        try {
+            # Process the template file to determine its deployment stack configuration
+            $templateContent = Get-Content -Path $TemplateFilePath -Raw | ConvertFrom-Json -AsHashtable
+            if ($templateContent.metadata._generator.name -eq "AzOps") {
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $TemplateFilePath
+                return
+            }
+
+        }
+        catch {
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Template.Error' -LogStringValues $TemplateFilePath
             return
         }
         # Process the call
