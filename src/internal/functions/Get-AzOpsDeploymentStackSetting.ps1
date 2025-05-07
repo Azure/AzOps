@@ -91,7 +91,7 @@
                     if ($file.EndsWith('.json')) {
                         # Check if the JSON file has AzOps metadata
                         $fileContent = Get-Content -Path $file | ConvertFrom-Json -AsHashtable
-                        if ($fileContent.metadata._generator.name -eq "AzOps") {
+                        if ($fileContent.metadata._generator.name -eq "AzOps" -or ($fileContent.Keys -contains "`$schema" -and $fileContent.parameters.input.value)) {
                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps' -LogStringValues $file
                         }
                         else {
@@ -322,7 +322,7 @@
                 return $result
             }
         }
-        if (-not $TemplateFilePath.EndsWith('.json')) {
+        if (-not $TemplateFilePath.EndsWith('.json') -or ($file.EndsWith('parameters.json'))) {
             Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsDeploymentStackSetting.Resolve.NoJson' -LogStringValues $TemplateFilePath
             return
         }
