@@ -93,7 +93,7 @@
     'Get-AzOpsDeploymentStackSetting.Setting.Error'                                 = 'Error reading DeploymentStackSetting in [{0}] for template [{1}]' # $StackPath $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Scope.Error'                                   = 'Error unable to find supported DeploymentStack scope at [{0}] for template [{1}]' # $StackPath $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $StackPath
-    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}]' # $TemplateFilePath, $StackPath
+    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}] due to exclusion match: [{2}]' # $TemplateFilePath, $StackPath, $matchedFile
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath'                = 'ReverseLookup found template [{1}] for DeploymentStack [{0}]' # $TemplateFilePath, $result.ReverseLookupTemplateFilePath
 
