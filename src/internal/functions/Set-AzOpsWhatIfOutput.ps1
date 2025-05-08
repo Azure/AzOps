@@ -69,7 +69,9 @@
             if ($DeploymentStackTemplateFilePath -ne '') {
                 $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) using DeploymentStack $($DeploymentStackTemplateFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
             }
-            $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+            else {
+                $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+            }
         }
 
         # Measure input $Results.Changes content
