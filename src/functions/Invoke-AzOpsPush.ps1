@@ -252,9 +252,6 @@
                             $bicepTemplatePath = $fileItem.FullName -replace '\.bicepparam$', '.bicep'
                         }
                         if (Test-Path $bicepTemplatePath) {
-                            #removeme
-
-                            #removeme
                             if ($CompareDeploymentToDeletion) {
                                 # Avoid adding files destined for deletion to a deployment list
                                 if ($bicepTemplatePath -in $deleteSet -or $bicepTemplatePath -in ($deleteSet | Resolve-Path).Path) {
@@ -276,11 +273,6 @@
                             $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
                         }
-                        #removeme
-                        else {
-                            Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Resolve.FoundBicepTemplate' -LogStringValues $FilePath, $bicepTemplatePath
-                        }
-                        #removeme
                     }
                 }
                 #endregion Directly Associated Template file exists
