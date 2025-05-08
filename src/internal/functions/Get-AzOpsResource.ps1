@@ -74,7 +74,7 @@
                             $resource = Get-AzManagementGroupDeploymentStack -Name $DeploymentStackName -ManagementGroupId $ScopeObject.ManagementGroup -ErrorAction SilentlyContinue
                         }
                         else {
-                            $resource = Get-AzManagementGroupDeploymentStack -ResourceIdd $ScopeObject.Scope -ErrorAction SilentlyContinue
+                            $resource = Get-AzManagementGroupDeploymentStack -ResourceId $ScopeObject.Scope -ErrorAction SilentlyContinue
                         }
                     }
                 }
