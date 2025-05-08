@@ -319,7 +319,7 @@
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                 $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.scope, [environment]::NewLine
                 if ($WhatIfPreference) {
-                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 }
                 return
             }
@@ -332,7 +332,7 @@
                             dependencyMissing = $true
                         }
                         if ($WhatIfPreference) {
-                            Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                            Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $results -RemoveAzOpsFlag $true
                         }
                     }
                 }
@@ -340,9 +340,8 @@
             else {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 if ($WhatIfPreference) {
-                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $results -RemoveAzOpsFlag $true
                 }
             }
             if ($dependencyMissing) {
@@ -351,9 +350,8 @@
             elseif ($dependency) {
                 $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $scopeObject.scope, [environment]::NewLine
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                 if ($WhatIfPreference) {
-                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -Results $results -RemoveAzOpsFlag $true
+                    Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $results -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -RemoveAzOpsFlag $true
                 }
             }
             if ($PSCmdlet.ShouldProcess("Remove $($scopeObject.Scope)?")) {
@@ -379,7 +377,6 @@
                     $results = 'What if successful:{1}Performing the operation:{1}Deletion of Deployment Stack: {0}{1}Actions: resourcesCleanupAction: {2}, resourceGroupsCleanupAction: {3}, managementGroupsCleanupAction: {4}{1}Associated resources: {1}{5}' -f $deploymentStackScopeObject.Scope, [environment]::NewLine, $resource.resourcesCleanupAction, $resource.resourceGroupsCleanupAction, $resource.managementGroupsCleanupAction, ($resource.Resources.Id | Out-String)
                     $allResults += $results
                     Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                     # Check if the removal should be performed
                     if ($PSCmdlet.ShouldProcess("Remove $($deploymentStackScopeObject.Scope)?")) {
                         $removeAction = Remove-AzResourceRaw -ScopeObject $deploymentStackScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
@@ -416,7 +413,6 @@
                             $results = 'What if successful:{1}Performing the operation:{1}Deletion of target resource {0}.' -f $resourceScopeObject.Scope, [environment]::NewLine
                             $allResults += $results
                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Set-AzOpsWhatIfOutput.WhatIfResults' -LogStringValues $results
-                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Set-AzOpsWhatIfOutput.WhatIfFile'
                             # Check if the removal should be performed
                             if ($PSCmdlet.ShouldProcess("Remove $($resourceScopeObject.Scope)?")) {
                                 $removeAction = Remove-AzResourceRaw -ScopeObject $resourceScopeObject -TemplateFilePath $TemplateFilePath -TemplateParameterFilePath $TemplateParameterFilePath
@@ -442,7 +438,7 @@
                     Write-AzOpsMessage -LogLevel Warning -LogString 'Remove-AzOpsDeployment.ResourceNotFound' -LogStringValues $scopeObject.Resource, $scopeObject.Scope
                     $results = 'What if operation failed:{1}Deletion of target resource {0}.{1}Resource could not be found' -f $scopeObject.Scope, [environment]::NewLine
                     if ($WhatIfPreference) {
-                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $results -RemoveAzOpsFlag $true
+                        Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $results -RemoveAzOpsFlag $true
                     }
                     return
                 }
@@ -476,7 +472,7 @@
                 }
             }
             if ($WhatIfPreference) {
-                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -Results $allResults -RemoveAzOpsFlag $true
+                Set-AzOpsWhatIfOutput -FilePath $TemplateFilePath -ParameterFilePath $TemplateParameterFilePath -DeploymentStackTemplateFilePath $DeploymentStackTemplateFilePath -Results $allResults -RemoveAzOpsFlag $true
             }
             if ($retry.Count -gt 0) {
                 # Retry failed removals recursively
