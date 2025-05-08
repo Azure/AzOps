@@ -92,6 +92,7 @@
     'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $StackPath, $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Template.Error'                                = 'Error reading template [{0}] during DeploymentStackSetting processing' # $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Setting.Error'                                 = 'Error reading DeploymentStackSetting in [{0}] for template [{1}]' # $StackPath $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Parameter.Error'                               = 'Error: Invalid value: [{0}] for parameter [{1}] in [{2}] for [{3}]' # $stackContent[$key], $key, $StackPath, $command
     'Get-AzOpsDeploymentStackSetting.Scope.Error'                                   = 'Error unable to find supported DeploymentStack scope at [{0}] for template [{1}]' # $StackPath $TemplateFilePath
     'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $StackPath
     'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}] due to exclusion match: [{2}]' # $TemplateFilePath, $StackPath, $matchedFile

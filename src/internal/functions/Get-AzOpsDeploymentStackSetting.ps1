@@ -213,7 +213,8 @@
                         "DenySettingsExcludedPrincipal",
                         "DenySettingsExcludedAction",
                         "DenySettingsApplyToChildScopes",
-                        "BypassStackOutOfSyncError"
+                        "BypassStackOutOfSyncError",
+                        "Location"
                     )
                     # Get the valid parameters for the command
                     $validParameters = (Get-Command $command).Parameters.Keys | Where-Object { $_ -in $allowedSettings }
@@ -225,6 +226,18 @@
                     foreach ($key in $stackContent.Keys) {
                         # Check if the key is a valid parameter
                         if ($validParameters -contains $key) {
+                            # Retrieve the parameter metadata
+                            $parameterMetadata = (Get-Command $command).Parameters[$key]
+                            # Check if the parameter type is an enum
+                            $allowedValues = @()
+                            if ($parameterMetadata.ParameterType.IsEnum) {
+                                $allowedValues = $parameterMetadata.ParameterType.GetEnumNames()
+                            }
+                            # Validate the value from $stackContent
+                            if ($allowedValues.Count -gt 0 -and -not ($allowedValues -contains $stackContent[$key])) {
+                                Write-AzOpsMessage -LogLevel Error -LogString 'Get-AzOpsDeploymentStackSetting.Parameter.Error' -LogStringValues $stackContent[$key], $key, $StackPath, $command
+                                throw
+                            }
                             # Add the key-value pair to the prepared parameters
                             $finalParameters[$key] = $stackContent[$key]
                         }
