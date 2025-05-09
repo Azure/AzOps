@@ -298,6 +298,7 @@
         if ($TemporaryTemplateFilePath) {
             Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove' -LogStringValues $TemporaryTemplateFilePath
             Remove-Item -Path $TemporaryTemplateFilePath -Force -ErrorAction SilentlyContinue -WhatIf:$false
+            $parameters.TemplateFile = $TemplateFilePath
         }
         #Return
         if ($deploymentResult) {
