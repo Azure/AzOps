@@ -143,7 +143,7 @@ graph TD
 ### Deployment Stacks Processing
 
 The most specific deploymentstack configuration (at scope) will be selected by considering the following:
-- **Specificity Matters**: The most specific `.deploymentStacks.json` file at a given scope (e.g., matching the parameter or template file name) is prioritized.
+- **Specificity Matters**: The most specific `.deploymentStacks.json` file at a given scope (e.g., matching the parameter or template filename) is prioritized.
 - **Exclusion Handling**: Files listed in the `excludedAzOpsFiles` setting of a `.deploymentStacks.json` file are skipped during processing.
 - **Fallback Logic**: If no specific or general `.deploymentStacks.json` file is found, the root `.deploymentStacks.json` file is used, if available.
 - **Non Stack Deployment**: If no applicable `.deploymentStacks.json` file is found or all are excluded, the template is processed as a non-stack deployment.
@@ -152,14 +152,14 @@ The most specific deploymentstack configuration (at scope) will be selected by c
 ```mermaid
 flowchart TD
     A[Start: Template and Parameter File Set] --> B[Is Core.AllowMultipleTemplateParameterFiles true?]
-    B -- Yes --> C[Find specific stack file<br>matching parameter file name]
-    B -- No --> D[Find specific stack file<br>matching template file name]
+    B -- Yes --> C[Find specific stack file<br>matching parameter filename]
+    B -- No --> D[Find specific stack file<br>matching template filename]
     C --> E[Was a specific stack file found?]
     D --> E
-    E -- Yes --> F[Check exclusions in the stack file<br>based on parameter or template file name]
+    E -- Yes --> F[Check exclusions in the stack file<br>based on parameter or template filename]
     F -- Excluded --> G[Evaluate next stack file at the same scope]
     F -- Not Excluded --> H[Use the specific stack file]
-    E -- No --> I[Find general stack file<br>matching template file name]
+    E -- No --> I[Find general stack file<br>matching template filename]
     I --> J[Was a general stack file found?]
     J -- Yes --> K[Check exclusions in the general stack file]
     K -- Excluded --> G
