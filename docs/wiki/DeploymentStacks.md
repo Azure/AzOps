@@ -147,7 +147,7 @@ The most specific deploymentstack configuration (at scope) will be selected by c
 - **Exclusion Handling**: Files listed in the `excludedAzOpsFiles` setting of a `.deploymentStacks.json` file are skipped during processing.
 - **Fallback Logic**: If no specific or general `.deploymentStacks.json` file is found, the root `.deploymentStacks.json` file is used, if available.
 - **Non Stack Deployment**: If no applicable `.deploymentStacks.json` file is found or all are excluded, the template is processed as a non-stack deployment.
-- **Multiple Template/Parameter Files**: The `Core.AllowMultipleTemplateParameterFiles` setting determines whether parameter or template file names are used to locate specific stack files.
+- **Multiple Template/Parameter Files**: The `Core.AllowMultipleTemplateParameterFiles` setting determines whether parameter or template filenames are used to locate specific stack files.
 - **Override Mechanism**: Specific `.deploymentStacks.json` files override root-level settings, enabling granular control for individual templates.
 ```mermaid
 flowchart TD
@@ -174,7 +174,7 @@ flowchart TD
 
 #### Deployment Stacks Name
 
-AzOps constructs the deployment stack name deterministically based on the associated template and parameter file names. The base name of the fileis sanitized by removing unnecessary parts (e.g., extensions like `.bicepparam`), truncated to 53 characters if necessary, and combined with a deterministic 4-character hash derived from the `DefaultDeploymentRegion`.
+AzOps constructs the deployment stack name deterministically based on the associated template and parameter filename. The base name of the fileis sanitized by removing unnecessary parts (e.g., extensions like `.bicepparam`), truncated to 53 characters if necessary, and combined with a deterministic 4-character hash derived from the `DefaultDeploymentRegion`.
 
 For example:
 - Template file: `template.bicep`
@@ -185,4 +185,4 @@ The resulting deployment stack name would be: `AzOps-template-x1-1a2b`.
 
 This naming convention ensures that deployment stack names are unique, predictable, and region-specific, allowing for consistent management of deployment stacks across different scopes and regions.
 
-**_The Deployment Stacks Name is critical to enable consistent processing and accurate life-cycle management of the stack and its resources._**
+**_The Deployment Stacks Name is critical to enable consistent processing and accurate lifecycle management of the stack and its resources._**
