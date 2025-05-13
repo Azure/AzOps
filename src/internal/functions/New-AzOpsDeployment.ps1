@@ -286,6 +286,7 @@
             $parameters.Name = $DeploymentName
             if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand")) {
                 if (-not $invalidTemplate) {
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Deployment' -LogStringValues $deploymentCommand, $($parameters | Out-String), $scopeObject.Scope
                     $deploymentResult.deployment = & $deploymentCommand @parameters
                 }
             }

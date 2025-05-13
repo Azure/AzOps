@@ -261,6 +261,7 @@
     'New-AzOpsScope.Path.NotFound'                                                  = 'Path not found: {0}' # $Path
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #
 
+    'New-AzOpsDeployment.Deployment'                                                = 'Running: [{0}] with: [{1}] at [{2}]' # $deploymentCommand, $parameters, $scopeObject.Scope
     'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove'           = 'Removing temporary processing deployment template file [{0}]' # $TemporaryTemplateFilePath
     'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for [{1}]' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.ManagementGroupDeploymentStack.Processing'                 = 'Attempting [Management Group] DeploymentStack deployment in [{0}] for [{1}] with [{2}]' # $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath
