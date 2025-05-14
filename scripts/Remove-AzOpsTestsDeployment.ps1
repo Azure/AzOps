@@ -69,7 +69,7 @@
                 foreach ($subscription in $cleanupSub) {
                     $null = Set-AzContext -SubscriptionId $subscription.Id
                     $null = Get-AzResourceLock | Remove-AzResourceLock -Force
-                    $null = Get-AzSubscriptionDeploymentStack | Remove-AzSubscriptionDeploymentStack -Force -BypassStackOutOfSyncError
+                    $null = Get-AzSubscriptionDeploymentStack | Remove-AzSubscriptionDeploymentStack -ActionOnUnmanage DeleteAll -Force -BypassStackOutOfSyncError
                     Start-Sleep -Seconds 15
                     $script:resourceGroups = Get-AzResourceGroup | Where-Object {$_.ResourceGroupName -like "*-azopsrg"}
                     $script:roleAssignmentsCleanBase = Get-AzRoleAssignment | Where-Object {$_.Scope -ne "/"}
