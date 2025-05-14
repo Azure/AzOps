@@ -175,7 +175,7 @@
                 Scope                           = $ScopeObject.Scope
             }
 
-            $fileItem = Get-Item -Path $FilePath
+            $fileItem = Get-Item -Path $FilePath -Force
             if ($fileItem.Extension -notin '.json' , '.bicep', '.bicepparam') {
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Resolve.NoJson' -LogStringValues $fileItem.FullName -Target $ScopeObject
                 return

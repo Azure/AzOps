@@ -570,6 +570,12 @@
                             "location": "northeurope"
                         },
                         {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2024-11-01",
+                            "name": "DeploymentStacksDeploy-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
                             "type": "Microsoft.Authorization/roleAssignments",
                             "apiVersion": "2022-04-01",
                             "name": "[guid('RoleAssignmentTest')]",

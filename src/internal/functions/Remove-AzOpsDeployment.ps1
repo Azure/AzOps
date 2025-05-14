@@ -215,7 +215,7 @@
             $removeJobName = $DeploymentName
         }
         else {
-            $fileItem = Get-Item -Path $TemplateFilePath
+            $fileItem = Get-Item -Path $TemplateFilePath -Force
             $removeJobName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
             $removeJobName = "AzOps-RemoveResource-$removeJobName"
         }
