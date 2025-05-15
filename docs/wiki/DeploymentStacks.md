@@ -9,7 +9,7 @@
 
 ## Introduction
 
-As a part of **AzOps Push**, the module handles creation of deployment stacks and deletion of deployment stacks based on your custom templates. The stacks configuration is managed by `.deploymentStacks.json` files and are supported at three scope levels: management group, subscription, resource group.
+As a part of **AzOps Push**, the module handles creation of deployment stacks and **_[deletion](https://github.com/azure/azops/wiki/ResourceDeletion#deletion-of-custom-template)_** of deployment stacks based on your custom templates. The stacks configuration is managed by `.deploymentStacks.json` files and are supported at three scope levels: management group, subscription, resource group.
 
 AzOps utilizes the Az PowerShell Module Cmdlets: `New-AzResourceGroupDeploymentStack`, `New-AzSubscriptionDeploymentStack` or `New-AzManagementGroupDeploymentStack` to create/set/update the [`Microsoft.Resources/deploymentStacks`](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deployment-stacks) resource with `-Force`.
 
@@ -62,7 +62,7 @@ The allowed value for each of the parameter except for `excludedAzOpsFiles` are 
 
 Deployment stack exclusions allow you to exclude specific templates or parameter files from being processed by AzOps as `Microsoft.Resources/deploymentStacks`. Below are examples of how to configure exclusions:
 
-**I want to use one `.deploymentStacks.json` and have all custom templates at that scope use it**
+**I want to use one "root" `.deploymentStacks.json` and have all custom templates at that scope use it**
 
 Can AzOps settings be configured to enable this?
 
@@ -97,9 +97,9 @@ Yes, let's edit the root `.deploymentStacks.json` file placed at that scope leve
 }
 ```
 
-**But now i realise i want to have `template2.bicep` managed by deployment stacks, however it needs different settings than the root `.deploymentStack.json` file**
+**But now i realise i want to have `template2.bicep` managed by deployment stacks, however it needs different settings than the root `.deploymentStack.json` file offers**
 
-Yes, let's create a file called `template2.deploymentStacks.json` file placed at that scope level.
+Yes, let's create a new file called `template2.deploymentStacks.json` file placed at that scope level.
 ```bash
 Folder/
 ├── .deploymentStacks.json
@@ -144,7 +144,7 @@ graph TD
 
 The most specific deploymentstack configuration (at scope) will be selected by considering the following:
 - **Specificity Matters**: The most specific `.deploymentStacks.json` file at a given scope (e.g., matching the parameter or template filename) is prioritized.
-- **Exclusion Handling**: Files listed in the `excludedAzOpsFiles` setting of a `.deploymentStacks.json` file are skipped during processing.
+- **Exclusion Handling**: Files listed in the `excludedAzOpsFiles` setting of a root or base template `.deploymentStacks.json` file are skipped during processing.
 - **Fallback Logic**: If no specific or general `.deploymentStacks.json` file is found, the root `.deploymentStacks.json` file is used, if available.
 - **Non Stack Deployment**: If no applicable `.deploymentStacks.json` file is found or all are excluded, the template is processed as a non-stack deployment.
 - **Multiple Template/Parameter Files**: The `Core.AllowMultipleTemplateParameterFiles` setting determines whether parameter or template filenames are used to locate specific stack files.
