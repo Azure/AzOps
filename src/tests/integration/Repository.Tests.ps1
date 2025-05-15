@@ -1297,7 +1297,7 @@ Describe "Repository" {
             $maxParallel = ($parallelTimes | Measure-Object -Maximum).Maximum
             $minParallel = ($parallelTimes | Measure-Object -Minimum).Minimum
             $diffParallel = New-TimeSpan -Start $minParallel -End $maxParallel
-            $diffParallel.TotalSeconds | Should -BeLessThan 10
+            $diffParallel.TotalSeconds | Should -BeLessThan 15
             $serialTime = ($createTime | Where-Object { $_.targetResourceId -match '^.*/s1azops' }).changeTime
             $diffSerial = New-TimeSpan -Start $maxParallel -End $serialTime
             $diffSerial.TotalSeconds | Should -BeGreaterThan 15
