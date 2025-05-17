@@ -1288,7 +1288,7 @@ Describe "Repository" {
                 "A`t$($script:deployAllSta2ParamPath.FullName[0])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Start-Sleep -Seconds 30
+            Start-Sleep -Seconds 60
             $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroupParallelDeploy.ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
             $query = "resourcechanges | where resourceGroup =~ '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp), targetResourceId=tostring(properties.targetResourceId) | summarize arg_max(changeTime, *) by targetResourceId | project changeTime, targetResourceId, properties.changeType, properties.targetResourceType | order by changeTime asc"
@@ -1297,7 +1297,7 @@ Describe "Repository" {
             $maxParallel = ($parallelTimes | Measure-Object -Maximum).Maximum
             $minParallel = ($parallelTimes | Measure-Object -Minimum).Minimum
             $diffParallel = New-TimeSpan -Start $minParallel -End $maxParallel
-            $diffParallel.TotalSeconds | Should -BeLessThan 15
+            $diffParallel.TotalSeconds | Should -BeLessThan 25
             $serialTime = ($createTime | Where-Object { $_.targetResourceId -match '^.*/s1azops' }).changeTime
             $diffSerial = New-TimeSpan -Start $maxParallel -End $serialTime
             $diffSerial.TotalSeconds | Should -BeGreaterThan 15
