@@ -25,6 +25,7 @@
         [string[]]
         $Priority = @(
             "locks",
+            "deploymentStacks",
             "policyExemptions",
             "policyAssignments",
             "policySetDefinitions",
@@ -38,6 +39,10 @@
         #Sort 'DeletionList' based on 'Priority'
         $deletionListSorted = $DeletionList | Sort-Object -Property {
             $resolvedIndex = & $Index
+            # Check if the item has a non-null DeploymentStackSettings
+            if ($null -ne $_.DeploymentStackSettings) {
+                $resolvedIndex = "deploymentStacks"
+            }
             $priorityIndex = $Priority.IndexOf($resolvedIndex)
             if ($priorityIndex -eq -1) {
                 # Set a default priority for items not found in Priority

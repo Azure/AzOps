@@ -89,6 +89,17 @@
     'Get-AzOpsCurrentPrincipal.AccountType'                                         = 'Current AccountType is {0}' #$AzContext.Account.Type
     'Get-AzOpsCurrentPrincipal.PrincipalId'                                         = 'Current PrincipalId is {0}' #$principalObject.id
 
+    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStackTemplateFilePath'       = 'Found DeploymentStack [{0}] for template [{1}]' # $StackPath, $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Template.Error'                                = 'Error reading template [{0}] during DeploymentStackSetting processing' # $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Setting.Error'                                 = 'Error reading DeploymentStackSetting in [{0}] for template [{1}]' # $StackPath $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Parameter.Error'                               = 'Error: Invalid value: [{0}] for parameter [{1}] in [{2}] for [{3}]' # $stackContent[$key], $key, $StackPath, $command
+    'Get-AzOpsDeploymentStackSetting.Scope.Error'                                   = 'Error unable to find supported DeploymentStack scope at [{0}] for template [{1}]' # $StackPath $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.NoDeploymentStackFound'                = 'No DeploymentStack file found for template: [{0}]' # $StackPath
+    'Get-AzOpsDeploymentStackSetting.Resolve.ExcludedFromDeploymentStack'           = 'Template: [{0}] excluded from deploymentStacks processing by DeploymentStack file: [{1}] due to exclusion match: [{2}]' # $TemplateFilePath, $StackPath, $matchedFile
+    'Get-AzOpsDeploymentStackSetting.Resolve.DeploymentStack.Metadata.AzOps'        = 'AzOps generated template file: [{0}] excluded from deploymentStacks processing' # $TemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.ReverseLookup.TemplateFilePath'                = 'ReverseLookup found template [{1}] for DeploymentStack [{0}]' # $TemplateFilePath, $result.ReverseLookupTemplateFilePath
+    'Get-AzOpsDeploymentStackSetting.Resolve.NoJson'                                = 'The specified file is not a json file! Skipping {0}' # $TemplateFilePath
+
     'Get-AzOpsManagementGroup.Failed'                                               = 'Get-AzManagementGroup -GroupId {0} failed' #$ManagementGroup
 
     'Get-AzOpsPolicyAssignment.ManagementGroup'                                     = 'Retrieving Policy Assignment for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
@@ -215,6 +226,10 @@
     'Invoke-AzOpsPush.Deployment.Skip'                                              = 'Skipping deployment of template: {0} with parameter: {1}, its already been deployed' # $deployment.TemplateFilePath, $deployment.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deployment.ParallelCondition'                                 = 'Parallel deployment condition true' #
     'Invoke-AzOpsPush.Deployment.ParallelGroup'                                     = 'Identified multiple deployments with matching TemplateFilePath' # $groups
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Create'   = 'Attempting to create temporary processing deployment template file of [{0}] to support DeploymentStack' # $target.TemplateFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Exist'    = 'Temporary processing deployment template file [{0}] already exists for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Remove'   = 'Removing temporary processing deployment template file [{0}]' # $tempDeploymentFilePath
+    'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.New'      = 'Create temporary processing deployment template file [{0}] for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
     'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Duration'                                                     = 'AzOps Push completed in {0}' # $stopWatch.Elapsed
@@ -246,14 +261,19 @@
     'New-AzOpsScope.Path.NotFound'                                                  = 'Path not found: {0}' # $Path
     'New-AzOpsScope.Starting'                                                       = 'Starting creation of new scope object' #
 
-    'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.Deployment'                                                = 'Running: [{0}] with: [{1}] at [{2}]' # $deploymentCommand, $parameters, $scopeObject.Scope
+    'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove'           = 'Removing temporary processing deployment template file [{0}]' # $TemporaryTemplateFilePath
+    'New-AzOpsDeployment.ManagementGroup.Processing'                                = 'Attempting [Management Group] deployment in [{0}] for [{1}]' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.ManagementGroupDeploymentStack.Processing'                 = 'Attempting [Management Group] DeploymentStack deployment in [{0}] for [{1}] with [{2}]' # $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.Processing'                                                = 'Processing deployment {0} for template {1} with parameter "{2}" in mode {3}' # $DeploymentName, $TemplateFilePath, $TemplateParameterFilePath, $Mode
-    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for {0}' # $scopeObject
+    'New-AzOpsDeployment.ResourceGroup.Processing'                                  = 'Attempting [resource Group] deployment for [{0}]' # $scopeObject
+    'New-AzOpsDeployment.ResourceGroupDeploymentStack.Processing'                   = 'Attempting [resource Group] DeploymentStack deployment for [{0}] with [{1}]' # $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.Root.Processing'                                           = 'Attempting [Tenant Scope] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
     'New-AzOpsDeployment.Scope.Empty'                                               = 'Unable to determine the scope of template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Failed'                                              = 'Failed to resolve the scope for template {0} and parameters {1}' # $TemplateFilePath, $TemplateParameterFilePath
     'New-AzOpsDeployment.Scope.Unidentified'                                        = 'Unable to determine to scope type for this Az deployment : {0}' # $scopeObject
-    'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for {1}' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.Subscription.Processing'                                   = 'Attempting [Subscription] deployment in [{0}] for [{1}]' # $defaultDeploymentRegion, $scopeObject
+    'New-AzOpsDeployment.SubscriptionDeploymentStack.Processing'                    = 'Attempting [Subscription] DeploymentStack deployment in [{0}] for [{1}] with [{2}]' # $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath
     'New-AzOpsDeployment.TemplateParameterError'                                    = 'Error due to empty parameter - will not attempt to deploy template. Error can be ignored for bicep modules.' # $
     'New-AzOpsDeployment.TemplateError'                                             = 'Error validating template: {0}' # $TemplateFilePath
     'New-AzOpsDeployment.WhatIfWarning'                                             = 'Error returned from WhatIf API: {0}' # $resultsError

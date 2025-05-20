@@ -17,6 +17,8 @@
             Template File in scope of WhatIf
         .PARAMETER ParameterFilePath
             Parameter File in scope of WhatIf
+        .PARAMETER DeploymentStackTemplateFilePath
+           DeploymentStack File in scope of WhatIf
         .EXAMPLE
             > Set-AzOpsWhatIfOutput -Results $results
             > Set-AzOpsWhatIfOutput -Results $results -RemoveAzOpsFlag $true
@@ -41,7 +43,10 @@
         $FilePath,
 
         [Parameter(Mandatory = $false)]
-        $ParameterFilePath
+        $ParameterFilePath,
+
+        [Parameter(Mandatory = $false)]
+        $DeploymentStackTemplateFilePath
     )
 
     process {
@@ -53,10 +58,20 @@
         }
 
         if ($ParameterFilePath) {
-            $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) with $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+            if ($DeploymentStackTemplateFilePath -ne '') {
+                $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) with $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) using DeploymentStack $($DeploymentStackTemplateFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+            }
+            else {
+                $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) with $($ParameterFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+            }
         }
         else {
-            $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+            if ($DeploymentStackTemplateFilePath -ne '') {
+                $resultHeadline = "$($FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]) using DeploymentStack $($DeploymentStackTemplateFilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1])"
+            }
+            else {
+                $resultHeadline = $FilePath.split([System.IO.Path]::DirectorySeparatorChar)[-1]
+            }
         }
 
         # Measure input $Results.Changes content

@@ -92,14 +92,42 @@
                 $FilePath = $transpiledTemplatePaths.transpiledTemplatePath
             }
 
+            # Handle AzOps DeploymentStacks templates
+            if ($FilePath.EndsWith(".deploymentStacks.json")) {
+                # Retrieve reverse lookup template paths for the deployment stack
+                $azOpsDeploymentStackReverseLookupTemplatePaths = Get-AzOpsDeploymentStackSetting -TemplateFilePath $FilePath -ReverseLookup
+                # Check if reverse lookup template paths are found
+                if ($null -ne $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
+                    # Iterate through each reverse lookup template path with New-AzOpsList
+                    $reverseLookupDeploymentStacksTemplates = foreach ($templatePath in $azOpsDeploymentStackReverseLookupTemplatePaths.ReverseLookupTemplateFilePath) {
+                        New-AzOpsList -FilePath $templatePath -CompareDeploymentToDeletion:$CompareDeploymentToDeletion
+                    }
+                    if ($reverseLookupDeploymentStacksTemplates) {
+                        # Ensure DeploymentStackTemplateFilePath is in $FileSet
+                        $filteredReverseLookupDeploymentStacksTemplates = $reverseLookupDeploymentStacksTemplates | Where-Object { $_.DeploymentStackTemplateFilePath -in (Resolve-Path -Path $FileSet).Path }
+                        if ($filteredReverseLookupDeploymentStacksTemplates) {
+                            return $filteredReverseLookupDeploymentStacksTemplates
+                        }
+                        else {
+                            # Skip processing if no reverse lookup template paths are found
+                            continue
+                        }
+                    }
+                }
+                else {
+                    # Skip processing if no reverse lookup template paths are found
+                    continue
+                }
+            }
+
             try {
                 # Create scope object from the given file path
                 $scopeObject = New-AzOpsScope -Path $FilePath -StatePath $StatePath -ErrorAction Stop
             }
             catch {
                 # Log a warning message if creating the scope object fails
-                Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath -Target $FilePath -ErrorRecord $_
-                continue
+                Write-AzOpsMessage -LogLevel Error -LogString 'Invoke-AzOpsPush.Scope.Failed' -LogStringValues $FilePath, $StatePath -Target $FilePath -ErrorRecord $_
+                return
             }
 
             # Resolve ARM file association
@@ -136,16 +164,18 @@
             #region Initialization Prep
 
             $result = [PSCustomObject] @{
-                TemplateFilePath          = $null
-                TranspiledTemplateNew     = $false
-                TemplateParameterFilePath = $null
-                TranspiledParametersNew   = $false
-                DeploymentName            = $null
-                ScopeObject               = $ScopeObject
-                Scope                     = $ScopeObject.Scope
+                DeploymentStackTemplateFilePath = $null
+                DeploymentStackSettings         = $null
+                TemplateFilePath                = $null
+                TranspiledTemplateNew           = $false
+                TemplateParameterFilePath       = $null
+                TranspiledParametersNew         = $false
+                DeploymentName                  = $null
+                ScopeObject                     = $ScopeObject
+                Scope                           = $ScopeObject.Scope
             }
 
-            $fileItem = Get-Item -Path $FilePath
+            $fileItem = Get-Item -Path $FilePath -Force
             if ($fileItem.Extension -notin '.json' , '.bicep', '.bicepparam') {
                 Write-AzOpsMessage -LogLevel Warning -LogString 'Invoke-AzOpsPush.Resolve.NoJson' -LogStringValues $fileItem.FullName -Target $ScopeObject
                 return
@@ -187,6 +217,9 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ParameterTemplateFilePath $result.TemplateParameterFilePath -ScopeObject $result.ScopeObject
+                            $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
+                            $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
                         }
                         elseif (Test-Path $bicepTemplatePath) {
@@ -204,6 +237,9 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ParameterTemplateFilePath $result.TemplateParameterFilePath -ScopeObject $result.ScopeObject
+                            $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
+                            $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
                         }
                     }
@@ -232,6 +268,9 @@
                             $newScopeObject = New-AzOpsScope -Path $result.TemplateFilePath -StatePath $StatePath -ErrorAction Stop
                             $result.ScopeObject = $newScopeObject
                             $result.Scope = $newScopeObject.Scope
+                            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ParameterTemplateFilePath $result.TemplateParameterFilePath -ScopeObject $result.ScopeObject
+                            $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
+                            $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
                             return $result
                         }
                     }
@@ -295,7 +334,7 @@
             }
             elseif ((Get-PSFConfigValue -FullName 'AzOps.Core.AllowMultipleTemplateParameterFiles') -eq $true -and (Get-PSFConfigValue -FullName 'AzOps.Core.DeployAllMultipleTemplateParameterFiles') -eq $true) {
                 # Check for multiple associated template parameter files
-                $paramFileList = Get-ChildItem -Path $fileItem.Directory | Where-Object { ($_.Name.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) -or ($_.Name.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) }
+                $paramFileList = Get-ChildItem -Path $fileItem.Directory -Exclude *.deploymentStacks.json | Where-Object { ($_.Name.Split('.')[-3] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) -or ($_.Name.Split('.')[-2] -match $(Get-PSFConfigValue -FullName 'AzOps.Core.MultipleTemplateParameterFileSuffix').Replace('.','')) }
                 if ($paramFileList) {
                     $multiResult = @()
                     foreach ($paramFile in $paramFileList) {
@@ -336,17 +375,19 @@
                     }
                 }
             }
-
             $deploymentName = $fileItem.BaseName -replace '\.json$' -replace ' ', '_'
             if ($deploymentName.Length -gt 53) { $deploymentName = $deploymentName.SubString(0, 53) }
             $result.DeploymentName = 'AzOps-{0}-{1}' -f $deploymentName, $deploymentRegionId
-
+            $deploymentStack = Get-AzOpsDeploymentStackSetting -TemplateFilePath $result.TemplateFilePath -ParameterTemplateFilePath $result.TemplateParameterFilePath -ScopeObject $result.ScopeObject
+            $result.DeploymentStackTemplateFilePath = $deploymentStack.DeploymentStackTemplateFilePath
+            $result.DeploymentStackSettings = $deploymentStack.DeploymentStackSettings
             $result
             #endregion Case: Template File
         }
         function Test-TemplateDefaultParameter {
             param(
-                [string]$FilePath
+                [string]
+                $FilePath
             )
 
             # Read the template file
@@ -507,9 +548,31 @@
         #endregion Create DeploymentList
 
         #region Create DeletionList
+        # Normalize paths by removing or replacing extensions for comparison
+        $normalizedDeleteSet = $deleteSet | ForEach-Object {
+            $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+        }
+        $normalizedResolvedDeleteSet = ($deleteSet | Resolve-Path).Path | ForEach-Object {
+            $_ -replace '\.bicep$', '.json' -replace '\.bicepparam$', '.parameters.json'
+        }
         $deletionList = foreach ($deletion in $deleteSet | Where-Object { $_ -match ((Get-Item $StatePath).Name) }) {
             # Create a list of deletion file associations using the New-AzOpsList function
-            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter
+            $deletionFileAssociationList = New-AzOpsList -FilePath $deletion -FileSet $deleteSet -AzOpsMainTemplate $AzOpsMainTemplate -ConvertedTemplate $AzOpsTranspiledTemplate -ConvertedParameter $AzOpsTranspiledParameter |
+            Where-Object {
+                # Include items if TemplateFilePath or TemplateParameterFilePath matches the normalized delete set
+                if ($_.TemplateFilePath -in $normalizedDeleteSet -or $_.TemplateFilePath -in $normalizedResolvedDeleteSet) {
+                    return $true
+                }
+                if ($_.TemplateParameterFilePath -in $normalizedDeleteSet -or $_.TemplateParameterFilePath -in $normalizedResolvedDeleteSet) {
+                    return $true
+                }
+                # Exclude file associations where the condition is true
+                -not (
+                    $_ -and
+                    ($null -ne $_.DeploymentStackTemplateFilePath -and
+                    ($_.DeploymentStackTemplateFilePath -notin $deleteSet -or $_.DeploymentStackTemplateFilePath -notin ($deleteSet | Resolve-Path).Path))
+                )
+            }
             # Iterate through each file association in the list
             foreach ($fileAssociation in $deletionFileAssociationList) {
                 # Check if the transpiled template is new and add it to the collection if true
@@ -534,12 +597,13 @@
 
         #Starting deployment
         $WhatIfPreference = $WhatIfPreferenceState
-        $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath'
+        $uniqueProperties = 'Scope', 'DeploymentName', 'TemplateFilePath', 'TemplateParameterFilePath', 'DeploymentStackTemplateFilePath', 'DeploymentStackSettings'
         $uniqueDeployment = $deploymentList | Select-Object $uniqueProperties -Unique | ForEach-Object {
             $TemplateFileContent = [System.IO.File]::ReadAllText($_.TemplateFilePath)
             $TemplateObject = ConvertFrom-Json $TemplateFileContent -AsHashtable
             $_ | Add-Member -MemberType NoteProperty -Name 'TemplateObject' -Value $TemplateObject -PassThru
         }
+
         $deploymentResult = @()
 
         if ($uniqueDeployment) {
@@ -557,6 +621,29 @@
                             # Deployment part of group association for parallel processing, process entire group as parallel deployment
                             $targets = $($groups | Where-Object { $_.Name -eq $deployment.TemplateFilePath }).Group
                             Write-AzOpsMessage -LogLevel Debug -LogString 'Invoke-AzOpsPush.Deployment.Parallel' -LogStringValues $deployment.TemplateFilePath, $targets.Count
+                            # Process each target and evaluate if DeploymentStackSettings exist
+                            # If they do, create a temporary file for each target to enable parallel file access, due to DeploymentStack does not support -TemplateObject
+                            foreach ($target in $targets) {
+                                if ($null -ne $target.DeploymentStackSettings) {
+                                    $pathHash = [System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([System.Text.Encoding]::UTF8.GetBytes($target.TemplateFilePath))).Replace("-", "").ToLower()
+                                    $tempPath = [System.IO.Path]::GetTempPath()
+                                    $pathGuid = ((New-Guid).Guid).Replace("-", "")
+                                    $tempDeploymentFilePath = Join-Path $tempPath "$pathHash-$pathGuid.json"
+                                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Create' -LogStringValues $target.TemplateFilePath
+                                    # Remove lingering files from previous run
+                                    if (Test-Path -Path $tempDeploymentFilePath) {
+                                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Exist' -LogStringValues $tempDeploymentFilePath, $target.TemplateFilePath
+                                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Remove' -LogStringValues $tempDeploymentFilePath
+                                        Remove-Item -Path $tempDeploymentFilePath -Force -ErrorAction SilentlyContinue -WhatIf:$false
+                                    }
+                                    if (-not (Test-Path -Path ($tempDeploymentFilePath))) {
+                                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.New' -LogStringValues $tempDeploymentFilePath, $target.TemplateFilePath
+                                        New-Item -Path $tempDeploymentFilePath -WhatIf:$false | Out-Null
+                                        $target.TemplateObject | ConvertTo-Json -Depth 100 | Out-File -FilePath $tempDeploymentFilePath -Force -WhatIf:$false
+                                        $target | Add-Member -MemberType NoteProperty -Name 'TemporaryTemplateFilePath' -Value $tempDeploymentFilePath
+                                    }
+                                }
+                            }
                             # Prepare Input Data for parallel processing
                             $runspaceData = @{
                                 AzOpsPath                            = "$($script:ModuleRoot)\AzOps.psd1"
@@ -617,9 +704,11 @@
             if ($deploymentResult) {
                 # Output deploymentResult outside module
                 $deploymentResult
-                #Process deploymentResult and output result
-                foreach ($result in $deploymentResult) {
-                    Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results
+                if ($WhatIfPreference) {
+                    #Process deploymentResult and output result
+                    foreach ($result in $deploymentResult) {
+                        Set-AzOpsWhatIfOutput -FilePath $result.filePath -ParameterFilePath $result.parameterFilePath -Results $result.results -DeploymentStackTemplateFilePath $result.deploymentStackTemplateFilePath
+                    }
                 }
             }
         }

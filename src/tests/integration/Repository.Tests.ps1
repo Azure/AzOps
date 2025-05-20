@@ -67,11 +67,35 @@ Describe "Repository" {
             Location                = "northeurope"
         }
         try {
-            New-AzDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json"
-            New-AzManagementGroupDeployment @params
-            New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep" -TemplateParameterFile "$($global:testRoot)/templates/policywithuam.bicepparam"
-            # Pause for resource consistency
-            Start-Sleep -Seconds 120
+            New-AzDeployment -Name 'AzOps-Tests-rbacdep' -Location northeurope -TemplateFile "$($global:testRoot)/templates/rbactest.bicep" -TemplateParameterFile "$($global:testRoot)/templates/rbactest.parameters.json" -ErrorAction Stop
+        }
+        catch {
+            Write-PSFMessage -Level Critical -Message "Deployment of repository test failed" -Exception $_.Exception
+            throw
+        }
+
+        # Retry logic for New-AzManagementGroupDeployment
+        $maxRetries = 4
+        $retryCount = 0
+        $success = $false
+        while (-not $success -and $retryCount -lt $maxRetries) {
+            try {
+                New-AzManagementGroupDeployment @params -ErrorAction Stop
+                $success = $true
+            }
+            catch {
+                $retryCount++
+                Write-PSFMessage -Level Warning -Message "Attempt $retryCount failed: $($_.Exception.Message)"
+                if ($retryCount -ge $maxRetries) {
+                    Write-PSFMessage -Level Critical -Message "Deployment of repository test failed" -Exception $_.Exception
+                    throw
+                }
+                Start-Sleep -Seconds 60
+            }
+        }
+
+        try {
+            New-AzResourceGroupDeployment -Name 'AzOps-Tests-policyuam' -ResourceGroupName App1-azopsrg -TemplateFile "$($global:testRoot)/templates/policywithuam.bicep" -TemplateParameterFile "$($global:testRoot)/templates/policywithuam.bicepparam" -ErrorAction Stop
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Deployment of repository test failed" -Exception $_.Exception
@@ -137,6 +161,7 @@ Describe "Repository" {
             $script:resourceGroupRemovalSupport = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "RemovalSupport-azopsrg")
             $script:resourceGroupCustomDeletion = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "CustomDeletion-azopsrg")
             $script:resourceGroupParallelDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "ParallelDeploy-azopsrg")
+            $script:resourceGroupStacksDeploy = (Get-AzResourceGroup | Where-Object ResourceGroupName -eq "DeploymentStacksDeploy-azopsrg")
             $script:roleAssignments = (Get-AzRoleAssignment -ObjectId "023e7c1c-1fa4-4818-bb78-0a9c5e8b0217" | Where-Object { $_.Scope -eq "/subscriptions/$script:subscriptionId" -and $_.RoleDefinitionId -eq "acdd72a7-3385-48ef-bd42-f606fba81ae7" })
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $script:resourceGroup.ResourceGroupName)
@@ -304,6 +329,11 @@ Describe "Repository" {
         $script:resourceGroupParallelDeployDirectory = ($script:resourceGroupParallelDeployPath).Directory
         $script:resourceGroupParallelDeployFile = ($script:resourceGroupParallelDeployPath).FullName
         Write-PSFMessage -Level Debug -Message "ParallelDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
+
+        $script:resourceGroupStacksDeployPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupStacksDeploy.ResourceGroupName).toLower()).json")
+        $script:resourceGroupStacksDeployDirectory = ($script:resourceGroupStacksDeployPath).Directory
+        $script:resourceGroupStacksDeployFile = ($script:resourceGroupStacksDeployPath).FullName
+        Write-PSFMessage -Level Debug -Message "StacksDeployResourceGroupFile: $($script:resourceGroupParallelDeployFile)" -FunctionName "BeforeAll"
 
         $script:resourceGroupCustomDeletionPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-$(($script:resourceGroupCustomDeletion.ResourceGroupName).toLower()).json")
         $script:resourceGroupCustomDeletionDirectory = ($script:resourceGroupCustomDeletionPath).Directory
@@ -1103,7 +1133,7 @@ Describe "Repository" {
             $changeSet = @(
                 "D`t$script:policySetDefinitionsDepFile"
             )
-            [string[]]$deleteSetContents = "--  $Script:policySetDefinitionsDepFile"
+            [string[]]$deleteSetContents = "-- $Script:policySetDefinitionsDepFile"
             [string[]]$deleteSetContents += (Get-Content $Script:policySetDefinitionsDepFile)
             Remove-Item -Path $Script:policySetDefinitionsDepFile -Force
             {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$true} | Should -Throw
@@ -1168,6 +1198,7 @@ Describe "Repository" {
             Start-Sleep -Seconds 5
             $script:bicepMultiParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtmultibasex*"}
             $script:bicepMultiParamPathDeployment.Count | Should -Be 2
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
         }
         #endregion
 
@@ -1185,6 +1216,7 @@ Describe "Repository" {
             $script:bicepRepeatSuffixPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroup.ResourceGroupName -ResourceType 'Microsoft.Network/routeTables'  | Where-Object {$_.name -like "rtsuffix*"}
             $script:bicepRepeatSuffixPathDeployment.Count | Should -Be 2
             Set-PSFConfig -FullName AzOps.Core.MultipleTemplateParameterFileSuffix -Value ".x"
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
         }
         #endregion
 
@@ -1195,6 +1227,7 @@ Describe "Repository" {
                 "A`t$($script:bicepMultiParamPath.FullName[0])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
         }
         #endregion
 
@@ -1255,23 +1288,22 @@ Describe "Repository" {
                 "A`t$($script:deployAllSta2ParamPath.FullName[0])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Start-Sleep -Seconds 30
+            Start-Sleep -Seconds 60
             $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroupParallelDeploy.ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
             $query = "resourcechanges | where resourceGroup =~ '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp), targetResourceId=tostring(properties.targetResourceId) | summarize arg_max(changeTime, *) by targetResourceId | project changeTime, targetResourceId, properties.changeType, properties.targetResourceType | order by changeTime asc"
             $createTime = Search-AzGraph -Query $query -Subscription $script:subscriptionId
-            # Calculate differences between creation timing
-            $diff1 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[1]
-            $diff2 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[2]
-            $diff3 = New-TimeSpan -Start $createTime.changeTime[1] -End $createTime.changeTime[2]
-            $diff4 = New-TimeSpan -Start $createTime.changeTime[0] -End $createTime.changeTime[3]
-            # Check if time difference is within x seconds
-            $allowedDiff = '25'
-            if ($diff1.TotalSeconds -le $allowedDiff -and $diff2.TotalSeconds -le $allowedDiff -and $diff3.TotalSeconds -le $allowedDiff -and $diff4.TotalSeconds -ge $allowedDiff) {
-                # Time difference is within x seconds of each other
-                $timeTest = "good"
-            }
-            $timeTest | Should -Be 'good'
+            $parallelTimes = $createTime | Where-Object { $_.targetResourceId -match '^.*/p[123]azops' } | Select-Object -ExpandProperty changeTime
+            $maxParallel = ($parallelTimes | Measure-Object -Maximum).Maximum
+            $minParallel = ($parallelTimes | Measure-Object -Minimum).Minimum
+            $diffParallel = New-TimeSpan -Start $minParallel -End $maxParallel
+            $diffParallel.TotalSeconds | Should -BeLessThan 25
+            $serialTime = ($createTime | Where-Object { $_.targetResourceId -match '^.*/s1azops' }).changeTime
+            $diffSerial = New-TimeSpan -Start $maxParallel -End $serialTime
+            $diffSerial.TotalSeconds | Should -BeGreaterThan 15
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $false
+            Set-PSFConfig -FullName AzOps.Core.ParallelDeployMultipleTemplateParameterFiles -Value $false
         }
         #endregion
 
@@ -1323,6 +1355,91 @@ Describe "Repository" {
             Start-Sleep -Seconds 30
             (Get-AzResource -ResourceGroupName $script:resourceGroupCustomDeletion.ResourceGroupName).Count | Should -Be 0
             Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.Id -ErrorAction SilentlyContinue | Should -Be $Null
+        }
+        #endregion
+        #region AzOps Managed DeploymentStacks
+        It "Deploy and Delete AzOps Managed DeploymentStacks at Resource Group Scope" {
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
+            $script:deployStacksAtRgScope = Get-ChildItem -Path "$($global:testRoot)/templates/deploystacksatrg*" | Copy-Item -Destination $script:resourceGroupStacksDeployDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployStacksAtRgScope.FullName[0])",
+                "A`t$($script:deployStacksAtRgScope.FullName[1])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Get-AzResourceGroupDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupStacksDeploy.ResourceGroupName)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatrg-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
+            Start-Sleep -Seconds 10
+            $changeSet = @(
+                "D`t$($script:deployStacksAtRgScope.FullName[0])",
+                "D`t$($script:deployStacksAtRgScope.FullName[1])"
+            )
+            [string[]]$deleteSetContents = "-- $($script:deployStacksAtRgScope.FullName[0])"
+            [string[]]$deleteSetContents += (Get-Content ($script:deployStacksAtRgScope.FullName[0]))
+            [string[]]$deleteSetContents += "-- $($script:deployStacksAtRgScope.FullName[1])"
+            [string[]]$deleteSetContents += (Get-Content ($script:deployStacksAtRgScope.FullName[1]))
+            Remove-Item -Path $script:deployStacksAtRgScope.FullName[0] -Force
+            Remove-Item -Path $script:deployStacksAtRgScope.FullName[1] -Force
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
+            Start-Sleep -Seconds 30
+            Get-AzResourceGroupDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupStacksDeploy.ResourceGroupName)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatrg-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
+        }
+        It "Deploy and Delete AzOps Managed DeploymentStacks at Subscription Scope with parameter file and exclusion of direct stack, expecting usage of parent stack" {
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
+            $script:deployStacksAtSubScope = Get-ChildItem -Path "$($global:testRoot)/templates/deploystacksatsub*" | Copy-Item -Destination $script:subscriptionDirectory -PassThru -Force
+            # Rename the third file in the array
+            $newName = ".deploymentStacks.json"
+            Rename-Item -Path $script:deployStacksAtSubScope[3].FullName -NewName $newName
+            # Optionally, update the array reference if you need to use the new path later
+            $script:deployStacksAtSubScope[2] = Get-Item -Path (Join-Path -Path $script:subscriptionDirectory -ChildPath $newName) -Force
+            $changeSet = @(
+                "A`t$($script:deployStacksAtSubScope.FullName[0])",
+                "A`t$($script:deployStacksAtSubScope.FullName[1])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            $stackConfig = Get-AzSubscriptionDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatsub-$deploymentLocationId" -ErrorAction SilentlyContinue
+            $stackConfig | Should -Not -Be $null
+            $stackConfig.resourcesCleanupAction | Should -Be "delete"
+            $stackConfig.resourceGroupsCleanupAction | Should -Be "delete"
+            $stackConfig.managementGroupsCleanupAction | Should -Be "delete"
+            Start-Sleep -Seconds 10
+            $changeSet = @(
+                "D`t$($script:deployStacksAtSubScope.FullName[0])",
+                "D`t$($script:deployStacksAtSubScope.FullName[1])"
+            )
+            [string[]]$deleteSetContents = "-- $($script:deployStacksAtSubScope.FullName[0])"
+            [string[]]$deleteSetContents += (Get-Content ($script:deployStacksAtSubScope.FullName[0]))
+            [string[]]$deleteSetContents += "-- $($script:deployStacksAtSubScope.FullName[1])"
+            [string[]]$deleteSetContents += (Get-Content ($script:deployStacksAtSubScope.FullName[1]))
+            Remove-Item -Path $script:deployStacksAtSubScope.FullName[0] -Force
+            Remove-Item -Path $script:deployStacksAtSubScope.FullName[1] -Force
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
+            Start-Sleep -Seconds 30
+            Get-AzSubscriptionDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatsub-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
+        }
+        It "Deploy and Delete AzOps Managed DeploymentStacks at ManagementGroup Scope with multiparameter filename and parameter specific stackfile discovered with reverse lookup" {
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $true
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $true
+            $script:deployStacksAtMgScope = Get-ChildItem -Path "$($global:testRoot)/templates/deploystacksatmg*" | Copy-Item -Destination $script:managementManagementGroupDirectory -PassThru -Force
+            $changeSet = @(
+                "A`t$($script:deployStacksAtMgScope.FullName[2])"
+            )
+            {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
+            Get-AzManagementGroupDeploymentStack -ResourceId "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatmg.x1-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
+            Start-Sleep -Seconds 10
+            $changeSet = @(
+                "D`t$($script:deployStacksAtMgScope.FullName[2])"
+            )
+            [string[]]$deleteSetContents = "-- $($script:deployStacksAtMgScope.FullName[2])"
+            [string[]]$deleteSetContents += (Get-Content ($script:deployStacksAtMgScope.FullName[2]))
+            Remove-Item -Path $script:deployStacksAtMgScope.FullName[2] -Force
+            {Invoke-AzOpsPush -ChangeSet $changeSet -DeleteSetContents $deleteSetContents -WhatIf:$false} | Should -Not -Throw
+            Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
+            Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false
+            Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $false
+            Start-Sleep -Seconds 30
+            Get-AzManagementGroupDeploymentStack -ResourceId "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatmg.x1-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
         }
         #endregion
     }

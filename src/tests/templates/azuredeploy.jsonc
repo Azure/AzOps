@@ -444,7 +444,7 @@
             ],
             "copy": {
                 "batchSize": 1,
-                "count": 35,
+                "count": 40,
                 "mode": "Serial",
                 "name": "waitingCompletion"
             },
@@ -567,6 +567,12 @@
                             "type": "Microsoft.Resources/resourceGroups",
                             "apiVersion": "2024-11-01",
                             "name": "ParallelDeploy-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2024-11-01",
+                            "name": "DeploymentStacksDeploy-azopsrg",
                             "location": "northeurope"
                         },
                         {

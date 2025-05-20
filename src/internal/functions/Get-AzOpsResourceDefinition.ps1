@@ -390,7 +390,7 @@
                         }
                     }
                     if (Test-Path -Path $tempExportPath) {
-                        Remove-Item -Path $tempExportPath
+                        Remove-Item -Path $tempExportPath -Force
                     }
                 }
                 Clear-PSFMessage

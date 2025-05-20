@@ -22,7 +22,7 @@
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [Object]
+        [object]
         $ScopeObject,
         [Parameter(Mandatory = $false)]
         [object]

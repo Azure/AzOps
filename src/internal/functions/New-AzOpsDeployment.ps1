@@ -34,10 +34,23 @@
             filePath                       /root/managementgroup/subscription/resourcegroup/template.json
             parameterFilePath              /root/managementgroup/subscription/resourcegroup/template.parameters.json
             results                        Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.Deployments.PSWhatIfOperationResult
+            deployment                     Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSDeploymentStack
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]
+        $DeploymentStackTemplateFilePath,
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [object]
+        $DeploymentStackSettings,
+
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $DeploymentName = "azops-template-deployment",
@@ -45,6 +58,12 @@
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [string]
         $TemplateFilePath = (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate'),
+
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]
+        $TemporaryTemplateFilePath,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [hashtable]
@@ -76,7 +95,7 @@
 
         #region Resolve Scope
         try {
-            if ($TemplateParameterFilePath) {
+            if ($TemplateParameterFilePath -and $TemplateFilePath -eq (Resolve-Path -Path (Get-PSFConfigValue -FullName 'AzOps.Core.MainTemplate')).Path) {
                 $scopeObject = New-AzOpsScope -Path $TemplateParameterFilePath -StatePath $StatePath -ErrorAction Stop -WhatIf:$false
             }
             else {
@@ -108,36 +127,67 @@
         #region Process Scope
         # Configure variables/parameters and the WhatIf/Deployment cmdlets to be used per scope
         $defaultDeploymentRegion = (Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')
-        $parameters = @{
-            'TemplateObject'              = $TemplateObject
-            'SkipTemplateParameterPrompt' = $true
-            'Location'                    = $defaultDeploymentRegion
+        if ($null -eq $DeploymentStackSettings) {
+            $parameters = @{
+                'TemplateObject'              = $TemplateObject
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
+        }
+        elseif ($TemporaryTemplateFilePath) {
+            $parameters = @{
+                'TemplateFile'                = $TemporaryTemplateFilePath
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
+        }
+        else {
+            $parameters = @{
+                'TemplateFile'                = $TemplateFilePath
+                'SkipTemplateParameterPrompt' = $true
+                'Location'                    = $defaultDeploymentRegion
+            }
         }
         if ($WhatIfResultFormat) {
             $parameters.ResultFormat = $WhatIfResultFormat
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
         if ($scopeObject.resourcegroup -and $TemplateObject.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzResourceGroupDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzResourceGroupDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroupDeploymentStack.Processing' -LogStringValues $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
+            } else {
+                $deploymentCommand = 'New-AzResourceGroupDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ResourceGroup.Processing' -LogStringValues $scopeObject -Target $scopeObject
+            }
             $parameters.ResourceGroupName = $scopeObject.resourcegroup
             $parameters.Remove('Location')
         }
         # Subscriptions
         elseif ($scopeObject.subscription) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzSubscriptionDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.SubscriptionDeploymentStack.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
+            } else {
+                $deploymentCommand = 'New-AzDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Subscription.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            }
         }
         # Management Groups
         elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
-            Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
             $parameters.ManagementGroupId = $scopeObject.managementgroup
             $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
-            $deploymentCommand = 'New-AzManagementGroupDeployment'
+            if ($null -ne $DeploymentStackSettings) {
+                $deploymentCommand = 'New-AzManagementGroupDeploymentStack'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroupDeploymentStack.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject, $DeploymentStackTemplateFilePath -Target $scopeObject
+            } else {
+                $deploymentCommand = 'New-AzManagementGroupDeployment'
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.ManagementGroup.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
+            }
         }
         # Tenant deployments
         elseif ($scopeObject.type -eq 'root' -and $scopeObject.scope -eq '/') {
@@ -149,7 +199,7 @@
         elseif ($scopeObject.managementGroup -and (($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
             $resourceScopeFileContent = Get-Content -Path $addition | ConvertFrom-Json -Depth 100
             $resource = ($resourceScopeFileContent.resources | Where-Object {$_.type -eq 'Microsoft.Management/managementGroups'} | Select-Object -First 1)
-            $pathDir = (Get-Item -Path $addition).Directory | Resolve-Path -Relative
+            $pathDir = (Get-Item -Path $addition -Force).Directory | Resolve-Path -Relative
             if ((Get-PSFConfigValue -FullName 'AzOps.Core.AutoGeneratedTemplateFolderPath') -ne '.') {
                 $pathDir = Split-Path -Path $pathDir -Parent
             }
@@ -158,7 +208,7 @@
             # Validate parent existence with content parent scope, statepath and name match, determines file location match deployment scope
             if ($parentDirScopeObject -and $parentIdScope -and $parentDirScopeObject.Scope -eq $parentIdScope.Scope -and $parentDirScopeObject.StatePath -eq $parentIdScope.StatePath -and $parentDirScopeObject.Name -eq $parentIdScope.Name) {
                 # Validate directory name match resource information
-                if ((Get-Item -Path $pathDir).Name -eq "$($resource.properties.displayName) ($($resource.name))") {
+                if ((Get-Item -Path $pathDir -Force).Name -eq "$($resource.properties.displayName) ($($resource.name))") {
                     Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Root.Processing' -LogStringValues $defaultDeploymentRegion, $scopeObject -Target $scopeObject
                     $whatIfCommand = 'Get-AzTenantDeploymentWhatIfResult'
                     $deploymentCommand = 'New-AzTenantDeployment'
@@ -184,6 +234,7 @@
             $deploymentResult = [PSCustomObject]@{
                 filePath    = ''
                 parameterFilePath = ''
+                deploymentStackTemplateFilePath = $DeploymentStackTemplateFilePath
                 results = ''
                 deployment = ''
             }
@@ -193,58 +244,55 @@
             if ($WhatifExcludedChangeTypes) {
                 $parameters.ExcludeChangeType = $WhatifExcludedChangeTypes
             }
-            # Get predictive deployment results from WhatIf API
-            $results = & $whatIfCommand @parameters -ErrorAction Continue -ErrorVariable resultsError
-            if ($resultsError) {
-                $resultsErrorMessage = $resultsError.exception.InnerException.Message
-                # Ignore errors for bicep modules
-                if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
-                    $invalidTemplate = $true
-                }
-                # Handle WhatIf prediction errors
-                elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
-                    if ($parameters.TemplateParameterFile) {
-                        $deploymentResult.filePath = $parameters.TemplateFile
-                        $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+            # Code to execute only when -WhatIf:$true is passed
+            if ($WhatIfPreference) {
+                # Get predictive deployment results from WhatIf API
+                $results = & $whatIfCommand @parameters -ErrorAction Continue -ErrorVariable resultsError
+                if ($resultsError) {
+                    $resultsErrorMessage = $resultsError.exception.InnerException.Message
+                    # Ignore errors for bicep modules
+                    if ($resultsErrorMessage -match 'https://aka.ms/resource-manager-parameter-files' -and $true -eq $bicepTemplate) {
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateParameterError' -Target $scopeObject
+                        $invalidTemplate = $true
+                    }
+                    # Handle WhatIf prediction errors
+                    elseif ($resultsErrorMessage -match 'DeploymentWhatIfResourceError' -and $resultsErrorMessage -match "The request to predict template deployment") {
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
                         $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
                     }
                     else {
-                        $deploymentResult.filePath = $parameters.TemplateFile
-                        $deploymentResult.results = ('{0}WhatIf prediction failed with error - validate changes manually before merging:{0}{1}' -f [environment]::NewLine, $resultsErrorMessage)
+                        Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
+                        throw $resultsErrorMessage
                     }
                 }
-                else {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.WhatIfWarning' -LogStringValues $resultsErrorMessage -Target $scopeObject
-                    throw $resultsErrorMessage
-                }
-            }
-            elseif ($results.Error) {
-                Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateError' -LogStringValues $TemplateFilePath -Target $scopeObject
-                return
-            }
-            else {
-                Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
-                Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
-                if ($parameters.TemplateParameterFile) {
-                    $deploymentResult.filePath = $TemplateFilePath
-                    $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
-                    $deploymentResult.results = $results
+                elseif ($results.Error) {
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsDeployment.TemplateError' -LogStringValues $TemplateFilePath -Target $scopeObject
+                    return
                 }
                 else {
-                    $deploymentResult.filePath = $TemplateFilePath
-                    $deploymentResult.results = $results
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.WhatIfResults' -LogStringValues ($results | Out-String) -Target $scopeObject
+                    Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.WhatIfFile' -Target $scopeObject
                 }
             }
             # Remove ExcludeChangeType parameter as it doesn't exist for deployment cmdlets
             if ($parameters.ExcludeChangeType) {
                 $parameters.Remove('ExcludeChangeType')
             }
+            if ($deploymentCommand -match 'DeploymentStack$') {
+                # Add Force parameter for deploymentStack cmdlets
+                $DeploymentStackSettings['Force'] = $true
+                $parameters += $DeploymentStackSettings
+            }
             $parameters.Name = $DeploymentName
-            if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand?")) {
+            if ($PSCmdlet.ShouldProcess("Start $($scopeObject.type) Deployment with $deploymentCommand")) {
                 if (-not $invalidTemplate) {
-                    $deploymentResult.deployment = & $deploymentCommand @parameters
+                    try {
+                        Write-AzOpsMessage -LogLevel Verbose -LogString 'New-AzOpsDeployment.Deployment' -LogStringValues $deploymentCommand, $($parameters | Out-String), $scopeObject.Scope
+                        $deploymentResult.deployment = & $deploymentCommand @parameters -ErrorAction Stop
+                    }
+                    catch {
+                        throw $_
+                    }
                 }
             }
             else {
@@ -252,8 +300,26 @@
                 Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.SkipDueToWhatIf'
             }
         }
+        #Cleanup
+        if ($TemporaryTemplateFilePath) {
+            Write-AzOpsMessage -LogLevel InternalComment -LogString 'New-AzOpsDeployment.TemporaryDeploymentStackTemplateFilePath.Remove' -LogStringValues $TemporaryTemplateFilePath
+            Remove-Item -Path $TemporaryTemplateFilePath -Force -ErrorAction SilentlyContinue -WhatIf:$false
+            $parameters.TemplateFile = $TemplateFilePath
+        }
         #Return
         if ($deploymentResult) {
+            if ($parameters.TemplateParameterFile) {
+                $deploymentResult.parameterFilePath = $parameters.TemplateParameterFile
+            }
+            if ($parameters.TemplateFile) {
+                $deploymentResult.filePath = $parameters.TemplateFile
+            }
+            else {
+                $deploymentResult.filePath = $TemplateFilePath
+            }
+            if ($deploymentResult.results -eq '') {
+                $deploymentResult.results = $results
+            }
             return $deploymentResult
         }
     }

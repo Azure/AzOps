@@ -34,7 +34,7 @@
 
     process {
         Write-AzOpsMessage -LogLevel Important -LogString 'New-AzOpsStateDeployment.Processing' -LogStringValues $FileName
-        $scopeObject = New-AzOpsScope -Path (Get-Item -Path $FileName).FullName -StatePath $StatePath
+        $scopeObject = New-AzOpsScope -Path (Get-Item -Path $FileName -Force).FullName -StatePath $StatePath
 
         if (-not $scopeObject.Type) {
             Write-AzOpsMessage -LogLevel Warning -LogString 'New-AzOpsStateDeployment.InvalidScope' -LogStringValues $FileName -Target $scopeObject
