@@ -2,9 +2,9 @@
 
     <#
         .SYNOPSIS
-            Assist in removal of AzOps Test Deployments, destructive command removes resources in the context executed.
+            Removes all resources and configurations created by AzOps test deployments. This is a destructive operation intended for cleaning up test environments.
         .DESCRIPTION
-            Assist in removal of AzOps Test Deployments, destructive command removes resources in the context executed.
+            This command assists in cleaning up resources, management groups, role assignments, policy assignments, and deployments created during AzOps testing. It is intended for use in test or development environments only, as it will permanently delete resources in the current context.
         .EXAMPLE
             > Remove-AzOpsTestsDeployment -CleanupEnvironment:$true
     #>
