@@ -169,7 +169,8 @@ Describe "Repository" {
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $script:resourceGroup.ResourceGroupName)
             $script:policyAssignmentsDeletion = Get-AzPolicyAssignment -Name "TestPolicyAssignmentDeletion" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupCustomDeletion.ResourceGroupName)"
-            $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
+            $firewallPolicy = Search-AzGraph -Subscription $script:subscriptionId -Query "resources | where type == 'microsoft.network/firewallpolicies' and resourceGroup =~ '$($script:resourceGroup.ResourceGroupName)' and name =~ 'TestPolicy'" | Select-Object -First 1
+            $script:ruleCollectionGroups = $firewallPolicy.Properties.ruleCollectionGroups | ForEach-Object { $_.id.Split('/')[-1] }
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
         }
         catch {
