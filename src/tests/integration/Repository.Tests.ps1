@@ -102,6 +102,9 @@ Describe "Repository" {
             throw
         }
 
+        # Pause for resource consistency
+        Start-Sleep -Seconds 120
+
         # Wait for Management Group structure consistency
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
