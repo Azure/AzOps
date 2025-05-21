@@ -174,6 +174,7 @@ Describe "Repository" {
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception -FunctionName "BeforeAll"
+            throw
         }
 
         # Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
