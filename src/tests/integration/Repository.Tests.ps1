@@ -102,6 +102,9 @@ Describe "Repository" {
             throw
         }
 
+        # Pause for resource consistency
+        Start-Sleep -Seconds 120
+
         # Wait for Management Group structure consistency
 
         $script:managementGroupDeployment = (Get-AzManagementGroupDeployment -ManagementGroupId "$script:tenantId" -Name "AzOps-Tests")
@@ -166,11 +169,13 @@ Describe "Repository" {
             $script:policyExemptions = Get-AzPolicyExemption -Name "PolicyExemptionTest" -Scope "/subscriptions/$script:subscriptionId"
             $script:routeTable = (Get-AzResource -Name "RouteTable" -ResourceGroupName $script:resourceGroup.ResourceGroupName)
             $script:policyAssignmentsDeletion = Get-AzPolicyAssignment -Name "TestPolicyAssignmentDeletion" -Scope "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupCustomDeletion.ResourceGroupName)"
-            $script:ruleCollectionGroups = (Get-AzResource -ExpandProperties -Name "TestPolicy" -ResourceGroupName $($script:resourceGroup).ResourceGroupName).Properties.ruleCollectionGroups.id.split("/")[-1]
+            $firewallPolicy = Search-AzGraph -Subscription $script:subscriptionId -Query "resources | where type == 'microsoft.network/firewallpolicies' and resourceGroup =~ '$($script:resourceGroup.ResourceGroupName)' and name =~ 'TestPolicy'" | Select-Object -First 1
+            $script:ruleCollectionGroups = $firewallPolicy.Properties.ruleCollectionGroups | ForEach-Object { $_.id.Split('/')[-1] }
             $script:logAnalyticsWorkspace = (Get-AzResource -Name "thisisalongloganalyticsworkspacename123456789011121314151617181" -ResourceGroupName $($script:resourceGroup).ResourceGroupName)
         }
         catch {
             Write-PSFMessage -Level Critical -Message "Failed to get deployed services" -Exception $_.Exception -FunctionName "BeforeAll"
+            throw
         }
 
         # Invoke the Invoke-AzOpsPull function to generate the scope data which can be tested against to ensure structure is correct and data model hasn't changed.
@@ -1291,14 +1296,15 @@ Describe "Repository" {
             Start-Sleep -Seconds 60
             $script:deployAllStaParamPathDeployment = Get-AzResource -ResourceGroupName $script:resourceGroupParallelDeploy.ResourceGroupName -ResourceType 'Microsoft.Storage/storageAccounts'
             $script:deployAllStaParamPathDeployment.Count | Should -Be 4
-            $query = "resourcechanges | where resourceGroup =~ '$($($script:resourceGroupParallelDeploy).ResourceGroupName)' and properties.targetResourceType == 'microsoft.storage/storageaccounts' and properties.changeType == 'Create' | extend changeTime=todatetime(properties.changeAttributes.timestamp), targetResourceId=tostring(properties.targetResourceId) | summarize arg_max(changeTime, *) by targetResourceId | project changeTime, targetResourceId, properties.changeType, properties.targetResourceType | order by changeTime asc"
-            $createTime = Search-AzGraph -Query $query -Subscription $script:subscriptionId
-            $parallelTimes = $createTime | Where-Object { $_.targetResourceId -match '^.*/p[123]azops' } | Select-Object -ExpandProperty changeTime
+            $deployments = Get-AzResourceGroupDeployment -ResourceGroupName $script:resourceGroupParallelDeploy.ResourceGroupName
+            $parallelDeployments = $deployments | Where-Object { $_.Parameters.staName.Value -match '^p[123]azops$' }
+            $serialDeployment = $deployments | Where-Object { $_.Parameters.staName.Value -eq 's1azops' }
+            $parallelTimes = $parallelDeployments | Select-Object -ExpandProperty Timestamp
             $maxParallel = ($parallelTimes | Measure-Object -Maximum).Maximum
             $minParallel = ($parallelTimes | Measure-Object -Minimum).Minimum
             $diffParallel = New-TimeSpan -Start $minParallel -End $maxParallel
             $diffParallel.TotalSeconds | Should -BeLessThan 25
-            $serialTime = ($createTime | Where-Object { $_.targetResourceId -match '^.*/s1azops' }).changeTime
+            $serialTime = $serialDeployment.Timestamp
             $diffSerial = New-TimeSpan -Start $maxParallel -End $serialTime
             $diffSerial.TotalSeconds | Should -BeGreaterThan 15
             Set-PSFConfig -FullName AzOps.Core.AllowMultipleTemplateParameterFiles -Value $false

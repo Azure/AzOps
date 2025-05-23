@@ -215,7 +215,7 @@
     'Invoke-AzOpsPush.Change.Delete.TempFile'                                       = 'Creating temporary file dir for deletion processing: {0}' # $fileName
     'Invoke-AzOpsPush.Change.Delete.NextTempFile'                                   = 'Exiting while loop, file detected in $DeleteSetContents for deletion processing based on this content line: [{0}]' # $currentLine
     'Invoke-AzOpsPush.Change.Delete.SetTempFileContent'                             = 'Set temporary file content: [{1}], in [{0}]' # $fileName, $jsonValue
-    'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, has failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
+    'Invoke-AzOpsPush.Deletion.Failed'                                              = 'Deletion of resources {0}, have failed using templates: {1}, {2}, this could be due to delayed deletion acceptance from Azure, please investigate and take action.' # $fail.ScopeObject.Scope, $fail.TemplateFilePath, $fail.TemplateParameterFilePath
     'Invoke-AzOpsPush.Deletion.Retry'                                               = 'Deletion of {0} resources unsuccessful, initiate final retry combination.' # $retry.Count
     'Invoke-AzOpsPush.Deploy.ProviderFeature'                                       = 'Invoking new state deployment - *.providerfeatures.json for a file {0}' # $addition
     'Invoke-AzOpsPush.Deploy.ResourceProvider'                                      = 'Invoking new state deployment - *.resourceproviders.json for a file {0}' # $addition
@@ -230,16 +230,16 @@
     'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Exist'    = 'Temporary processing deployment template file [{0}] already exists for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
     'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.Remove'   = 'Removing temporary processing deployment template file [{0}]' # $tempDeploymentFilePath
     'Invoke-AzOpsPush.Deployment.TemporaryDeploymentStackTemplateFilePath.New'      = 'Create temporary processing deployment template file [{0}] for [{1}]' # $tempDeploymentFilePath, $target.TemplateFilePath
-    'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successfull deletion. Error exiting runtime.'
+    'Invoke-AzOpsPush.Dependency.Missing'                                           = 'Missing resource dependency for successful deletion. Error exiting runtime.'
     'Invoke-AzOpsPush.DeploymentList.NotFound'                                      = 'Expecting deploymentList object, it was not found. Error exiting runtime.'
     'Invoke-AzOpsPush.Duration'                                                     = 'AzOps Push completed in {0}' # $stopWatch.Elapsed
     'Invoke-AzOpsPush.Resolve.DeployDeletionOverlap'                                = 'The file: {0} is targeted for deletion, skipping deployment file association' #
     'Invoke-AzOpsPush.Resolve.FoundTemplate'                                        = 'Found template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.FoundBicepTemplate'                                   = 'Found Bicep template {1} for parameters {0}' # $FilePath, $bicepTemplatePath
     'Invoke-AzOpsPush.Resolve.FromMainTemplate'                                     = 'Determining template from main template file: {0}' # $mainTemplateItem.FullName
-    'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT supports resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
+    'Invoke-AzOpsPush.Resolve.MainTemplate.NotSupported'                            = 'effectiveResourceType: {0} AzOpsMainTemplate does NOT support resource type {0} in {1}. Deployment will be ignored' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.MultipleTemplateParameterFile'                        = 'Found AllowMultipleTemplateParameterFile {0}' # $FilePath
-    'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate supports resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
+    'Invoke-AzOpsPush.Resolve.MainTemplate.Supported'                               = 'effectiveResourceType: {0} - AzOpsMainTemplate support resource type {0} in {1}' # $effectiveResourceType, $AzOpsMainTemplate.FullName
     'Invoke-AzOpsPush.Resolve.NoJson'                                               = 'The specified file is not a json or bicep file! Skipping {0}' # $fileItem.FullName
     'Invoke-AzOpsPush.Resolve.NotFoundTemplate'                                     = 'Did NOT find template {1} for parameters {0}' # $FilePath, $templatePath
     'Invoke-AzOpsPush.Resolve.ParameterFound'                                       = 'Found parameter file for template {0} : {1}' # $FilePath, $parameterPath
@@ -353,7 +353,7 @@
     'Set-AzOpsWhatIfOutput.WhatIfFile'                                              = 'Creating WhatIf markdown and json files' #
     'Set-AzOpsWhatIfOutput.WhatIfFileAdding'                                        = 'Adding content to WhatIf {0} file for template {1} with parameter file {2}' # '<type>', $FilePath, $ParameterFilePath
     'Set-AzOpsWhatIfOutput.WhatIfFileMax'                                           = 'WhatIf markdown and json files have reached character limit, unable to append more information to files. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
-    'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf have reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
+    'Set-AzOpsWhatIfOutput.WhatIfMessageMax'                                        = 'WhatIf has reached maximum character limit, unable to append warning message. WhatIf is too large for comment field, for more details look at PR files to determine changes.' # $ResultSizeMaxLimit, $ResultSizeLimit
     'Set-AzOpsWhatIfOutput.WhatIfResults'                                           = 'WhatIf Output {0}' # $results or $allResults
     'Set-AzOpsWhatIfOutput.WhatIfFile.Remove'                                       = 'Removing WhatIf markdown and json files lingering from previous run' #
 }
