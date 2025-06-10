@@ -124,6 +124,40 @@
                 }
             }
         }
+        function Get-AzOpsDeploymentStackActionOnUnmanage {
+            param (
+                [string]
+                $ResourcesCleanupAction,
+                [string]
+                $ResourceGroupsCleanupAction,
+                [string]
+                $ManagementGroupsCleanupAction
+            )
+
+            # Check for deleteAll pattern
+            if ($ResourcesCleanupAction -eq 'delete' -and
+                $ResourceGroupsCleanupAction -eq 'delete' -and
+                $ManagementGroupsCleanupAction -eq 'delete') {
+                return 'deleteAll'
+            }
+
+            # Check for deleteResources pattern
+            if ($ResourcesCleanupAction -eq 'delete' -and
+                $ResourceGroupsCleanupAction -eq 'detach' -and
+                $ManagementGroupsCleanupAction -eq 'detach') {
+                return 'deleteResources'
+            }
+
+            # Check for detachAll pattern
+            if ($ResourcesCleanupAction -eq 'detach' -and
+                $ResourceGroupsCleanupAction -eq 'detach' -and
+                $ManagementGroupsCleanupAction -eq 'detach') {
+                return 'detachAll'
+            }
+
+            # Default fallback
+            return 'detachAll'
+        }
         if ($null -ne $InputObject -and $Recursive) {
             # Perform recursive resource deletion
             $result = Remove-AzResourceRawRecursive -InputObject $InputObject
@@ -159,18 +193,36 @@
                 try {
                     # Set Azure context for removal operation
                     Set-AzOpsContext -ScopeObject $ScopeObject
-                    $null = Remove-AzResource -ResourceId $ScopeObject.Scope -Force -ErrorAction Stop
-                    $maxAttempts = 4
-                    $attempt = 1
-                    $gone = $false
-                    while ($gone -eq $false -and $attempt -le $maxAttempts) {
-                        Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $ScopeObject.Scope
-                        Start-Sleep -Seconds 10
-                        $tryResource = Get-AzOpsResource -ScopeObject $ScopeObject -ErrorAction SilentlyContinue
-                        if (-not $tryResource) {
-                            $gone = $true
+                    # Evaluate the resource type and perform the appropriate removal action
+                    if ($ScopeObject.Resource -eq 'deploymentStacks') {
+                        $actionOnUnmanage = Get-AzOpsDeploymentStackActionOnUnmanage -ResourcesCleanupAction $resource.resourcesCleanupAction -ResourceGroupsCleanupAction $resource.resourceGroupsCleanupAction -ManagementGroupsCleanupAction $resource.managementGroupsCleanupAction
+                        if ($ScopeObject.ResourceGroup) {
+                            $removeCommand = 'Remove-AzResourceGroupDeploymentStack'
                         }
-                        $attempt++
+                        elseif ($ScopeObject.Subscription) {
+                            $removeCommand = 'Remove-AzSubscriptionDeploymentStack'
+                        }
+                        elseif ($scopeObject.ManagementGroup) {
+                            $removeCommand = 'Remove-AzManagementGroupDeploymentStack'
+                        }
+                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzResourceRaw.Resource.StackCommand' -LogStringValues $removeCommand, $ScopeObject.Scope, $actionOnUnmanage
+                        $null = & $removeCommand -ResourceId $ScopeObject.Scope -ActionOnUnmanage $actionOnUnmanage -Force -ErrorAction Stop
+                    }
+                    else {
+                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Remove-AzResourceRaw.Resource.Command' -LogStringValues 'Remove-AzResource', $ScopeObject.Scope
+                        $null = Remove-AzResource -ResourceId $ScopeObject.Scope -Force -ErrorAction Stop
+                        $maxAttempts = 4
+                        $attempt = 1
+                        $gone = $false
+                        while ($gone -eq $false -and $attempt -le $maxAttempts) {
+                            Write-AzOpsMessage -LogLevel InternalComment -LogString 'Remove-AzResourceRaw.Resource.CheckExistence' -LogStringValues $ScopeObject.Scope
+                            Start-Sleep -Seconds 10
+                            $tryResource = Get-AzOpsResource -ScopeObject $ScopeObject -ErrorAction SilentlyContinue
+                            if (-not $tryResource) {
+                                $gone = $true
+                            }
+                            $attempt++
+                        }
                     }
                 }
                 catch {

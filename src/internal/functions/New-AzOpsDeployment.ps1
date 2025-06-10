@@ -152,7 +152,7 @@
             $parameters.ResultFormat = $WhatIfResultFormat
         }
         # Resource Groups excluding Microsoft.Resources/resourceGroups that needs to be submitted at subscription scope
-        if ($scopeObject.resourcegroup -and $TemplateObject.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
+        if ($scopeObject.Resourcegroup -and $TemplateObject.resources[0].type -ne 'Microsoft.Resources/resourceGroups') {
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzResourceGroupDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
@@ -166,7 +166,7 @@
             $parameters.Remove('Location')
         }
         # Subscriptions
-        elseif ($scopeObject.subscription) {
+        elseif ($scopeObject.Subscription) {
             Set-AzOpsContext -ScopeObject $scopeObject
             $whatIfCommand = 'Get-AzSubscriptionDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
@@ -178,7 +178,7 @@
             }
         }
         # Management Groups
-        elseif ($scopeObject.managementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
+        elseif ($scopeObject.ManagementGroup -and (-not ($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
             $parameters.ManagementGroupId = $scopeObject.managementgroup
             $whatIfCommand = 'Get-AzManagementGroupDeploymentWhatIfResult'
             if ($null -ne $DeploymentStackSettings) {
@@ -196,7 +196,7 @@
             $deploymentCommand = 'New-AzTenantDeployment'
         }
         # If Management Group resource was not found, validate and prepare for first time deployment of resource
-        elseif ($scopeObject.managementGroup -and (($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
+        elseif ($scopeObject.ManagementGroup -and (($scopeObject.StatePath).StartsWith('azopsscope-assume-new-resource_'))) {
             $resourceScopeFileContent = Get-Content -Path $addition | ConvertFrom-Json -Depth 100
             $resource = ($resourceScopeFileContent.resources | Where-Object {$_.type -eq 'Microsoft.Management/managementGroups'} | Select-Object -First 1)
             $pathDir = (Get-Item -Path $addition -Force).Directory | Resolve-Path -Relative

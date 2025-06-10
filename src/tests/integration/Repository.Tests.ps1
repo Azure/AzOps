@@ -1372,7 +1372,7 @@ Describe "Repository" {
                 "A`t$($script:deployStacksAtRgScope.FullName[1])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Get-AzResourceGroupDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupStacksDeploy.ResourceGroupName)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatrg-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
+            $resources = Get-AzResourceGroupDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupStacksDeploy.ResourceGroupName)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatrg-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
             Start-Sleep -Seconds 10
             $changeSet = @(
                 "D`t$($script:deployStacksAtRgScope.FullName[0])",
@@ -1388,6 +1388,9 @@ Describe "Repository" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
             Get-AzResourceGroupDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/resourceGroups/$($script:resourceGroupStacksDeploy.ResourceGroupName)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatrg-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
+            foreach ($resource in $resources.Resources.Id) {
+                Get-AzResource -ResourceId $resource -ErrorAction SilentlyContinue | Should -Be $null
+            }
         }
         It "Deploy and Delete AzOps Managed DeploymentStacks at Subscription Scope with parameter file and exclusion of direct stack, expecting usage of parent stack" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
@@ -1422,6 +1425,9 @@ Describe "Repository" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $false
             Start-Sleep -Seconds 30
             Get-AzSubscriptionDeploymentStack -ResourceId "/subscriptions/$script:subscriptionId/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatsub-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
+            foreach ($resource in $stackConfig.Resources.Id) {
+                Get-AzResource -ResourceId $resource -ErrorAction SilentlyContinue | Should -Be $null
+            }
         }
         It "Deploy and Delete AzOps Managed DeploymentStacks at ManagementGroup Scope with multiparameter filename and parameter specific stackfile discovered with reverse lookup" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
@@ -1432,7 +1438,7 @@ Describe "Repository" {
                 "A`t$($script:deployStacksAtMgScope.FullName[2])"
             )
             {Invoke-AzOpsPush -ChangeSet $changeSet} | Should -Not -Throw
-            Get-AzManagementGroupDeploymentStack -ResourceId "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatmg.x1-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
+            $resources = Get-AzManagementGroupDeploymentStack -ResourceId "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatmg.x1-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Not -Be $null
             Start-Sleep -Seconds 10
             $changeSet = @(
                 "D`t$($script:deployStacksAtMgScope.FullName[2])"
@@ -1446,6 +1452,9 @@ Describe "Repository" {
             Set-PSFConfig -FullName AzOps.Core.DeployAllMultipleTemplateParameterFiles -Value $false
             Start-Sleep -Seconds 30
             Get-AzManagementGroupDeploymentStack -ResourceId "/providers/Microsoft.Management/managementGroups/$($script:managementManagementGroup.Name)/providers/Microsoft.Resources/deploymentStacks/AzOps-deploystacksatmg.x1-$deploymentLocationId" -ErrorAction SilentlyContinue | Should -Be $null
+            foreach ($resource in $resources.Resources.Id) {
+                Get-AzResource -ResourceId $resource -ErrorAction SilentlyContinue | Should -Be $null
+            }
         }
         #endregion
     }
