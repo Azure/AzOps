@@ -321,6 +321,8 @@
     'Remove-AzResourceRaw.Resource.Recursive.Missing'                               = 'Missing required parameter InputObject, when running Recursive'#
     'Remove-AzResourceRaw.Resource.Missing'                                         = 'Missing required parameter ScopeObject'#
     'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]'# $FullyQualifiedResourceId
+    'Remove-AzResourceRaw.Resource.StackCommand'                                    = 'Running deletion command: [{0}] for resource: [{1}] with ActionOnUnmanage: [{2}]' # $removeCommand, $ScopeObject.Scope, $actionOnUnmanage
+    'Remove-AzResourceRaw.Resource.Command'                                         = 'Running deletion command: [{0}] for resource: [{1}]' # 'Remove-AzResource', $ScopeObject.Scope
     'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $ScopeObject.Resource, $ScopeObject.Scope
     'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.Resource, $item.ScopeObject.Scope
 
