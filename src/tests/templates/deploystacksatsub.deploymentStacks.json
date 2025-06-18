@@ -1,7 +1,7 @@
 {
-    "actionOnUnmanage": "DetachAll",
+    "actionOnUnmanage": "detachAll",
     "bypassStackOutOfSyncError": true,
-    "denySettingsMode": "DenyDelete",
+    "denySettingsMode": "denyDelete",
     "excludedAzOpsFiles": [
         "deploystacksatsub.bicep"
     ]

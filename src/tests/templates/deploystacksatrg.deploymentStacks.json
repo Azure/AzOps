@@ -1,6 +1,6 @@
 {
     "actionOnUnmanage": "deleteResources",
     "bypassStackOutOfSyncError": true,
-    "denySettingsMode": "DenyDelete",
+    "denySettingsMode": "denyDelete",
     "excludedAzOpsFiles": []
 }
