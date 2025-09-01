@@ -290,8 +290,10 @@
             if (-not $SkipResource) {
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.Discovery' -LogStringValues $scopeObject.Name -Target $ScopeObject
                 try {
+                    # Skip resources with null or empty resource group
+                    $query = "resources | where isnotempty(resourceGroup)"
                     $SkipResourceType | ForEach-Object { $skipResourceTypes += ($(if($skipResourceTypes){","}) + "'" + $_  + "'") }
-                    $query = "resources | where type !in~ ($skipResourceTypes)"
+                    $query = $query + " and type !in~ ($skipResourceTypes)"
                     if ($IncludeResourceType -ne "*") {
                         $IncludeResourceType | ForEach-Object { $includeResourceTypes += ($(if($includeResourceTypes){","}) + "'" + $_  + "'") }
                         $query = $query + " and type in~ ($includeResourceTypes)"
@@ -309,6 +311,11 @@
                 if ($resourcesBase) {
                     $resources = @()
                     foreach ($resource in $resourcesBase) {
+                        # Skip resources with null or empty resource group to prevent Export-AzResourceGroup errors
+                        if ([string]::IsNullOrEmpty($resource.resourceGroup)) {
+                            Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
+                            continue
+                        }
                         if ($resourceGroups | Where-Object { $_.name -eq $resource.resourceGroup -and $_.subscriptionId -eq $resource.subscriptionId }) {
                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.Resource' -LogStringValues $resource.name, $resource.resourcegroup -Target $resource
                             $resources += $resource
@@ -347,6 +354,11 @@
                     $tempExportPath = [System.IO.Path]::GetTempPath() + (New-Guid).ToString() + '.json'
                     try {
                         & $azOps {
+                            # Validate resource group name before calling Export-AzResourceGroup
+                            if ([string]::IsNullOrEmpty($resource.resourceGroup)) {
+                                Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
+                                return
+                            }
                             $exportParameters = @{
                                 Resource                = $resource.id
                                 ResourceGroupName       = $resource.resourceGroup
@@ -386,7 +398,7 @@
                     }
                     catch {
                         & $azOps {
-                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, $_ -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps"
+                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, ($exportParameters | Out-String -NoNewline), $_ -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps"
                         }
                     }
                     if (Test-Path -Path $tempExportPath) {

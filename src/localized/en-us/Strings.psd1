@@ -122,7 +122,7 @@
     'Get-AzOpsPolicySetDefinition.ManagementGroup'                                  = 'Retrieving PolicySet Definition for ManagementGroup {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsPolicySetDefinition.Subscription'                                     = 'Retrieving PolicySet Definition for {0} Subscription objects' # $Subscription.count
 
-    'Get-AzOpsResourceDefinition.ChildResource.Warning'                             = 'Failed to export childResources in [{0}]. Warning: [{1}]' # $resourceGroup.ResourceGroupName, $_
+    'Get-AzOpsResourceDefinition.ChildResource.Warning'                             = 'Failed to export childResources in [{0}] with parameters [{1}]. Warning: [{2}]' # $resource.resourceGroup, $exportParameters | Out-String -NoNewline, $_
     'Get-AzOpsResourceDefinition.Finished'                                          = 'Finished processing scope [{0}]' # $scopeObject.Scope
     'Get-AzOpsResourceDefinition.ManagementGroup.Processing'                        = 'Processing Management Group [{0}] ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
     'Get-AzOpsResourceDefinition.Processing'                                        = 'Processing resources at [{0}]' # $Scope
@@ -134,10 +134,12 @@
     'Get-AzOpsResourceDefinition.Processing.Resource'                               = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery'                     = 'Searching for resources in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound'            = 'No resources found in [{0}]' # $scopeObject.Name
-    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in {0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $scopeObject.Name
+    'Get-AzOpsResourceDefinition.Processing.Resource.SkippingNoResourceGroup'       = 'Skipping resource [{0}] at [{1}], null or empty ResourceGroup property. Cannot export resources' # $resource.name, $resource.id
+    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.SkippingResourceGroup'                             = 'SkipResourceGroup switch used, skipping resource Group discovery' #
     'Get-AzOpsResourceDefinition.SkippingResources'                                 = 'SkipResource switch used, skipping resource discovery.' #
     'Get-AzOpsResourceDefinition.Processing.ChildResource'                          = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
+    'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup'  = 'Skipping resource [{0}] at [{1}], null or empty ResourceGroup property. Cannot export child resources' # $resource.name, $resource.id
     'Get-AzOpsResourceDefinition.SkippingChildResources'                            = 'SkipChildResource switch used, skipping child resource discovery' #
 
     'Get-AzOpsRoleAssignment.Assignment'                                            = 'Found assignment {0} for role {1}' # $roleAssignment.id, $roleAssignment.properties.roleDefinitionId
