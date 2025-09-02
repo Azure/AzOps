@@ -356,7 +356,7 @@
                         & $azOps {
                             # Validate resource group name before calling Export-AzResourceGroup
                             if ([string]::IsNullOrEmpty($resource.resourceGroup)) {
-                                Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
+                                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
                                 return
                             }
                             $exportParameters = @{
