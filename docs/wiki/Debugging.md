@@ -11,7 +11,7 @@ If you're having issues with AzOps in your CI/CD system, it can be helpful to tr
 ### Getting started
 
 1. Clone the [project](https://github.com/Azure/AzOps) from GitHub and open with Visual Studio Code
-1. Run `Dependencies.ps1` from the scripts directory to install the dependant PoSH modules`
+1. Run `Dependencies.ps1` from the scripts directory to install the dependent PoSH modules`
 1. Login with the correct service principal that has Management Group scope access
 
 ```powershell

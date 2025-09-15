@@ -314,23 +314,23 @@
     'Remove-AzOpsDeployment.Scope.Failed'                                           = 'Failed to resolve the scope for template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.Scope.Empty'                                            = 'Unable to determine the scope of template {0}' # $TemplateFilePath
     'Remove-AzOpsDeployment.SkipDueToWhatIf'                                        = 'Skipping removal of resource due to WhatIf' #
-    'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.'# $roleAssignmentId, $policyAssignment.ResourceId
-    'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successful deletion of {1}. Please add missing resource and retry.'# $resource.Id, $scopeObject.Scope
-    'Remove-AzOpsDeployment.Resource.RetryCount'                                    = 'Retry deletion of {0} resources in different order'# $retry.Count
-    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.'# $scopeObject.Resource, $scopeObject.Scope, $resultsError
-    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}'# $TemplateFilePath
+    'Remove-AzOpsDeployment.ResourceDependencyNested'                               = 'resource dependency {0} for complete deletion of {1} is outside of supported AzOps scope. Please remove this dependency in Azure without AzOps.' # $roleAssignmentId, $policyAssignment.ResourceId
+    'Remove-AzOpsDeployment.ResourceDependencyNotFound'                             = 'Missing resource dependency {0} for successful deletion of {1}. Please add missing resource and retry.' # $resource.Id, $scopeObject.Scope
+    'Remove-AzOpsDeployment.Resource.RetryCount'                                    = 'Retry deletion of {0} resources in different order' # $retry.Count
+    'Remove-AzOpsDeployment.ResourceNotFound'                                       = 'Unable to find resource of type {0} with id {1}.' # $scopeObject.Resource, $scopeObject.Scope, $resultsError
+    'Remove-AzOpsDeployment.SkipUnsupportedResource'                                = 'Deletion of AzOps generated file resources is only supported for locks, policyAssignments, policyDefinitions, policyExemptions, policySetDefinitions and roleAssignments. Will NOT proceed with deletion of resource in file {0}' # $TemplateFilePath
 
-    'Remove-AzResourceRaw.Resource.Recursive.Missing'                               = 'Missing required parameter InputObject, when running Recursive'#
-    'Remove-AzResourceRaw.Resource.Missing'                                         = 'Missing required parameter ScopeObject'#
-    'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]'# $FullyQualifiedResourceId
+    'Remove-AzResourceRaw.Resource.Recursive.Missing'                               = 'Missing required parameter InputObject, when running Recursive' #
+    'Remove-AzResourceRaw.Resource.Missing'                                         = 'Missing required parameter ScopeObject' #
+    'Remove-AzResourceRaw.Resource.CheckExistence'                                  = 'Checking existence after deletion of: [{0}]' # $FullyQualifiedResourceId
     'Remove-AzResourceRaw.Resource.StackCommand'                                    = 'Running deletion command: [{0}] for resource: [{1}] with ActionOnUnmanage: [{2}]' # $removeCommand, $ScopeObject.Scope, $actionOnUnmanage
     'Remove-AzResourceRaw.Resource.Command'                                         = 'Running deletion command: [{0}] for resource: [{1}]' # 'Remove-AzResource', $ScopeObject.Scope
-    'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}'# $ScopeObject.Resource, $ScopeObject.Scope
-    'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}'# $item.ScopeObject.Resource, $item.ScopeObject.Scope
+    'Remove-AzResourceRaw.Resource.Failed'                                          = 'Unable to delete resource of type {0} with id {1}' # $ScopeObject.Resource, $ScopeObject.Scope
+    'Remove-AzResourceRawRecursive.Processing'                                      = 'Recursive retry processing to delete resource of type {0} with id {1}' # $item.ScopeObject.Resource, $item.ScopeObject.Scope
 
-    'Remove-AzOpsInvalidCharacter.Completed'                                        = 'Valid string: {0}'# $String
-    'Remove-AzOpsInvalidCharacter.Invalid'                                          = 'Invalid character detected in string: {0}, further processing initiated'# $String
-    'Remove-AzOpsInvalidCharacter.Removal'                                          = 'Removed invalid character: {0} from string: {1}'# $character, $String
+    'Remove-AzOpsInvalidCharacter.Completed'                                        = 'Valid string: {0}' # $String
+    'Remove-AzOpsInvalidCharacter.Invalid'                                          = 'Invalid character detected in string: {0}, further processing initiated' # $String
+    'Remove-AzOpsInvalidCharacter.Removal'                                          = 'Removed invalid character: {0} from string: {1}' # $character, $String
 
     'Save-AzOpsManagementGroupChild.Creating.Scope'                                 = 'Creating scope object' #
     'Save-AzOpsManagementGroupChild.Data.Directory'                                 = 'Resolved state path directory: {0}' # $statepathDirectory
