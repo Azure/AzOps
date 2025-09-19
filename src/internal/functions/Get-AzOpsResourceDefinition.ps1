@@ -306,7 +306,7 @@
                     $resourcesBase = Search-AzOpsAzGraph -Subscription $subscriptions -Query $query -ErrorAction Stop
                 }
                 catch {
-                    Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.Warning' -LogStringValues $scopeObject.Name -Target $ScopeObject
+                    Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.Processing.Resource.Warning' -LogStringValues $scopeObject.Name, $_ -Target $ScopeObject
                 }
                 if ($resourcesBase) {
                     $resources = @()
@@ -331,84 +331,86 @@
                 Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingResources' -Target $ScopeObject
             }
             # Process Child resources at resource scope in parallel
-            if (-not $SkipResource -and -not $SkipChildResource) {
-                if ($SubscriptionsToIncludeChildResource -ne '*') {
-                    $resources = $resources | Where-Object { $_.subscriptionId -in $SubscriptionsToIncludeChildResource }
-                }
-                $resources | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
-                    $resource = $_
-                    $runspaceData = $using:runspaceData
+            if ($resources.Count -gt 0) {
+                if (-not $SkipResource -and -not $SkipChildResource) {
+                    if ($SubscriptionsToIncludeChildResource -ne '*') {
+                        $resources = $resources | Where-Object { $_.subscriptionId -in $SubscriptionsToIncludeChildResource }
+                    }
+                    $resources | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
+                        $resource = $_
+                        $runspaceData = $using:runspaceData
 
-                    Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
-                    $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
+                        Import-Module "$([PSFramework.PSFCore.PSFCoreHost]::ModuleRoot)/PSFramework.psd1"
+                        $azOps = Import-Module $runspaceData.AzOpsPath -Force -PassThru
 
-                    & $azOps {
-                        $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
-                        $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
-                        $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
-                        $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
-                        $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
-                    }
-                    $context = Get-AzContext
-                    $context.Subscription.Id = $resource.subscriptionId
-                    $tempExportPath = [System.IO.Path]::GetTempPath() + (New-Guid).ToString() + '.json'
-                    try {
                         & $azOps {
-                            # Validate resource group name before calling Export-AzResourceGroup
-                            if ([string]::IsNullOrEmpty($resource.resourceGroup)) {
-                                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
-                                return
-                            }
-                            $exportParameters = @{
-                                Resource                = $resource.id
-                                ResourceGroupName       = $resource.resourceGroup
-                                SkipAllParameterization = $true
-                                Path                    = $tempExportPath
-                                DefaultProfile          = $context | Select-Object -First 1
-                            }
-                            Invoke-AzOpsScriptBlock -ArgumentList $exportParameters -ScriptBlock {
-                                param (
-                                    $ExportParameters
-                                )
-                                $param = $ExportParameters | Write-Output
-                                Export-AzResourceGroup @param -Confirm:$false -Force -ErrorAction Stop | Out-Null
-                            } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
+                            $script:AzOpsAzManagementGroup = $runspaceData.runspace_AzOpsAzManagementGroup
+                            $script:AzOpsSubscriptions = $runspaceData.runspace_AzOpsSubscriptions
+                            $script:AzOpsPartialRoot = $runspaceData.runspace_AzOpsPartialRoot
+                            $script:AzOpsResourceProvider = $runspaceData.runspace_AzOpsResourceProvider
+                            $script:AzOpsGraphResourceProvider = $runspaceData.runspace_AzOpsGraphResourceProvider
                         }
-                        $exportResources = (Get-Content -Path $tempExportPath | ConvertFrom-Json).resources
-                        $resourceGroup = $using:resourceGroups | Where-Object {$_.subscriptionId -eq $resource.subscriptionId -and $_.name -eq $resource.resourceGroup}
-                        foreach ($exportResource in $exportResources) {
-                            if (-not(($resource.name -eq $exportResource.name) -and ($resource.type -eq $exportResource.type))) {
-                                & $azOps {
-                                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps" -Target $exportResource
+                        $context = Get-AzContext
+                        $context.Subscription.Id = $resource.subscriptionId
+                        $tempExportPath = [System.IO.Path]::GetTempPath() + (New-Guid).ToString() + '.json'
+                        try {
+                            & $azOps {
+                                # Validate resource group name before calling Export-AzResourceGroup
+                                if ([string]::IsNullOrEmpty($resource.resourceGroup)) {
+                                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource.SkippingNoResourceGroup' -LogStringValues $resource.name, $resource.id -Target $resource
+                                    return
                                 }
-                                $ChildResource = @{
-                                    resourceProvider = $exportResource.type -replace '/', '_'
-                                    resourceName     = $exportResource.name -replace '/', '_'
-                                    parentResourceId = $resourceGroup.id
+                                $exportParameters = @{
+                                    Resource                = $resource.id
+                                    ResourceGroupName       = $resource.resourceGroup
+                                    SkipAllParameterization = $true
+                                    Path                    = $tempExportPath
+                                    DefaultProfile          = $context | Select-Object -First 1
                                 }
-                                if (Get-Member -InputObject $exportResource -name 'dependsOn') {
-                                    $exportResource.PsObject.Members.Remove('dependsOn')
-                                }
-                                $resourceHash = @{resources = @($exportResource) }
-                                & $azOps {
-                                    ConvertTo-AzOpsState -Resource $resourceHash -ChildResource $ChildResource -StatePath $runspaceData.Statepath
+                                Invoke-AzOpsScriptBlock -ArgumentList $exportParameters -ScriptBlock {
+                                    param (
+                                        $ExportParameters
+                                    )
+                                    $param = $ExportParameters | Write-Output
+                                    Export-AzResourceGroup @param -Confirm:$false -Force -ErrorAction Stop | Out-Null
+                                } -RetryCount $runspaceData.MaxRetryCount -RetryWait $runspaceData.BackoffMultiplier -RetryType Exponential
+                            }
+                            $exportResources = (Get-Content -Path $tempExportPath | ConvertFrom-Json).resources
+                            $resourceGroup = $using:resourceGroups | Where-Object {$_.subscriptionId -eq $resource.subscriptionId -and $_.name -eq $resource.resourceGroup}
+                            foreach ($exportResource in $exportResources) {
+                                if (-not(($resource.name -eq $exportResource.name) -and ($resource.type -eq $exportResource.type))) {
+                                    & $azOps {
+                                        Write-AzOpsMessage -LogLevel Verbose -LogString 'Get-AzOpsResourceDefinition.Processing.ChildResource' -LogStringValues $exportResource.name, $resource.resourceGroup -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps" -Target $exportResource
+                                    }
+                                    $ChildResource = @{
+                                        resourceProvider = $exportResource.type -replace '/', '_'
+                                        resourceName     = $exportResource.name -replace '/', '_'
+                                        parentResourceId = $resourceGroup.id
+                                    }
+                                    if (Get-Member -InputObject $exportResource -name 'dependsOn') {
+                                        $exportResource.PsObject.Members.Remove('dependsOn')
+                                    }
+                                    $resourceHash = @{resources = @($exportResource) }
+                                    & $azOps {
+                                        ConvertTo-AzOpsState -Resource $resourceHash -ChildResource $ChildResource -StatePath $runspaceData.Statepath
+                                    }
                                 }
                             }
+                        }
+                        catch {
+                            & $azOps {
+                                Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, ($exportParameters | Out-String -NoNewline), $_ -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps"
+                            }
+                        }
+                        if (Test-Path -Path $tempExportPath) {
+                            Remove-Item -Path $tempExportPath -Force
                         }
                     }
-                    catch {
-                        & $azOps {
-                            Write-AzOpsMessage -LogLevel Warning -LogString 'Get-AzOpsResourceDefinition.ChildResource.Warning' -LogStringValues $resource.resourceGroup, ($exportParameters | Out-String -NoNewline), $_ -FunctionName "Get-AzOpsResourceDefinition" -ModuleName "AzOps"
-                        }
-                    }
-                    if (Test-Path -Path $tempExportPath) {
-                        Remove-Item -Path $tempExportPath -Force
-                    }
+                    Clear-PSFMessage
                 }
-                Clear-PSFMessage
-            }
-            else {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingChildResources' -Target $ScopeObject
+                else {
+                    Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsResourceDefinition.SkippingChildResources' -Target $ScopeObject
+                }
             }
         }
         #endregion Process Resource Groups

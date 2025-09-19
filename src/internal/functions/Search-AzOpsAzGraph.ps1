@@ -7,9 +7,16 @@
         .PARAMETER UseTenantScope
             Use Tenant as Scope true or false
         .PARAMETER ManagementGroupName
-            ManagementGroup Name
+            ManagementGroup Id
         .PARAMETER Subscription
-            Subscription Id's
+            Subscription object(s) containing subscription information. Can be a single object or array of objects.
+            Each object must have an 'Id' property with a valid GUID.
+            Example structure:
+            @{
+                "Name" = "MySubscription"
+                "Id" = "1ea96474-9e13-442f-afe3-b2e7810e6rb8"
+                "Type" = "/subscriptions"
+            }
         .PARAMETER Query
             AzureResourceGraph-Query
         .EXAMPLE
@@ -23,9 +30,26 @@
         [switch]
         $UseTenantScope,
         [Parameter(Mandatory = $false)]
-        [string]
+        [guid]
         $ManagementGroupName,
         [Parameter(Mandatory = $false)]
+        [ValidateScript({
+            # Allow null input
+            if ($null -eq $_) { return $true }
+            # Convert single object to array for uniform processing
+            $subscriptions = if ($_ -is [array]) { $_ } else { @($_) }
+            foreach ($sub in $subscriptions) {
+                # Validate Id property exists
+                if (-not ($sub.PSObject.Properties.Name -contains 'Id')) {
+                    throw "Subscription Id is missing: [$sub]"
+                }
+                # Validate Id is a valid GUID
+                if (-not ($sub.Id -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')) {
+                    throw "Subscription Id must be a valid GUID format: [$sub]"
+                }
+            }
+            return $true
+        })]
         [object]
         $Subscription,
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]

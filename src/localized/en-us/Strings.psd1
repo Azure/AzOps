@@ -110,8 +110,8 @@
     'Get-AzOpsPolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for {0} Subscription objects' # $Subscription.count
 
     'Get-AzOpsPolicyExemption.ManagementGroup'                                      = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
-    'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group in {0} Subscription objects' # $Subscription.count
+    'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for {0} Subscription objects' # $Subscription.count
 
     'Get-AzOpsResource.Failed'                                                      = 'Failed retrieving resource with error: {0}' # $_
 
@@ -135,7 +135,7 @@
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery'                     = 'Searching for resources in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound'            = 'No resources found in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.SkippingNoResourceGroup'       = 'Skipping resource [{0}] at [{1}], null or empty ResourceGroup property. Cannot export resources' # $resource.name, $resource.id
-    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $scopeObject.Name
+    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting. Error message: [{1}]' # $scopeObject.Name, $_
     'Get-AzOpsResourceDefinition.SkippingResourceGroup'                             = 'SkipResourceGroup switch used, skipping resource Group discovery' #
     'Get-AzOpsResourceDefinition.SkippingResources'                                 = 'SkipResource switch used, skipping resource discovery.' #
     'Get-AzOpsResourceDefinition.Processing.ChildResource'                          = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
