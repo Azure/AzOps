@@ -345,6 +345,9 @@
     'Save-AzOpsManagementGroupChild.Subscription.NotFound'                          = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Search-AzOpsAzGraph.Processing'                                                = 'AzGraph processing query: [{0}]' # $Query
+    'Search-AzOpsAzGraph.Processing.UseTenantScope'                                 = 'AzGraph processing query at tenantScope [/]' #
+    'Search-AzOpsAzGraph.Processing.ManagementGroup'                                = 'AzGraph processing query at managementGroup: [{0}]' # $ManagementGroupName
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch'                              = 'AzGraph processing query at {0} subscriptions: [{1}]' # $subscriptionCount, $subscriptionIds
     'Search-AzOpsAzGraph.Processing.Done'                                           = 'AzGraph completed processing of query: [{0}]' # $Query
     'Search-AzOpsAzGraph.Processing.NoResult'                                       = 'AzGraph found nothing with query: [{0}]' # $Query
 

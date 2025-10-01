@@ -61,6 +61,7 @@
         Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing' -LogStringValues $Query
         $results = @()
         if ($UseTenantScope) {
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.UseTenantScope'
             do {
                 $processing = Search-AzGraph -UseTenantScope -Query $Query -AllowPartialScope -SkipToken $processing.SkipToken -ErrorAction Stop
                 $results += $processing
@@ -68,6 +69,7 @@
             while ($processing.SkipToken)
         }
         if ($ManagementGroupName) {
+            Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.ManagementGroup' -LogStringValues $ManagementGroupName
             do {
                 $processing = Search-AzGraph -ManagementGroup $ManagementGroupName -Query $Query -AllowPartialScope -SkipToken $processing.SkipToken -ErrorAction Stop
                 $results += $processing
@@ -81,6 +83,9 @@
             # Group subscriptions into batches to conform with graph limits
             $subscriptionBatch = $Subscription | Group-Object -Property { [math]::Floor($counter.Value++ / $batchSize) }
             foreach ($group in $subscriptionBatch) {
+                $subscriptionIds = ($group.Group).Id -join ', '
+                $subscriptionCount = $group.Group.Count
+                Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.SubscriptionBatch' -LogStringValues $subscriptionCount, $subscriptionIds
                 do {
                     $processing = Search-AzGraph -Subscription ($group.Group).Id -Query $Query -SkipToken $processing.SkipToken -ErrorAction Stop
                     $results += $processing
