@@ -346,8 +346,20 @@
 
     'Search-AzOpsAzGraph.Processing'                                                = 'AzGraph processing query: [{0}]' # $Query
     'Search-AzOpsAzGraph.Processing.UseTenantScope'                                 = 'AzGraph processing query at tenantScope [/]' #
+    'Search-AzOpsAzGraph.Processing.UseTenantScope.Failed'                          = 'Failed AzGraph processing query: [{0}] at tenantScope [/] with: {1}' # $Query, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.ManagementGroup'                                = 'AzGraph processing query at managementGroup: [{0}]' # $ManagementGroupName
+    'Search-AzOpsAzGraph.Processing.ManagementGroup.Failed'                         = 'Failed AzGraph processing query: [{0}] at managementGroup: [{1}] with: {2}' # $Query, $ManagementGroupName, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription'                                   = 'AzGraph processing query at subscription: [{0}({1})]' # $sub.Name, $sub.Id
+    'Search-AzOpsAzGraph.Processing.Subscription.Failed'                            = 'Failed AzGraph processing query: [{0}] at subscription: [{1}({2})] with: {3}' # $Query, $sub.Name, $sub.Id,  $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription.RetryWithRestApi'                  = 'Retrying Microsoft.ResourceGraph query at subscription [{0}] using REST API for additional diagnostics' # $sub.Id
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess'                    = 'Microsoft.ResourceGraph REST API query succeeded for subscription [{0}] with [{1}] results' # $sub.Id, $responseContent.data.Count
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiFailed'                     = 'Microsoft.ResourceGraph REST API query failed for subscription [{0}] with status [{1}]: {2}' # $sub.Id, $response.StatusCode, $response.Content
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiErrorDetails'               = 'Microsoft.ResourceGraph REST API error code [{0}]: {1}' # $errorContent.error.code, $errorContent.error.message
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiRawError'                   = 'Microsoft.ResourceGraph REST API raw error response: {0}' # $response.Content
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiException'                  = 'Microsoft.ResourceGraph REST API exception for query: [{0}] at subscription [{1}]: {2}' # $Query, $sub.Id, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.SubscriptionBatch'                              = 'AzGraph processing query at {0} subscriptions: [{1}]' # $subscriptionCount, $subscriptionIds
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch.Failed'                       = 'Failed AzGraph processing query at subscriptions: [{0}] with: {1}' # $subscriptionIds, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch.RetryIndividually'            = 'Retrying AzGraph processing query of {0} subscriptions individually' # $subscriptionCount, $subscriptionIds
     'Search-AzOpsAzGraph.Processing.Done'                                           = 'AzGraph completed processing of query: [{0}]' # $Query
     'Search-AzOpsAzGraph.Processing.NoResult'                                       = 'AzGraph found nothing with query: [{0}]' # $Query
 
