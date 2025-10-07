@@ -146,10 +146,6 @@
                 $query = "resourcecontainers | where type == 'microsoft.management/managementgroups' | order by ['id'] asc"
                 $managementgroups = Search-AzOpsAzGraph -ManagementGroupName $scopeObject.Name -Query $query -ErrorAction Stop | Where-Object { $_.id -in $script:AzOpsAzManagementGroup.Id }
                 $subscriptions = Get-AzOpsNestedSubscription -Scope $scopeObject.Name
-                # Filter out skipped subscriptions
-                if ($SkipSubscription) {
-                    $subscriptions = $subscriptions | Where-Object { $_.Id -notin $SkipSubscription }
-                }
                 if ($managementgroups) {
                     # Process managementGroup scope in parallel
                     $managementgroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
