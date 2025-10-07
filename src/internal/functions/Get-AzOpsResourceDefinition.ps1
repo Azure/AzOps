@@ -27,6 +27,8 @@
             Skip discovery of specific resource types.
         .PARAMETER SkipRole
             Skip discovery of roles for better performance.
+        .PARAMETER SkipSubscription
+            Filter which Subscription IDs should be excluded from pull.
         .PARAMETER StatePath
             The root folder under which to write the resource json.
         .PARAMETER SubscriptionsToIncludeChildResource
@@ -86,6 +88,9 @@
         [switch]
         $SkipRole = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipRole'),
 
+        [string[]]
+        $SkipSubscription = (Get-PSFConfigValue -FullName 'AzOps.Core.SkipSubscription'),
+
         [Parameter(Mandatory = $false)]
         [string]
         $StatePath = (Get-PSFConfigValue -FullName 'AzOps.Core.State'),
@@ -131,13 +136,20 @@
         switch ($scopeObject.Type) {
             subscriptions {
                 Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsResourceDefinition.Subscription.Processing' -LogStringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
-                $subscriptions = Get-AzSubscription -SubscriptionId $scopeObject.Name | Where-Object { "/subscriptions/$($_.Id)" -in $script:AzOpsSubscriptions.id }
+                    $subscriptions = Get-AzSubscription -SubscriptionId $scopeObject.Name | Where-Object {
+                    "/subscriptions/$($_.Id)" -in $script:AzOpsSubscriptions.id -and
+                    $_.Id -notin $SkipSubscription
+                }
             }
             managementGroups {
                 Write-AzOpsMessage -LogLevel Important -LogString 'Get-AzOpsResourceDefinition.ManagementGroup.Processing' -LogStringValues $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup -Target $ScopeObject
                 $query = "resourcecontainers | where type == 'microsoft.management/managementgroups' | order by ['id'] asc"
                 $managementgroups = Search-AzOpsAzGraph -ManagementGroupName $scopeObject.Name -Query $query -ErrorAction Stop | Where-Object { $_.id -in $script:AzOpsAzManagementGroup.Id }
                 $subscriptions = Get-AzOpsNestedSubscription -Scope $scopeObject.Name
+                # Filter out skipped subscriptions
+                if ($SkipSubscription) {
+                    $subscriptions = $subscriptions | Where-Object { $_.Id -notin $SkipSubscription }
+                }
                 if ($managementgroups) {
                     # Process managementGroup scope in parallel
                     $managementgroups | Foreach-Object -ThrottleLimit (Get-PSFConfigValue -FullName 'AzOps.Core.ThrottleLimit') -Parallel {
@@ -225,7 +237,10 @@
         else {
             $query = "resourcecontainers | where type == 'microsoft.resources/subscriptions/resourcegroups' | where managedBy == '' | order by ['id'] asc"
             if ($SubscriptionsToIncludeResourceGroups -ne '*') {
-                $newSubscriptionsToIncludeResourceGroups = $subscriptions | Where-Object { $_.Id -in $SubscriptionsToIncludeResourceGroups }
+                $newSubscriptionsToIncludeResourceGroups = $subscriptions | Where-Object {
+                    $_.Id -in $SubscriptionsToIncludeResourceGroups -and
+                    $_.Id -notin $SkipSubscription
+                }
                 if ($newSubscriptionsToIncludeResourceGroups) {
                     $resourceGroups = Search-AzOpsAzGraph -Subscription $newSubscriptionsToIncludeResourceGroups -Query $query -ErrorAction Stop
                 }

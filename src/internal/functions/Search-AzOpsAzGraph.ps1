@@ -95,12 +95,10 @@
             $batchSize = 1000
             # Group subscriptions into batches to conform with graph limits
             $subscriptionBatch = $Subscription | Group-Object -Property { [math]::Floor($counter++ / $batchSize) }
-
             foreach ($group in $subscriptionBatch) {
                 $subscriptionIds = ($group.Group).Id -join ', '
                 $subscriptionCount = $group.Group.Count
                 Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.SubscriptionBatch' -LogStringValues $subscriptionCount, $subscriptionIds
-                
                 try {
                     $batchProcessing = $null
                     do {
@@ -112,8 +110,7 @@
                 catch {
                     # Batch failed - try each subscription individually to identify the problematic scope
                     Write-AzOpsMessage -LogLevel Warning -LogString 'Search-AzOpsAzGraph.Processing.SubscriptionBatch.Failed' -LogStringValues $subscriptionIds, $_.Exception.Message
-                    Write-AzOpsMessage -LogLevel Important -LogString 'Search-AzOpsAzGraph.Processing.SubscriptionBatch.RetryIndividually' -LogStringValues $subscriptionCount
-                    
+                    Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.SubscriptionBatch.RetryIndividually' -LogStringValues $subscriptionCount
                     foreach ($sub in $group.Group) {
                         try {
                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Subscription' -LogStringValues $sub.Name, $sub.Id
@@ -126,25 +123,64 @@
                         }
                         catch {
                             Write-AzOpsMessage -LogLevel Error -LogString 'Search-AzOpsAzGraph.Processing.Subscription.Failed' -LogStringValues $Query, $sub.Name, $sub.Id, $_.Exception.Message
-                            
                             try {
                                 Write-AzOpsMessage -LogLevel Debug -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RetryWithRestApi' -LogStringValues $sub.Id
                                 $resourceGraphApiVersion = (($script:AzOpsResourceProvider | Where-Object {$_.ProviderNamespace -eq 'Microsoft.ResourceGraph'}).ResourceTypes | Where-Object {$_.ResourceTypeName -eq 'queries'}).ApiVersions | Select-Object -First 1
-                                # Initialize request body for first call
                                 $requestBody = @{
                                     subscriptions = @($sub.Id)
                                     query = $Query
                                 } | ConvertTo-Json -Depth 10
-                                
                                 $restApiResponse = $null
                                 do {
                                     $response = Invoke-AzRestMethod -Method POST -Path "/providers/Microsoft.ResourceGraph/resources?api-version=$resourceGraphApiVersion" -Payload $requestBody -ErrorAction Stop
-                                    
                                     if ($response.StatusCode -eq 200) {
-                                        $restApiResponse = $response.Content | ConvertFrom-Json -Depth 100 -ErrorAction Stop
+                                        try {
+                                            $restApiResponse = $response.Content | ConvertFrom-Json -Depth 100 -ErrorAction Stop
+                                        }
+                                        catch {
+                                            # Fallback to hashtable for empty string property names
+                                            try {
+                                                #Write-AzOpsMessage -LogLevel Debug -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RetryAsHashtable' -LogStringValues $sub.Id
+                                                $restApiResponse = $response.Content | ConvertFrom-Json -Depth 100 -AsHashtable -ErrorAction Stop
+                                                # Identify which resource caused the need for -AsHashtable
+                                                if ($restApiResponse['data']) {
+                                                    # Store skipToken before processing
+                                                    $originalSkipToken = $restApiResponse['$skipToken']
+                                                    $cleanData = [System.Collections.Generic.List[object]]::new()
+                                                    foreach ($resource in $restApiResponse['data']) {
+                                                        # Check if resource contains empty string keys by converting to JSON and checking
+                                                        $resourceJson = $resource | ConvertTo-Json -Depth 100 -Compress
+                                                        if ($resourceJson -match '"":\s*[^,}]') {
+                                                            $id = $resource['id']
+                                                            Write-AzOpsMessage -LogLevel Warning -LogString 'Search-AzOpsAzGraph.Processing.Subscription.EmptyStringKeyDetected' -LogStringValues $id
+                                                            # Skip this resource - don't add it to cleaned data
+                                                            continue
+                                                        }
+                                                        # Add valid resources to the cleaned list
+                                                        $cleanData.Add($resource)
+                                                    }
+                                                    # Convert hashtable back to PSCustomObject structure
+                                                    $restApiResponse = [PSCustomObject]@{
+                                                        data = $cleanData | ForEach-Object { $_ | ConvertTo-Json -Depth 100 | ConvertFrom-Json -Depth 100 }
+                                                        totalRecords = $restApiResponse['totalRecords']
+                                                        count = $cleanData.Count
+                                                        facets = $restApiResponse['facets']
+                                                    }
+
+                                                    # Restore skipToken if it existed
+                                                    if ($originalSkipToken) {
+                                                        $restApiResponse | Add-Member -MemberType NoteProperty -Name '$skipToken' -Value $originalSkipToken
+                                                    }
+                                                }
+                                            }
+                                            catch {
+                                                Write-AzOpsMessage -LogLevel Error -LogString 'Search-AzOpsAzGraph.Processing.Subscription.JsonParseFailed' -LogStringValues $Query, $sub.Id, $_.Exception.Message
+                                                # Skip to next subscription
+                                            }
+                                        }
                                         
                                         if ($restApiResponse.data) {
-                                            Write-AzOpsMessage -LogLevel Important -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess' -LogStringValues $sub.Id, $restApiResponse.data.Count
+                                            Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess' -LogStringValues $sub.Id, $restApiResponse.data.Count
                                             $results.AddRange($restApiResponse.data)
                                         }
                                         
@@ -162,7 +198,6 @@
                                     else {
                                         # Log the raw error response for analysis
                                         Write-AzOpsMessage -LogLevel Error -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RestApiFailed' -LogStringValues $sub.Id, $response.StatusCode, $response.Content
-                                        
                                         # Attempt to parse error details
                                         try {
                                             $errorContent = $response.Content | ConvertFrom-Json -ErrorAction Stop
@@ -188,7 +223,7 @@
                 }
             }
         }
-        
+
         if ($results) {
             $providerLookup = @{}
             foreach ($ResourceProvider in $script:AzOpsResourceProvider) {

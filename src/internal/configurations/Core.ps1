@@ -25,6 +25,7 @@ Set-PSFConfig -Module AzOps -Name Core.SkipResource -Value $true -Initialize -Va
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceGroup -Value $false -Initialize -Validation bool -Description 'Global flag to indicate whether resource group should be discovered or not'
 Set-PSFConfig -Module AzOps -Name Core.SkipResourceType -Value @('Microsoft.VSOnline/plans', 'Microsoft.PowerPlatform/accounts', 'Microsoft.PowerPlatform/enterprisePolicies') -Initialize -Validation stringarray -Description 'Global flag to skip discovery of specific Resource types.'
 Set-PSFConfig -Module AzOps -Name Core.SkipRole -Value $false -Initialize -Validation bool -Description '-'
+Set-PSFConfig -Module AzOps -Name Core.SkipSubscription -Value @('*') -Initialize -Validation stringarray -Description 'Skip Subscription ID that matches the filter.'
 Set-PSFConfig -Module AzOps -Name Core.State -Value (Join-Path $pwd -ChildPath "root") -Initialize -Validation string -Description 'Folder to store AzOpsState artefact'
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeChildResource -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup, SkipResource and SkipChildResource to be false. Subscription ID that matches the filter.'
 Set-PSFConfig -Module AzOps -Name Core.SubscriptionsToIncludeResourceGroups -Value @('*') -Initialize -Validation stringarray -Description 'Requires SkipResourceGroup to be false. Subscription ID that matches the filter.'

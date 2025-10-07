@@ -350,7 +350,9 @@
     'Search-AzOpsAzGraph.Processing.ManagementGroup'                                = 'AzGraph processing query at managementGroup: [{0}]' # $ManagementGroupName
     'Search-AzOpsAzGraph.Processing.ManagementGroup.Failed'                         = 'Failed AzGraph processing query: [{0}] at managementGroup: [{1}] with: {2}' # $Query, $ManagementGroupName, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription'                                   = 'AzGraph processing query at subscription: [{0}({1})]' # $sub.Name, $sub.Id
+    'Search-AzOpsAzGraph.Processing.Subscription.EmptyStringKeyDetected'            = 'Failed AzGraph processing of resource: [{0}] with missing key name, excluding resource from processing' # $id
     'Search-AzOpsAzGraph.Processing.Subscription.Failed'                            = 'Failed AzGraph processing query: [{0}] at subscription: [{1}({2})] with: {3}' # $Query, $sub.Name, $sub.Id,  $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription.JsonParseFailed'                   = 'Failed AzGraph processing query: [{0}] at subscription: [{1}] with: {2}' # $Query, $sub.Id, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription.RetryWithRestApi'                  = 'Retrying Microsoft.ResourceGraph query at subscription [{0}] using REST API for additional diagnostics' # $sub.Id
     'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess'                    = 'Microsoft.ResourceGraph REST API query succeeded for subscription [{0}] with [{1}] results' # $sub.Id, $responseContent.data.Count
     'Search-AzOpsAzGraph.Processing.Subscription.RestApiFailed'                     = 'Microsoft.ResourceGraph REST API query failed for subscription [{0}] with status [{1}]: {2}' # $sub.Id, $response.StatusCode, $response.Content
