@@ -66,8 +66,7 @@
             try {
                 do {
                     $tenantProcessing = Search-AzGraph -UseTenantScope -Query $Query -AllowPartialScope -SkipToken $tenantProcessing.SkipToken -ErrorAction Stop
-                    if ($tenantProcessing -and $tenantProcessing -is [array]) { $results.AddRange($tenantProcessing) }
-                    elseif ($tenantProcessing) { $results.Add($tenantProcessing) }
+                    if ($tenantProcessing) { $results.AddRange($tenantProcessing) }
                 }
                 while ($tenantProcessing.SkipToken)
             }
@@ -81,8 +80,7 @@
             try {
                 do {
                     $mgProcessing = Search-AzGraph -ManagementGroup $ManagementGroupName -Query $Query -AllowPartialScope -SkipToken $mgProcessing.SkipToken -ErrorAction Stop
-                    if ($mgProcessing -and $mgProcessing -is [array]) { $results.AddRange($mgProcessing) }
-                    elseif ($mgProcessing) { $results.Add($mgProcessing) }
+                    if ($mgProcessing) { $results.AddRange($mgProcessing) }
                 }
                 while ($mgProcessing.SkipToken)
             }
@@ -105,8 +103,7 @@
                     $batchProcessing = $null
                     do {
                         $batchProcessing = Search-AzGraph -Subscription ($group.Group).Id -Query $Query -SkipToken $batchProcessing.SkipToken -ErrorAction Stop
-                        if ($batchProcessing -and $batchProcessing -is [array]) { $results.AddRange($batchProcessing) }
-                        elseif ($batchProcessing) { $results.Add($batchProcessing) }
+                        if ($batchProcessing) { $results.AddRange($batchProcessing) }
                     }
                     while ($batchProcessing.SkipToken)
                 }
@@ -120,8 +117,7 @@
                             $subProcessing = $null
                             do {
                                 $subProcessing = Search-AzGraph -Subscription $sub.Id -Query $Query -SkipToken $subProcessing.SkipToken -ErrorAction Stop
-                                if ($subProcessing -and $subProcessing -is [array]) { $results.AddRange($subProcessing) }
-                                elseif ($subProcessing) { $results.Add($subProcessing) }
+                                if ($subProcessing) { $results.AddRange($subProcessing) }
                             }
                             while ($subProcessing.SkipToken)
                         }
@@ -188,8 +184,7 @@
                                         }
                                         if ($restApiResponse.data) {
                                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess' -LogStringValues $sub.Id, $restApiResponse.data.Count
-                                            if ($restApiResponse.data -is [array]) { $results.AddRange($restApiResponse.data) }
-                                            else { $results.Add($restApiResponse.data) }
+                                            $results.AddRange($restApiResponse.data)
                                         }
                                         # Prepare next page request if skipToken exists
                                         if ($restApiResponse.'$skipToken') {
