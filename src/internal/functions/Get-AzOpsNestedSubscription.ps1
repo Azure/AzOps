@@ -26,13 +26,11 @@
         if ($children) {
             $subscriptionIds = @()
             foreach ($child in $children) {
-                if (($child.Type -eq '/subscriptions') -and ($script:AzOpsSubscriptions.id -contains $child.Id)) {
-                    if ($child.Name -notin $SkipSubscription) {
-                        $subscriptionIds += [PSCustomObject] @{
-                            Name = $child.DisplayName
-                            Id = $child.Name
-                            Type = $child.Type
-                        }
+                if (($child.Type -eq '/subscriptions') -and ($script:AzOpsSubscriptions.id -contains $child.Id) -and ($child.Name -notin $SkipSubscription)) {
+                    $subscriptionIds += [PSCustomObject] @{
+                        Name = $child.DisplayName
+                        Id = $child.Name
+                        Type = $child.Type
                     }
                 }
                 else {

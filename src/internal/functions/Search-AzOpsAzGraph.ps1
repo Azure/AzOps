@@ -66,7 +66,8 @@
             try {
                 do {
                     $tenantProcessing = Search-AzGraph -UseTenantScope -Query $Query -AllowPartialScope -SkipToken $tenantProcessing.SkipToken -ErrorAction Stop
-                    if ($tenantProcessing) { $results.AddRange($tenantProcessing) }
+                    if ($tenantProcessing -and $tenantProcessing -is [array]) { $results.AddRange($tenantProcessing) }
+                    elseif ($tenantProcessing) { $results.Add($tenantProcessing) }
                 }
                 while ($tenantProcessing.SkipToken)
             }
@@ -80,7 +81,8 @@
             try {
                 do {
                     $mgProcessing = Search-AzGraph -ManagementGroup $ManagementGroupName -Query $Query -AllowPartialScope -SkipToken $mgProcessing.SkipToken -ErrorAction Stop
-                    if ($mgProcessing) { $results.AddRange($mgProcessing) }
+                    if ($mgProcessing -and $mgProcessing -is [array]) { $results.AddRange($mgProcessing) }
+                    elseif ($mgProcessing) { $results.Add($mgProcessing) }
                 }
                 while ($mgProcessing.SkipToken)
             }
@@ -103,7 +105,8 @@
                     $batchProcessing = $null
                     do {
                         $batchProcessing = Search-AzGraph -Subscription ($group.Group).Id -Query $Query -SkipToken $batchProcessing.SkipToken -ErrorAction Stop
-                        if ($batchProcessing) { $results.AddRange($batchProcessing) }
+                        if ($batchProcessing -and $batchProcessing -is [array]) { $results.AddRange($batchProcessing) }
+                        elseif ($batchProcessing) { $results.Add($batchProcessing) }
                     }
                     while ($batchProcessing.SkipToken)
                 }
@@ -117,7 +120,8 @@
                             $subProcessing = $null
                             do {
                                 $subProcessing = Search-AzGraph -Subscription $sub.Id -Query $Query -SkipToken $subProcessing.SkipToken -ErrorAction Stop
-                                if ($subProcessing) { $results.AddRange($subProcessing) }
+                                if ($subProcessing -and $subProcessing -is [array]) { $results.AddRange($subProcessing) }
+                                elseif ($subProcessing) { $results.Add($subProcessing) }
                             }
                             while ($subProcessing.SkipToken)
                         }
@@ -140,8 +144,12 @@
                                         catch {
                                             # Fallback to hashtable for empty string property names
                                             try {
-                                                #Write-AzOpsMessage -LogLevel Debug -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RetryAsHashtable' -LogStringValues $sub.Id
                                                 $restApiResponse = $response.Content | ConvertFrom-Json -Depth 100 -AsHashtable -ErrorAction Stop
+                                                # Validate response structure
+                                                if (-not $restApiResponse.ContainsKey('data')) {
+                                                    Write-AzOpsMessage -LogLevel Warning -LogString 'Search-AzOpsAzGraph.Processing.Subscription.InvalidRestApiResponse' -LogStringValues $requestBody, $_.Exception.Message
+                                                    break
+                                                }
                                                 # Identify which resource caused the need for -AsHashtable
                                                 if ($restApiResponse['data']) {
                                                     # Store skipToken before processing
@@ -178,12 +186,11 @@
                                                 # Skip to next subscription
                                             }
                                         }
-                                        
                                         if ($restApiResponse.data) {
                                             Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess' -LogStringValues $sub.Id, $restApiResponse.data.Count
-                                            $results.AddRange($restApiResponse.data)
+                                            if ($restApiResponse.data -is [array]) { $results.AddRange($restApiResponse.data) }
+                                            else { $results.Add($restApiResponse.data) }
                                         }
-                                        
                                         # Prepare next page request if skipToken exists
                                         if ($restApiResponse.'$skipToken') {
                                             $requestBody = @{
@@ -229,7 +236,7 @@
             foreach ($ResourceProvider in $script:AzOpsResourceProvider) {
                 foreach ($ResourceTypeName in $ResourceProvider.ResourceTypes.ResourceTypeName) {
                     # Use lowercase key for case-insensitive matching
-                    $key = "$($ResourceProvider.ProviderNamespace)/$ResourceTypeName".ToLower()
+                    $key = "$($ResourceProvider.ProviderNamespace)/$ResourceTypeName".ToLower([System.Globalization.CultureInfo]::InvariantCulture)
                     $providerLookup[$key] = @{
                         Namespace = $ResourceProvider.ProviderNamespace
                         TypeName = $ResourceTypeName
@@ -240,7 +247,7 @@
             $resultsType = [System.Collections.Generic.List[object]]::new()
             foreach ($result in $results) {
                 # Process each graph result and normalize ProviderNamespace casing using hashtable lookup
-                $resultTypeKey = $result.type.ToLower()
+                $resultTypeKey = $result.type.ToLower([System.Globalization.CultureInfo]::InvariantCulture)
                 if ($providerLookup.ContainsKey($resultTypeKey)) {
                     # Reconstruct the type with correct casing from the lookup
                     $result.type = "$($providerLookup[$resultTypeKey].Namespace)/$($providerLookup[$resultTypeKey].TypeName)"

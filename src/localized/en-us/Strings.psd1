@@ -351,6 +351,7 @@
     'Search-AzOpsAzGraph.Processing.ManagementGroup.Failed'                         = 'Failed AzGraph processing query: [{0}] at managementGroup: [{1}] with: {2}' # $Query, $ManagementGroupName, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription'                                   = 'AzGraph processing query at subscription: [{0}({1})]' # $sub.Name, $sub.Id
     'Search-AzOpsAzGraph.Processing.Subscription.EmptyStringKeyDetected'            = 'Failed AzGraph processing of resource: [{0}] with missing key name, excluding resource from processing' # $id
+    'Search-AzOpsAzGraph.Processing.Subscription.InvalidRestApiResponse'            = 'Failed AzGraph processing of request [{0}] with invalid REST API response (missing data): [{2}], excluding resource from processing' # $requestBody, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription.Failed'                            = 'Failed AzGraph processing query: [{0}] at subscription: [{1}({2})] with: {3}' # $Query, $sub.Name, $sub.Id,  $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription.JsonParseFailed'                   = 'Failed AzGraph processing query: [{0}] at subscription: [{1}] with: {2}' # $Query, $sub.Id, $_.Exception.Message
     'Search-AzOpsAzGraph.Processing.Subscription.RetryWithRestApi'                  = 'Retrying Microsoft.ResourceGraph query at subscription [{0}] using REST API for additional diagnostics' # $sub.Id
