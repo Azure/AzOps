@@ -241,6 +241,10 @@
             
             $resultsType = [System.Collections.Generic.List[object]]::new()
             foreach ($result in $results) {
+                # Add null check for result.type property
+                if (-not $result.type) {
+                    continue
+                }
                 # Process each graph result and normalize ProviderNamespace casing using hashtable lookup
                 $resultTypeKey = $result.type.ToLower([System.Globalization.CultureInfo]::InvariantCulture)
                 if ($providerLookup.ContainsKey($resultTypeKey)) {
