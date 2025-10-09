@@ -60,7 +60,7 @@
     process {
         Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing' -LogStringValues $Query
         $results = [System.Collections.Generic.List[object]]::new()
-        
+
         if ($UseTenantScope) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.UseTenantScope'
             try {
@@ -74,7 +74,7 @@
                 Write-AzOpsMessage -LogLevel Error -LogString 'Search-AzOpsAzGraph.Processing.UseTenantScope.Failed' -LogStringValues $Query, $_.Exception.Message
             }
         }
-        
+
         if ($ManagementGroupName) {
             Write-AzOpsMessage -LogLevel Verbose -LogString 'Search-AzOpsAzGraph.Processing.ManagementGroup' -LogStringValues $ManagementGroupName
             try {
@@ -88,13 +88,13 @@
                 Write-AzOpsMessage -LogLevel Error -LogString 'Search-AzOpsAzGraph.Processing.ManagementGroup.Failed' -LogStringValues $Query, $ManagementGroupName, $_.Exception.Message
             }
         }
-        
+
         if ($Subscription) {
             # Create a counter, set the batch size, and prepare a variable for the results
-            $counter = 0
+            $counter = [PSCustomObject] @{ Value = 0 }
             $batchSize = 1000
             # Group subscriptions into batches to conform with graph limits
-            $subscriptionBatch = $Subscription | Group-Object -Property { [math]::Floor($counter++ / $batchSize) }
+            $subscriptionBatch = $Subscription | Group-Object -Property { [math]::Floor($counter.Value++ / $batchSize) }
             foreach ($group in $subscriptionBatch) {
                 $subscriptionIds = ($group.Group).Id -join ', '
                 $subscriptionCount = $group.Group.Count
@@ -238,7 +238,7 @@
                     }
                 }
             }
-            
+
             $resultsType = [System.Collections.Generic.List[object]]::new()
             foreach ($result in $results) {
                 # Add null check for result.type property
