@@ -22,6 +22,7 @@ Describe "Repository" {
         $script:tenantId = $env:ARM_TENANT_ID
         $script:subscriptionId = $env:ARM_SUBSCRIPTION_ID
         $otherSubscription = Get-AzSubscription | Where-Object { $_.Id -ne $script:subscriptionId } | Sort-Object Name -Descending | Select-Object Id -First 2
+        $skipSubscription = Get-AzSubscription | Where-Object { $_.Id -ne $script:subscriptionId -and $_.Id -notin $otherSubscription.Id } | Sort-Object Name -Descending | Select-Object Id -First 1
 
         # Validate that the runtime variables are set as they are used to authenticate the Azure session.
 
@@ -201,6 +202,7 @@ Describe "Repository" {
         Set-PSFConfig -FullName AzOps.Core.State -Value $generatedRoot
         Set-PSFConfig -FullName AzOps.Core.SkipLock -Value $false
         Set-PSFConfig -FullName AzOps.Core.SkipChildResource -Value $false
+        Set-PSFConfig -FullName AzOps.Core.SkipSubscription -Value @($skipSubscription.Id)
         Set-PSFConfig -FullName AzOps.Core.DefaultDeploymentRegion -Value "northeurope"
         $deploymentLocationId = (Get-FileHash -Algorithm SHA256 -InputStream ([IO.MemoryStream]::new([byte[]][char[]](Get-PSFConfigValue -FullName 'AzOps.Core.DefaultDeploymentRegion')))).Hash.Substring(0, 4)
 
@@ -1363,6 +1365,7 @@ Describe "Repository" {
             Get-AzPolicyAssignment -Id $script:policyAssignmentsDeletion.Id -ErrorAction SilentlyContinue | Should -Be $Null
         }
         #endregion
+
         #region AzOps Managed DeploymentStacks
         It "Deploy and Delete AzOps Managed DeploymentStacks at Resource Group Scope" {
             Set-PSFConfig -FullName AzOps.Core.CustomTemplateResourceDeletion -Value $true
@@ -1455,6 +1458,27 @@ Describe "Repository" {
             foreach ($resource in $resources.Resources.Id) {
                 Get-AzResource -ResourceId $resource -ErrorAction SilentlyContinue | Should -Be $null
             }
+        }
+        #endregion
+
+        #region SkipSubscription Filter
+        It "Should have skipped subscription file present but no child resources" {
+            # Check that the skipped subscription file exists
+            $skippedSubscriptionFiles = $filePaths | Where-Object Name -eq "microsoft.subscription_subscriptions-$(($skipSubscription.Id).toLower()).json"
+            $skippedSubscriptionFiles.Count | Should -Be 1
+
+            # Get the directory of the skipped subscription
+            $skippedSubscriptionDirectory = ($skippedSubscriptionFiles).Directory
+
+            # Check that the directory exists
+            Test-Path -Path $skippedSubscriptionDirectory | Should -BeTrue
+
+            # Get all items in the subscription directory
+            $allItems = Get-ChildItem -Path $skippedSubscriptionDirectory -Recurse
+
+            # Should only have the subscription file itself, nothing else
+            $allItems.Count | Should -Be 1
+            $allItems[0].Name | Should -Be "microsoft.subscription_subscriptions-$(($skipSubscription.Id).toLower()).json"
         }
         #endregion
     }
