@@ -1481,6 +1481,35 @@ Describe "Repository" {
             $allItems[0].Name | Should -Be "microsoft.subscription_subscriptions-$(($skipSubscription.Id).toLower()).json"
         }
         #endregion
+
+        #region Scope - Broken Logic App Resource Group (./root/tenant root group/test/platform/management/subscription-0/BrokenLogicApp-azopsrg)
+        It "Broken Logic App Resource Group directory should exist" {
+            $script:resourceGroupBrokenLogicAppPath = ($filePaths | Where-Object Name -eq "microsoft.resources_resourcegroups-brokenlogicapp-azopsrg.json")
+            $script:resourceGroupBrokenLogicAppDirectory = ($script:resourceGroupBrokenLogicAppPath).Directory
+            $script:resourceGroupBrokenLogicAppFile = ($script:resourceGroupBrokenLogicAppPath).FullName
+            Test-Path -Path $script:resourceGroupBrokenLogicAppDirectory | Should -BeTrue
+        }
+
+        It "Broken Logic App Resource Group file should exist" {
+            Test-Path -Path $script:resourceGroupBrokenLogicAppFile | Should -BeTrue
+        }
+
+        It "Working Logic App should be present in pulled resources" {
+            $workingLogicAppPath = Get-ChildItem -Path $script:resourceGroupBrokenLogicAppDirectory -Recurse -Filter "*my-xworking-logic-app*.json"
+            $workingLogicAppPath | Should -Not -BeNullOrEmpty
+            $workingLogicAppPath.Count | Should -Be 1
+        }
+
+        It "Broken Logic App should NOT be present in pulled resources (excluded due to retry failure)" {
+            $brokenLogicAppPath = Get-ChildItem -Path $script:resourceGroupBrokenLogicAppDirectory -Recurse -Filter "*my-xbroken-logic-app*.json"
+            $brokenLogicAppPath | Should -BeNullOrEmpty
+        }
+
+        It "Should have exactly 2 files in BrokenLogicApp-azopsrg directory (Resource Group + Working Logic App)" {
+            $allFiles = Get-ChildItem -Path $script:resourceGroupBrokenLogicAppDirectory -Recurse -File
+            $allFiles.Count | Should -Be 2
+        }
+        #endregion
     }
 
     AfterAll {

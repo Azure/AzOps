@@ -576,6 +576,12 @@
                             "location": "northeurope"
                         },
                         {
+                            "type": "Microsoft.Resources/resourceGroups",
+                            "apiVersion": "2024-11-01",
+                            "name": "BrokenLogicApp-azopsrg",
+                            "location": "northeurope"
+                        },
+                        {
                             "type": "Microsoft.Authorization/roleAssignments",
                             "apiVersion": "2022-04-01",
                             "name": "[guid('RoleAssignmentTest')]",
@@ -854,6 +860,133 @@
                                             "name": "TestPolicyAssignment2",
                                             "properties": {
                                                 "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
+                                            }
+                                        }
+                                    ],
+                                    "outputs": {
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Resources/deployments",
+                            "apiVersion": "2024-11-01",
+                            "name": "BrokenLogicApp",
+                            "resourceGroup": "BrokenLogicApp-azopsrg",
+                            "dependsOn": [
+                                "BrokenLogicApp-azopsrg"
+                            ],
+                            "properties": {
+                                "mode": "Incremental",
+                                "expressionEvaluationOptions": {
+                                    "scope": "inner"
+                                },
+                                "template": {
+                                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "resources": [
+                                        {
+                                            "type": "Microsoft.Logic/workflows",
+                                            "apiVersion": "2019-05-01",
+                                            "name": "my-xbroken-logic-app",
+                                            "location": "swedencentral",
+                                            "properties": {
+                                                "state": "Enabled",
+                                                "definition": {
+                                                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                                                    "contentVersion": "1.0.0.0",
+                                                    "parameters": {
+                                                        "$connections": {
+                                                            "defaultValue": {},
+                                                            "type": "Object"
+                                                        }
+                                                    },
+                                                    "triggers": {
+                                                        "Recurrence": {
+                                                            "recurrence": {
+                                                                "interval": 3,
+                                                                "frequency": "Month",
+                                                                "timeZone": "Dateline Standard Time"
+                                                            },
+                                                            "evaluatedRecurrence": {
+                                                                "interval": 3,
+                                                                "frequency": "Month",
+                                                                "timeZone": "Dateline Standard Time"
+                                                            },
+                                                            "type": "Recurrence"
+                                                        }
+                                                    },
+                                                    "actions": {
+                                                        "Select": {
+                                                            "runAfter": {},
+                                                            "type": "Select",
+                                                            "inputs": {
+                                                                "from": "@guid()",
+                                                                "select": {
+                                                                    "": "valueofkey"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "outputs": {}
+                                                },
+                                                "parameters": {
+                                                    "$connections": {
+                                                        "value": {}
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "Microsoft.Logic/workflows",
+                                            "apiVersion": "2019-05-01",
+                                            "name": "my-xworking-logic-app",
+                                            "location": "swedencentral",
+                                            "properties": {
+                                                "state": "Enabled",
+                                                "definition": {
+                                                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                                                    "contentVersion": "1.0.0.0",
+                                                    "parameters": {
+                                                        "$connections": {
+                                                            "defaultValue": {},
+                                                            "type": "Object"
+                                                        }
+                                                    },
+                                                    "triggers": {
+                                                        "Recurrence": {
+                                                            "recurrence": {
+                                                                "interval": 3,
+                                                                "frequency": "Month",
+                                                                "timeZone": "Dateline Standard Time"
+                                                            },
+                                                            "evaluatedRecurrence": {
+                                                                "interval": 3,
+                                                                "frequency": "Month",
+                                                                "timeZone": "Dateline Standard Time"
+                                                            },
+                                                            "type": "Recurrence"
+                                                        }
+                                                    },
+                                                    "actions": {
+                                                        "Select": {
+                                                            "runAfter": {},
+                                                            "type": "Select",
+                                                            "inputs": {
+                                                                "from": "@guid()",
+                                                                "select": {
+                                                                    "keyname": "valueofkey"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "outputs": {}
+                                                },
+                                                "parameters": {
+                                                    "$connections": {
+                                                        "value": {}
+                                                    }
+                                                }
                                             }
                                         }
                                     ],
