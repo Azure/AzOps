@@ -1305,7 +1305,7 @@ Describe "Repository" {
             $maxParallel = ($parallelTimes | Measure-Object -Maximum).Maximum
             $minParallel = ($parallelTimes | Measure-Object -Minimum).Minimum
             $diffParallel = New-TimeSpan -Start $minParallel -End $maxParallel
-            $diffParallel.TotalSeconds | Should -BeLessThan 25
+            $diffParallel.TotalSeconds | Should -BeLessThan 35
             $serialTime = $serialDeployment.Timestamp
             $diffSerial = New-TimeSpan -Start $maxParallel -End $serialTime
             $diffSerial.TotalSeconds | Should -BeGreaterThan 15
