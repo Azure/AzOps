@@ -110,8 +110,8 @@
     'Get-AzOpsPolicyDefinition.Subscription'                                        = 'Retrieving custom policy definitions for {0} Subscription objects' # $Subscription.count
 
     'Get-AzOpsPolicyExemption.ManagementGroup'                                      = 'Retrieving Policy Exemption for Management Group {0} ({1})' # $ScopeObject.ManagementGroupDisplayName, $ScopeObject.ManagementGroup
-    'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group {0}' # $ScopeObject.ResourceGroup
-    'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for Subscription {0} ({1})' # $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription
+    'Get-AzOpsPolicyExemption.ResourceGroup'                                        = 'Retrieving Policy Exemption for Resource Group in {0} Subscription objects' # $Subscription.count
+    'Get-AzOpsPolicyExemption.Subscription'                                         = 'Retrieving Policy Exemption for {0} Subscription objects' # $Subscription.count
 
     'Get-AzOpsResource.Failed'                                                      = 'Failed retrieving resource with error: {0}' # $_
 
@@ -135,7 +135,7 @@
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery'                     = 'Searching for resources in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.Discovery.NotFound'            = 'No resources found in [{0}]' # $scopeObject.Name
     'Get-AzOpsResourceDefinition.Processing.Resource.SkippingNoResourceGroup'       = 'Skipping resource [{0}] at [{1}], null or empty ResourceGroup property. Cannot export resources' # $resource.name, $resource.id
-    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting' # $scopeObject.Name
+    'Get-AzOpsResourceDefinition.Processing.Resource.Warning'                       = 'Failed to get resources in [{0}]. Consider excluding the resource causing the failure with [Core.SkipResourceType] setting. Error message: [{1}]' # $scopeObject.Name, $_
     'Get-AzOpsResourceDefinition.SkippingResourceGroup'                             = 'SkipResourceGroup switch used, skipping resource Group discovery' #
     'Get-AzOpsResourceDefinition.SkippingResources'                                 = 'SkipResource switch used, skipping resource discovery.' #
     'Get-AzOpsResourceDefinition.Processing.ChildResource'                          = 'Processing resource [{0}] in resource Group [{1}]' # $resource.Name, $resourceGroup.ResourceGroupName
@@ -345,6 +345,24 @@
     'Save-AzOpsManagementGroupChild.Subscription.NotFound'                          = 'Unable to locate subscription: {0} within AzOpsSubscriptions object' #child.Name
 
     'Search-AzOpsAzGraph.Processing'                                                = 'AzGraph processing query: [{0}]' # $Query
+    'Search-AzOpsAzGraph.Processing.UseTenantScope'                                 = 'AzGraph processing query at tenantScope [/]' #
+    'Search-AzOpsAzGraph.Processing.UseTenantScope.Failed'                          = 'Failed AzGraph processing query: [{0}] at tenantScope [/] with: {1}' # $Query, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.ManagementGroup'                                = 'AzGraph processing query at managementGroup: [{0}]' # $ManagementGroupName
+    'Search-AzOpsAzGraph.Processing.ManagementGroup.Failed'                         = 'Failed AzGraph processing query: [{0}] at managementGroup: [{1}] with: {2}' # $Query, $ManagementGroupName, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription'                                   = 'AzGraph processing query at subscription: [{0}({1})]' # $sub.Name, $sub.Id
+    'Search-AzOpsAzGraph.Processing.Subscription.EmptyStringKeyDetected'            = 'Failed AzGraph processing of resource: [{0}] with missing key name, excluding resource from processing' # $id
+    'Search-AzOpsAzGraph.Processing.Subscription.InvalidRestApiResponse'            = 'Failed AzGraph processing of request [{0}] with invalid REST API response (missing data): [{2}], excluding resource from processing' # $requestBody, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription.Failed'                            = 'Failed AzGraph processing query: [{0}] at subscription: [{1}({2})] with: {3}' # $Query, $sub.Name, $sub.Id,  $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription.JsonParseFailed'                   = 'Failed AzGraph processing query: [{0}] at subscription: [{1}] with: {2}' # $Query, $sub.Id, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.Subscription.RetryWithRestApi'                  = 'Retrying Microsoft.ResourceGraph query at subscription [{0}] using REST API for additional diagnostics' # $sub.Id
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiSuccess'                    = 'Microsoft.ResourceGraph REST API query succeeded for subscription [{0}] with [{1}] results' # $sub.Id, $responseContent.data.Count
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiFailed'                     = 'Microsoft.ResourceGraph REST API query failed for subscription [{0}] with status [{1}]: {2}' # $sub.Id, $response.StatusCode, $response.Content
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiErrorDetails'               = 'Microsoft.ResourceGraph REST API error code [{0}]: {1}' # $errorContent.error.code, $errorContent.error.message
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiRawError'                   = 'Microsoft.ResourceGraph REST API raw error response: {0}' # $response.Content
+    'Search-AzOpsAzGraph.Processing.Subscription.RestApiException'                  = 'Microsoft.ResourceGraph REST API exception for query: [{0}] at subscription [{1}]: {2}' # $Query, $sub.Id, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch'                              = 'AzGraph processing query at {0} subscriptions: [{1}]' # $subscriptionCount, $subscriptionIds
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch.Failed'                       = 'Failed AzGraph processing query at subscriptions: [{0}] with: {1}' # $subscriptionIds, $_.Exception.Message
+    'Search-AzOpsAzGraph.Processing.SubscriptionBatch.RetryIndividually'            = 'Retrying AzGraph processing query of {0} subscriptions individually' # $subscriptionCount, $subscriptionIds
     'Search-AzOpsAzGraph.Processing.Done'                                           = 'AzGraph completed processing of query: [{0}]' # $Query
     'Search-AzOpsAzGraph.Processing.NoResult'                                       = 'AzGraph found nothing with query: [{0}]' # $Query
 

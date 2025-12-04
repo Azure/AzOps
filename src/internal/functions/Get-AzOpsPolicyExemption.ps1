@@ -48,17 +48,17 @@
         }
         if ($Subscription) {
             if ($SubscriptionsToIncludeResourceGroups -and $ResourceGroup) {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.Subscription' -LogStringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.Subscription' -LogStringValues $SubscriptionsToIncludeResourceGroups.count -Target $ScopeObject
                 $query = "policyresources | where type == 'microsoft.authorization/policyexemptions' and resourceGroup != '' | order by ['id'] asc"
                 Search-AzOpsAzGraph -Subscription $SubscriptionsToIncludeResourceGroups -Query $query -ErrorAction Stop
             }
             elseif ($ResourceGroup) {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.ResourceGroup' -LogStringValues $ScopeObject.ResourceGroup -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.ResourceGroup' -LogStringValues $Subscription.count -Target $ScopeObject
                 $query = "policyresources | where type == 'microsoft.authorization/policyexemptions' and resourceGroup != '' | order by ['id'] asc"
                 Search-AzOpsAzGraph -Subscription $Subscription -Query $query -ErrorAction Stop
             }
             else {
-                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.Subscription' -LogStringValues $ScopeObject.SubscriptionDisplayName, $ScopeObject.Subscription -Target $ScopeObject
+                Write-AzOpsMessage -LogLevel Debug -LogString 'Get-AzOpsPolicyExemption.Subscription' -LogStringValues $Subscription.count -Target $ScopeObject
                 $query = "policyresources | where type == 'microsoft.authorization/policyexemptions' and resourceGroup == '' | order by ['id'] asc"
                 Search-AzOpsAzGraph -Subscription $Subscription -Query $query -ErrorAction Stop
             }
