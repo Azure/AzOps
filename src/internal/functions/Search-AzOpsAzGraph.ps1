@@ -30,7 +30,7 @@
         [switch]
         $UseTenantScope,
         [Parameter(Mandatory = $false)]
-        [guid]
+        [string]
         $ManagementGroupName,
         [Parameter(Mandatory = $false)]
         [ValidateScript({
