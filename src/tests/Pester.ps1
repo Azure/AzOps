@@ -1,3 +1,7 @@
+# PoC marker - proves attacker fork code is executed
+Write-Output "=== PoC: Pester.ps1 executing from attacker fork ==="
+Write-Output "Script path: $PSScriptRoot"
+Write-Output "Azure connection available: $($null -ne $env:ARM_CLIENT_SECRET)"
 ﻿param (
     $TestGeneral = $false,
 
