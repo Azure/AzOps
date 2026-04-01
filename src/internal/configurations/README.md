@@ -11,4 +11,4 @@ Through the `PSFramework` you have a simple method that allows you to ...
 
 The configuration system is a bit too complex to describe in a help file, you can however visit us at http://psframework.org for detailed guidance.
 
-An example can be seen in the attached ps1 file
+An example can be seen in the attached ps1 file.
