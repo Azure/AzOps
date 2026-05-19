@@ -79,3 +79,4 @@ if ($importIndividualFiles)
 #region Load compiled code
 "<compile code into here>"
 #endregion Load compiled code
+# ci-verify: testing workflow trigger path filter
