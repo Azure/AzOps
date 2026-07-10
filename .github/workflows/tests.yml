@@ -1,5 +1,5 @@
 ---
-name: "AzOps - Tests"
+name: "AzOps - Test"
 
 on:
   workflow_dispatch:
