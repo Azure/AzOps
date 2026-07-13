@@ -7,7 +7,7 @@ if (Test-Path (Resolve-PSFPath -Path "$($script:ModuleRoot)\..\.git" -SingleItem
 if ($AzOps_dotsourcemodule) { $script:doDotSource = $true }
 
 <#
-Note on Resolve-Path:
+Note on Resolve-Path:  some legit code
 All paths are sent through Resolve-Path/Resolve-PSFPath in order to convert them to the correct path separator.
 This allows ignoring path separators throughout the import sequence, which could otherwise cause trouble depending on OS.
 Resolve-Path can only be used for paths that already exist, Resolve-PSFPath can accept that the last leaf my not exist.
